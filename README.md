@@ -1,5 +1,3 @@
 # solace_exporter
-Prometheus Solace Exporter
-- Bla
-- Blu
-- Bli
+Prometheus Exporter for Solace PubSub+<br/>
+Experimental Status<br/>
