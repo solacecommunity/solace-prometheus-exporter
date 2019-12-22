@@ -1,0 +1,70 @@
+In Ubuntu WSL shell
+cd /mnt/c/dev/prometheus/solace_exporter
+go build
+./solace_exporter --sol.uri="http://192.168.110.100:8080" --sol.user="admin" --sol.pass="admin" --sol.reset --sol.rates
+
+export SOLACE_WEB_LISTEN_ADDRESS=":9101"
+export SOLACE_SCRAPE_URI="http://192.168.110.100:8080"
+export SOLACE_USER="admin"
+export SOLACE_PASSWORD="admin"
+export SOLACE_SCRAPE_TIMEOUT="5s"
+export SOLACE_SSL_VERIFY="false"
+export SOLACE_RESET_STATS="true"
+export SOLACE_INCLUDE_RATES="true"
+./solace_exporter
+
+
+On Windows in gitbash shell
+cd /c/tools/prometheus
+./start.sh
+
+$ cat start.sh
+#!/bin/bash
+./prometheus --config.file=prometheus.yml
+
+
+Jobs in prometheus.yml
+...
+  - job_name: 'solace-prim'
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 10s
+
+    static_configs:
+    - targets: ['localhost:9101']
+
+  - job_name: 'solace-back'
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 10s
+
+    static_configs:
+    - targets: ['localhost:9102']
+	
+
+# Some sdkperf commands
+cd /c/tools/sol-sdkperf-c
+./sdkperf_c -cip=192.168.110.100,192.168.110.101 -pe -pql=queue -mt=persistent -mn=1000 -mr=100 -msa=1000000
+./sdkperf_c -cip=192.168.110.100,192.168.110.101 -pe -pql=queue -mt=persistent -mn=1000000 -mr=100000 -msa=16
+
+# Connection count = cc
+cd /c/tools/sol-sdkperf-c
+./sdkperf_c -cip=192.168.110.100,192.168.110.101 -ptl=a -stl=a -cc=500 -mn=1000000 -mr=1 -msa=16
+
+# Publish to topic, consume from queue
+./sdkperf_c -cip=192.168.110.100,192.168.110.101 -ptl=a -sql=a -cc=5 -mn=1000000 -mr=1 -msa=16
+
+# Reconnect count = rc
+cd /c/tools/sol-sdkperf-c
+./sdkperf_c -cip=192.168.110.100,192.168.110.101 -ptl=a -stl=a -mn=1000000 -mr=1 -msa=16 -rc=100 -md
+
+
+
+
+

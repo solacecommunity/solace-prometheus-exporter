@@ -1,0 +1,153 @@
+// 2 Samples (paged and non-paged) of SEMP2 calls
+
+// Get statistics of all vpn's
+func (e *Exporter) getVpnSemp2(ch chan<- prometheus.Metric) (ok float64) {
+	body, err := getHTTP(e.uri+"/SEMP/v2/monitor/msgVpns", e.sslVerify, e.timeout)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp2", "err", err)
+		return 0
+	}
+	defer body.Close()
+
+	bodyBytes, err := ioutil.ReadAll(body)
+
+	type VpnData struct {
+		Data []struct {
+			MsgVpnName string `json:"msgVpnName"`
+			Counters   struct {
+				DataRxByteCount     float64 `json:"dataRxByteCount"`
+				DataRxMsgCount      float64 `json:"dataRxMsgCount"`
+				DataTxByteCount     float64 `json:"dataTxByteCount"`
+				DataTxMsgCount      float64 `json:"dataTxMsgCount"`
+				DiscardedRxMsgCount float64 `json:"discardedRxMsgCount"`
+				DiscardedTxMsgCount float64 `json:"discardedTxMsgCount"`
+				MsgSpoolRxMsgCount  float64 `json:"msgSpoolRxMsgCount"`
+				MsgSpoolTxMsgCount  float64 `json:"msgSpoolTxMsgCount"`
+			} `json:"counter"`
+			Rates struct {
+				AverageRxByteRate float64 `json:"averageRxByteRate"`
+				AverageRxMsgRate  float64 `json:"averageRxMsgRate"`
+				AverageTxByteRate float64 `json:"averageTxByteRate"`
+				AverageTxMsgRate  float64 `json:"averageTxMsgRate"`
+				RxByteRate        float64 `json:"rxByteRate"`
+				RxMsgRate         float64 `json:"rxMsgRate"`
+				TxByteRate        float64 `json:"txByteRate"`
+				TxMsgRate         float64 `json:"txMsgRate"`
+			} `json:"rate"`
+		} `json:"data"`
+	}
+
+	var target VpnData
+	err2 := json.Unmarshal(bodyBytes, &target)
+	if err2 != nil {
+		level.Error(e.logger).Log("msg", "Can't unmarshal Json VpnSemp2", "err", err2)
+		return 0
+	}
+
+	e.vpnNames = nil
+	for _, vpn := range target.Data {
+		e.vpnNames = append(e.vpnNames, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_rx_msg_count"], prometheus.GaugeValue, vpn.Counters.DataRxMsgCount, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_tx_msg_count"], prometheus.GaugeValue, vpn.Counters.DataTxMsgCount, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_rx_byte_count"], prometheus.GaugeValue, vpn.Counters.DataRxByteCount, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_tx_byte_count"], prometheus.GaugeValue, vpn.Counters.DataTxByteCount, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_rx_discard_msg_count"], prometheus.GaugeValue, vpn.Counters.DiscardedRxMsgCount, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_tx_discard_msg_count"], prometheus.GaugeValue, vpn.Counters.DiscardedTxMsgCount, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_rx_spool_msg_count"], prometheus.GaugeValue, vpn.Counters.MsgSpoolRxMsgCount, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_tx_spool_msg_count"], prometheus.GaugeValue, vpn.Counters.MsgSpoolTxMsgCount, vpn.MsgVpnName)
+
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_rx_msg_rate"], prometheus.GaugeValue, vpn.Rates.RxMsgRate, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_tx_msg_rate"], prometheus.GaugeValue, vpn.Rates.TxMsgRate, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_rx_byte_rate"], prometheus.GaugeValue, vpn.Rates.RxByteRate, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_tx_byte_rate"], prometheus.GaugeValue, vpn.Rates.TxByteRate, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_rx_msg_rate_avg"], prometheus.GaugeValue, vpn.Rates.AverageRxMsgRate, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_tx_msg_rate_avg"], prometheus.GaugeValue, vpn.Rates.AverageTxMsgRate, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_rx_byte_rate_avg"], prometheus.GaugeValue, vpn.Rates.AverageRxByteRate, vpn.MsgVpnName)
+		ch <- prometheus.MustNewConstMetric(serverMetrics["vpn_data_tx_byte_rate_avg"], prometheus.GaugeValue, vpn.Rates.AverageTxByteRate, vpn.MsgVpnName)
+	}
+
+	return 1
+}
+
+// Get some statistics for each indivitual client of all vpn's
+// This can result in heavy system load for lots of clients
+func (e *Exporter) getClientSemp2(ch chan<- prometheus.Metric) (ok float64) {
+
+	for _, vpn := range e.vpnNames {
+		for nextURI := e.uri + "/SEMP/v2/monitor/msgVpns/" + url.PathEscape(vpn) + "/clients?count=100"; nextURI != ""; {
+			body, err := getHTTP(nextURI, e.sslVerify, e.timeout)
+			if err != nil {
+				level.Error(e.logger).Log("msg", "Can't scrape ClientSemp2", "err", err)
+				return 0
+			}
+			defer body.Close()
+
+			bodyBytes, err := ioutil.ReadAll(body)
+
+			type Data struct {
+				Data []struct {
+					ClientName     string  `json:"clientName"`
+					ClientUsername string  `json:"clientUsername"`
+					MsgVpnName     string  `json:"msgVpnName"`
+					SlowSubscriber bool    `json:"slowSubscriber"`
+					Uptime         float64 `json:"uptime"`
+					Counters       struct {
+						DataRxByteCount     float64 `json:"dataRxByteCount"`
+						DataRxMsgCount      float64 `json:"dataRxMsgCount"`
+						DataTxByteCount     float64 `json:"dataTxByteCount"`
+						DataTxMsgCount      float64 `json:"dataTxMsgCount"`
+						DiscardedRxMsgCount float64 `json:"discardedRxMsgCount"`
+						DiscardedTxMsgCount float64 `json:"discardedTxMsgCount"`
+					} `json:"counter"`
+					Rates struct {
+						AverageRxByteRate float64 `json:"averageRxByteRate"`
+						AverageRxMsgRate  float64 `json:"averageRxMsgRate"`
+						AverageTxByteRate float64 `json:"averageTxByteRate"`
+						AverageTxMsgRate  float64 `json:"averageTxMsgRate"`
+						RxByteRate        float64 `json:"rxByteRate"`
+						RxMsgRate         float64 `json:"rxMsgRate"`
+						TxByteRate        float64 `json:"txByteRate"`
+						TxMsgRate         float64 `json:"txMsgRate"`
+					} `json:"rate"`
+				} `json:"data"`
+				Meta struct {
+					Paging struct {
+						NextPageURI string `json:"nextPageUri"`
+					} `json:"paging"`
+				} `json:"meta"`
+			}
+
+			var target Data
+			err2 := json.Unmarshal(bodyBytes, &target)
+			if err2 != nil {
+				level.Error(e.logger).Log("msg", "Can't unmarshal Json ClientSemp2", "err", err2)
+				return 0
+			}
+
+			nextURI = target.Meta.Paging.NextPageURI
+
+			for _, client := range target.Data {
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_rx_msg_count"], prometheus.GaugeValue, client.Counters.DataRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_tx_msg_count"], prometheus.GaugeValue, client.Counters.DataTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_rx_byte_count"], prometheus.GaugeValue, client.Counters.DataRxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_tx_byte_count"], prometheus.GaugeValue, client.Counters.DataTxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_rx_discard_msg_count"], prometheus.GaugeValue, client.Counters.DiscardedRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_tx_discard_msg_count"], prometheus.GaugeValue, client.Counters.DiscardedTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_rx_msg_rate"], prometheus.GaugeValue, client.Rates.RxMsgRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_tx_msg_rate"], prometheus.GaugeValue, client.Rates.TxMsgRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_rx_byte_rate"], prometheus.GaugeValue, client.Rates.RxByteRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_tx_byte_rate"], prometheus.GaugeValue, client.Rates.TxByteRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_rx_msg_rate_avg"], prometheus.GaugeValue, client.Rates.AverageRxMsgRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_tx_msg_rate_avg"], prometheus.GaugeValue, client.Rates.AverageTxMsgRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_rx_byte_rate_avg"], prometheus.GaugeValue, client.Rates.AverageRxByteRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_data_tx_byte_rate_avg"], prometheus.GaugeValue, client.Rates.AverageTxByteRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
+
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, client.ClientUsername)
+				ch <- prometheus.MustNewConstMetric(serverMetrics["client_uptime_s"], prometheus.GaugeValue, client.Uptime, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			}
+		}
+	}
+
+	return 1
+}
