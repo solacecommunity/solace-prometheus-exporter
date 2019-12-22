@@ -7,7 +7,7 @@ The exporter is written in go, based on the Solace Legacy SEMP protocol. It has 
 <pre><code>
 .../            HTML page with endpoints
 .../metrics     Golang and standard Prometheus stuff
-.../solace_std  Solace metrics for System and VPN
+.../solace_std  Solace metrics for System and VPN levels
 .../solace_det  Solace metrics for all individual Clients and Queues
                 (Can degrade system performance, test before use it in prod)
 </code></pre>
@@ -36,16 +36,17 @@ Flags:
 <pre><code>cd &lt;solace-exporter-directory&gt;
 go build
 </code></pre>
-### Static Build for Linux 64 for Docker
+### Static Build for Linux amd64 to run in Docker
 <pre><code>cd &lt;solace-exporter-directory&gt;
 CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-extldflags "-static"'
 </code></pre>
 ### Create Docker Image
+A sample Dockerfile based on amd64/busybox is included in the repository.
 <pre><code>cd &lt;solace-exporter-directory&gt;
 docker build --tag solace_exporter .
 </code></pre>
 ### Create Docker Container
-The exporter can be configured by environment variables to facilitate running in Docker. A sample Dockerfile based on 64 bit busybox is included in the repository.
+The exporter can be configured by environment variables to facilitate running in Docker.
 <pre><code>cd &lt;solace-exporter-directory&gt;
 docker create \
  -p 9101:9101 \
@@ -63,3 +64,4 @@ docker create \
 
 ## Bonus Material
 The sub directory **testfiles** contains some sample curl commands and their outputs. This is just fyi and not needed for building.
+
