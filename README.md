@@ -7,8 +7,8 @@ The exporter is written in go, based on the Solace Legacy SEMP protocol. It has 
 <pre><code>
 .../            HTML page with endpoints
 .../metrics     Golang and standard Prometheus stuff
-.../solace_std  Solace metrics for System and VPN levels
-.../solace_det  Solace metrics for all individual Clients and Queues
+.../solace-std  Solace metrics for System and VPN levels
+.../solace-det  Solace metrics for all individual Clients and Queues
                 (Can degrade system performance, test before use it in prod)
 </code></pre>
 ## Usage
