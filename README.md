@@ -1,3 +1,3 @@
 # solace_exporter
-Prometheus Exporter for Solace PubSub+
-Experimental Status
+Prometheus Exporter for Solace PubSub+<br/>
+Experimental Status<br/>
