@@ -19,7 +19,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -296,9 +295,6 @@ func postHTTP(uri string, sslVerify bool, timeout time.Duration, contentType str
 
 // Reset a stats item via SEMP1
 func (e *Exporter) resetStatsItemSemp1(bodyString string) (ok bool) {
-	var err error
-	var body io.ReadCloser
-	var bodyBytes []byte
 
 	type Data struct {
 		ExecuteResult struct {
@@ -306,24 +302,23 @@ func (e *Exporter) resetStatsItemSemp1(bodyString string) (ok bool) {
 		} `xml:"execute-result"`
 	}
 
-	body, err = postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", bodyString)
+	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", bodyString)
 	if err != nil {
 		level.Error(e.logger).Log("command", bodyString, "err", err)
 		return false
 	}
 
-	bodyBytes, err = ioutil.ReadAll(body)
-	body.Close()
-
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
 	var target Data
-	err = xml.Unmarshal(bodyBytes, &target)
+	err = decoder.Decode(&target)
 	if err != nil {
 		level.Error(e.logger).Log("command", bodyString, "err", err)
 		return false
 	}
 
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", bodyString, "err", string(bodyBytes))
+		level.Error(e.logger).Log("command", bodyString)
 		return false
 	}
 
@@ -359,16 +354,6 @@ func (e *Exporter) resetStatsSemp1() (ok bool) {
 func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) {
 	var f float64
 
-	command := "<rpc><show><redundancy/></show></rpc>"
-	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
-	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape RedundancySemp1", "err", err)
-		return 0
-	}
-	defer body.Close()
-
-	bodyBytes, err := ioutil.ReadAll(body)
-
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -397,14 +382,22 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) 
 		} `xml:"execute-result"`
 	}
 
+	command := "<rpc><show><redundancy/></show></rpc>"
+	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't scrape RedundancySemp1", "err", err)
+		return 0
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
 	var target Data
-	err2 := xml.Unmarshal(bodyBytes, &target)
+	err2 := decoder.Decode(&target)
 	if err2 != nil {
-		level.Error(e.logger).Log("msg", "Can't unmarshal Xml RedundancySemp1", "err", err2)
+		level.Error(e.logger).Log("msg", "Can't decode Xml RedundancySemp1", "err", err2)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command, "err", string(bodyBytes))
+		level.Error(e.logger).Log("command", command)
 		return 0
 	}
 
@@ -425,15 +418,6 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) 
 
 // Get system-wide spool information
 func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
-	command := "<rpc><show><message-spool></message-spool></show ></rpc>"
-	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
-	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape Solace", "err", err)
-		return 0
-	}
-	defer body.Close()
-
-	bodyBytes, err := ioutil.ReadAll(body)
 
 	type Data struct {
 		RPC struct {
@@ -453,14 +437,22 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		} `xml:"execute-result"`
 	}
 
+	command := "<rpc><show><message-spool></message-spool></show ></rpc>"
+	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't scrape Solace", "err", err)
+		return 0
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
 	var target Data
-	err2 := xml.Unmarshal(bodyBytes, &target)
+	err2 := decoder.Decode(&target)
 	if err2 != nil {
-		level.Error(e.logger).Log("msg", "Can't unmarshal Xml", "err", err2)
+		level.Error(e.logger).Log("msg", "Can't decode Xml", "err", err2)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command, "err", string(bodyBytes))
+		level.Error(e.logger).Log("command", command)
 		return 0
 	}
 
@@ -479,15 +471,6 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
 // Get system health information
 func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64) {
-	command := "<rpc><show><system><health/></system></show ></rpc>"
-	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
-	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape HealthSemp1", "err", err)
-		return 0
-	}
-	defer body.Close()
-
-	bodyBytes, err := ioutil.ReadAll(body)
 
 	type Data struct {
 		RPC struct {
@@ -515,14 +498,22 @@ func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		} `xml:"execute-result"`
 	}
 
+	command := "<rpc><show><system><health/></system></show ></rpc>"
+	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't scrape HealthSemp1", "err", err)
+		return 0
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
 	var target Data
-	err2 := xml.Unmarshal(bodyBytes, &target)
+	err2 := decoder.Decode(&target)
 	if err2 != nil {
-		level.Error(e.logger).Log("msg", "Can't unmarshal Xml HealthSemp1", "err", err2)
+		level.Error(e.logger).Log("msg", "Can't decode Xml HealthSemp1", "err", err2)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command, "err", string(bodyBytes))
+		level.Error(e.logger).Log("command", command)
 		return 0
 	}
 
@@ -542,17 +533,8 @@ func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	return 1
 }
 
-// Get status and number of connected clients of all vpn's
+// Get status and number of connected clients of all vpn's, and some data stats and rates
 func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
-	command := "<rpc><show><message-vpn><vpn-name>*</vpn-name><stats/></message-vpn></show></rpc>"
-	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
-	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err)
-		return 0
-	}
-	defer body.Close()
-
-	bodyBytes, err := ioutil.ReadAll(body)
 
 	type Data struct {
 		RPC struct {
@@ -591,14 +573,22 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		} `xml:"execute-result"`
 	}
 
+	command := "<rpc><show><message-vpn><vpn-name>*</vpn-name><stats/></message-vpn></show></rpc>"
+	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err)
+		return 0
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
 	var target Data
-	err2 := xml.Unmarshal(bodyBytes, &target)
+	err2 := decoder.Decode(&target)
 	if err2 != nil {
-		level.Error(e.logger).Log("msg", "Can't unmarshal Xml VpnSemp1", "err", err2)
+		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err2)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command, "err", string(bodyBytes))
+		level.Error(e.logger).Log("command", command)
 		return 0
 	}
 
@@ -632,6 +622,49 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 // This can result in heavy system load for lots of clients
 func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Client struct {
+					PrimaryVirtualRouter struct {
+						Client []struct {
+							ClientName     string `xml:"name"`
+							ClientUsername string `xml:"client-username"`
+							MsgVpnName     string `xml:"message-vpn"`
+							SlowSubscriber bool   `xml:"slow-subscriber"`
+							Stats          struct {
+								DataRxByteCount   float64 `xml:"client-data-bytes-received"`
+								DataRxMsgCount    float64 `xml:"client-data-messages-received"`
+								DataTxByteCount   float64 `xml:"client-data-bytes-sent"`
+								DataTxMsgCount    float64 `xml:"client-data-messages-sent"`
+								AverageRxByteRate float64 `xml:"average-ingress-byte-rate-per-minute"`
+								AverageRxMsgRate  float64 `xml:"average-ingress-rate-per-minute"`
+								AverageTxByteRate float64 `xml:"average-egress-byte-rate-per-minute"`
+								AverageTxMsgRate  float64 `xml:"average-egress-rate-per-minute"`
+								RxByteRate        float64 `xml:"current-ingress-byte-rate-per-second"`
+								RxMsgRate         float64 `xml:"current-ingress-rate-per-second"`
+								TxByteRate        float64 `xml:"current-egress-byte-rate-per-second"`
+								TxMsgRate         float64 `xml:"current-egress-rate-per-second"`
+								IngressDiscards   struct {
+									DiscardedRxMsgCount float64 `xml:"total-ingress-discards"`
+								} `xml:"ingress-discards"`
+								EgressDiscards struct {
+									DiscardedTxMsgCount float64 `xml:"total-egress-discards"`
+								} `xml:"egress-discards"`
+							} `xml:"stats"`
+						} `xml:"client"`
+					} `xml:"primary-virtual-router"`
+				} `xml:"client"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		MoreCookie struct {
+			RPC string `xml:",innerxml"`
+		} `xml:"more-cookie"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
 	for nextRequest := "<rpc><show><client><name>*</name><stats/><count/><num-elements>100</num-elements></client></show></rpc>"; nextRequest != ""; {
 		body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", nextRequest)
 		if err != nil {
@@ -639,60 +672,15 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 			return 0
 		}
 		defer body.Close()
-
-		bodyBytes, err := ioutil.ReadAll(body)
-
-		type Data struct {
-			RPC struct {
-				Show struct {
-					Client struct {
-						PrimaryVirtualRouter struct {
-							Client []struct {
-								ClientName     string `xml:"name"`
-								ClientUsername string `xml:"client-username"`
-								MsgVpnName     string `xml:"message-vpn"`
-								SlowSubscriber bool   `xml:"slow-subscriber"`
-								Stats          struct {
-									DataRxByteCount   float64 `xml:"client-data-bytes-received"`
-									DataRxMsgCount    float64 `xml:"client-data-messages-received"`
-									DataTxByteCount   float64 `xml:"client-data-bytes-sent"`
-									DataTxMsgCount    float64 `xml:"client-data-messages-sent"`
-									AverageRxByteRate float64 `xml:"average-ingress-byte-rate-per-minute"`
-									AverageRxMsgRate  float64 `xml:"average-ingress-rate-per-minute"`
-									AverageTxByteRate float64 `xml:"average-egress-byte-rate-per-minute"`
-									AverageTxMsgRate  float64 `xml:"average-egress-rate-per-minute"`
-									RxByteRate        float64 `xml:"current-ingress-byte-rate-per-second"`
-									RxMsgRate         float64 `xml:"current-ingress-rate-per-second"`
-									TxByteRate        float64 `xml:"current-egress-byte-rate-per-second"`
-									TxMsgRate         float64 `xml:"current-egress-rate-per-second"`
-									IngressDiscards   struct {
-										DiscardedRxMsgCount float64 `xml:"total-ingress-discards"`
-									} `xml:"ingress-discards"`
-									EgressDiscards struct {
-										DiscardedTxMsgCount float64 `xml:"total-egress-discards"`
-									} `xml:"egress-discards"`
-								} `xml:"stats"`
-							} `xml:"client"`
-						} `xml:"primary-virtual-router"`
-					} `xml:"client"`
-				} `xml:"show"`
-			} `xml:"rpc"`
-			MoreCookie struct {
-				RPC string `xml:",innerxml"`
-			} `xml:"more-cookie"`
-			ExecuteResult struct {
-				Result string `xml:"code,attr"`
-			} `xml:"execute-result"`
-		}
-
+		decoder := xml.NewDecoder(body)
 		var target Data
-		err2 := xml.Unmarshal(bodyBytes, &target)
+		err2 := decoder.Decode(&target)
 		if err2 != nil {
-			level.Error(e.logger).Log("msg", "Can't unmarshal ClientSemp1", "err", err2)
+			level.Error(e.logger).Log("msg", "Can't decode ClientSemp1", "err", err2)
 			return 0
 		}
 		if target.ExecuteResult.Result != "ok" {
-			level.Error(e.logger).Log("command", "Show client stats", "err", string(bodyBytes))
+			level.Error(e.logger).Log("command", "Show client stats")
 			return 0
 		}
 
@@ -721,6 +709,7 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 			ch <- prometheus.MustNewConstMetric(metricsDet["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, client.ClientUsername)
 			//ch <- prometheus.MustNewConstMetric(metricsDet["client_uptime_s"], prometheus.GaugeValue, 0, client.MsgVpnName, client.ClientName, client.ClientUsername)
 		}
+		body.Close()
 	}
 
 	return 1
@@ -730,6 +719,33 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 // This can result in heavy system load for lots of queues
 func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Queue struct {
+					Queues struct {
+						Queue []struct {
+							QueueName string `xml:"name"`
+							Info      struct {
+								MsgVpnName      string  `xml:"message-vpn"`
+								Quota           float64 `xml:"quota"`
+								Usage           float64 `xml:"current-spool-usage-in-mb"`
+								SpooledMsgCount float64 `xml:"num-messages-spooled"`
+								BindCount       float64 `xml:"bind-count"`
+							} `xml:"info"`
+						} `xml:"queue"`
+					} `xml:"queues"`
+				} `xml:"queue"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		MoreCookie struct {
+			RPC string `xml:",innerxml"`
+		} `xml:"more-cookie"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
 	for nextRequest := "<rpc><show><queue><name>*</name><detail/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
 		body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", nextRequest)
 		if err != nil {
@@ -737,44 +753,15 @@ func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
 			return 0
 		}
 		defer body.Close()
-
-		bodyBytes, err := ioutil.ReadAll(body)
-
-		type Data struct {
-			RPC struct {
-				Show struct {
-					Queue struct {
-						Queues struct {
-							Queue []struct {
-								QueueName string `xml:"name"`
-								Info      struct {
-									MsgVpnName      string  `xml:"message-vpn"`
-									Quota           float64 `xml:"quota"`
-									Usage           float64 `xml:"current-spool-usage-in-mb"`
-									SpooledMsgCount float64 `xml:"num-messages-spooled"`
-									BindCount       float64 `xml:"bind-count"`
-								} `xml:"info"`
-							} `xml:"queue"`
-						} `xml:"queues"`
-					} `xml:"queue"`
-				} `xml:"show"`
-			} `xml:"rpc"`
-			MoreCookie struct {
-				RPC string `xml:",innerxml"`
-			} `xml:"more-cookie"`
-			ExecuteResult struct {
-				Result string `xml:"code,attr"`
-			} `xml:"execute-result"`
-		}
-
+		decoder := xml.NewDecoder(body)
 		var target Data
-		err2 := xml.Unmarshal(bodyBytes, &target)
+		err2 := decoder.Decode(&target)
 		if err2 != nil {
-			level.Error(e.logger).Log("msg", "Can't unmarshal QueueSemp1", "err", err2)
+			level.Error(e.logger).Log("msg", "Can't decode QueueSemp1", "err", err2)
 			return 0
 		}
 		if target.ExecuteResult.Result != "ok" {
-			level.Error(e.logger).Log("command", "Show queue details", "err", string(bodyBytes))
+			level.Error(e.logger).Log("command", "Show queue details")
 			return 0
 		}
 
@@ -787,6 +774,7 @@ func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
 			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_msg_count"], prometheus.GaugeValue, queue.Info.SpooledMsgCount, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricsDet["queue_bind_count"], prometheus.GaugeValue, queue.Info.BindCount, queue.Info.MsgVpnName, queue.QueueName)
 		}
+		body.Close()
 	}
 
 	return 1
@@ -796,6 +784,41 @@ func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
 // This can result in heavy system load for lots of queues
 func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Queue struct {
+					Queues struct {
+						Queue []struct {
+							QueueName string `xml:"name"`
+							Info      struct {
+								MsgVpnName string `xml:"message-vpn"`
+							} `xml:"info"`
+							Rates struct {
+								Qendpt struct {
+									AverageRxByteRate float64 `xml:"average-ingress-byte-rate-per-minute"`
+									AverageRxMsgRate  float64 `xml:"average-ingress-rate-per-minute"`
+									AverageTxByteRate float64 `xml:"average-egress-byte-rate-per-minute"`
+									AverageTxMsgRate  float64 `xml:"average-egress-rate-per-minute"`
+									RxByteRate        float64 `xml:"current-ingress-byte-rate-per-second"`
+									RxMsgRate         float64 `xml:"current-ingress-rate-per-second"`
+									TxByteRate        float64 `xml:"current-egress-byte-rate-per-second"`
+									TxMsgRate         float64 `xml:"current-egress-rate-per-second"`
+								} `xml:"qendpt-data-rates"`
+							} `xml:"rates"`
+						} `xml:"queue"`
+					} `xml:"queues"`
+				} `xml:"queue"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		MoreCookie struct {
+			RPC string `xml:",innerxml"`
+		} `xml:"more-cookie"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
 	for nextRequest := "<rpc><show><queue><name>*</name><rates/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
 		body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", nextRequest)
 		if err != nil {
@@ -803,52 +826,15 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 			return 0
 		}
 		defer body.Close()
-
-		bodyBytes, err := ioutil.ReadAll(body)
-
-		type Data struct {
-			RPC struct {
-				Show struct {
-					Queue struct {
-						Queues struct {
-							Queue []struct {
-								QueueName string `xml:"name"`
-								Info      struct {
-									MsgVpnName string `xml:"message-vpn"`
-								} `xml:"info"`
-								Rates struct {
-									Qendpt struct {
-										AverageRxByteRate float64 `xml:"average-ingress-byte-rate-per-minute"`
-										AverageRxMsgRate  float64 `xml:"average-ingress-rate-per-minute"`
-										AverageTxByteRate float64 `xml:"average-egress-byte-rate-per-minute"`
-										AverageTxMsgRate  float64 `xml:"average-egress-rate-per-minute"`
-										RxByteRate        float64 `xml:"current-ingress-byte-rate-per-second"`
-										RxMsgRate         float64 `xml:"current-ingress-rate-per-second"`
-										TxByteRate        float64 `xml:"current-egress-byte-rate-per-second"`
-										TxMsgRate         float64 `xml:"current-egress-rate-per-second"`
-									} `xml:"qendpt-data-rates"`
-								} `xml:"rates"`
-							} `xml:"queue"`
-						} `xml:"queues"`
-					} `xml:"queue"`
-				} `xml:"show"`
-			} `xml:"rpc"`
-			MoreCookie struct {
-				RPC string `xml:",innerxml"`
-			} `xml:"more-cookie"`
-			ExecuteResult struct {
-				Result string `xml:"code,attr"`
-			} `xml:"execute-result"`
-		}
-
+		decoder := xml.NewDecoder(body)
 		var target Data
-		err2 := xml.Unmarshal(bodyBytes, &target)
+		err2 := decoder.Decode(&target)
 		if err2 != nil {
-			level.Error(e.logger).Log("msg", "Can't unmarshal QueueRatesSemp1", "err", err2)
+			level.Error(e.logger).Log("msg", "Can't decode QueueRatesSemp1", "err", err2)
 			return 0
 		}
 		if target.ExecuteResult.Result != "ok" {
-			level.Error(e.logger).Log("command", "Show queue rates", "err", string(bodyBytes))
+			level.Error(e.logger).Log("command", "Show queue rates")
 			return 0
 		}
 
@@ -865,6 +851,7 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 			ch <- prometheus.MustNewConstMetric(metricsDet["queue_rx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxByteRate, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricsDet["queue_tx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxByteRate, queue.Info.MsgVpnName, queue.QueueName)
 		}
+		body.Close()
 	}
 
 	return 1
