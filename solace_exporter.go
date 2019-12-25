@@ -858,18 +858,16 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 }
 
 func main() {
+	listenAddress := kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":9101").Envar("SOLACE_WEB_LISTEN_ADDRESS").String()
 
-	var (
-		conf          config
-		listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":9101").Envar("SOLACE_WEB_LISTEN_ADDRESS").String()
-		scrapeURI     = kingpin.Flag("sol.uri", "Base URI on which to scrape Solace.").Default("http://localhost:8080").Envar("SOLACE_SCRAPE_URI").String()
-		username      = kingpin.Flag("sol.user", "Username for http requests to Solace broker.").Default("admin").Envar("SOLACE_USER").String()
-		password      = kingpin.Flag("sol.pass", "Password for http requests to Solace broker.").Default("admin").Envar("SOLACE_PASSWORD").String()
-		timeout       = kingpin.Flag("sol.timeout", "Timeout for trying to get stats from Solace.").Default("5s").Envar("SOLACE_SCRAPE_TIMEOUT").Duration()
-		sslVerify     = kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI").Default("False").Envar("SOLACE_SSL_VERIFY").Bool()
-		resetStats    = kingpin.Flag("sol.reset", "Flag that enables resetting system/vpn/client/queue stats in Solace").Default("False").Envar("SOLACE_RESET_STATS").Bool()
-		includeRates  = kingpin.Flag("sol.rates", "Flag that enables scrape of rate metrics").Default("False").Envar("SOLACE_INCLUDE_RATES").Bool()
-	)
+	var conf config
+	kingpin.Flag("sol.uri", "Base URI on which to scrape Solace.").Default("http://localhost:8080").Envar("SOLACE_SCRAPE_URI").StringVar(&conf.scrapeURI)
+	kingpin.Flag("sol.user", "Username for http requests to Solace broker.").Default("admin").Envar("SOLACE_USER").StringVar(&conf.username)
+	kingpin.Flag("sol.pass", "Password for http requests to Solace broker.").Default("admin").Envar("SOLACE_PASSWORD").StringVar(&conf.password)
+	kingpin.Flag("sol.timeout", "Timeout for trying to get stats from Solace.").Default("5s").Envar("SOLACE_SCRAPE_TIMEOUT").DurationVar(&conf.timeout)
+	kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI").Default("False").Envar("SOLACE_SSL_VERIFY").BoolVar(&conf.sslVerify)
+	kingpin.Flag("sol.reset", "Flag that enables resetting system/vpn/client/queue stats in Solace").Default("False").Envar("SOLACE_RESET_STATS").BoolVar(&conf.resetStats)
+	kingpin.Flag("sol.rates", "Flag that enables scrape of rate metrics").Default("False").Envar("SOLACE_INCLUDE_RATES").BoolVar(&conf.scrapeRates)
 
 	promlogConfig := &promlog.Config{}
 	flag.AddFlags(kingpin.CommandLine, promlogConfig)
@@ -877,15 +875,7 @@ func main() {
 	kingpin.Parse()
 	logger := promlog.New(promlogConfig)
 
-	conf.scrapeURI = *scrapeURI
-	conf.username = *username
-	conf.password = *password
-	conf.sslVerify = *sslVerify
-	conf.timeout = *timeout
-	conf.scrapeRates = *includeRates
-	conf.resetStats = *resetStats
-
-	globalBasicAuthString = basicAuth(*username, *password)
+	globalBasicAuthString = basicAuth(conf.username, conf.password)
 
 	level.Info(logger).Log("msg", "Starting solace_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
