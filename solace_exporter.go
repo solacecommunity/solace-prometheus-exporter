@@ -15,7 +15,6 @@ package main
 
 import (
 	"crypto/tls"
-	"encoding/base64"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -45,7 +44,6 @@ type metrics map[string]*prometheus.Desc
 var (
 	globalMutex             = &sync.Mutex{}
 	globalResetExecuted     = false
-	globalBasicAuthString   = ""
 	variableLabelsVpn       = []string{"vpn_name"}
 	variableLabelsVpnClient = []string{"vpn_name", "client_name", "client_username"}
 	variableLabelsVpnQueue  = []string{"vpn_name", "queue_name"}
@@ -229,52 +227,23 @@ func encodeMetricBool(item bool) float64 {
 	return 0
 }
 
-// Calculates the basic auth string base64(<user>":"<pass>)
-func basicAuth(username, password string) string {
-	auth := username + ":" + password
-	return base64.StdEncoding.EncodeToString([]byte(auth))
-}
-
 // Redirect callback, re-insert basic auth string into header
-func redirectPolicyFunc(req *http.Request, via []*http.Request) error {
-	req.Header.Add("Authorization", "Basic "+globalBasicAuthString)
+func (e *Exporter) redirectPolicyFunc(req *http.Request, via []*http.Request) error {
+	req.SetBasicAuth(e.config.username, e.config.password)
 	return nil
 }
 
-// Call http get on the supplied uri
-func getHTTP(uri string, sslVerify bool, timeout time.Duration) (io.ReadCloser, error) {
-	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: !sslVerify}}
-	client := http.Client{
-		Timeout:       timeout,
-		Transport:     tr,
-		CheckRedirect: redirectPolicyFunc,
-	}
-
-	req, err := http.NewRequest("GET", uri, nil)
-	req.Header.Add("Authorization", "Basic "+globalBasicAuthString)
-	resp, err := client.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
-		resp.Body.Close()
-		return nil, fmt.Errorf("HTTP status %d", resp.StatusCode)
-	}
-	return resp.Body, nil
-}
-
 // Call http post for the supplied uri and body
-func postHTTP(uri string, sslVerify bool, timeout time.Duration, contentType string, body string) (io.ReadCloser, error) {
-	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: !sslVerify}}
+func (e *Exporter) postHTTP(uri string, contentType string, body string) (io.ReadCloser, error) {
+	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: !e.config.sslVerify}}
 	client := http.Client{
-		Timeout:       timeout,
+		Timeout:       e.config.timeout,
 		Transport:     tr,
-		CheckRedirect: redirectPolicyFunc,
+		CheckRedirect: e.redirectPolicyFunc,
 	}
 
 	req, err := http.NewRequest("GET", uri, strings.NewReader(body))
-	req.Header.Add("Authorization", "Basic "+globalBasicAuthString)
+	req.SetBasicAuth(e.config.username, e.config.password)
 	resp, err := client.Do(req)
 
 	if err != nil {
@@ -296,7 +265,7 @@ func (e *Exporter) resetStatsItemSemp1(bodyString string) (ok bool) {
 		} `xml:"execute-result"`
 	}
 
-	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", bodyString)
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", bodyString)
 	if err != nil {
 		level.Error(e.logger).Log("command", bodyString, "err", err)
 		return false
@@ -377,7 +346,7 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) 
 	}
 
 	command := "<rpc><show><redundancy/></show></rpc>"
-	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't scrape RedundancySemp1", "err", err)
 		return 0
@@ -432,7 +401,7 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	}
 
 	command := "<rpc><show><message-spool></message-spool></show ></rpc>"
-	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't scrape Solace", "err", err)
 		return 0
@@ -493,7 +462,7 @@ func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	}
 
 	command := "<rpc><show><system><health/></system></show ></rpc>"
-	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't scrape HealthSemp1", "err", err)
 		return 0
@@ -568,7 +537,7 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	}
 
 	command := "<rpc><show><message-vpn><vpn-name>*</vpn-name><stats/></message-vpn></show></rpc>"
-	body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", command)
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err)
 		return 0
@@ -660,7 +629,7 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	}
 
 	for nextRequest := "<rpc><show><client><name>*</name><stats/><count/><num-elements>100</num-elements></client></show></rpc>"; nextRequest != ""; {
-		body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", nextRequest)
+		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
 			level.Error(e.logger).Log("msg", "Can't scrape ClientSemp1", "err", err)
 			return 0
@@ -741,7 +710,7 @@ func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	}
 
 	for nextRequest := "<rpc><show><queue><name>*</name><detail/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
-		body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", nextRequest)
+		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
 			level.Error(e.logger).Log("msg", "Can't scrape QueueSemp1", "err", err)
 			return 0
@@ -814,7 +783,7 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 	}
 
 	for nextRequest := "<rpc><show><queue><name>*</name><rates/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
-		body, err := postHTTP(e.config.scrapeURI+"/SEMP", e.config.sslVerify, e.config.timeout, "application/xml", nextRequest)
+		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
 			level.Error(e.logger).Log("msg", "Can't scrape QueueRatesSemp1", "err", err)
 			return 0
@@ -868,8 +837,6 @@ func main() {
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 	logger := promlog.New(promlogConfig)
-
-	globalBasicAuthString = basicAuth(conf.username, conf.password)
 
 	level.Info(logger).Log("msg", "Starting solace_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
