@@ -140,7 +140,6 @@ type config struct {
 // the prometheus metrics package.
 type Exporter struct {
 	config        config
-	up            prometheus.Gauge
 	serverMetrics map[string]*prometheus.Desc
 	logger        log.Logger
 }
@@ -152,11 +151,6 @@ func NewExporter(serverMetrics map[string]*prometheus.Desc, logger log.Logger, c
 		serverMetrics: serverMetrics,
 		logger:        logger,
 		config:        conf,
-		up: prometheus.NewGauge(prometheus.GaugeOpts{
-			Namespace: namespace,
-			Name:      "up",
-			Help:      "Was the last scrape of solace successful.",
-		}),
 	}, nil
 }
 
