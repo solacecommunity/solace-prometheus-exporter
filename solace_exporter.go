@@ -357,9 +357,9 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) 
 	defer body.Close()
 	decoder := xml.NewDecoder(body)
 	var target Data
-	err2 := decoder.Decode(&target)
-	if err2 != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml RedundancySemp1", "err", err2)
+	err = decoder.Decode(&target)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't decode Xml RedundancySemp1", "err", err)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
@@ -412,9 +412,9 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	defer body.Close()
 	decoder := xml.NewDecoder(body)
 	var target Data
-	err2 := decoder.Decode(&target)
-	if err2 != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml", "err", err2)
+	err = decoder.Decode(&target)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't decode Xml", "err", err)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
@@ -473,9 +473,9 @@ func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	defer body.Close()
 	decoder := xml.NewDecoder(body)
 	var target Data
-	err2 := decoder.Decode(&target)
-	if err2 != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml HealthSemp1", "err", err2)
+	err = decoder.Decode(&target)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't decode Xml HealthSemp1", "err", err)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
@@ -548,9 +548,9 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	defer body.Close()
 	decoder := xml.NewDecoder(body)
 	var target Data
-	err2 := decoder.Decode(&target)
-	if err2 != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err2)
+	err = decoder.Decode(&target)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
@@ -640,9 +640,9 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		defer body.Close()
 		decoder := xml.NewDecoder(body)
 		var target Data
-		err2 := decoder.Decode(&target)
-		if err2 != nil {
-			level.Error(e.logger).Log("msg", "Can't decode ClientSemp1", "err", err2)
+		err = decoder.Decode(&target)
+		if err != nil {
+			level.Error(e.logger).Log("msg", "Can't decode ClientSemp1", "err", err)
 			return 0
 		}
 		if target.ExecuteResult.Result != "ok" {
@@ -721,9 +721,9 @@ func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		defer body.Close()
 		decoder := xml.NewDecoder(body)
 		var target Data
-		err2 := decoder.Decode(&target)
-		if err2 != nil {
-			level.Error(e.logger).Log("msg", "Can't decode QueueSemp1", "err", err2)
+		err = decoder.Decode(&target)
+		if err != nil {
+			level.Error(e.logger).Log("msg", "Can't decode QueueSemp1", "err", err)
 			return 0
 		}
 		if target.ExecuteResult.Result != "ok" {
@@ -794,9 +794,9 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 		defer body.Close()
 		decoder := xml.NewDecoder(body)
 		var target Data
-		err2 := decoder.Decode(&target)
-		if err2 != nil {
-			level.Error(e.logger).Log("msg", "Can't decode QueueRatesSemp1", "err", err2)
+		err = decoder.Decode(&target)
+		if err != nil {
+			level.Error(e.logger).Log("msg", "Can't decode QueueRatesSemp1", "err", err)
 			return 0
 		}
 		if target.ExecuteResult.Result != "ok" {
