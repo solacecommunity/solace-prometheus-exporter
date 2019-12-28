@@ -170,7 +170,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	defer globalMutex.Unlock()
 
 	if e.config.resetStats && !globalResetExecuted {
-		// Its time to try to reset the stats
+		// It's time to try to reset the stats
 		if e.resetStatsSemp1() {
 			level.Info(e.logger).Log("msg", "Statistics successfully reset")
 			globalResetExecuted = true
@@ -581,7 +581,7 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	return 1
 }
 
-// Get some statistics for each indivitual client of all vpn's
+// Get some statistics for each individual client of all vpn's
 // This can result in heavy system load for lots of clients
 func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
@@ -678,7 +678,7 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	return 1
 }
 
-// Get some statistics for each indivitual queue of all vpn's
+// Get some statistics for each individual queue of all vpn's
 // This can result in heavy system load for lots of queues
 func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
@@ -743,7 +743,7 @@ func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	return 1
 }
 
-// Get rates for each indivitual queue of all vpn's
+// Get rates for each individual queue of all vpn's
 // This can result in heavy system load for lots of queues
 func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
