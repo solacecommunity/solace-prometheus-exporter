@@ -51,75 +51,75 @@ var (
 )
 
 var metricsStd = metrics{
-	"system_redundancy_up":            prometheus.NewDesc(namespace+"_"+"system_redundancy_up", "Is redundancy up? (0=down, 1=up).", nil, nil),
-	"system_redundancy_enabled":       prometheus.NewDesc(namespace+"_"+"system_redundancy_enabled", "Is redundancy enabled in config? (0=disabled, 1=enabled).", nil, nil),
-	"system_redundancy_role":          prometheus.NewDesc(namespace+"_"+"system_redundancy_role", "Redundancy role (0=backup, 1=primary, 2=monitor).", nil, nil),
-	"system_redundancy_local_active":  prometheus.NewDesc(namespace+"_"+"system_redundancy_local_active", "Is local node the active messaging node? (0=not active, 1=active).", nil, nil),
-	"system_spool_quota_mb":           prometheus.NewDesc(namespace+"_"+"system_spool_quota_mb", "Spool configured max disk usage MB.", nil, nil),
-	"system_spool_quota_msg":          prometheus.NewDesc(namespace+"_"+"system_spool_quota_msg", "Spool configured max number of messages.", nil, nil),
-	"system_spool_usage_mb":           prometheus.NewDesc(namespace+"_"+"system_spool_usage_mb", "Spool total persisted MB usage.", nil, nil),
-	"system_spool_msg_count":          prometheus.NewDesc(namespace+"_"+"system_spool_msg_count", "Spool total number of persisted messages.", nil, nil),
-	"system_disk_latency_min_us":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_min_us", "Minimum disk latency.", nil, nil),
-	"system_disk_latency_max_us":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_max_us", "Maximum disk latency.", nil, nil),
-	"system_disk_latency_avg_us":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_avg_us", "Average disk latency.", nil, nil),
-	"system_disk_latency_cur_us":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_cur_us", "Current disk latency.", nil, nil),
-	"system_compute_latency_min_us":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_min_us", "Minimum compute latency.", nil, nil),
-	"system_compute_latency_max_us":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_max_us", "Maximum compute latency.", nil, nil),
-	"system_compute_latency_avg_us":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_avg_us", "Average compute latency.", nil, nil),
-	"system_compute_latency_cur_us":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_cur_us", "Current compute latency.", nil, nil),
-	"system_mate_link_latency_min_us": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_min_us", "Minimum mate link latency.", nil, nil),
-	"system_mate_link_latency_max_us": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_max_us", "Maximum mate link latency.", nil, nil),
-	"system_mate_link_latency_avg_us": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_avg_us", "Average mate link latency.", nil, nil),
-	"system_mate_link_latency_cur_us": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_cur_us", "Current mate link latency.", nil, nil),
+	"system_redundancy_up":                 prometheus.NewDesc(namespace+"_"+"system_redundancy_up", "Is redundancy up? (0=down, 1=up).", nil, nil),
+	"system_redundancy_enabled":            prometheus.NewDesc(namespace+"_"+"system_redundancy_enabled", "Is redundancy enabled in config? (0=disabled, 1=enabled).", nil, nil),
+	"system_redundancy_role":               prometheus.NewDesc(namespace+"_"+"system_redundancy_role", "Redundancy role (0=backup, 1=primary, 2=monitor).", nil, nil),
+	"system_redundancy_local_active":       prometheus.NewDesc(namespace+"_"+"system_redundancy_local_active", "Is local node the active messaging node? (0=not active, 1=active).", nil, nil),
+	"system_spool_quota_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage MB.", nil, nil),
+	"system_spool_quota_msgs":              prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", nil, nil),
+	"system_spool_usage_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted MB usage.", nil, nil),
+	"system_spool_msgs":                    prometheus.NewDesc(namespace+"_"+"system_spool_msgs", "Spool total number of persisted messages.", nil, nil),
+	"system_disk_latency_min_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_min_seconds", "Minimum disk latency.", nil, nil),
+	"system_disk_latency_max_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_max_seconds", "Maximum disk latency.", nil, nil),
+	"system_disk_latency_avg_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_avg_seconds", "Average disk latency.", nil, nil),
+	"system_disk_latency_cur_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_cur_seconds", "Current disk latency.", nil, nil),
+	"system_compute_latency_min_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_min_seconds", "Minimum compute latency.", nil, nil),
+	"system_compute_latency_max_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_max_seconds", "Maximum compute latency.", nil, nil),
+	"system_compute_latency_avg_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_avg_seconds", "Average compute latency.", nil, nil),
+	"system_compute_latency_cur_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_cur_seconds", "Current compute latency.", nil, nil),
+	"system_mate_link_latency_min_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_min_seconds", "Minimum mate link latency.", nil, nil),
+	"system_mate_link_latency_max_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_max_seconds", "Maximum mate link latency.", nil, nil),
+	"system_mate_link_latency_avg_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_avg_seconds", "Average mate link latency.", nil, nil),
+	"system_mate_link_latency_cur_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_cur_seconds", "Current mate link latency.", nil, nil),
 
-	"vpn_local_status":         prometheus.NewDesc(namespace+"_"+"vpn_local_status", "Local status (0=Down, 1=Up).", variableLabelsVpn, nil),
-	"vpn_connection_count":     prometheus.NewDesc(namespace+"_"+"vpn_connection_count", "Number of connections.", variableLabelsVpn, nil),
-	"vpn_rx_msg_count":         prometheus.NewDesc(namespace+"_"+"vpn_rx_msg_count", "Number of received messages.", variableLabelsVpn, nil),
-	"vpn_tx_msg_count":         prometheus.NewDesc(namespace+"_"+"vpn_tx_msg_count", "Number of transmitted messages.", variableLabelsVpn, nil),
-	"vpn_rx_byte_count":        prometheus.NewDesc(namespace+"_"+"vpn_rx_byte_count", "Number of received bytes.", variableLabelsVpn, nil),
-	"vpn_tx_byte_count":        prometheus.NewDesc(namespace+"_"+"vpn_tx_byte_count", "Number of transmitted bytes.", variableLabelsVpn, nil),
-	"vpn_rx_discard_msg_count": prometheus.NewDesc(namespace+"_"+"vpn_rx_discard_msg_count", "Number of discarded received messages.", variableLabelsVpn, nil),
-	"vpn_tx_discard_msg_count": prometheus.NewDesc(namespace+"_"+"vpn_tx_discard_msg_count", "Number of discarded transmitted messages.", variableLabelsVpn, nil),
-	"vpn_rx_msg_rate":          prometheus.NewDesc(namespace+"_"+"vpn_rx_msg_rate", "Rate of received messages.", variableLabelsVpn, nil),
-	"vpn_tx_msg_rate":          prometheus.NewDesc(namespace+"_"+"vpn_tx_msg_rate", "Rate of transmitted messages.", variableLabelsVpn, nil),
-	"vpn_rx_byte_rate":         prometheus.NewDesc(namespace+"_"+"vpn_rx_byte_rate", "Rate of received bytes.", variableLabelsVpn, nil),
-	"vpn_tx_byte_rate":         prometheus.NewDesc(namespace+"_"+"vpn_tx_byte_rate", "Rate of transmitted bytes.", variableLabelsVpn, nil),
-	"vpn_rx_msg_rate_avg":      prometheus.NewDesc(namespace+"_"+"vpn_rx_msg_rate_avg", "Averate rate of received messages.", variableLabelsVpn, nil),
-	"vpn_tx_msg_rate_avg":      prometheus.NewDesc(namespace+"_"+"vpn_tx_msg_rate_avg", "Averate rate of transmitted messages.", variableLabelsVpn, nil),
-	"vpn_rx_byte_rate_avg":     prometheus.NewDesc(namespace+"_"+"vpn_rx_byte_rate_avg", "Averate rate of received bytes.", variableLabelsVpn, nil),
-	"vpn_tx_byte_rate_avg":     prometheus.NewDesc(namespace+"_"+"vpn_tx_byte_rate_avg", "Averate rate of transmitted bytes.", variableLabelsVpn, nil),
+	"vpn_local_status":            prometheus.NewDesc(namespace+"_"+"vpn_local_status", "Local status (0=Down, 1=Up).", variableLabelsVpn, nil),
+	"vpn_connections":             prometheus.NewDesc(namespace+"_"+"vpn_connections", "Number of connections.", variableLabelsVpn, nil),
+	"vpn_rx_msgs_total":           prometheus.NewDesc(namespace+"_"+"vpn_rx_msgs_total", "Number of received messages.", variableLabelsVpn, nil),
+	"vpn_tx_msgs_total":           prometheus.NewDesc(namespace+"_"+"vpn_tx_msgs_total", "Number of transmitted messages.", variableLabelsVpn, nil),
+	"vpn_rx_bytes_total":          prometheus.NewDesc(namespace+"_"+"vpn_rx_bytes_total", "Number of received bytes.", variableLabelsVpn, nil),
+	"vpn_tx_bytes_total":          prometheus.NewDesc(namespace+"_"+"vpn_tx_bytes_total", "Number of transmitted bytes.", variableLabelsVpn, nil),
+	"vpn_rx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"vpn_rx_discarded_msgs_total", "Number of discarded received messages.", variableLabelsVpn, nil),
+	"vpn_tx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"vpn_tx_discarded_msgs_total", "Number of discarded transmitted messages.", variableLabelsVpn, nil),
+	"vpn_rx_msg_rate":             prometheus.NewDesc(namespace+"_"+"vpn_rx_msg_rate", "Rate of received messages.", variableLabelsVpn, nil),
+	"vpn_tx_msg_rate":             prometheus.NewDesc(namespace+"_"+"vpn_tx_msg_rate", "Rate of transmitted messages.", variableLabelsVpn, nil),
+	"vpn_rx_byte_rate":            prometheus.NewDesc(namespace+"_"+"vpn_rx_byte_rate", "Rate of received bytes.", variableLabelsVpn, nil),
+	"vpn_tx_byte_rate":            prometheus.NewDesc(namespace+"_"+"vpn_tx_byte_rate", "Rate of transmitted bytes.", variableLabelsVpn, nil),
+	"vpn_rx_msg_rate_avg":         prometheus.NewDesc(namespace+"_"+"vpn_rx_msg_rate_avg", "Averate rate of received messages.", variableLabelsVpn, nil),
+	"vpn_tx_msg_rate_avg":         prometheus.NewDesc(namespace+"_"+"vpn_tx_msg_rate_avg", "Averate rate of transmitted messages.", variableLabelsVpn, nil),
+	"vpn_rx_byte_rate_avg":        prometheus.NewDesc(namespace+"_"+"vpn_rx_byte_rate_avg", "Averate rate of received bytes.", variableLabelsVpn, nil),
+	"vpn_tx_byte_rate_avg":        prometheus.NewDesc(namespace+"_"+"vpn_tx_byte_rate_avg", "Averate rate of transmitted bytes.", variableLabelsVpn, nil),
 }
 
 var metricsDet = metrics{
-	"client_rx_msg_count":         prometheus.NewDesc(namespace+"_"+"client_rx_msg_count", "Number of received messages.", variableLabelsVpnClient, nil),
-	"client_tx_msg_count":         prometheus.NewDesc(namespace+"_"+"client_tx_msg_count", "Number of transmitted messages.", variableLabelsVpnClient, nil),
-	"client_rx_byte_count":        prometheus.NewDesc(namespace+"_"+"client_rx_byte_count", "Number of received bytes.", variableLabelsVpnClient, nil),
-	"client_tx_byte_count":        prometheus.NewDesc(namespace+"_"+"client_tx_byte_count", "Number of transmitted bytes.", variableLabelsVpnClient, nil),
-	"client_rx_discard_msg_count": prometheus.NewDesc(namespace+"_"+"client_rx_discard_msg_count", "Number of discarded received messages.", variableLabelsVpnClient, nil),
-	"client_tx_discard_msg_count": prometheus.NewDesc(namespace+"_"+"client_tx_discard_msg_count", "Number of discarded transmitted messages.", variableLabelsVpnClient, nil),
-	"client_rx_msg_rate":          prometheus.NewDesc(namespace+"_"+"client_rx_msg_rate", "Rate of received messages.", variableLabelsVpnClient, nil),
-	"client_tx_msg_rate":          prometheus.NewDesc(namespace+"_"+"client_tx_msg_rate", "Rate of transmitted messages.", variableLabelsVpnClient, nil),
-	"client_rx_byte_rate":         prometheus.NewDesc(namespace+"_"+"client_rx_byte_rate", "Rate of received bytes.", variableLabelsVpnClient, nil),
-	"client_tx_byte_rate":         prometheus.NewDesc(namespace+"_"+"client_tx_byte_rate", "Rate of transmitted bytes.", variableLabelsVpnClient, nil),
-	"client_rx_msg_rate_avg":      prometheus.NewDesc(namespace+"_"+"client_rx_msg_rate_avg", "Averate rate of received messages.", variableLabelsVpnClient, nil),
-	"client_tx_msg_rate_avg":      prometheus.NewDesc(namespace+"_"+"client_tx_msg_rate_avg", "Averate rate of transmitted messages.", variableLabelsVpnClient, nil),
-	"client_rx_byte_rate_avg":     prometheus.NewDesc(namespace+"_"+"client_rx_byte_rate_avg", "Averate rate of received bytes.", variableLabelsVpnClient, nil),
-	"client_tx_byte_rate_avg":     prometheus.NewDesc(namespace+"_"+"client_tx_byte_rate_avg", "Averate rate of transmitted bytes.", variableLabelsVpnClient, nil),
-	"client_slow_subscriber":      prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClient, nil),
-	"client_uptime_s":             prometheus.NewDesc(namespace+"_"+"client_uptime_s", "Up time of client in seconds.", variableLabelsVpnClient, nil),
+	"client_rx_msgs_total":           prometheus.NewDesc(namespace+"_"+"client_rx_msgs_total", "Number of received messages.", variableLabelsVpnClient, nil),
+	"client_tx_msgs_total":           prometheus.NewDesc(namespace+"_"+"client_tx_msgs_total", "Number of transmitted messages.", variableLabelsVpnClient, nil),
+	"client_rx_bytes_total":          prometheus.NewDesc(namespace+"_"+"client_rx_bytes_total", "Number of received bytes.", variableLabelsVpnClient, nil),
+	"client_tx_bytes_total":          prometheus.NewDesc(namespace+"_"+"client_tx_bytes_total", "Number of transmitted bytes.", variableLabelsVpnClient, nil),
+	"client_rx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"client_rx_discarded_msgs_total", "Number of discarded received messages.", variableLabelsVpnClient, nil),
+	"client_tx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"client_tx_discarded_msgs_total", "Number of discarded transmitted messages.", variableLabelsVpnClient, nil),
+	"client_rx_msg_rate":             prometheus.NewDesc(namespace+"_"+"client_rx_msg_rate", "Rate of received messages.", variableLabelsVpnClient, nil),
+	"client_tx_msg_rate":             prometheus.NewDesc(namespace+"_"+"client_tx_msg_rate", "Rate of transmitted messages.", variableLabelsVpnClient, nil),
+	"client_rx_byte_rate":            prometheus.NewDesc(namespace+"_"+"client_rx_byte_rate", "Rate of received bytes.", variableLabelsVpnClient, nil),
+	"client_tx_byte_rate":            prometheus.NewDesc(namespace+"_"+"client_tx_byte_rate", "Rate of transmitted bytes.", variableLabelsVpnClient, nil),
+	"client_rx_msg_rate_avg":         prometheus.NewDesc(namespace+"_"+"client_rx_msg_rate_avg", "Averate rate of received messages.", variableLabelsVpnClient, nil),
+	"client_tx_msg_rate_avg":         prometheus.NewDesc(namespace+"_"+"client_tx_msg_rate_avg", "Averate rate of transmitted messages.", variableLabelsVpnClient, nil),
+	"client_rx_byte_rate_avg":        prometheus.NewDesc(namespace+"_"+"client_rx_byte_rate_avg", "Averate rate of received bytes.", variableLabelsVpnClient, nil),
+	"client_tx_byte_rate_avg":        prometheus.NewDesc(namespace+"_"+"client_tx_byte_rate_avg", "Averate rate of transmitted bytes.", variableLabelsVpnClient, nil),
+	"client_slow_subscriber":         prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClient, nil),
+	"client_uptime_seconds":          prometheus.NewDesc(namespace+"_"+"client_uptime_seconds", "Up time of client in seconds.", variableLabelsVpnClient, nil),
 
-	"queue_spool_quota_mb":   prometheus.NewDesc(namespace+"_"+"queue_spool_quota_mb", "Queue spool configured max disk usage MB.", variableLabelsVpnQueue, nil),
-	"queue_spool_usage_mb":   prometheus.NewDesc(namespace+"_"+"queue_spool_usage_mb", "Queue spool usage MB.", variableLabelsVpnQueue, nil),
-	"queue_spool_msg_count":  prometheus.NewDesc(namespace+"_"+"queue_spool_msg_count", "Queue spooled number of messages.", variableLabelsVpnQueue, nil),
-	"queue_bind_count":       prometheus.NewDesc(namespace+"_"+"queue_bind_count", "Number of clients bound to queue.", variableLabelsVpnQueue, nil),
-	"queue_rx_msg_rate":      prometheus.NewDesc(namespace+"_"+"queue_rx_msg_rate", "Rate of received messages.", variableLabelsVpnQueue, nil),
-	"queue_tx_msg_rate":      prometheus.NewDesc(namespace+"_"+"queue_tx_msg_rate", "Rate of transmitted messages.", variableLabelsVpnQueue, nil),
-	"queue_rx_byte_rate":     prometheus.NewDesc(namespace+"_"+"queue_rx_byte_rate", "Rate of received bytes.", variableLabelsVpnQueue, nil),
-	"queue_tx_byte_rate":     prometheus.NewDesc(namespace+"_"+"queue_tx_byte_rate", "Rate of transmitted bytes.", variableLabelsVpnQueue, nil),
-	"queue_rx_msg_rate_avg":  prometheus.NewDesc(namespace+"_"+"queue_rx_msg_rate_avg", "Averate rate of received messages.", variableLabelsVpnQueue, nil),
-	"queue_tx_msg_rate_avg":  prometheus.NewDesc(namespace+"_"+"queue_tx_msg_rate_avg", "Averate rate of transmitted messages.", variableLabelsVpnQueue, nil),
-	"queue_rx_byte_rate_avg": prometheus.NewDesc(namespace+"_"+"queue_rx_byte_rate_avg", "Averate rate of received bytes.", variableLabelsVpnQueue, nil),
-	"queue_tx_byte_rate_avg": prometheus.NewDesc(namespace+"_"+"queue_tx_byte_rate_avg", "Averate rate of transmitted bytes.", variableLabelsVpnQueue, nil),
+	"queue_spool_quota_bytes": prometheus.NewDesc(namespace+"_"+"queue_spool_quota_bytes", "Queue spool configured max disk usage MB.", variableLabelsVpnQueue, nil),
+	"queue_spool_usage_bytes": prometheus.NewDesc(namespace+"_"+"queue_spool_usage_bytes", "Queue spool usage MB.", variableLabelsVpnQueue, nil),
+	"queue_spool_msgs":        prometheus.NewDesc(namespace+"_"+"queue_spool_msgs", "Queue spooled number of messages.", variableLabelsVpnQueue, nil),
+	"queue_binds":             prometheus.NewDesc(namespace+"_"+"queue_binds", "Number of clients bound to queue.", variableLabelsVpnQueue, nil),
+	"queue_rx_msg_rate":       prometheus.NewDesc(namespace+"_"+"queue_rx_msg_rate", "Rate of received messages.", variableLabelsVpnQueue, nil),
+	"queue_tx_msg_rate":       prometheus.NewDesc(namespace+"_"+"queue_tx_msg_rate", "Rate of transmitted messages.", variableLabelsVpnQueue, nil),
+	"queue_rx_byte_rate":      prometheus.NewDesc(namespace+"_"+"queue_rx_byte_rate", "Rate of received bytes.", variableLabelsVpnQueue, nil),
+	"queue_tx_byte_rate":      prometheus.NewDesc(namespace+"_"+"queue_tx_byte_rate", "Rate of transmitted bytes.", variableLabelsVpnQueue, nil),
+	"queue_rx_msg_rate_avg":   prometheus.NewDesc(namespace+"_"+"queue_rx_msg_rate_avg", "Averate rate of received messages.", variableLabelsVpnQueue, nil),
+	"queue_tx_msg_rate_avg":   prometheus.NewDesc(namespace+"_"+"queue_tx_msg_rate_avg", "Averate rate of transmitted messages.", variableLabelsVpnQueue, nil),
+	"queue_rx_byte_rate_avg":  prometheus.NewDesc(namespace+"_"+"queue_rx_byte_rate_avg", "Averate rate of received bytes.", variableLabelsVpnQueue, nil),
+	"queue_tx_byte_rate_avg":  prometheus.NewDesc(namespace+"_"+"queue_tx_byte_rate_avg", "Averate rate of transmitted bytes.", variableLabelsVpnQueue, nil),
 }
 
 // Collection of configs
@@ -419,15 +419,15 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		return 0
 	}
 
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_mb"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.QuotaDiskUsage)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_bytes"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.QuotaDiskUsage*(1024^2))
 	// MaxMsgCount is in the form "100M"
 	s1 := target.RPC.Show.Spool.Info.QuotaMsgCount[:len(target.RPC.Show.Spool.Info.QuotaMsgCount)-1]
 	f1, err3 := strconv.ParseFloat(s1, 64)
 	if err3 == nil {
-		ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_msg"], prometheus.GaugeValue, f1*1000000)
+		ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_msgs"], prometheus.GaugeValue, f1*1000000)
 	}
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_usage_mb"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistUsage)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_msg_count"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_usage_bytes"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistUsage*(1024^2))
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount)
 
 	return 1
 }
@@ -480,18 +480,18 @@ func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		return 0
 	}
 
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_min_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMinimumValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_max_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMaximumValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_avg_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyAverageValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_cur_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyCurrentValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_min_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMinimumValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_max_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMaximumValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_avg_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyAverageValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_cur_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyCurrentValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_min_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMinimumValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_max_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMaximumValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_avg_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyAverageValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_cur_us"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyCurrentValue)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMinimumValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMaximumValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyAverageValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyCurrentValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMinimumValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMaximumValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyAverageValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyCurrentValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMinimumValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMaximumValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyAverageValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyCurrentValue/1e6)
 
 	return 1
 }
@@ -556,15 +556,15 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_connection_count"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
 		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_local_status"], prometheus.GaugeValue, encodeMetricMulti(vpn.LocalStatus, []string{"Down", "Up"}), vpn.Name)
 
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_msg_count"], prometheus.GaugeValue, vpn.Stats.DataRxMsgCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_msg_count"], prometheus.GaugeValue, vpn.Stats.DataTxMsgCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_byte_count"], prometheus.GaugeValue, vpn.Stats.DataRxByteCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_byte_count"], prometheus.GaugeValue, vpn.Stats.DataTxByteCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_discard_msg_count"], prometheus.GaugeValue, vpn.Stats.IngressDiscards.DiscardedRxMsgCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_discard_msg_count"], prometheus.GaugeValue, vpn.Stats.EgressDiscards.DiscardedTxMsgCount, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataRxMsgCount, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataTxMsgCount, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataRxByteCount, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataTxByteCount, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.IngressDiscards.DiscardedRxMsgCount, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.EgressDiscards.DiscardedTxMsgCount, vpn.Name)
 
 		if e.config.scrapeRates {
 			ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_msg_rate"], prometheus.GaugeValue, vpn.Stats.RxMsgRate, vpn.Name)
@@ -651,12 +651,12 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		nextRequest = target.MoreCookie.RPC
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_msg_count"], prometheus.GaugeValue, client.Stats.DataRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_msg_count"], prometheus.GaugeValue, client.Stats.DataTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_byte_count"], prometheus.GaugeValue, client.Stats.DataRxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_byte_count"], prometheus.GaugeValue, client.Stats.DataTxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_discard_msg_count"], prometheus.GaugeValue, client.Stats.IngressDiscards.DiscardedRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_discard_msg_count"], prometheus.GaugeValue, client.Stats.EgressDiscards.DiscardedTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_msgs_total"], prometheus.CounterValue, client.Stats.DataRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_msgs_total"], prometheus.CounterValue, client.Stats.DataTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_bytes_total"], prometheus.CounterValue, client.Stats.DataRxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_bytes_total"], prometheus.CounterValue, client.Stats.DataTxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.IngressDiscards.DiscardedRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.EgressDiscards.DiscardedTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
 
 			if e.config.scrapeRates {
 				ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_msg_rate"], prometheus.GaugeValue, client.Stats.RxMsgRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
@@ -670,7 +670,7 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 			}
 
 			ch <- prometheus.MustNewConstMetric(metricsDet["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, client.ClientUsername)
-			//ch <- prometheus.MustNewConstMetric(metricsDet["client_uptime_s"], prometheus.GaugeValue, 0, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			//ch <- prometheus.MustNewConstMetric(metricsDet["client_uptime_seconds"], prometheus.GaugeValue, 0, client.MsgVpnName, client.ClientName, client.ClientUsername)
 		}
 		body.Close()
 	}
@@ -732,10 +732,10 @@ func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		nextRequest = target.MoreCookie.RPC
 
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_quota_mb"], prometheus.GaugeValue, queue.Info.Quota, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_usage_mb"], prometheus.GaugeValue, queue.Info.Usage, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_msg_count"], prometheus.GaugeValue, queue.Info.SpooledMsgCount, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_bind_count"], prometheus.GaugeValue, queue.Info.BindCount, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_quota_bytes"], prometheus.GaugeValue, queue.Info.Quota*(1024^2), queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_usage_bytes"], prometheus.GaugeValue, queue.Info.Usage*(1024^2), queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_msgs"], prometheus.GaugeValue, queue.Info.SpooledMsgCount, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_binds"], prometheus.GaugeValue, queue.Info.BindCount, queue.Info.MsgVpnName, queue.QueueName)
 		}
 		body.Close()
 	}
