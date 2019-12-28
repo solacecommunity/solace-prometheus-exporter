@@ -137,26 +137,29 @@ type config struct {
 // Exporter collects Solace stats from the given URI and exports them using
 // the prometheus metrics package.
 type Exporter struct {
-	config        config
-	serverMetrics map[string]*prometheus.Desc
-	logger        log.Logger
+	config config
+	logger log.Logger
 }
 
 // NewExporter returns an initialized Exporter.
-func NewExporter(serverMetrics map[string]*prometheus.Desc, logger log.Logger, conf config) (*Exporter, error) {
-
+func NewExporter(logger log.Logger, conf config) *Exporter {
 	return &Exporter{
-		serverMetrics: serverMetrics,
-		logger:        logger,
-		config:        conf,
-	}, nil
+		logger: logger,
+		config: conf,
+	}
 }
 
 // Describe describes all the metrics ever exported by the Solace exporter. It
 // implements prometheus.Collector.
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
-	for _, m := range e.serverMetrics {
-		ch <- m
+	if e.config.details {
+		for _, m := range metricsDet {
+			ch <- m
+		}
+	} else {
+		for _, m := range metricsStd {
+			ch <- m
+		}
 	}
 	ch <- solaceUp
 }
@@ -842,22 +845,14 @@ func main() {
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
 
 	conf.details = false
-	exporterStd, err := NewExporter(metricsStd, logger, conf)
-	if err != nil {
-		level.Error(logger).Log("msg", "Error creating an exporter", "err", err)
-		os.Exit(1)
-	}
+	exporterStd := NewExporter(logger, conf)
 	registryStd := prometheus.NewRegistry()
 	registryStd.MustRegister(exporterStd)
 	registryStd.MustRegister(version.NewCollector("solace_standard"))
 	handlerStd := promhttp.HandlerFor(registryStd, promhttp.HandlerOpts{})
 
 	conf.details = true
-	exporterDet, err := NewExporter(metricsDet, logger, conf)
-	if err != nil {
-		level.Error(logger).Log("msg", "Error creating an exporter", "err", err)
-		os.Exit(1)
-	}
+	exporterDet := NewExporter(logger, conf)
 	registryDet := prometheus.NewRegistry()
 	registryDet.MustRegister(exporterDet)
 	registryDet.MustRegister(version.NewCollector("solace_detailed"))
