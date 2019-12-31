@@ -18,6 +18,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -55,9 +56,9 @@ var metricsStd = metrics{
 	"system_redundancy_enabled":            prometheus.NewDesc(namespace+"_"+"system_redundancy_enabled", "Is redundancy enabled in config? (0=disabled, 1=enabled).", nil, nil),
 	"system_redundancy_role":               prometheus.NewDesc(namespace+"_"+"system_redundancy_role", "Redundancy role (0=backup, 1=primary, 2=monitor).", nil, nil),
 	"system_redundancy_local_active":       prometheus.NewDesc(namespace+"_"+"system_redundancy_local_active", "Is local node the active messaging node? (0=not active, 1=active).", nil, nil),
-	"system_spool_quota_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage MB.", nil, nil),
+	"system_spool_quota_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage.", nil, nil),
 	"system_spool_quota_msgs":              prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", nil, nil),
-	"system_spool_usage_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted MB usage.", nil, nil),
+	"system_spool_usage_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted usage.", nil, nil),
 	"system_spool_msgs":                    prometheus.NewDesc(namespace+"_"+"system_spool_msgs", "Spool total number of persisted messages.", nil, nil),
 	"system_disk_latency_min_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_min_seconds", "Minimum disk latency.", nil, nil),
 	"system_disk_latency_max_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_max_seconds", "Maximum disk latency.", nil, nil),
@@ -108,8 +109,8 @@ var metricsDet = metrics{
 	"client_slow_subscriber":         prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClient, nil),
 	"client_uptime_seconds":          prometheus.NewDesc(namespace+"_"+"client_uptime_seconds", "Up time of client in seconds.", variableLabelsVpnClient, nil),
 
-	"queue_spool_quota_bytes": prometheus.NewDesc(namespace+"_"+"queue_spool_quota_bytes", "Queue spool configured max disk usage MB.", variableLabelsVpnQueue, nil),
-	"queue_spool_usage_bytes": prometheus.NewDesc(namespace+"_"+"queue_spool_usage_bytes", "Queue spool usage MB.", variableLabelsVpnQueue, nil),
+	"queue_spool_quota_bytes": prometheus.NewDesc(namespace+"_"+"queue_spool_quota_bytes", "Queue spool configured max disk usage.", variableLabelsVpnQueue, nil),
+	"queue_spool_usage_bytes": prometheus.NewDesc(namespace+"_"+"queue_spool_usage_bytes", "Queue spool usage.", variableLabelsVpnQueue, nil),
 	"queue_spool_msgs":        prometheus.NewDesc(namespace+"_"+"queue_spool_msgs", "Queue spooled number of messages.", variableLabelsVpnQueue, nil),
 	"queue_binds":             prometheus.NewDesc(namespace+"_"+"queue_binds", "Number of clients bound to queue.", variableLabelsVpnQueue, nil),
 	"queue_rx_msg_rate":       prometheus.NewDesc(namespace+"_"+"queue_rx_msg_rate", "Rate of received messages.", variableLabelsVpnQueue, nil),
@@ -422,14 +423,14 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		return 0
 	}
 
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_bytes"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.QuotaDiskUsage*(1024^2))
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.QuotaDiskUsage*1048576.0))
 	// MaxMsgCount is in the form "100M"
 	s1 := target.RPC.Show.Spool.Info.QuotaMsgCount[:len(target.RPC.Show.Spool.Info.QuotaMsgCount)-1]
 	f1, err3 := strconv.ParseFloat(s1, 64)
 	if err3 == nil {
 		ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_msgs"], prometheus.GaugeValue, f1*1000000)
 	}
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_usage_bytes"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistUsage*(1024^2))
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.PersistUsage*1048576.0))
 	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount)
 
 	return 1
@@ -735,8 +736,8 @@ func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		nextRequest = target.MoreCookie.RPC
 
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_quota_bytes"], prometheus.GaugeValue, queue.Info.Quota*(1024^2), queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_usage_bytes"], prometheus.GaugeValue, queue.Info.Usage*(1024^2), queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_quota_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Quota*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_usage_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Usage*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_msgs"], prometheus.GaugeValue, queue.Info.SpooledMsgCount, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricsDet["queue_binds"], prometheus.GaugeValue, queue.Info.BindCount, queue.Info.MsgVpnName, queue.QueueName)
 		}
