@@ -1,9 +1,13 @@
+
 # solace_exporter
+
 Prometheus Exporter for Solace PubSub+<br/>
-Experimental Status<br/>
+Status: Prototype, tested only against PubSub+ software broker (VMR)<br/>
 
 ## Features
-The exporter is written in go, based on the Solace Legacy SEMP protocol. It has implemented the following endpoints:
+
+The exporter is written in go, based on the Solace Legacy SEMP protocol.<br/>
+It implements the following endpoints:
 <pre><code>
 .../            HTML page with endpoints
 .../metrics     Golang and standard Prometheus stuff
@@ -11,7 +15,9 @@ The exporter is written in go, based on the Solace Legacy SEMP protocol. It has 
 .../solace-det  Solace metrics for all individual Clients and Queues
                 (Can degrade system performance, test before use it in prod)
 </code></pre>
+
 ## Usage
+
 <pre><code>
 ./solace_exporter -h
 usage: solace_exporter [&lt;flags&gt;]
@@ -31,33 +37,40 @@ Flags:
       --log.level=info     Only log messages with the given severity or above. One of: [debug, info, warn, error]
       --log.format=logfmt  Output format of log messages. One of: [logfmt, json]
       </code></pre>
+
 ## Build
-### Default Build to run without Docker
-<pre><code>cd &lt;solace-exporter-directory&gt;
+
+### Default Build
+
+<pre><code>cd &lt;some-directory&gt;/solace_exporter
 go build
 </code></pre>
-### Create Docker Image
-A sample Dockerfile based on amd64/busybox is included in the repository.
-<pre><code>cd &lt;solace-exporter-directory&gt;
-docker build --tag solace_exporter .
-</code></pre>
-### Create Docker Container
-The exporter can be configured by environment variables to facilitate running in Docker.
-<pre><code>cd &lt;solace-exporter-directory&gt;
-docker create \
+
+## Docker
+
+### Build Docker Image
+
+A build Dockerfile is included in the repository.<br/>
+This is used to automatically build and push the latest image to the Dockerhub repository **dabgmx/solace-exporter**
+
+### Run Docker Image
+
+The command line arguments can be overridden by environment variables to facilitate deployment in Docker. Example:<br/>
+
+<pre><code>docker run -d \
  -p 9628:9628 \
  --env SOLACE_WEB_LISTEN_ADDRESS=":9628" \
- --env SOLACE_SCRAPE_URI="http://192.168.110.100:8080" \
+ --env SOLACE_SCRAPE_URI="http://192.168.100.100:8080" \
  --env SOLACE_USER="admin" \
  --env SOLACE_PASSWORD="admin" \
  --env SOLACE_SCRAPE_TIMEOUT="5s" \
  --env SOLACE_SSL_VERIFY="false" \
  --env SOLACE_RESET_STATS="false" \
  --env SOLACE_INCLUDE_RATES="true" \
- --name solace_exporter \
- solace_exporter
+ --name solace-exporter \
+ dabgmx/solace-exporter
 </code></pre>
 
 ## Bonus Material
-The sub directory **testfiles** contains some sample curl commands and their outputs. This is just fyi and not needed for building.
 
+The sub directory **testfiles** contains some sample curl commands and their outputs. This is just fyi and not needed for building.
