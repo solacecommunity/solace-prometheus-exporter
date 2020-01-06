@@ -32,13 +32,9 @@ Flags:
       --log.format=logfmt  Output format of log messages. One of: [logfmt, json]
       </code></pre>
 ## Build
-### Default Build
+### Default Build to run without Docker
 <pre><code>cd &lt;solace-exporter-directory&gt;
 go build
-</code></pre>
-### Static Build for Linux amd64 to run in Docker
-<pre><code>cd &lt;solace-exporter-directory&gt;
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags '-extldflags "-static"'
 </code></pre>
 ### Create Docker Image
 A sample Dockerfile based on amd64/busybox is included in the repository.
