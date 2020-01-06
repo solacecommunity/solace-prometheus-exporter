@@ -14,12 +14,12 @@ RUN go get -d -v ./... \
  && go build \
     -a \
     -ldflags '-s -w -extldflags "-static"' \
-    -o /bin/solace-exporter
+    -o /bin/solace_exporter
 
 
 
 FROM scratch
-LABEL maintainer="(@dabgmx)"
+LABEL maintainer="Daniel Brunold <dab@gmx.ch>"
 
 ENV SOLACE_WEB_LISTEN_ADDRESS="0.0.0.0:9628"
 ENV SOLACE_SCRAPE_TIMEOUT="5s"
@@ -30,9 +30,9 @@ ENV SOLACE_USER="admin"
 ENV SOLACE_PASSWORD="admin"
 
 EXPOSE 9628
-ENTRYPOINT [ "/solace-exporter" ]
+ENTRYPOINT [ "/solace_exporter" ]
 CMD [ ]
 
 COPY --from=builder /etc/passwd /etc/passwd
 
-COPY --from=builder /bin/solace-exporter /solace-exporter
+COPY --from=builder /bin/solace_exporter /solace_exporter
