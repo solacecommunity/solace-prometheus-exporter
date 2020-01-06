@@ -22,8 +22,8 @@ docker build --tag solace_exporter .
 docker stop solace_exporter
 docker container rm -f solace_exporter
 docker create \
- -p 9101:9101 \
- --env SOLACE_WEB_LISTEN_ADDRESS=":9101" \
+ -p 9628:9628 \
+ --env SOLACE_WEB_LISTEN_ADDRESS=":9628" \
  --env SOLACE_SCRAPE_URI="http://192.168.110.100:8080" \
  --env SOLACE_USER="admin" \
  --env SOLACE_PASSWORD="admin" \

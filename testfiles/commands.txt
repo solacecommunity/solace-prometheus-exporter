@@ -3,7 +3,7 @@ cd /mnt/c/dev/prometheus/solace_exporter
 go build
 ./solace_exporter --sol.uri="http://192.168.110.100:8080" --sol.user="admin" --sol.pass="admin" --sol.reset --sol.rates
 
-export SOLACE_WEB_LISTEN_ADDRESS=":9101"
+export SOLACE_WEB_LISTEN_ADDRESS=":9628"
 export SOLACE_SCRAPE_URI="http://192.168.110.100:8080"
 export SOLACE_USER="admin"
 export SOLACE_PASSWORD="admin"
@@ -34,7 +34,7 @@ Jobs in prometheus.yml
     scrape_interval: 10s
 
     static_configs:
-    - targets: ['localhost:9101']
+    - targets: ['localhost:9628']
 
   - job_name: 'solace-back'
 

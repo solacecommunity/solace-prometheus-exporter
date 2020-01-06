@@ -825,7 +825,7 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 }
 
 func main() {
-	listenAddress := kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":9101").Envar("SOLACE_WEB_LISTEN_ADDRESS").String()
+	listenAddress := kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":9628").Envar("SOLACE_WEB_LISTEN_ADDRESS").String()
 
 	var conf config
 	kingpin.Flag("sol.uri", "Base URI on which to scrape Solace.").Default("http://localhost:8080").Envar("SOLACE_SCRAPE_URI").StringVar(&conf.scrapeURI)

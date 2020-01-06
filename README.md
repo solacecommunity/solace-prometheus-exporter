@@ -18,7 +18,7 @@ usage: solace_exporter [&lt;flags&gt;]
 
 Flags:
   -h, --help               Show context-sensitive help.
-      --web.listen-address=":9101"
+      --web.listen-address=":9628"
                            Address to listen on for web interface and telemetry.
       --sol.uri="http://localhost:8080"
                            Base URI on which to scrape Solace.
@@ -49,8 +49,8 @@ docker build --tag solace_exporter .
 The exporter can be configured by environment variables to facilitate running in Docker.
 <pre><code>cd &lt;solace-exporter-directory&gt;
 docker create \
- -p 9101:9101 \
- --env SOLACE_WEB_LISTEN_ADDRESS=":9101" \
+ -p 9628:9628 \
+ --env SOLACE_WEB_LISTEN_ADDRESS=":9628" \
  --env SOLACE_SCRAPE_URI="http://192.168.110.100:8080" \
  --env SOLACE_USER="admin" \
  --env SOLACE_PASSWORD="admin" \
