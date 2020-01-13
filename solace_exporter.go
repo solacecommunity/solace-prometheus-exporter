@@ -44,7 +44,6 @@ type metrics map[string]*prometheus.Desc
 
 var (
 	globalMutex             = &sync.Mutex{}
-	globalResetExecuted     = false
 	variableLabelsVpn       = []string{"vpn_name"}
 	variableLabelsVpnClient = []string{"vpn_name", "client_name", "client_username"}
 	variableLabelsVpnQueue  = []string{"vpn_name", "queue_name"}
@@ -156,17 +155,6 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 	globalMutex.Lock()
 	defer globalMutex.Unlock()
-
-	if e.config.resetStats && !globalResetExecuted {
-		// It's time to try to reset the stats
-		if e.resetStatsSemp1() {
-			level.Info(e.logger).Log("msg", "Statistics successfully reset")
-			globalResetExecuted = true
-			up = 1
-		} else {
-			up = 0
-		}
-	}
 
 	if e.config.details {
 		if up > 0 {
@@ -794,7 +782,7 @@ func main() {
 	kingpin.Flag("sol.pass", "Password for http requests to Solace broker.").Default("admin").Envar("SOLACE_PASSWORD").StringVar(&conf.password)
 	kingpin.Flag("sol.timeout", "Timeout for trying to get stats from Solace.").Default("5s").Envar("SOLACE_SCRAPE_TIMEOUT").DurationVar(&conf.timeout)
 	kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI").Default("False").Envar("SOLACE_SSL_VERIFY").BoolVar(&conf.sslVerify)
-	kingpin.Flag("sol.reset", "Flag that enables resetting system/vpn/client/queue stats in Solace").Default("False").Envar("SOLACE_RESET_STATS").BoolVar(&conf.resetStats)
+	kingpin.Flag("sol.reset", "Flag that resetting system/vpn/client/queue stats in Solace at exporter startup. ATTENTION use only if you know what you do. This is for debug purpose only!").Default("False").Envar("SOLACE_RESET_STATS").BoolVar(&conf.resetStats)
 	kingpin.Flag("sol.rates", "Flag that enables scrape of rate metrics").Default("False").Envar("SOLACE_INCLUDE_RATES").BoolVar(&conf.scrapeRates)
 
 	promlogConfig := &promlog.Config{}
@@ -819,6 +807,13 @@ func main() {
 	registryDet.MustRegister(exporterDet)
 	registryDet.MustRegister(version.NewCollector("solace_detailed"))
 	handlerDet := promhttp.HandlerFor(registryDet, promhttp.HandlerOpts{})
+
+	if conf.resetStats {
+		// It's time to try to reset the stats
+		if exporterStd.resetStatsSemp1() {
+			level.Info(logger).Log("msg", "Statistics successfully reset")
+		}
+	}
 
 	level.Info(logger).Log("msg", "Listening on address", "address", *listenAddress)
 	http.Handle("/metrics", promhttp.Handler())
