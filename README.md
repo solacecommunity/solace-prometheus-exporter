@@ -40,8 +40,7 @@ Flags:
 
 ## Build
 
-### Default Build
-
+### Default Build to run without Docker
 <pre><code>cd &lt;some-directory&gt;/solace_exporter
 go build
 </code></pre>
