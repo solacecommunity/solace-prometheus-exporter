@@ -29,14 +29,28 @@ Flags:
       --sol.uri="http://localhost:8080"
                            Base URI on which to scrape Solace.
       --sol.user="admin"   Username for http requests to Solace broker.
-      --sol.pass="admin"   Password for http requests to Solace broker.
+      --sol.pass="admin"   Password for http requests to Solace broker. Security, dont use this as commandline, please only via config file.
       --sol.timeout=5s     Timeout for trying to get stats from Solace.
       --sol.sslv           Flag that enables SSL certificate verification for the scrape URI
       --sol.reset          Flag that enables resetting system/vpn/client/queue stats in Solace
-      --sol.rates          Flag that enables scrape of rate metrics
+      --sol.rates          Flag that enables scrape of additional queue rx/tx rate metrics
       --log.level=info     Only log messages with the given severity or above. One of: [debug, info, warn, error]
       --log.format=logfmt  Output format of log messages. One of: [logfmt, json]
       </code></pre>
+
+### Security
+
+For Docker you should prefer the ENV (see below)
+Else please place your options in an config file and call the exporter with:
+
+<pre><code>
+cat /path/to/config/file
+--sol.user="admin"
+--sol.pass="admin"
+...
+
+solace_exporter @/path/to/config/file
+</code></pre>
 
 ## Build
 

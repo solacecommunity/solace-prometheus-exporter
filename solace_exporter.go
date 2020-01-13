@@ -779,7 +779,7 @@ func main() {
 	var conf config
 	kingpin.Flag("sol.uri", "Base URI on which to scrape Solace.").Default("http://localhost:8080").Envar("SOLACE_SCRAPE_URI").StringVar(&conf.scrapeURI)
 	kingpin.Flag("sol.user", "Username for http requests to Solace broker.").Default("admin").Envar("SOLACE_USER").StringVar(&conf.username)
-	kingpin.Flag("sol.pass", "Password for http requests to Solace broker.").Default("admin").Envar("SOLACE_PASSWORD").StringVar(&conf.password)
+	kingpin.Flag("sol.pass", "Password for http requests to Solace broker. Security, dont use this as commandline, please only via config file. Please see readme.").Default("admin").Envar("SOLACE_PASSWORD").StringVar(&conf.password)
 	kingpin.Flag("sol.timeout", "Timeout for trying to get stats from Solace.").Default("5s").Envar("SOLACE_SCRAPE_TIMEOUT").DurationVar(&conf.timeout)
 	kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI").Default("False").Envar("SOLACE_SSL_VERIFY").BoolVar(&conf.sslVerify)
 	kingpin.Flag("sol.reset", "Flag that resetting system/vpn/client/queue stats in Solace at exporter startup. ATTENTION use only if you know what you do. This is for debug purpose only!").Default("False").Envar("SOLACE_RESET_STATS").BoolVar(&conf.resetStats)
