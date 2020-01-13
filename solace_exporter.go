@@ -81,14 +81,6 @@ var metricsStd = metrics{
 	"vpn_tx_bytes_total":          prometheus.NewDesc(namespace+"_"+"vpn_tx_bytes_total", "Number of transmitted bytes.", variableLabelsVpn, nil),
 	"vpn_rx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"vpn_rx_discarded_msgs_total", "Number of discarded received messages.", variableLabelsVpn, nil),
 	"vpn_tx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"vpn_tx_discarded_msgs_total", "Number of discarded transmitted messages.", variableLabelsVpn, nil),
-	"vpn_rx_msg_rate":             prometheus.NewDesc(namespace+"_"+"vpn_rx_msg_rate", "Rate of received messages.", variableLabelsVpn, nil),
-	"vpn_tx_msg_rate":             prometheus.NewDesc(namespace+"_"+"vpn_tx_msg_rate", "Rate of transmitted messages.", variableLabelsVpn, nil),
-	"vpn_rx_byte_rate":            prometheus.NewDesc(namespace+"_"+"vpn_rx_byte_rate", "Rate of received bytes.", variableLabelsVpn, nil),
-	"vpn_tx_byte_rate":            prometheus.NewDesc(namespace+"_"+"vpn_tx_byte_rate", "Rate of transmitted bytes.", variableLabelsVpn, nil),
-	"vpn_rx_msg_rate_avg":         prometheus.NewDesc(namespace+"_"+"vpn_rx_msg_rate_avg", "Averate rate of received messages.", variableLabelsVpn, nil),
-	"vpn_tx_msg_rate_avg":         prometheus.NewDesc(namespace+"_"+"vpn_tx_msg_rate_avg", "Averate rate of transmitted messages.", variableLabelsVpn, nil),
-	"vpn_rx_byte_rate_avg":        prometheus.NewDesc(namespace+"_"+"vpn_rx_byte_rate_avg", "Averate rate of received bytes.", variableLabelsVpn, nil),
-	"vpn_tx_byte_rate_avg":        prometheus.NewDesc(namespace+"_"+"vpn_tx_byte_rate_avg", "Averate rate of transmitted bytes.", variableLabelsVpn, nil),
 }
 
 var metricsDet = metrics{
@@ -98,14 +90,6 @@ var metricsDet = metrics{
 	"client_tx_bytes_total":          prometheus.NewDesc(namespace+"_"+"client_tx_bytes_total", "Number of transmitted bytes.", variableLabelsVpnClient, nil),
 	"client_rx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"client_rx_discarded_msgs_total", "Number of discarded received messages.", variableLabelsVpnClient, nil),
 	"client_tx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"client_tx_discarded_msgs_total", "Number of discarded transmitted messages.", variableLabelsVpnClient, nil),
-	"client_rx_msg_rate":             prometheus.NewDesc(namespace+"_"+"client_rx_msg_rate", "Rate of received messages.", variableLabelsVpnClient, nil),
-	"client_tx_msg_rate":             prometheus.NewDesc(namespace+"_"+"client_tx_msg_rate", "Rate of transmitted messages.", variableLabelsVpnClient, nil),
-	"client_rx_byte_rate":            prometheus.NewDesc(namespace+"_"+"client_rx_byte_rate", "Rate of received bytes.", variableLabelsVpnClient, nil),
-	"client_tx_byte_rate":            prometheus.NewDesc(namespace+"_"+"client_tx_byte_rate", "Rate of transmitted bytes.", variableLabelsVpnClient, nil),
-	"client_rx_msg_rate_avg":         prometheus.NewDesc(namespace+"_"+"client_rx_msg_rate_avg", "Averate rate of received messages.", variableLabelsVpnClient, nil),
-	"client_tx_msg_rate_avg":         prometheus.NewDesc(namespace+"_"+"client_tx_msg_rate_avg", "Averate rate of transmitted messages.", variableLabelsVpnClient, nil),
-	"client_rx_byte_rate_avg":        prometheus.NewDesc(namespace+"_"+"client_rx_byte_rate_avg", "Averate rate of received bytes.", variableLabelsVpnClient, nil),
-	"client_tx_byte_rate_avg":        prometheus.NewDesc(namespace+"_"+"client_tx_byte_rate_avg", "Averate rate of transmitted bytes.", variableLabelsVpnClient, nil),
 	"client_slow_subscriber":         prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClient, nil),
 	"client_uptime_seconds":          prometheus.NewDesc(namespace+"_"+"client_uptime_seconds", "Up time of client in seconds.", variableLabelsVpnClient, nil),
 
@@ -569,17 +553,6 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataTxByteCount, vpn.Name)
 		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.IngressDiscards.DiscardedRxMsgCount, vpn.Name)
 		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.EgressDiscards.DiscardedTxMsgCount, vpn.Name)
-
-		if e.config.scrapeRates {
-			ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_msg_rate"], prometheus.GaugeValue, vpn.Stats.RxMsgRate, vpn.Name)
-			ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_msg_rate"], prometheus.GaugeValue, vpn.Stats.TxMsgRate, vpn.Name)
-			ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_byte_rate"], prometheus.GaugeValue, vpn.Stats.RxByteRate, vpn.Name)
-			ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_byte_rate"], prometheus.GaugeValue, vpn.Stats.TxByteRate, vpn.Name)
-			ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_msg_rate_avg"], prometheus.GaugeValue, vpn.Stats.AverageRxMsgRate, vpn.Name)
-			ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_msg_rate_avg"], prometheus.GaugeValue, vpn.Stats.AverageTxMsgRate, vpn.Name)
-			ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_byte_rate_avg"], prometheus.GaugeValue, vpn.Stats.AverageRxByteRate, vpn.Name)
-			ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_byte_rate_avg"], prometheus.GaugeValue, vpn.Stats.AverageTxByteRate, vpn.Name)
-		}
 	}
 
 	return 1
@@ -661,18 +634,6 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_bytes_total"], prometheus.CounterValue, client.Stats.DataTxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
 			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.IngressDiscards.DiscardedRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
 			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.EgressDiscards.DiscardedTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-
-			if e.config.scrapeRates {
-				ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_msg_rate"], prometheus.GaugeValue, client.Stats.RxMsgRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
-				ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_msg_rate"], prometheus.GaugeValue, client.Stats.TxMsgRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
-				ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_byte_rate"], prometheus.GaugeValue, client.Stats.RxByteRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
-				ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_byte_rate"], prometheus.GaugeValue, client.Stats.TxByteRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
-				ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_msg_rate_avg"], prometheus.GaugeValue, client.Stats.AverageRxMsgRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
-				ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_msg_rate_avg"], prometheus.GaugeValue, client.Stats.AverageTxMsgRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
-				ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_byte_rate_avg"], prometheus.GaugeValue, client.Stats.AverageRxByteRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
-				ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_byte_rate_avg"], prometheus.GaugeValue, client.Stats.AverageTxByteRate, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			}
-
 			ch <- prometheus.MustNewConstMetric(metricsDet["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, client.ClientUsername)
 			//ch <- prometheus.MustNewConstMetric(metricsDet["client_uptime_seconds"], prometheus.GaugeValue, 0, client.MsgVpnName, client.ClientName, client.ClientUsername)
 		}
