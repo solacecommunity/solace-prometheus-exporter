@@ -34,6 +34,7 @@ import (
 	"github.com/prometheus/common/promlog/flag"
 	"github.com/prometheus/common/version"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"gopkg.in/ini.v1"
 )
 
 const (
@@ -773,28 +774,122 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 	return 1
 }
 
+func parseCnf(configFile interface{}, conf *config, logger log.Logger) {
+	opts := ini.LoadOptions{
+		// MySQL ini file can have boolean keys.
+		AllowBooleanKeys: true,
+	}
+	cfg, err := ini.LoadSources(opts, configFile)
+	if err != nil {
+		return
+	}
+
+	scrapeURI := cfg.Section("sol").Key("uri").String()
+	if len(scrapeURI) > 0 {
+		conf.scrapeURI = scrapeURI
+	} else {
+		level.Info(logger).Log("msg", "config key sol.uri is mising")
+	}
+
+	username := cfg.Section("sol").Key("username").String()
+	if len(username) > 0 {
+		conf.username = username
+	} else {
+		level.Info(logger).Log("msg", "config key sol.username is mising")
+	}
+
+	password := cfg.Section("sol").Key("password").String()
+	if len(password) > 0 {
+		conf.password = password
+	} else {
+		level.Info(logger).Log("msg", "config key sol.password is mising")
+	}
+
+	timeout, err := cfg.Section("sol").Key("timeout").Duration()
+	if err == nil {
+		conf.timeout = timeout
+	} else {
+		level.Info(logger).Log("msg", "config timeout is missing or invalid", "err", err)
+	}
+
+	sslVerify, err := cfg.Section("sol").Key("sslVerify").Bool()
+	if err == nil {
+		conf.sslVerify = sslVerify
+	} else {
+		level.Info(logger).Log("msg", "config sslVerify is missing or invalid", "err", err)
+	}
+
+	scrapeRates, err := cfg.Section("sol").Key("scrapeRates").Bool()
+	if err == nil {
+		conf.scrapeRates = scrapeRates
+	} else {
+		level.Info(logger).Log("msg", "config scrapeRates is missing or invalid", "err", err)
+	}
+
+	resetStats, err := cfg.Section("sol").Key("resetStats").Bool()
+	if err == nil {
+		conf.resetStats = resetStats
+	} else {
+		level.Info(logger).Log("msg", "config resetStats is missing or invalid", "err", err)
+	}
+}
+
 func main() {
+
 	listenAddress := kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":9628").Envar("SOLACE_WEB_LISTEN_ADDRESS").String()
 
-	var conf config
-	kingpin.Flag("sol.uri", "Base URI on which to scrape Solace.").Default("http://localhost:8080").Envar("SOLACE_SCRAPE_URI").StringVar(&conf.scrapeURI)
-	kingpin.Flag("sol.user", "Username for http requests to Solace broker.").Default("admin").Envar("SOLACE_USER").StringVar(&conf.username)
-	kingpin.Flag("sol.pass", "Password for http requests to Solace broker. Security, dont use this as commandline, please only via config file. Please see readme.").Default("admin").Envar("SOLACE_PASSWORD").StringVar(&conf.password)
-	kingpin.Flag("sol.timeout", "Timeout for trying to get stats from Solace.").Default("5s").Envar("SOLACE_SCRAPE_TIMEOUT").DurationVar(&conf.timeout)
-	kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI").Default("False").Envar("SOLACE_SSL_VERIFY").BoolVar(&conf.sslVerify)
-	kingpin.Flag("sol.reset", "Flag that resetting system/vpn/client/queue stats in Solace at exporter startup. ATTENTION use only if you know what you do. This is for debug purpose only!").Default("False").Envar("SOLACE_RESET_STATS").BoolVar(&conf.resetStats)
-	kingpin.Flag("sol.rates", "Flag that enables scrape of rate metrics").Default("False").Envar("SOLACE_INCLUDE_RATES").BoolVar(&conf.scrapeRates)
+	configFile := kingpin.Flag(
+		"config-file",
+		"Path to solace_exporter.ini file to provide solace broker credentials.",
+	).String()
 
-	promlogConfig := &promlog.Config{}
-	flag.AddFlags(kingpin.CommandLine, promlogConfig)
+	var conf config
+
+	kingpin.Flag("sol.uri", "Base URI on which to scrape Solace.").Default(conf.scrapeURI).Envar("SOLACE_SCRAPE_URI").StringVar(&conf.scrapeURI)
+	kingpin.Flag("sol.user", "Username for http requests to Solace broker.").Default(conf.username).Envar("SOLACE_USER").StringVar(&conf.username)
+	solacePassword := os.Getenv("SOLACE_PASSWORD")
+	if len(solacePassword) > 0 {
+		conf.password = solacePassword
+	}
+	kingpin.Flag("sol.timeout", "Timeout for trying to get stats from Solace.").Default("5s").Envar("SOLACE_SCRAPE_TIMEOUT").DurationVar(&conf.timeout)
+	kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI").Default(strconv.FormatBool(conf.sslVerify)).Envar("SOLACE_SSL_VERIFY").BoolVar(&conf.sslVerify)
+	kingpin.Flag("sol.reset", "Flag that resetting system/vpn/client/queue stats in Solace at exporter startup. ATTENTION use only if you know what you do. This is for debug purpose only!").Default(strconv.FormatBool(conf.resetStats)).Envar("SOLACE_RESET_STATS").BoolVar(&conf.resetStats)
+	kingpin.Flag("sol.rates", "Flag that enables scrape of rate metrics").Default(strconv.FormatBool(conf.scrapeRates)).Envar("SOLACE_INCLUDE_RATES").BoolVar(&conf.scrapeRates)
 	kingpin.HelpFlag.Short('h')
+
+	// Defaults
+	conf.scrapeURI = "http://localhost:8080"
+	conf.username = "admin"
+	conf.password = "admin"
+	timeout, err := time.ParseDuration("5s")
+	if err == nil {
+		conf.timeout = timeout
+	}
+	conf.sslVerify = false
+	conf.scrapeRates = false
+	conf.resetStats = false
+
+	promlogConfig := promlog.Config{
+		Level:  &promlog.AllowedLevel{},
+		Format: &promlog.AllowedFormat{},
+	}
+	promlogConfig.Level.Set("info")
+	promlogConfig.Format.Set("logfmt")
+
+	logger := promlog.New(&promlogConfig)
+
+	flag.AddFlags(kingpin.CommandLine, &promlogConfig)
 	kingpin.Parse()
-	logger := promlog.New(promlogConfig)
+
+	parseCnf(*configFile, &conf, logger)
+
+	logger = promlog.New(&promlogConfig)
 
 	level.Info(logger).Log("msg", "Starting solace_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
 
 	conf.details = false
+
 	exporterStd := NewExporter(logger, conf)
 	registryStd := prometheus.NewRegistry()
 	registryStd.MustRegister(exporterStd)

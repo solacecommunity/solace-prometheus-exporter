@@ -24,12 +24,14 @@ usage: solace_exporter [&lt;flags&gt;]
 
 Flags:
   -h, --help               Show context-sensitive help.
+      --config-file=./solace_exporter.ini
+                           All options can be set via .ini file. See solace_exporter.ini for sample.
       --web.listen-address=":9628"
                            Address to listen on for web interface and telemetry.
       --sol.uri="http://localhost:8080"
                            Base URI on which to scrape Solace.
       --sol.user="admin"   Username for http requests to Solace broker.
-      --sol.pass="admin"   Password for http requests to Solace broker. Security, dont use this as commandline, please only via config file.
+      --sol.pass="admin"   Security: DOEST NOT EXIST, can only be set via config or env.
       --sol.timeout=5s     Timeout for trying to get stats from Solace.
       --sol.sslv           Flag that enables SSL certificate verification for the scrape URI
       --sol.reset          Flag that enables resetting system/vpn/client/queue stats in Solace
@@ -44,9 +46,15 @@ For Docker you should prefer the ENV (see below)
 Else please place your options in an config file and call the exporter with:
 
 <pre><code>
-cat /path/to/config/file
---sol.user="admin"
---sol.pass="admin"
+cat /path/to/config/file.ini
+[sol]
+uri=http://localhost:8080
+username=admin
+password=admin
+timeout=6s
+sslVerify=false
+scrapeRates=false
+resetStats=false
 ...
 
 solace_exporter @/path/to/config/file
