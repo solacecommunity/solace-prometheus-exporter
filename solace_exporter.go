@@ -23,7 +23,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -44,7 +43,6 @@ const (
 type metrics map[string]*prometheus.Desc
 
 var (
-	globalMutex             = &sync.Mutex{}
 	variableLabelsVpn       = []string{"vpn_name"}
 	variableLabelsVpnClient = []string{"vpn_name", "client_name", "client_username"}
 	variableLabelsVpnQueue  = []string{"vpn_name", "queue_name"}
@@ -153,9 +151,6 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 // as Prometheus metrics. It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	var up float64 = 1
-
-	globalMutex.Lock()
-	defer globalMutex.Unlock()
 
 	if e.config.details {
 		if up > 0 {
