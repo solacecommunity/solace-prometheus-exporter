@@ -113,7 +113,7 @@ type config struct {
 	sslVerify   bool
 	timeout     time.Duration
 	details     bool
-	scrapeRates bool
+	scrapeRedundancy bool
 }
 
 // Exporter collects Solace stats from the given URI and exports them using
@@ -158,11 +158,11 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		if up > 0 {
 			up = e.getQueueSemp1(ch)
 		}
-		if up > 0 && e.config.scrapeRates {
+		if up > 0 {
 			up = e.getQueueRatesSemp1(ch)
 		}
 	} else { // Basic
-		if up > 0 {
+		if up > 0 && e.config.scrapeRedundancy {
 			up = e.getRedundancySemp1(ch)
 		}
 		if up > 0 {
@@ -756,11 +756,11 @@ func parseCnf(configFile interface{}, conf *config, logger log.Logger) {
 		level.Info(logger).Log("msg", "config sslVerify is missing or invalid", "err", err)
 	}
 
-	scrapeRates, err := cfg.Section("sol").Key("scrapeRates").Bool()
+	scrapeRedundancy, err := cfg.Section("sol").Key("scrapeRedundancy").Bool()
 	if err == nil {
-		conf.scrapeRates = scrapeRates
+		conf.scrapeRedundancy = scrapeRedundancy
 	} else {
-		level.Info(logger).Log("msg", "config scrapeRates is missing or invalid", "err", err)
+		level.Info(logger).Log("msg", "config scrapeRedundancy is missing or invalid", "err", err)
 	}
 }
 
@@ -783,7 +783,7 @@ func main() {
 	}
 	kingpin.Flag("sol.timeout", "Timeout for trying to get stats from Solace.").Default("5s").Envar("SOLACE_SCRAPE_TIMEOUT").DurationVar(&conf.timeout)
 	kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI").Default(strconv.FormatBool(conf.sslVerify)).Envar("SOLACE_SSL_VERIFY").BoolVar(&conf.sslVerify)
-	kingpin.Flag("sol.rates", "Flag that enables scrape of rate metrics").Default(strconv.FormatBool(conf.scrapeRates)).Envar("SOLACE_INCLUDE_RATES").BoolVar(&conf.scrapeRates)
+	kingpin.Flag("sol.redundancy", "Flag that enables scrape of redundancy metrics. Should be used for HA tripples.").Default(strconv.FormatBool(conf.scrapeRedundancy)).Envar("SOLACE_INCLUDE_REDUNDANCY").BoolVar(&conf.scrapeRedundancy)
 	kingpin.HelpFlag.Short('h')
 
 	// Defaults
@@ -795,7 +795,7 @@ func main() {
 		conf.timeout = timeout
 	}
 	conf.sslVerify = false
-	conf.scrapeRates = false
+	conf.scrapeRedundancy = false
 
 	promlogConfig := promlog.Config{
 		Level:  &promlog.AllowedLevel{},

@@ -34,8 +34,7 @@ Flags:
       --sol.pass="admin"   Security: DOEST NOT EXIST, can only be set via config or env.
       --sol.timeout=5s     Timeout for trying to get stats from Solace.
       --sol.sslv           Flag that enables SSL certificate verification for the scrape URI
-      --sol.reset          Flag that enables resetting system/vpn/client/queue stats in Solace
-      --sol.rates          Flag that enables scrape of additional queue rx/tx rate metrics
+      --sol.redundancy     Flag that enables scrape of redundancy metrics. Should be used for HA tripples.
       --log.level=info     Only log messages with the given severity or above. One of: [debug, info, warn, error]
       --log.format=logfmt  Output format of log messages. One of: [logfmt, json]
       </code></pre>
@@ -53,8 +52,7 @@ username=admin
 password=admin
 timeout=6s
 sslVerify=false
-scrapeRates=false
-resetStats=false
+scrapeRedundancy=false
 ...
 
 solace_exporter @/path/to/config/file
@@ -86,8 +84,7 @@ The command line arguments can be overridden by environment variables to facilit
  --env SOLACE_PASSWORD="admin" \
  --env SOLACE_SCRAPE_TIMEOUT="5s" \
  --env SOLACE_SSL_VERIFY="false" \
- --env SOLACE_RESET_STATS="false" \
- --env SOLACE_INCLUDE_RATES="true" \
+ --env SOLACE_INCLUDE_REDUNDANCY="true" \
  --name solace-exporter \
  dabgmx/solace-exporter
 </code></pre>
