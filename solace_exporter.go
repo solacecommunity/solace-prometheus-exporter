@@ -777,10 +777,6 @@ func main() {
 
 	kingpin.Flag("sol.uri", "Base URI on which to scrape Solace.").Default(conf.scrapeURI).Envar("SOLACE_SCRAPE_URI").StringVar(&conf.scrapeURI)
 	kingpin.Flag("sol.user", "Username for http requests to Solace broker.").Default(conf.username).Envar("SOLACE_USER").StringVar(&conf.username)
-	solacePassword := os.Getenv("SOLACE_PASSWORD")
-	if len(solacePassword) > 0 {
-		conf.password = solacePassword
-	}
 	kingpin.Flag("sol.timeout", "Timeout for trying to get stats from Solace.").Default("5s").Envar("SOLACE_SCRAPE_TIMEOUT").DurationVar(&conf.timeout)
 	kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI").Default(strconv.FormatBool(conf.sslVerify)).Envar("SOLACE_SSL_VERIFY").BoolVar(&conf.sslVerify)
 	kingpin.Flag("sol.redundancy", "Flag that enables scrape of redundancy metrics. Should be used for HA tripples.").Default(strconv.FormatBool(conf.scrapeRedundancy)).Envar("SOLACE_INCLUDE_REDUNDANCY").BoolVar(&conf.scrapeRedundancy)
@@ -790,6 +786,12 @@ func main() {
 	conf.scrapeURI = "http://localhost:8080"
 	conf.username = "admin"
 	conf.password = "admin"
+
+	solacePassword := os.Getenv("SOLACE_PASSWORD")
+	if len(solacePassword) > 0 {
+		conf.password = solacePassword
+	}
+
 	timeout, err := time.ParseDuration("5s")
 	if err == nil {
 		conf.timeout = timeout
@@ -815,6 +817,12 @@ func main() {
 
 	level.Info(logger).Log("msg", "Starting solace_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
+
+	level.Info(logger).Log("msg", "Scraping", 
+		"scrapeURI", conf.scrapeURI, 
+		"username", conf.username, 
+		"sslVerify", conf.sslVerify, 
+		"scrapeRedundancy", conf.scrapeRedundancy)
 
 	conf.details = false
 
