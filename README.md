@@ -70,7 +70,7 @@ go build
 ### Build Docker Image
 
 A build Dockerfile is included in the repository.<br/>
-This is used to automatically build and push the latest image to the Dockerhub repository **dabgmx/solace-exporter**
+This is used to automatically build and push the latest image to the Dockerhub repository [dabgmx/solace-exporter](https://hub.docker.com/r/dabgmx/solace-exporter)
 
 ### Run Docker Image
 
