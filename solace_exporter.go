@@ -114,7 +114,6 @@ type config struct {
 	timeout     time.Duration
 	details     bool
 	scrapeRates bool
-	resetStats  bool
 }
 
 // Exporter collects Solace stats from the given URI and exports them using
@@ -226,63 +225,6 @@ func (e *Exporter) postHTTP(uri string, contentType string, body string) (io.Rea
 		return nil, fmt.Errorf("HTTP status %d", resp.StatusCode)
 	}
 	return resp.Body, nil
-}
-
-// Reset a stats item via SEMP1
-func (e *Exporter) resetStatsItemSemp1(bodyString string) (ok bool) {
-
-	type Data struct {
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-		} `xml:"execute-result"`
-	}
-
-	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", bodyString)
-	if err != nil {
-		level.Error(e.logger).Log("command", bodyString, "err", err)
-		return false
-	}
-
-	defer body.Close()
-	decoder := xml.NewDecoder(body)
-	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		level.Error(e.logger).Log("command", bodyString, "err", err)
-		return false
-	}
-
-	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", bodyString)
-		return false
-	}
-
-	return true
-}
-
-// Reset some stats items via SEMP1
-func (e *Exporter) resetStatsSemp1() (ok bool) {
-
-	if e.resetStatsItemSemp1("<rpc><clear><system><health><stats/></health></system></clear></rpc>") == false {
-		return false
-	}
-	if e.resetStatsItemSemp1("<rpc><clear><message-spool><stats/></message-spool></clear></rpc>") == false {
-		return false
-	}
-	if e.resetStatsItemSemp1("<rpc><clear><message-vpn><vpn-name>*</vpn-name><stats/></message-vpn></clear></rpc>") == false {
-		return false
-	}
-	if e.resetStatsItemSemp1("<rpc><clear><stats><client/></stats></clear></rpc>") == false {
-		return false
-	}
-	if e.resetStatsItemSemp1("<rpc><clear><client><name>*</name><stats/></client></clear></rpc>") == false {
-		return false
-	}
-	if e.resetStatsItemSemp1("<rpc><clear><queue><name>*</name><stats/></queue></clear></rpc>") == false {
-		return false
-	}
-
-	return true
 }
 
 // Get system-wide basic redundancy information for HA triples
@@ -820,13 +762,6 @@ func parseCnf(configFile interface{}, conf *config, logger log.Logger) {
 	} else {
 		level.Info(logger).Log("msg", "config scrapeRates is missing or invalid", "err", err)
 	}
-
-	resetStats, err := cfg.Section("sol").Key("resetStats").Bool()
-	if err == nil {
-		conf.resetStats = resetStats
-	} else {
-		level.Info(logger).Log("msg", "config resetStats is missing or invalid", "err", err)
-	}
 }
 
 func main() {
@@ -848,7 +783,6 @@ func main() {
 	}
 	kingpin.Flag("sol.timeout", "Timeout for trying to get stats from Solace.").Default("5s").Envar("SOLACE_SCRAPE_TIMEOUT").DurationVar(&conf.timeout)
 	kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI").Default(strconv.FormatBool(conf.sslVerify)).Envar("SOLACE_SSL_VERIFY").BoolVar(&conf.sslVerify)
-	kingpin.Flag("sol.reset", "Flag that resetting system/vpn/client/queue stats in Solace at exporter startup. ATTENTION use only if you know what you do. This is for debug purpose only!").Default(strconv.FormatBool(conf.resetStats)).Envar("SOLACE_RESET_STATS").BoolVar(&conf.resetStats)
 	kingpin.Flag("sol.rates", "Flag that enables scrape of rate metrics").Default(strconv.FormatBool(conf.scrapeRates)).Envar("SOLACE_INCLUDE_RATES").BoolVar(&conf.scrapeRates)
 	kingpin.HelpFlag.Short('h')
 
@@ -862,7 +796,6 @@ func main() {
 	}
 	conf.sslVerify = false
 	conf.scrapeRates = false
-	conf.resetStats = false
 
 	promlogConfig := promlog.Config{
 		Level:  &promlog.AllowedLevel{},
@@ -897,13 +830,6 @@ func main() {
 	registryDet.MustRegister(exporterDet)
 	registryDet.MustRegister(version.NewCollector("solace_detailed"))
 	handlerDet := promhttp.HandlerFor(registryDet, promhttp.HandlerOpts{})
-
-	if conf.resetStats {
-		// It's time to try to reset the stats
-		if exporterStd.resetStatsSemp1() {
-			level.Info(logger).Log("msg", "Statistics successfully reset")
-		}
-	}
 
 	level.Info(logger).Log("msg", "Listening on address", "address", *listenAddress)
 	http.Handle("/metrics", promhttp.Handler())
