@@ -1,0 +1,3493 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "description": "Analyse solace PubSub+ VPNs",
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 2,
+    "id": 100,
+    "iteration": 1579816241306,
+    "links": [],
+    "panels": [
+      {
+        "cacheTimeout": null,
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 3,
+          "x": 0,
+          "y": 0
+        },
+        "id": 6,
+        "links": [
+          {
+            "dashboard": "solace-broker",
+            "includeVars": true,
+            "keepTime": true,
+            "targetBlank": true,
+            "title": "Broker View",
+            "type": "dashboard"
+          }
+        ],
+        "options": {
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 1,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "red",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "green",
+                "index": 1,
+                "value": 1
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": false
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": "instance_short",
+        "repeatDirection": "v",
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-lt1-otc1-t01",
+            "value": "s-lt1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_up{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{instance_short}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "$instance_short status",
+        "type": "gauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 3,
+          "y": 0
+        },
+        "id": 2,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 1000,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 800
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 900
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": "instance_short",
+        "repeatDirection": "v",
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-lt1-otc1-t01",
+            "value": "s-lt1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_vpn_connections{instance=~\"$instance_short.*\",vpn_name!~\"#.*\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": " {{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "client cons",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 7,
+          "y": 0
+        },
+        "id": 20,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.01,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.007
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.008
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": "instance_short",
+        "repeatDirection": "v",
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-lt1-otc1-t01",
+            "value": "s-lt1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_mate_link_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "mate link latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 9,
+          "y": 0
+        },
+        "id": 21,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": "instance_short",
+        "repeatDirection": "v",
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-lt1-otc1-t01",
+            "value": "s-lt1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_disk_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "disk latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 11,
+          "y": 0
+        },
+        "id": 22,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": "instance_short",
+        "repeatDirection": "v",
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-lt1-otc1-t01",
+            "value": "s-lt1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_compute_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "compute latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 13,
+          "y": 0
+        },
+        "id": 7,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": "instance_short",
+        "repeatDirection": "v",
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-lt1-otc1-t01",
+            "value": "s-lt1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_tx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "B"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume OUT",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 5,
+          "x": 19,
+          "y": 0
+        },
+        "id": 4,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": "instance_short",
+        "repeatDirection": "v",
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-lt1-otc1-t01",
+            "value": "s-lt1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_rx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume IN",
+        "type": "bargauge"
+      },
+      {
+        "cacheTimeout": null,
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 3,
+          "x": 0,
+          "y": 6
+        },
+        "id": 23,
+        "links": [
+          {
+            "dashboard": "solace-broker",
+            "includeVars": true,
+            "keepTime": true,
+            "targetBlank": true,
+            "title": "Broker View",
+            "type": "dashboard"
+          }
+        ],
+        "options": {
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 1,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "red",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "green",
+                "index": 1,
+                "value": 1
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": false
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 6,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-mon-otc1-t01",
+            "value": "s-mon-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_up{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{instance_short}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "$instance_short status",
+        "type": "gauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 3,
+          "y": 6
+        },
+        "id": 29,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 1000,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 800
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 900
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 2,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-mon-otc1-t01",
+            "value": "s-mon-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_vpn_connections{instance=~\"$instance_short.*\",vpn_name!~\"#.*\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": " {{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "client cons",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 7,
+          "y": 6
+        },
+        "id": 35,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.01,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.007
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.008
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 20,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-mon-otc1-t01",
+            "value": "s-mon-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_mate_link_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "mate link latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 9,
+          "y": 6
+        },
+        "id": 41,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 21,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-mon-otc1-t01",
+            "value": "s-mon-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_disk_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "disk latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 11,
+          "y": 6
+        },
+        "id": 47,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 22,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-mon-otc1-t01",
+            "value": "s-mon-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_compute_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "compute latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 13,
+          "y": 6
+        },
+        "id": 53,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 7,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-mon-otc1-t01",
+            "value": "s-mon-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_tx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "B"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume OUT",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 5,
+          "x": 19,
+          "y": 6
+        },
+        "id": 59,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 4,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-mon-otc1-t01",
+            "value": "s-mon-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_rx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume IN",
+        "type": "bargauge"
+      },
+      {
+        "cacheTimeout": null,
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 3,
+          "x": 0,
+          "y": 12
+        },
+        "id": 24,
+        "links": [
+          {
+            "dashboard": "solace-broker",
+            "includeVars": true,
+            "keepTime": true,
+            "targetBlank": true,
+            "title": "Broker View",
+            "type": "dashboard"
+          }
+        ],
+        "options": {
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 1,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "red",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "green",
+                "index": 1,
+                "value": 1
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": false
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 6,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i1-otc1-t01",
+            "value": "s-t-i1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_up{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{instance_short}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "$instance_short status",
+        "type": "gauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 3,
+          "y": 12
+        },
+        "id": 30,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 1000,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 800
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 900
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 2,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i1-otc1-t01",
+            "value": "s-t-i1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_vpn_connections{instance=~\"$instance_short.*\",vpn_name!~\"#.*\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": " {{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "client cons",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 7,
+          "y": 12
+        },
+        "id": 36,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.01,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.007
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.008
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 20,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i1-otc1-t01",
+            "value": "s-t-i1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_mate_link_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "mate link latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 9,
+          "y": 12
+        },
+        "id": 42,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 21,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i1-otc1-t01",
+            "value": "s-t-i1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_disk_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "disk latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 11,
+          "y": 12
+        },
+        "id": 48,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 22,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i1-otc1-t01",
+            "value": "s-t-i1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_compute_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "compute latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 13,
+          "y": 12
+        },
+        "id": 54,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 7,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i1-otc1-t01",
+            "value": "s-t-i1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_tx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "B"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume OUT",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 5,
+          "x": 19,
+          "y": 12
+        },
+        "id": 60,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 4,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i1-otc1-t01",
+            "value": "s-t-i1-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_rx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume IN",
+        "type": "bargauge"
+      },
+      {
+        "cacheTimeout": null,
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 3,
+          "x": 0,
+          "y": 18
+        },
+        "id": 25,
+        "links": [
+          {
+            "dashboard": "solace-broker",
+            "includeVars": true,
+            "keepTime": true,
+            "targetBlank": true,
+            "title": "Broker View",
+            "type": "dashboard"
+          }
+        ],
+        "options": {
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 1,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "red",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "green",
+                "index": 1,
+                "value": 1
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": false
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 6,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i2-otc1-t01",
+            "value": "s-t-i2-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_up{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{instance_short}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "$instance_short status",
+        "type": "gauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 3,
+          "y": 18
+        },
+        "id": 31,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 1000,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 800
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 900
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 2,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i2-otc1-t01",
+            "value": "s-t-i2-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_vpn_connections{instance=~\"$instance_short.*\",vpn_name!~\"#.*\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": " {{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "client cons",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 7,
+          "y": 18
+        },
+        "id": 37,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.01,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.007
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.008
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 20,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i2-otc1-t01",
+            "value": "s-t-i2-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_mate_link_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "mate link latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 9,
+          "y": 18
+        },
+        "id": 43,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 21,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i2-otc1-t01",
+            "value": "s-t-i2-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_disk_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "disk latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 11,
+          "y": 18
+        },
+        "id": 49,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 22,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i2-otc1-t01",
+            "value": "s-t-i2-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_compute_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "compute latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 13,
+          "y": 18
+        },
+        "id": 55,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 7,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i2-otc1-t01",
+            "value": "s-t-i2-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_tx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "B"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume OUT",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 5,
+          "x": 19,
+          "y": 18
+        },
+        "id": 61,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 4,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "s-t-i2-otc1-t01",
+            "value": "s-t-i2-otc1-t01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_rx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume IN",
+        "type": "bargauge"
+      },
+      {
+        "cacheTimeout": null,
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 3,
+          "x": 0,
+          "y": 24
+        },
+        "id": 26,
+        "links": [
+          {
+            "dashboard": "solace-broker",
+            "includeVars": true,
+            "keepTime": true,
+            "targetBlank": true,
+            "title": "Broker View",
+            "type": "dashboard"
+          }
+        ],
+        "options": {
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 1,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "red",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "green",
+                "index": 1,
+                "value": 1
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": false
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 6,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node01",
+            "value": "shared-rcssolace-node01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_up{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{instance_short}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "$instance_short status",
+        "type": "gauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 3,
+          "y": 24
+        },
+        "id": 32,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 1000,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 800
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 900
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 2,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node01",
+            "value": "shared-rcssolace-node01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_vpn_connections{instance=~\"$instance_short.*\",vpn_name!~\"#.*\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": " {{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "client cons",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 7,
+          "y": 24
+        },
+        "id": 38,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.01,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.007
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.008
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 20,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node01",
+            "value": "shared-rcssolace-node01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_mate_link_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "mate link latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 9,
+          "y": 24
+        },
+        "id": 44,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 21,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node01",
+            "value": "shared-rcssolace-node01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_disk_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "disk latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 11,
+          "y": 24
+        },
+        "id": 50,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 22,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node01",
+            "value": "shared-rcssolace-node01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_compute_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "compute latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 13,
+          "y": 24
+        },
+        "id": 56,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 7,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node01",
+            "value": "shared-rcssolace-node01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_tx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "B"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume OUT",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 5,
+          "x": 19,
+          "y": 24
+        },
+        "id": 62,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 4,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node01",
+            "value": "shared-rcssolace-node01"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_rx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume IN",
+        "type": "bargauge"
+      },
+      {
+        "cacheTimeout": null,
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 3,
+          "x": 0,
+          "y": 30
+        },
+        "id": 27,
+        "links": [
+          {
+            "dashboard": "solace-broker",
+            "includeVars": true,
+            "keepTime": true,
+            "targetBlank": true,
+            "title": "Broker View",
+            "type": "dashboard"
+          }
+        ],
+        "options": {
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 1,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "red",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "green",
+                "index": 1,
+                "value": 1
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": false
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 6,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node02",
+            "value": "shared-rcssolace-node02"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_up{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{instance_short}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "$instance_short status",
+        "type": "gauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 3,
+          "y": 30
+        },
+        "id": 33,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 1000,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 800
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 900
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 2,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node02",
+            "value": "shared-rcssolace-node02"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_vpn_connections{instance=~\"$instance_short.*\",vpn_name!~\"#.*\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": " {{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "client cons",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 7,
+          "y": 30
+        },
+        "id": 39,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.01,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.007
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.008
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 20,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node02",
+            "value": "shared-rcssolace-node02"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_mate_link_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "mate link latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 9,
+          "y": 30
+        },
+        "id": 45,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 21,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node02",
+            "value": "shared-rcssolace-node02"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_disk_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "disk latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 11,
+          "y": 30
+        },
+        "id": 51,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 22,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node02",
+            "value": "shared-rcssolace-node02"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_compute_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "compute latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 13,
+          "y": 30
+        },
+        "id": 57,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 7,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node02",
+            "value": "shared-rcssolace-node02"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_tx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "B"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume OUT",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 5,
+          "x": 19,
+          "y": 30
+        },
+        "id": 63,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 4,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolace-node02",
+            "value": "shared-rcssolace-node02"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_rx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume IN",
+        "type": "bargauge"
+      },
+      {
+        "cacheTimeout": null,
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 3,
+          "x": 0,
+          "y": 36
+        },
+        "id": 28,
+        "links": [
+          {
+            "dashboard": "solace-broker",
+            "includeVars": true,
+            "keepTime": true,
+            "targetBlank": true,
+            "title": "Broker View",
+            "type": "dashboard"
+          }
+        ],
+        "options": {
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 1,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "red",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "green",
+                "index": 1,
+                "value": 1
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": false
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 6,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolacemonitoring",
+            "value": "shared-rcssolacemonitoring"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_up{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{instance_short}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "$instance_short status",
+        "type": "gauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 4,
+          "x": 3,
+          "y": 36
+        },
+        "id": 34,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 1000,
+              "min": 0
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 800
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 900
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 2,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolacemonitoring",
+            "value": "shared-rcssolacemonitoring"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_vpn_connections{instance=~\"$instance_short.*\",vpn_name!~\"#.*\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": " {{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "client cons",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 7,
+          "y": 36
+        },
+        "id": 40,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.01,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.007
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.008
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 20,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolacemonitoring",
+            "value": "shared-rcssolacemonitoring"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_mate_link_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "mate link latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 9,
+          "y": 36
+        },
+        "id": 46,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 21,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolacemonitoring",
+            "value": "shared-rcssolacemonitoring"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_disk_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "disk latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 2,
+          "x": 11,
+          "y": 36
+        },
+        "id": 52,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "last"
+            ],
+            "defaults": {
+              "max": 0.1,
+              "min": 0,
+              "unit": "s"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ],
+            "values": false
+          },
+          "orientation": "vertical"
+        },
+        "pluginVersion": "6.2.5",
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 22,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolacemonitoring",
+            "value": "shared-rcssolacemonitoring"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(solace_system_compute_latency_avg_seconds{instance=~\"$instance_short.*\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "compute latency",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 13,
+          "y": 36
+        },
+        "id": 58,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 7,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolacemonitoring",
+            "value": "shared-rcssolacemonitoring"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_tx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "B"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume OUT",
+        "type": "bargauge"
+      },
+      {
+        "datasource": "Prometheus",
+        "gridPos": {
+          "h": 6,
+          "w": 5,
+          "x": 19,
+          "y": 36
+        },
+        "id": 64,
+        "links": [],
+        "options": {
+          "displayMode": "gradient",
+          "fieldOptions": {
+            "calcs": [
+              "mean"
+            ],
+            "defaults": {
+              "max": 10000000,
+              "min": 0,
+              "unit": "Bps"
+            },
+            "mappings": [],
+            "override": {},
+            "thresholds": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 8000000
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 9000000
+              }
+            ],
+            "values": false
+          },
+          "orientation": "horizontal"
+        },
+        "repeat": null,
+        "repeatDirection": "v",
+        "repeatIteration": 1579816241306,
+        "repeatPanelId": 4,
+        "scopedVars": {
+          "instance_short": {
+            "selected": false,
+            "text": "shared-rcssolacemonitoring",
+            "value": "shared-rcssolacemonitoring"
+          }
+        },
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_rx_bytes_total{instance=~\"$instance_short.*\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}",
+            "refId": "A"
+          }
+        ],
+        "timeFrom": null,
+        "timeShift": null,
+        "title": "Transfer volume IN",
+        "type": "bargauge"
+      }
+    ],
+    "schemaVersion": 18,
+    "style": "dark",
+    "tags": [
+      "solace",
+      "broker"
+    ],
+    "templating": {
+      "list": [
+        {
+          "allValue": null,
+          "current": {
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": "Prometheus",
+          "definition": "label_values(solace_vpn_connections, instance)",
+          "hide": 0,
+          "includeAll": true,
+          "label": null,
+          "multi": true,
+          "name": "instance_short",
+          "options": [],
+          "query": "label_values(solace_vpn_connections, instance)",
+          "refresh": 1,
+          "regex": "([\\w\\-]+).*",
+          "skipUrlSync": false,
+          "sort": 1,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        }
+      ]
+    },
+    "time": {
+      "from": "now-15m",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": [
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "time_options": [
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+      ]
+    },
+    "timezone": "",
+    "title": "Solace brokers",
+    "uid": "mz7SR9EZk",
+    "version": 16
+  }

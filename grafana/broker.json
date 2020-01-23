@@ -16,8 +16,8 @@
     "editable": true,
     "gnetId": null,
     "graphTooltip": 2,
-    "id": 98,
-    "iteration": 1578928361304,
+    "id": 99,
+    "iteration": 1579816225850,
     "links": [],
     "panels": [
       {
@@ -63,22 +63,8 @@
             "expr": "label_replace(solace_up{instance=\"$instance\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
             "format": "time_series",
             "intervalFactor": 1,
-            "legendFormat": "up  {{instance_short}}",
+            "legendFormat": "{{instance_short}}",
             "refId": "A"
-          },
-          {
-            "expr": "label_replace(solace_system_redundancy_enabled{instance=\"$instance\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "redundancy enabled  {{instance_short}}",
-            "refId": "B"
-          },
-          {
-            "expr": "label_replace(solace_system_redundancy_local_active{instance=\"$instance\",job=\"solace-std\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "is active node  {{instance_short}}",
-            "refId": "C"
           }
         ],
         "thresholds": [],
@@ -140,7 +126,7 @@
               "last"
             ],
             "defaults": {
-              "max": 1,
+              "max": 0.01,
               "min": 0,
               "unit": "s"
             },
@@ -153,9 +139,14 @@
                 "value": null
               },
               {
-                "color": "red",
+                "color": "#EAB839",
                 "index": 1,
-                "value": 0.8
+                "value": 0.007
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.008
               }
             ],
             "values": false
@@ -194,7 +185,7 @@
               "last"
             ],
             "defaults": {
-              "max": 1,
+              "max": 0.1,
               "min": 0,
               "unit": "s"
             },
@@ -207,9 +198,14 @@
                 "value": null
               },
               {
-                "color": "red",
+                "color": "#EAB839",
                 "index": 1,
-                "value": 0.8
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
               }
             ],
             "values": false
@@ -248,7 +244,7 @@
               "last"
             ],
             "defaults": {
-              "max": 1,
+              "max": 0.1,
               "min": 0,
               "unit": "s"
             },
@@ -261,9 +257,14 @@
                 "value": null
               },
               {
-                "color": "red",
+                "color": "#EAB839",
                 "index": 1,
-                "value": 0.8
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
               }
             ],
             "values": false
@@ -292,218 +293,14 @@
         "dashLength": 10,
         "dashes": false,
         "datasource": "Prometheus",
-        "decimals": 2,
-        "fill": 1,
-        "gridPos": {
-          "h": 6,
-          "w": 12,
-          "x": 0,
-          "y": 6
-        },
-        "id": 2,
-        "legend": {
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null",
-        "options": {},
-        "percentage": false,
-        "pointradius": 2,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [
-          {
-            "alias": "/quota .*/",
-            "color": "#F2495C",
-            "fill": 0
-          }
-        ],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "expr": "label_replace(solace_system_spool_msgs{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "spooled msgs {{instance_short}}",
-            "refId": "A"
-          },
-          {
-            "expr": "label_replace(solace_system_spool_quota_msgs{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "quota {{instance_short}}",
-            "refId": "B"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeRegions": [],
-        "timeShift": null,
-        "title": "Spooled msgs",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "transparent": true,
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "decimals": 0,
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": false
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "Prometheus",
-        "decimals": 2,
-        "fill": 1,
-        "gridPos": {
-          "h": 6,
-          "w": 12,
-          "x": 12,
-          "y": 6
-        },
-        "id": 18,
-        "legend": {
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null",
-        "options": {},
-        "percentage": false,
-        "pointradius": 2,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [
-          {
-            "alias": "/quota .*/",
-            "color": "#F2495C",
-            "fill": 0
-          }
-        ],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "expr": "label_replace(solace_system_spool_usage_bytes{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "spooled msgs {{instance_short}}",
-            "refId": "A"
-          },
-          {
-            "expr": "label_replace(solace_system_spool_quota_bytes{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "quota {{instance_short}}",
-            "refId": "B"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeRegions": [],
-        "timeShift": null,
-        "title": "Spooled bytes",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "transparent": true,
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "decimals": 0,
-            "format": "decbytes",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": false
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "Prometheus",
         "fill": 1,
         "gridPos": {
           "h": 5,
           "w": 24,
           "x": 0,
-          "y": 12
+          "y": 6
         },
-        "id": 17,
+        "id": 2,
         "legend": {
           "avg": false,
           "current": false,
@@ -528,7 +325,7 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "label_replace(solace_vpn_connections{instance=\"$instance\",vpn_name=\"$vpn_name\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "expr": "label_replace(solace_vpn_connections{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": " {{vpn_name}}@{{instance_short}}",
@@ -585,10 +382,10 @@
         "datasource": "Prometheus",
         "fill": 1,
         "gridPos": {
-          "h": 6,
-          "w": 24,
+          "h": 10,
+          "w": 12,
           "x": 0,
-          "y": 17
+          "y": 11
         },
         "id": 4,
         "legend": {
@@ -615,25 +412,18 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "label_replace(rate(solace_vpn_rx_bytes_total{instance=\"$instance\",vpn_name=\"$vpn_name\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "expr": "label_replace(rate(solace_vpn_rx_bytes_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{vpn_name}}@{{instance_short}} IN",
             "refId": "A"
-          },
-          {
-            "expr": "label_replace(rate(solace_vpn_tx_bytes_total{instance=\"$instance\",vpn_name=\"$vpn_name\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "{{vpn_name}}@{{instance_short}} OUT",
-            "refId": "B"
           }
         ],
         "thresholds": [],
         "timeFrom": null,
         "timeRegions": [],
         "timeShift": null,
-        "title": "Transfer volume",
+        "title": "Transfer volume IN",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -653,7 +443,94 @@
             "label": null,
             "logBase": 1,
             "max": null,
+            "min": "0",
+            "show": true
+          },
+          {
+            "format": "Bps",
+            "label": "",
+            "logBase": 1,
+            "max": null,
             "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 10,
+          "w": 12,
+          "x": 12,
+          "y": 11
+        },
+        "id": 7,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_tx_bytes_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "time_series",
+            "intervalFactor": 1,
+            "legendFormat": "{{vpn_name}}@{{instance_short}} OUT",
+            "refId": "B"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Transfer volume OUT",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "decimals": null,
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
             "show": true
           },
           {
@@ -678,10 +555,10 @@
         "datasource": "Prometheus",
         "fill": 1,
         "gridPos": {
-          "h": 6,
-          "w": 24,
+          "h": 10,
+          "w": 12,
           "x": 0,
-          "y": 23
+          "y": 21
         },
         "id": 5,
         "legend": {
@@ -708,14 +585,93 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "label_replace(rate(solace_vpn_rx_msgs_total{instance=\"$instance\",vpn_name=\"$vpn_name\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "expr": "label_replace(rate(solace_vpn_rx_msgs_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{vpn_name}}@{{instance_short}} IN",
             "refId": "A"
+          }
+        ],
+        "thresholds": [],
+        "timeFrom": null,
+        "timeRegions": [],
+        "timeShift": null,
+        "title": "Transfer msgs IN",
+        "tooltip": {
+          "shared": true,
+          "sort": 0,
+          "value_type": "individual"
+        },
+        "type": "graph",
+        "xaxis": {
+          "buckets": null,
+          "mode": "time",
+          "name": null,
+          "show": true,
+          "values": []
+        },
+        "yaxes": [
+          {
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": "0",
+            "show": true
           },
           {
-            "expr": "label_replace(rate(solace_vpn_tx_msgs_total{instance=\"$instance\",vpn_name=\"$vpn_name\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+            "format": "short",
+            "label": null,
+            "logBase": 1,
+            "max": null,
+            "min": null,
+            "show": true
+          }
+        ],
+        "yaxis": {
+          "align": false,
+          "alignLevel": null
+        }
+      },
+      {
+        "aliasColors": {},
+        "bars": false,
+        "dashLength": 10,
+        "dashes": false,
+        "datasource": "Prometheus",
+        "fill": 1,
+        "gridPos": {
+          "h": 10,
+          "w": 12,
+          "x": 12,
+          "y": 21
+        },
+        "id": 8,
+        "legend": {
+          "avg": false,
+          "current": false,
+          "max": false,
+          "min": false,
+          "show": true,
+          "total": false,
+          "values": false
+        },
+        "lines": true,
+        "linewidth": 1,
+        "links": [],
+        "nullPointMode": "null",
+        "options": {},
+        "percentage": false,
+        "pointradius": 2,
+        "points": false,
+        "renderer": "flot",
+        "seriesOverrides": [],
+        "spaceLength": 10,
+        "stack": false,
+        "steppedLine": false,
+        "targets": [
+          {
+            "expr": "label_replace(rate(solace_vpn_tx_msgs_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
             "format": "time_series",
             "intervalFactor": 1,
             "legendFormat": "{{vpn_name}}@{{instance_short}} OUT",
@@ -726,7 +682,7 @@
         "timeFrom": null,
         "timeRegions": [],
         "timeShift": null,
-        "title": "Transfer msgs",
+        "title": "Transfer msgs OUT",
         "tooltip": {
           "shared": true,
           "sort": 0,
@@ -744,398 +700,6 @@
           {
             "format": "short",
             "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "content": "\n## Clients\n\nlist of flashy/possible problematic clients\n\n\n\n",
-        "gridPos": {
-          "h": 2,
-          "w": 24,
-          "x": 0,
-          "y": 29
-        },
-        "id": 11,
-        "links": [],
-        "mode": "markdown",
-        "options": {},
-        "timeFrom": null,
-        "timeShift": null,
-        "title": "",
-        "type": "text"
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "Prometheus",
-        "fill": 1,
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 0,
-          "y": 31
-        },
-        "id": 8,
-        "legend": {
-          "avg": false,
-          "current": false,
-          "hideEmpty": true,
-          "hideZero": true,
-          "max": false,
-          "min": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null",
-        "options": {},
-        "percentage": false,
-        "pointradius": 2,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": true,
-        "targets": [
-          {
-            "expr": "label_replace(count_over_time((rate(solace_client_rx_discarded_msgs_total{instance=\"$instance\",vpn_name=\"$vpn_name\"}[15m]) > 0)[1m:10s]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "{{client_username}} ({{client_name}}) {{vpn_name}}@{{instance_short}}",
-            "refId": "A"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeRegions": [],
-        "timeShift": null,
-        "title": "Clients discarded msgs IN",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "Prometheus",
-        "fill": 1,
-        "gridPos": {
-          "h": 8,
-          "w": 12,
-          "x": 12,
-          "y": 31
-        },
-        "id": 15,
-        "legend": {
-          "avg": false,
-          "current": false,
-          "hideEmpty": true,
-          "hideZero": true,
-          "max": false,
-          "min": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null",
-        "options": {},
-        "percentage": false,
-        "pointradius": 2,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": true,
-        "targets": [
-          {
-            "expr": "label_replace(count_over_time((rate(solace_client_rx_discarded_msgs_total{instance=\"$instance\",vpn_name=\"$vpn_name\"}[15m]) > 0)[1m:10s]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "{{client_username}} ({{client_name}}) {{vpn_name}}@{{instance_short}}",
-            "refId": "A"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeRegions": [],
-        "timeShift": null,
-        "title": "Clients discarded msgs IN",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "cacheTimeout": null,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "Prometheus",
-        "fill": 1,
-        "gridPos": {
-          "h": 5,
-          "w": 24,
-          "x": 0,
-          "y": 39
-        },
-        "id": 12,
-        "legend": {
-          "avg": false,
-          "current": false,
-          "hideEmpty": true,
-          "hideZero": true,
-          "max": false,
-          "min": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null",
-        "options": {},
-        "percentage": false,
-        "pointradius": 2,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": false,
-        "targets": [
-          {
-            "expr": "label_replace(count_over_time((solace_client_slow_subscriber{instance=\"$instance\",vpn_name=\"$vpn_name\"} > 0)[5m:10s]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
-            "format": "time_series",
-            "intervalFactor": 1,
-            "legendFormat": "{{client_username}} ({{client_name}}) {{vpn_name}}@{{instance_short}}",
-            "refId": "A"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeRegions": [],
-        "timeShift": null,
-        "title": "Clients slow subscriber",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "decimals": 0,
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": "1",
-            "min": "0",
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": null,
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "content": "## Queue\n\n\n",
-        "gridPos": {
-          "h": 2,
-          "w": 24,
-          "x": 0,
-          "y": 44
-        },
-        "id": 14,
-        "links": [],
-        "mode": "markdown",
-        "options": {},
-        "timeFrom": null,
-        "timeShift": null,
-        "title": "",
-        "type": "text"
-      },
-      {
-        "aliasColors": {},
-        "bars": true,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "Prometheus",
-        "decimals": 0,
-        "fill": 0,
-        "gridPos": {
-          "h": 9,
-          "w": 24,
-          "x": 0,
-          "y": 46
-        },
-        "id": 9,
-        "interval": "15m",
-        "legend": {
-          "avg": false,
-          "current": false,
-          "hideEmpty": true,
-          "hideZero": true,
-          "max": false,
-          "min": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": false,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null",
-        "options": {},
-        "percentage": false,
-        "pointradius": 2,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": true,
-        "steppedLine": false,
-        "targets": [
-          {
-            "expr": "label_replace(count_over_time((rate(solace_queue_binds{instance=\"$instance\",vpn_name=\"$vpn_name\"}[15m]) < 1)[59s:1m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")\n\n",
-            "format": "time_series",
-            "interval": "",
-            "intervalFactor": 1,
-            "legendFormat": "{{queue_name}}",
-            "refId": "A"
-          }
-        ],
-        "thresholds": [],
-        "timeFrom": null,
-        "timeRegions": [],
-        "timeShift": null,
-        "title": "Queues without consumer",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "cumulative"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "decimals": 0,
-            "format": "short",
-            "label": "Queues without consumer",
             "logBase": 1,
             "max": null,
             "min": "0",
@@ -1148,116 +712,6 @@
             "max": null,
             "min": null,
             "show": true
-          }
-        ],
-        "yaxis": {
-          "align": false,
-          "alignLevel": null
-        }
-      },
-      {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
-        "datasource": "Prometheus",
-        "decimals": 2,
-        "fill": 1,
-        "gridPos": {
-          "h": 9,
-          "w": 24,
-          "x": 0,
-          "y": 55
-        },
-        "id": 16,
-        "interval": "15m",
-        "legend": {
-          "avg": false,
-          "current": false,
-          "hideEmpty": true,
-          "hideZero": true,
-          "max": false,
-          "min": false,
-          "rightSide": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
-        "links": [],
-        "nullPointMode": "null",
-        "options": {},
-        "percentage": false,
-        "pointradius": 2,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": false,
-        "steppedLine": true,
-        "targets": [
-          {
-            "expr": "solace_queue_spool_usage_bytes{instance=\"$instance\",vpn_name=\"$vpn_name\"} / solace_queue_spool_quota_bytes{instance=\"$instance\",vpn_name=\"$vpn_name\"} * 100",
-            "format": "time_series",
-            "interval": "",
-            "intervalFactor": 1,
-            "legendFormat": "{{queue_name}}",
-            "refId": "A"
-          }
-        ],
-        "thresholds": [
-          {
-            "colorMode": "critical",
-            "fill": true,
-            "line": true,
-            "op": "gt",
-            "value": 90,
-            "yaxis": "left"
-          },
-          {
-            "colorMode": "warning",
-            "fill": true,
-            "line": true,
-            "op": "gt",
-            "value": 80,
-            "yaxis": "left"
-          }
-        ],
-        "timeFrom": null,
-        "timeRegions": [],
-        "timeShift": null,
-        "title": "Queue quota usage",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
-        },
-        "type": "graph",
-        "xaxis": {
-          "buckets": null,
-          "mode": "time",
-          "name": null,
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "decimals": 0,
-            "format": "short",
-            "label": "%",
-            "logBase": 1,
-            "max": "100",
-            "min": "0",
-            "show": true
-          },
-          {
-            "format": "short",
-            "label": "%",
-            "logBase": 1,
-            "max": null,
-            "min": null,
-            "show": false
           }
         ],
         "yaxis": {
@@ -1266,7 +720,6 @@
         }
       }
     ],
-    "refresh": false,
     "schemaVersion": 18,
     "style": "dark",
     "tags": [
@@ -1278,8 +731,8 @@
         {
           "allValue": null,
           "current": {
-            "text": "shared-rcssolace-node02.otc.xyz:9628",
-            "value": "shared-rcssolace-node02.otc.xyz:9628"
+            "text": "shared-rcssolace-node02.otc-test.sbb.ch:9628",
+            "value": "shared-rcssolace-node02.otc-test.sbb.ch:9628"
           },
           "datasource": "Prometheus",
           "definition": "label_values(solace_vpn_connections, instance)",
@@ -1292,31 +745,6 @@
           "query": "label_values(solace_vpn_connections, instance)",
           "refresh": 1,
           "regex": "",
-          "skipUrlSync": false,
-          "sort": 1,
-          "tagValuesQuery": "",
-          "tags": [],
-          "tagsQuery": "",
-          "type": "query",
-          "useTags": false
-        },
-        {
-          "allValue": null,
-          "current": {
-            "text": "default",
-            "value": "default"
-          },
-          "datasource": "Prometheus",
-          "definition": "label_values(solace_vpn_connections, vpn_name)",
-          "hide": 0,
-          "includeAll": false,
-          "label": null,
-          "multi": false,
-          "name": "vpn_name",
-          "options": [],
-          "query": "label_values(solace_vpn_connections, vpn_name)",
-          "refresh": 1,
-          "regex": "/^(?!#)/",
           "skipUrlSync": false,
           "sort": 1,
           "tagValuesQuery": "",
@@ -1357,6 +785,6 @@
     },
     "timezone": "",
     "title": "Solace broker",
-    "uid": "FXk5NbPWz",
-    "version": 9
+    "uid": "HUkhHbPWz",
+    "version": 11
   }
