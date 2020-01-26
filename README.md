@@ -1,50 +1,49 @@
 
-# solace_exporter
+# solace_exporter, a Prometheus Exporter for Solace Message Brokers
 
-Prometheus Exporter for Solace PubSub+<br/>
-Status: Prototype, tested only against PubSub+ software broker (VMR)<br/>
+## Disclaimer
+
+This exporter is not developed and maintained by Solace.<br/>
+It can be used as-is or as a basis for development of customer specific exporters for Solace brokers.<br/>
+It is currently only tested against PubSub+ software brokers (VMRs), not appliances.<br/>
 
 ## Features
 
 The exporter is written in go, based on the Solace Legacy SEMP protocol.<br/>
-It implements the following endpoints:
-<pre><code>
-.../            HTML page with endpoints
-.../metrics     Golang and standard Prometheus stuff
-.../solace-std  Solace metrics for System and VPN levels
-.../solace-det  Solace metrics for all individual Clients and Queues
-                (Can degrade system performance, test before use it in prod)
+It implements the following endpoints:<br/>
+<pre><code>http://&lt;host&gt;:&lt;port&gt;/             Document page showing list of endpoints
+http://&lt;host&gt;:&lt;port&gt;/metrics      Golang and standard Prometheus metrics
+http://&lt;host&gt;:&lt;port&gt;/solace-std   Solace metrics for System and VPN levels
+http://&lt;host&gt;:&lt;port&gt;/solace-det   Solace metrics for Messaging Clients and Queues
 </code></pre>
+The [registered](https://github.com/prometheus/prometheus/wiki/Default-port-allocations) default port for Solace is 9628<br/>
 
 ## Usage
 
-<pre><code>
-./solace_exporter -h
+<pre><code>solace_exporter -h
 usage: solace_exporter [&lt;flags&gt;]
 
 Flags:
-  -h, --help               Show context-sensitive help.
-      --config-file=./solace_exporter.ini
-                           All options can be set via .ini file. See solace_exporter.ini for sample.
+  -h, --help                     Show context-sensitive help (also try --help-long and --help-man).
       --web.listen-address=":9628"
-                           Address to listen on for web interface and telemetry.
-      --sol.uri="http://localhost:8080"
-                           Base URI on which to scrape Solace.
-      --sol.user="admin"   Username for http requests to Solace broker.
-      --sol.pass="admin"   Security: DOEST NOT EXIST, can only be set via config or env.
-      --sol.timeout=5s     Timeout for trying to get stats from Solace.
-      --sol.sslv           Flag that enables SSL certificate verification for the scrape URI
-      --sol.redundancy     Flag that enables scrape of redundancy metrics. Should be used for HA tripples.
-      --log.level=info     Only log messages with the given severity or above. One of: [debug, info, warn, error]
-      --log.format=logfmt  Output format of log messages. One of: [logfmt, json]
-      </code></pre>
-
+                                 Address to listen on for web interface and telemetry.
+      --config-file=CONFIG-FILE  Path and name of ini file with configuration settings. See sample file
+                                 solace_exporter.ini.
+      --sol.uri=""               Base URI on which to scrape Solace.
+      --sol.user=""              Username for http requests to Solace broker.
+      --sol.timeout=5s           Timeout for trying to get stats from Solace.
+      --sol.sslv                 Flag that enables SSL certificate verification for the scrape URI.
+      --sol.redundancy           Flag that enables scrape of redundancy metrics. Should be used for broker HA groups.
+      --log.level=info           Only log messages with the given severity or above. One of: [debug, info, warn, error]
+      --log.format=logfmt        Output format of log messages. One of: [logfmt, json]</code></pre>
 ### Security
 
-For Docker you should prefer the ENV (see below)
-Else please place your options in an config file and call the exporter with:
+Please note that for security reasons the parameter "password" is not available as command line parameter.<br/>
+For Docker you should prefer the environment variable configuration method (see below).<br/>
+Otherwise please place your options in an config file and call the exporter with:
 
-<pre><code>
+<pre><code>solace_exporter --config-file /path/to/config/file.ini
+
 cat /path/to/config/file.ini
 [sol]
 uri=http://localhost:8080
@@ -53,14 +52,12 @@ password=admin
 timeout=6s
 sslVerify=false
 scrapeRedundancy=false
-...
+...</code></pre>
 
-solace_exporter @/path/to/config/file
-</code></pre>
 
 ## Build
 
-### Default Build to run without Docker
+### Default Build
 <pre><code>cd &lt;some-directory&gt;/solace_exporter
 go build
 </code></pre>
