@@ -46,7 +46,7 @@ var (
 	variableLabelsVpn       = []string{"vpn_name"}
 	variableLabelsVpnClient = []string{"vpn_name", "client_name", "client_username"}
 	variableLabelsVpnQueue  = []string{"vpn_name", "queue_name"}
-	solaceUp                = prometheus.NewDesc(namespace+"_"+"up", "Was the last scrape of solace successful.", nil, nil)
+	solaceUp                = prometheus.NewDesc(namespace+"_"+"up", "Was the last scrape of Solace broker successful.", nil, nil)
 )
 
 var metricsStd = metrics{
@@ -89,7 +89,6 @@ var metricsDet = metrics{
 	"client_rx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"client_rx_discarded_msgs_total", "Number of discarded received messages.", variableLabelsVpnClient, nil),
 	"client_tx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"client_tx_discarded_msgs_total", "Number of discarded transmitted messages.", variableLabelsVpnClient, nil),
 	"client_slow_subscriber":         prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClient, nil),
-	"client_uptime_seconds":          prometheus.NewDesc(namespace+"_"+"client_uptime_seconds", "Up time of client in seconds.", variableLabelsVpnClient, nil),
 
 	"queue_spool_quota_bytes": prometheus.NewDesc(namespace+"_"+"queue_spool_quota_bytes", "Queue spool configured max disk usage.", variableLabelsVpnQueue, nil),
 	"queue_spool_usage_bytes": prometheus.NewDesc(namespace+"_"+"queue_spool_usage_bytes", "Queue spool usage.", variableLabelsVpnQueue, nil),
@@ -107,12 +106,12 @@ var metricsDet = metrics{
 
 // Collection of configs
 type config struct {
-	scrapeURI   string
-	username    string
-	password    string
-	sslVerify   bool
-	timeout     time.Duration
-	details     bool
+	scrapeURI        string
+	username         string
+	password         string
+	sslVerify        bool
+	timeout          time.Duration
+	details          bool
 	scrapeRedundancy bool
 }
 
@@ -222,9 +221,19 @@ func (e *Exporter) postHTTP(uri string, contentType string, body string) (io.Rea
 	}
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
 		resp.Body.Close()
-		return nil, fmt.Errorf("HTTP status %d", resp.StatusCode)
+		return nil, fmt.Errorf("HTTP status %d (%s)", resp.StatusCode, http.StatusText(resp.StatusCode))
 	}
 	return resp.Body, nil
+}
+
+// Function to test if broker is up an can be scraped
+func (e *Exporter) checkBrokerAccess() (ok bool) {
+	_, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", "<rpc><show><version/></show></rpc>")
+	if err != nil {
+		level.Warn(e.logger).Log("msg", "Test scrape failed", "err", err, "hint", "A timeout error might indicate that the broker is not yet up")
+		return false
+	}
+	return true
 }
 
 // Get system-wide basic redundancy information for HA triples
@@ -561,7 +570,6 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.IngressDiscards.DiscardedRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
 			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.EgressDiscards.DiscardedTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
 			ch <- prometheus.MustNewConstMetric(metricsDet["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, client.ClientUsername)
-			//ch <- prometheus.MustNewConstMetric(metricsDet["client_uptime_seconds"], prometheus.GaugeValue, 0, client.MsgVpnName, client.ClientName, client.ClientUsername)
 		}
 		body.Close()
 	}
@@ -711,57 +719,60 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 	return 1
 }
 
-func parseCnf(configFile interface{}, conf *config, logger log.Logger) {
+func parseCnf(configFile interface{}, conf *config, logger log.Logger) (ok bool) {
 	opts := ini.LoadOptions{
-		// MySQL ini file can have boolean keys.
 		AllowBooleanKeys: true,
 	}
+
 	cfg, err := ini.LoadSources(opts, configFile)
 	if err != nil {
-		return
+		level.Error(logger).Log("msg", "Can't open config file", "err", err)
+		return false
 	}
 
 	scrapeURI := cfg.Section("sol").Key("uri").String()
 	if len(scrapeURI) > 0 {
 		conf.scrapeURI = scrapeURI
 	} else {
-		level.Info(logger).Log("msg", "config key sol.uri is mising")
+		level.Info(logger).Log("msg", "config key sol.uri is missing in config file")
 	}
 
 	username := cfg.Section("sol").Key("username").String()
 	if len(username) > 0 {
 		conf.username = username
 	} else {
-		level.Info(logger).Log("msg", "config key sol.username is mising")
+		level.Info(logger).Log("msg", "config key sol.username is missing in config file")
 	}
 
 	password := cfg.Section("sol").Key("password").String()
 	if len(password) > 0 {
 		conf.password = password
 	} else {
-		level.Info(logger).Log("msg", "config key sol.password is mising")
+		level.Info(logger).Log("msg", "config key sol.password is missing in config file")
 	}
 
 	timeout, err := cfg.Section("sol").Key("timeout").Duration()
 	if err == nil {
 		conf.timeout = timeout
 	} else {
-		level.Info(logger).Log("msg", "config timeout is missing or invalid", "err", err)
+		level.Info(logger).Log("msg", "config timeout is missing or invalid in config file", "err", err)
 	}
 
 	sslVerify, err := cfg.Section("sol").Key("sslVerify").Bool()
 	if err == nil {
 		conf.sslVerify = sslVerify
 	} else {
-		level.Info(logger).Log("msg", "config sslVerify is missing or invalid", "err", err)
+		level.Info(logger).Log("msg", "config sslVerify is missing or invalid in config file", "err", err)
 	}
 
 	scrapeRedundancy, err := cfg.Section("sol").Key("scrapeRedundancy").Bool()
 	if err == nil {
 		conf.scrapeRedundancy = scrapeRedundancy
 	} else {
-		level.Info(logger).Log("msg", "config scrapeRedundancy is missing or invalid", "err", err)
+		level.Info(logger).Log("msg", "config scrapeRedundancy is missing or invalid in config file", "err", err)
 	}
+
+	return true
 }
 
 func main() {
@@ -770,7 +781,7 @@ func main() {
 
 	configFile := kingpin.Flag(
 		"config-file",
-		"Path to solace_exporter.ini file to provide solace broker credentials.",
+		"Path and name of ini file with configuration settings. See sample file solace_exporter.ini.",
 	).String()
 
 	var conf config
@@ -778,8 +789,8 @@ func main() {
 	kingpin.Flag("sol.uri", "Base URI on which to scrape Solace.").Default(conf.scrapeURI).Envar("SOLACE_SCRAPE_URI").StringVar(&conf.scrapeURI)
 	kingpin.Flag("sol.user", "Username for http requests to Solace broker.").Default(conf.username).Envar("SOLACE_USER").StringVar(&conf.username)
 	kingpin.Flag("sol.timeout", "Timeout for trying to get stats from Solace.").Default("5s").Envar("SOLACE_SCRAPE_TIMEOUT").DurationVar(&conf.timeout)
-	kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI").Default(strconv.FormatBool(conf.sslVerify)).Envar("SOLACE_SSL_VERIFY").BoolVar(&conf.sslVerify)
-	kingpin.Flag("sol.redundancy", "Flag that enables scrape of redundancy metrics. Should be used for HA tripples.").Default(strconv.FormatBool(conf.scrapeRedundancy)).Envar("SOLACE_INCLUDE_REDUNDANCY").BoolVar(&conf.scrapeRedundancy)
+	kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI.").Default(strconv.FormatBool(conf.sslVerify)).Envar("SOLACE_SSL_VERIFY").BoolVar(&conf.sslVerify)
+	kingpin.Flag("sol.redundancy", "Flag that enables scrape of redundancy metrics. Should be used for broker HA groups.").Default(strconv.FormatBool(conf.scrapeRedundancy)).Envar("SOLACE_INCLUDE_REDUNDANCY").BoolVar(&conf.scrapeRedundancy)
 	kingpin.HelpFlag.Short('h')
 
 	// Defaults
@@ -811,27 +822,31 @@ func main() {
 	flag.AddFlags(kingpin.CommandLine, &promlogConfig)
 	kingpin.Parse()
 
-	parseCnf(*configFile, &conf, logger)
-
-	logger = promlog.New(&promlogConfig)
+	if *configFile != "" {
+		if !parseCnf(*configFile, &conf, logger) {
+			os.Exit(1)
+		}
+	}
 
 	level.Info(logger).Log("msg", "Starting solace_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
 
-	level.Info(logger).Log("msg", "Scraping", 
-		"scrapeURI", conf.scrapeURI, 
-		"username", conf.username, 
-		"sslVerify", conf.sslVerify, 
+	level.Info(logger).Log("msg", "Scraping",
+		"scrapeURI", conf.scrapeURI,
+		"username", conf.username,
+		"sslVerify", conf.sslVerify,
+		"timeout", conf.timeout,
 		"scrapeRedundancy", conf.scrapeRedundancy)
 
+	// Exporter for standard endpoint
 	conf.details = false
-
 	exporterStd := NewExporter(logger, conf)
 	registryStd := prometheus.NewRegistry()
 	registryStd.MustRegister(exporterStd)
 	registryStd.MustRegister(version.NewCollector("solace_standard"))
 	handlerStd := promhttp.HandlerFor(registryStd, promhttp.HandlerOpts{})
 
+	// Exporter for client/queue details endpoint
 	conf.details = true
 	exporterDet := NewExporter(logger, conf)
 	registryDet := prometheus.NewRegistry()
@@ -839,6 +854,12 @@ func main() {
 	registryDet.MustRegister(version.NewCollector("solace_detailed"))
 	handlerDet := promhttp.HandlerFor(registryDet, promhttp.HandlerOpts{})
 
+	// Check if broker can be accessed. If it fails it just prints a warn to the log file.
+	conf.timeout, _ = time.ParseDuration("2s") // Don't delay startup too much
+	exporterCheck := NewExporter(logger, conf)
+	exporterCheck.checkBrokerAccess()
+
+	// Configure the endpoints and start the server
 	level.Info(logger).Log("msg", "Listening on address", "address", *listenAddress)
 	http.Handle("/metrics", promhttp.Handler())
 	http.Handle("/solace-std", handlerStd)
@@ -856,6 +877,6 @@ func main() {
 	})
 	if err := http.ListenAndServe(*listenAddress, nil); err != nil {
 		level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
-		os.Exit(1)
+		os.Exit(2)
 	}
 }
