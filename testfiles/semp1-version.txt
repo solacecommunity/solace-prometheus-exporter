@@ -1,0 +1,56 @@
+curl -u admin:admin -X POST -H "Content-Type: application/xml" \
+  -d '<rpc><show><version/></show></rpc>' \
+  192.168.110.100:8080/SEMP
+
+<rpc-reply semp-version="soltr/9_3VMR">
+  <rpc>
+    <show>
+      <version>
+        <description>Solace PubSub+ Evaluation Version 9.3.1.8</description>
+        <executables>
+          <executable>
+            <name>CLI</name>
+            <release>9.3.1.8</release>
+            <build-date>2020-01-02T18:50:04+00:00</build-date>
+          </executable>
+          <executable>
+            <name>DataplaneMgr</name>
+            <release>9.3.1.8</release>
+            <build-date>2020-01-02T18:50:04+00:00</build-date>
+          </executable>
+          <executable>
+            <name>Controlplane</name>
+            <release>9.3.1.8</release>
+            <build-date>2020-01-02T18:50:04+00:00</build-date>
+          </executable>
+          <executable>
+            <name>Managementplane</name>
+            <release>9.3.1.8</release>
+            <build-date>2020-01-02T18:50:04+00:00</build-date>
+          </executable>
+        </executables>
+        <current-load>soltr_9.3.1.8</current-load>
+        <backout-load-not-existant></backout-load-not-existant>
+        <loads>
+          <load>
+            <index>1</index>
+            <version>soltr_9.3.1.8</version>
+            <solbase-version>VMR_SolBase-2.0.8.0</solbase-version>
+            <is-solbase-present>0</is-solbase-present>
+          </load>
+        </loads>
+        <solbases>
+        </solbases>
+        <uptime>
+          <days>0</days>
+          <hours>1</hours>
+          <mins>2</mins>
+          <secs>18</secs>
+          <total-secs>3738</total-secs>
+        </uptime>
+      </version>
+    </show>
+  </rpc>
+<execute-result code="ok"/>
+</rpc-reply>
+
