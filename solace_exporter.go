@@ -51,13 +51,13 @@ var (
 
 var metricsStd = metrics{
 	"system_redundancy_up":                 prometheus.NewDesc(namespace+"_"+"system_redundancy_up", "Is redundancy up? (0=down, 1=up).", nil, nil),
-	"system_redundancy_enabled":            prometheus.NewDesc(namespace+"_"+"system_redundancy_enabled", "Is redundancy enabled in config? (0=disabled, 1=enabled).", nil, nil),
+	"system_redundancy_config":             prometheus.NewDesc(namespace+"_"+"system_redundancy_config", "Redundancy configuration (0=disabled, 1=enabled, 2=shutdown).", nil, nil),
 	"system_redundancy_role":               prometheus.NewDesc(namespace+"_"+"system_redundancy_role", "Redundancy role (0=backup, 1=primary, 2=monitor).", nil, nil),
 	"system_redundancy_local_active":       prometheus.NewDesc(namespace+"_"+"system_redundancy_local_active", "Is local node the active messaging node? (0=not active, 1=active).", nil, nil),
 	"system_spool_quota_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage.", nil, nil),
 	"system_spool_quota_msgs":              prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", nil, nil),
 	"system_spool_usage_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted usage.", nil, nil),
-	"system_spool_msgs":                    prometheus.NewDesc(namespace+"_"+"system_spool_msgs", "Spool total number of persisted messages.", nil, nil),
+	"system_spool_usage_msgs":              prometheus.NewDesc(namespace+"_"+"system_spool_usage_msgs", "Spool total number of persisted messages.", nil, nil),
 	"system_disk_latency_min_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_min_seconds", "Minimum disk latency.", nil, nil),
 	"system_disk_latency_max_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_max_seconds", "Maximum disk latency.", nil, nil),
 	"system_disk_latency_avg_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_avg_seconds", "Average disk latency.", nil, nil),
@@ -288,7 +288,7 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) 
 		return 0
 	}
 
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_enabled"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ConfigStatus, []string{"Disabled", "Enabled"}))
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_config"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ConfigStatus, []string{"Disabled", "Enabled", "Shutdown"}))
 	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_up"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.RedundancyStatus, []string{"Down", "Up"}))
 	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Undefined"}))
 
@@ -351,7 +351,7 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_msgs"], prometheus.GaugeValue, f1*1000000)
 	}
 	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.PersistUsage*1048576.0))
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_usage_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount)
 
 	return 1
 }
