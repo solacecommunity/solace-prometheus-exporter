@@ -106,13 +106,14 @@ var metricsDet = metrics{
 
 // Collection of configs
 type config struct {
-	scrapeURI        string
-	username         string
-	password         string
-	sslVerify        bool
-	timeout          time.Duration
-	details          bool
-	scrapeRedundancy bool
+	listenAddr string
+	scrapeURI  string
+	username   string
+	password   string
+	sslVerify  bool
+	timeout    time.Duration
+	details    bool
+	redundancy bool
 }
 
 // Exporter collects Solace stats from the given URI and exports them using
@@ -161,7 +162,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up = e.getQueueRatesSemp1(ch)
 		}
 	} else { // Basic
-		if up > 0 && e.config.scrapeRedundancy {
+		if up > 0 && e.config.redundancy {
 			up = e.getRedundancySemp1(ch)
 		}
 		if up > 0 {
@@ -719,96 +720,80 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 	return 1
 }
 
-func parseCnf(configFile interface{}, conf *config, logger log.Logger) (ok bool) {
-	opts := ini.LoadOptions{
-		AllowBooleanKeys: true,
+func parseConfigBool(cfg *ini.File, logger log.Logger, iniSection string, iniKey string, envKey string, okp *bool) bool {
+	var ok bool = true
+	s := parseConfigString(cfg, logger, iniSection, iniKey, envKey, &ok)
+	if ok {
+		val, err := strconv.ParseBool(s)
+		if err == nil {
+			return val
+		}
+		level.Error(logger).Log("msg", "Config param invalid", "iniKey", iniKey, "envKey", envKey)
+	}
+	*okp = false
+	return false
+}
+
+func parseConfigDuration(cfg *ini.File, logger log.Logger, iniSection string, iniKey string, envKey string, okp *bool) time.Duration {
+	var ok bool = true
+	s := parseConfigString(cfg, logger, iniSection, iniKey, envKey, &ok)
+	if ok {
+		val, err := time.ParseDuration(s)
+		if err == nil {
+			return val
+		}
+		level.Error(logger).Log("msg", "Config param invalid", "iniKey", iniKey, "envKey", envKey)
+	}
+	*okp = false
+	return 0
+}
+
+func parseConfigString(cfg *ini.File, logger log.Logger, iniSection string, iniKey string, envKey string, okp *bool) string {
+	if cfg != nil {
+		s := cfg.Section(iniSection).Key(iniKey).String()
+		if len(s) > 0 {
+			return s
+		}
+	}
+	s := os.Getenv(envKey)
+	if len(s) > 0 {
+		return s
+	}
+	level.Error(logger).Log("msg", "Config param missing", "iniKey", iniKey, "envKey", envKey)
+	*okp = false
+	return ""
+}
+
+func parseConfig(configFile string, conf *config, logger log.Logger) (ok bool) {
+	var oki bool = true
+	var cfg *ini.File = nil
+	var err interface{}
+
+	if len(configFile) > 0 {
+		opts := ini.LoadOptions{
+			AllowBooleanKeys: true,
+		}
+		cfg, err = ini.LoadSources(opts, configFile)
+		if err != nil {
+			level.Error(logger).Log("msg", "Can't open config file", "err", err)
+			return false
+		}
 	}
 
-	cfg, err := ini.LoadSources(opts, configFile)
-	if err != nil {
-		level.Error(logger).Log("msg", "Can't open config file", "err", err)
-		return false
-	}
+	conf.listenAddr = parseConfigString(cfg, logger, "solace", "listenAddr", "SOLACE_LISTEN_ADDR", &oki)
+	conf.scrapeURI = parseConfigString(cfg, logger, "solace", "scrapeUri", "SOLACE_SCRAPE_URI", &oki)
+	conf.username = parseConfigString(cfg, logger, "solace", "username", "SOLACE_USERNAME", &oki)
+	conf.password = parseConfigString(cfg, logger, "solace", "password", "SOLACE_PASSWORD", &oki)
+	conf.timeout = parseConfigDuration(cfg, logger, "solace", "timeout", "SOLACE_TIMEOUT", &oki)
+	conf.sslVerify = parseConfigBool(cfg, logger, "solace", "sslVerify", "SOLACE_SSL_VERIFY", &oki)
+	conf.redundancy = parseConfigBool(cfg, logger, "solace", "redundancy", "SOLACE_REDUNDANCY", &oki)
 
-	scrapeURI := cfg.Section("sol").Key("uri").String()
-	if len(scrapeURI) > 0 {
-		conf.scrapeURI = scrapeURI
-	} else {
-		level.Info(logger).Log("msg", "config key sol.uri is missing in config file")
-	}
-
-	username := cfg.Section("sol").Key("username").String()
-	if len(username) > 0 {
-		conf.username = username
-	} else {
-		level.Info(logger).Log("msg", "config key sol.username is missing in config file")
-	}
-
-	password := cfg.Section("sol").Key("password").String()
-	if len(password) > 0 {
-		conf.password = password
-	} else {
-		level.Info(logger).Log("msg", "config key sol.password is missing in config file")
-	}
-
-	timeout, err := cfg.Section("sol").Key("timeout").Duration()
-	if err == nil {
-		conf.timeout = timeout
-	} else {
-		level.Info(logger).Log("msg", "config timeout is missing or invalid in config file", "err", err)
-	}
-
-	sslVerify, err := cfg.Section("sol").Key("sslVerify").Bool()
-	if err == nil {
-		conf.sslVerify = sslVerify
-	} else {
-		level.Info(logger).Log("msg", "config sslVerify is missing or invalid in config file", "err", err)
-	}
-
-	scrapeRedundancy, err := cfg.Section("sol").Key("scrapeRedundancy").Bool()
-	if err == nil {
-		conf.scrapeRedundancy = scrapeRedundancy
-	} else {
-		level.Info(logger).Log("msg", "config scrapeRedundancy is missing or invalid in config file", "err", err)
-	}
-
-	return true
+	return oki
 }
 
 func main() {
 
-	listenAddress := kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":9628").Envar("SOLACE_WEB_LISTEN_ADDRESS").String()
-
-	configFile := kingpin.Flag(
-		"config-file",
-		"Path and name of ini file with configuration settings. See sample file solace_exporter.ini.",
-	).String()
-
-	var conf config
-
-	kingpin.Flag("sol.uri", "Base URI on which to scrape Solace.").Default(conf.scrapeURI).Envar("SOLACE_SCRAPE_URI").StringVar(&conf.scrapeURI)
-	kingpin.Flag("sol.user", "Username for http requests to Solace broker.").Default(conf.username).Envar("SOLACE_USER").StringVar(&conf.username)
-	kingpin.Flag("sol.timeout", "Timeout for trying to get stats from Solace.").Default("5s").Envar("SOLACE_SCRAPE_TIMEOUT").DurationVar(&conf.timeout)
-	kingpin.Flag("sol.sslv", "Flag that enables SSL certificate verification for the scrape URI.").Default(strconv.FormatBool(conf.sslVerify)).Envar("SOLACE_SSL_VERIFY").BoolVar(&conf.sslVerify)
-	kingpin.Flag("sol.redundancy", "Flag that enables scrape of redundancy metrics. Should be used for broker HA groups.").Default(strconv.FormatBool(conf.scrapeRedundancy)).Envar("SOLACE_INCLUDE_REDUNDANCY").BoolVar(&conf.scrapeRedundancy)
 	kingpin.HelpFlag.Short('h')
-
-	// Defaults
-	conf.scrapeURI = "http://localhost:8080"
-	conf.username = "admin"
-	conf.password = "admin"
-
-	solacePassword := os.Getenv("SOLACE_PASSWORD")
-	if len(solacePassword) > 0 {
-		conf.password = solacePassword
-	}
-
-	timeout, err := time.ParseDuration("5s")
-	if err == nil {
-		conf.timeout = timeout
-	}
-	conf.sslVerify = false
-	conf.scrapeRedundancy = false
 
 	promlogConfig := promlog.Config{
 		Level:  &promlog.AllowedLevel{},
@@ -816,27 +801,32 @@ func main() {
 	}
 	promlogConfig.Level.Set("info")
 	promlogConfig.Format.Set("logfmt")
+	flag.AddFlags(kingpin.CommandLine, &promlogConfig)
+
+	configFile := kingpin.Flag(
+		"config-file",
+		"Path and name of ini file with configuration settings. See sample file solace_exporter.ini.",
+	).String()
+
+	kingpin.Parse()
 
 	logger := promlog.New(&promlogConfig)
 
-	flag.AddFlags(kingpin.CommandLine, &promlogConfig)
-	kingpin.Parse()
-
-	if *configFile != "" {
-		if !parseCnf(*configFile, &conf, logger) {
-			os.Exit(1)
-		}
+	var conf config
+	if !parseConfig(*configFile, &conf, logger) {
+		os.Exit(1)
 	}
 
 	level.Info(logger).Log("msg", "Starting solace_exporter", "version", version.Info())
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
 
 	level.Info(logger).Log("msg", "Scraping",
+		"listenAddr", conf.listenAddr,
 		"scrapeURI", conf.scrapeURI,
 		"username", conf.username,
 		"sslVerify", conf.sslVerify,
 		"timeout", conf.timeout,
-		"scrapeRedundancy", conf.scrapeRedundancy)
+		"redundancy", conf.redundancy)
 
 	// Exporter for standard endpoint
 	conf.details = false
@@ -854,13 +844,13 @@ func main() {
 	registryDet.MustRegister(version.NewCollector("solace_detailed"))
 	handlerDet := promhttp.HandlerFor(registryDet, promhttp.HandlerOpts{})
 
-	// Check if broker can be accessed. If it fails it just prints a warn to the log file.
+	// Test scrape to check if broker can be accessed. If it fails it prints a warn to the log file.
+	// Note that failure is not fatal, as broker might not have started up yet.
 	conf.timeout, _ = time.ParseDuration("2s") // Don't delay startup too much
 	exporterCheck := NewExporter(logger, conf)
 	exporterCheck.checkBrokerAccess()
 
 	// Configure the endpoints and start the server
-	level.Info(logger).Log("msg", "Listening on address", "address", *listenAddress)
 	http.Handle("/metrics", promhttp.Handler())
 	http.Handle("/solace-std", handlerStd)
 	http.Handle("/solace-det", handlerDet)
@@ -875,7 +865,7 @@ func main() {
              </body>
              </html>`))
 	})
-	if err := http.ListenAndServe(*listenAddress, nil); err != nil {
+	if err := http.ListenAndServe(conf.listenAddr, nil); err != nil {
 		level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
 		os.Exit(2)
 	}
