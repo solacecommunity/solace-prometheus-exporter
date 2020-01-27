@@ -84,17 +84,20 @@ This is used to automatically build and push the latest image to the Dockerhub r
 
 ### Run Docker Image
 
-Environment variables are recommended to parameterize the exporter in Docker. Example:<br/>
+Environment variables are recommended to parameterize the exporter in Docker.<br/>
+Put the following parameters, adapted to your situation, into a file on the local host, e.g. env.txt:<br/>
+<pre><code>SOLACE_LISTEN_ADDR=0.0.0.0:9628
+SOLACE_SCRAPE_URI=http://localhost:8080
+SOLACE_USERNAME=admin
+SOLACE_PASSWORD=admin
+SOLACE_TIMEOUT=5s
+SOLACE_SSL_VERIFY=false
+SOLACE_REDUNDANCY=false</code></pre>
 
+Then run
 <pre><code>docker run -d \
  -p 9628:9628 \
- --env SOLACE_LISTEN_ADDR=0.0.0.0:9628 \
- --env SOLACE_SCRAPE_URI=http://localhost:8080 \
- --env SOLACE_USERNAME=admin \
- --env SOLACE_PASSWORD=admin \
- --env SOLACE_TIMEOUT=5s \
- --env SOLACE_SSL_VERIFY=false \
- --env SOLACE_REDUNDANCY=false \
+ --env-file env.txt \
  --name solace-exporter \
  dabgmx/solace-exporter</code></pre>
 
