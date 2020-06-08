@@ -15,5 +15,5 @@ spec:
     path: /solace-det
   selector: 
     matchLabels: 
-      app: solace-exporter
+      app: solace-std
   jobLabel: solace-std
