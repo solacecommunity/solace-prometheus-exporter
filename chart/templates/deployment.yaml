@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: solace-exporter
+  name: solace-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solace-exporter
+  template:
+    metadata:
+      labels:
+        app: solace-exporter
+    spec:
+      containers:
+      - image: {{ .Values.solace.image }}
+        name: solace-exporter
+        env: 
+        - name: SOLACE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.solace.password.secret.name }}
+              key: {{ .Values.solace.password.secret.key }}
+        - name: SOLACE_SCRAPE_URI
+          value: {{ .Values.solace.uri }}
+        - name: SOLACE_USERNAME
+          value: {{ .Values.solace.username}}
+        - name: SOLACE_TIMEOUT
+          value: {{ .Values.solace.timeout | quote }}
+        - name: SOLACE_SSL_VERIFY
+          value: {{ .Values.solace.sslverify | quote }}
+        - name: SOLACE_REDUNDANCY
+          value: {{ .Values.solace.redundancy | quote }}
+        ports:
+        - containerPort: 9628
+        

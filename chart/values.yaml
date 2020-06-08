@@ -1,0 +1,13 @@
+solace:
+  username: admin
+  password:
+    secret:
+      name: solace-pubsubplus-dev-secrets
+      key: username_admin_password
+  uri: http://solace-pubsubplus-dev:8080
+  image: shukla2009/solace_exporter:latest
+  sslverify: "false"
+  redundancy: "false"
+  timeout: "5s"
+prometheus:
+  release: prometheus

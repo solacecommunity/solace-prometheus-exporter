@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1   
+kind: ServiceMonitor   
+metadata: 
+  labels: 
+    app: solace-std    
+    release: {{ .Values.prometheus.release }}
+  name: solace-std
+spec: 
+  endpoints: 
+  - port: metrics 
+    path: /metrics
+  - port: metrics
+    path: /solace-std
+  - port: metrics
+    path: /solace-det
+  selector: 
+    matchLabels: 
+      app: solace-exporter
+  jobLabel: solace-std
