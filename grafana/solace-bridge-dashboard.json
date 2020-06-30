@@ -1,0 +1,1439 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "$$hashKey": "object:3179",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "iteration": 1593432007433,
+  "links": [
+    {
+      "$$hashKey": "object:393",
+      "icon": "external link",
+      "includeVars": true,
+      "tags": [
+        "solace"
+      ],
+      "type": "dashboards"
+    },
+    {
+      "$$hashKey": "object:694",
+      "icon": "external link",
+      "tags": [],
+      "targetBlank": true,
+      "title": "Help: Bridge",
+      "tooltip": "Help: Bridge Monitoring Dashboard",
+      "type": "link",
+      "url": "https://confluence.sbb.ch/display/MOPRO/Solace+Monitoring+Dashboard%3A+Bridge"
+    }
+  ],
+  "panels": [
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "panels": [],
+      "title": "Operational State",
+      "type": "row"
+    },
+    {
+      "cards": {
+        "cardHSpacing": 2,
+        "cardMinWidth": 5,
+        "cardRound": null,
+        "cardVSpacing": 2
+      },
+      "color": {
+        "cardColor": "#b4ff00",
+        "colorScale": "sqrt",
+        "colorScheme": "interpolateGnYlRd",
+        "defaultColor": "#757575",
+        "exponent": 0.5,
+        "mode": "discrete",
+        "thresholds": [
+          {
+            "$$hashKey": "object:3298",
+            "color": "#37872D",
+            "tooltip": "up",
+            "value": "0"
+          },
+          {
+            "$$hashKey": "object:3302",
+            "color": "#C4162A",
+            "tooltip": "down",
+            "value": "1"
+          }
+        ]
+      },
+      "data": {
+        "decimals": null,
+        "unitFormat": "short"
+      },
+      "datasource": "Prometheus",
+      "description": "",
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 1
+      },
+      "highlightCards": true,
+      "id": 2,
+      "legend": {
+        "show": true
+      },
+      "links": [
+        {
+          "title": "Bridges Overview",
+          "url": "/d/0zeRtZmGk/solace-bridges?orgId=1&var-instance=${instance}"
+        }
+      ],
+      "nullPointMode": "as empty",
+      "seriesFilterIndex": -1,
+      "targets": [
+        {
+          "expr": "label_replace(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")",
+          "interval": "",
+          "legendFormat": " ",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Admin State",
+      "tooltip": {
+        "show": true
+      },
+      "transparent": true,
+      "type": "flant-statusmap-panel",
+      "urls": [
+        {
+          "base_url": "",
+          "extraSeries": {
+            "index": -1
+          },
+          "forcelowercase": true,
+          "icon_fa": "external-link",
+          "label": "",
+          "tooltip": "",
+          "useExtraSeries": false,
+          "useseriesname": true
+        }
+      ],
+      "useMax": true,
+      "usingUrl": false,
+      "xAxis": {
+        "labelFormat": "%a %m/%d",
+        "minBucketWidthToShowWeekends": 4,
+        "show": true,
+        "showCrosshair": true,
+        "showWeekends": true
+      },
+      "yAxis": {
+        "maxWidth": -1,
+        "minWidth": -1,
+        "show": true,
+        "showCrosshair": false
+      },
+      "yAxisSort": "metrics"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": "Prometheus",
+      "decimals": 2,
+      "format": "s",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 0,
+        "y": 4
+      },
+      "id": 8,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "$$hashKey": "object:7865",
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "$$hashKey": "object:7866",
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "pluginVersion": "6.7.2",
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false,
+        "ymax": null,
+        "ymin": null
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "expr": "label_replace(solace_bridge_connection_uptime_in_seconds{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "uptime",
+          "refId": "A"
+        }
+      ],
+      "thresholds": "",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Connection up time",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "$$hashKey": "object:7868",
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": "Prometheus",
+      "description": "which side is initiating the bridge connection",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 5,
+        "y": 4
+      },
+      "id": 10,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "$$hashKey": "object:8069",
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "$$hashKey": "object:8070",
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false,
+        "ymax": null,
+        "ymin": null
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "expr": "label_replace(solace_bridge_connection_establisher{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Connection Establisher",
+          "refId": "A"
+        }
+      ],
+      "thresholds": "",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Connection Establisher",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "$$hashKey": "object:8072",
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        },
+        {
+          "$$hashKey": "object:8108",
+          "op": "=",
+          "text": "n/a",
+          "value": "-1"
+        },
+        {
+          "$$hashKey": "object:8110",
+          "op": "=",
+          "text": "NotApplicable",
+          "value": "0"
+        },
+        {
+          "$$hashKey": "object:8112",
+          "op": "=",
+          "text": "auto",
+          "value": "1"
+        },
+        {
+          "$$hashKey": "object:8114",
+          "op": "=",
+          "text": "Local",
+          "value": "2"
+        },
+        {
+          "$$hashKey": "object:8116",
+          "op": "=",
+          "text": "Remote",
+          "value": "3"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": "Prometheus",
+      "description": "connection setup when connecting to redundancy pair",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 5,
+        "x": 10,
+        "y": 4
+      },
+      "id": 11,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "$$hashKey": "object:8069",
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "$$hashKey": "object:8070",
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false,
+        "ymax": null,
+        "ymin": null
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "expr": "label_replace(solace_bridge_redundancy{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Connection Establisher",
+          "refId": "A"
+        }
+      ],
+      "thresholds": "",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Redundancy Connection",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "$$hashKey": "object:8072",
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        },
+        {
+          "$$hashKey": "object:8108",
+          "op": "=",
+          "text": "n/a",
+          "value": "-1"
+        },
+        {
+          "$$hashKey": "object:8110",
+          "op": "=",
+          "text": "NotApplicable",
+          "value": "0"
+        },
+        {
+          "$$hashKey": "object:8112",
+          "op": "=",
+          "text": "auto",
+          "value": "1"
+        },
+        {
+          "$$hashKey": "object:8114",
+          "op": "=",
+          "text": "primary",
+          "value": "2"
+        },
+        {
+          "$$hashKey": "object:8116",
+          "op": "=",
+          "text": "backup",
+          "value": "3"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": true,
+      "colors": [
+        "#d44a3a",
+        "rgba(237, 129, 40, 0.89)",
+        "#299c46"
+      ],
+      "datasource": "Prometheus",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 9,
+        "x": 15,
+        "y": 4
+      },
+      "id": 19,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "$$hashKey": "object:8069",
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "$$hashKey": "object:8070",
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": false,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": false,
+        "ymax": null,
+        "ymin": null
+      },
+      "tableColumn": "",
+      "targets": [
+        {
+          "expr": "label_replace(solace_bridge_inbound_operational_failure_reason{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Connection Establisher",
+          "refId": "A"
+        }
+      ],
+      "thresholds": "18,18",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Inbound Operational Failure Reason",
+      "type": "singlestat",
+      "valueFontSize": "80%",
+      "valueMaps": [
+        {
+          "$$hashKey": "object:8072",
+          "op": "=",
+          "text": "Bridge disabled",
+          "value": "0"
+        },
+        {
+          "$$hashKey": "object:8108",
+          "op": "=",
+          "text": "No remote message-vpns configured",
+          "value": "1"
+        },
+        {
+          "$$hashKey": "object:8110",
+          "op": "=",
+          "text": "SMF service is disabled",
+          "value": "2"
+        },
+        {
+          "$$hashKey": "object:8112",
+          "op": "=",
+          "text": "Msg Backbone is disabled",
+          "value": "3"
+        },
+        {
+          "$$hashKey": "object:8114",
+          "op": "=",
+          "text": "Local message-vpn is disabled",
+          "value": "4"
+        },
+        {
+          "$$hashKey": "object:8116",
+          "op": "=",
+          "text": "Active-Standby Role Mismatch",
+          "value": "5"
+        },
+        {
+          "$$hashKey": "object:1235",
+          "op": "=",
+          "text": "Invalid Active-Standby Role",
+          "value": "6"
+        },
+        {
+          "$$hashKey": "object:1237",
+          "op": "=",
+          "text": "Redundancy Disabled",
+          "value": "7"
+        },
+        {
+          "$$hashKey": "object:1239",
+          "op": "=",
+          "text": "Not active",
+          "value": "8"
+        },
+        {
+          "$$hashKey": "object:1241",
+          "op": "=",
+          "text": "Replication standby",
+          "value": "9"
+        },
+        {
+          "$$hashKey": "object:1243",
+          "op": "=",
+          "text": "Remote message-vpns disabled",
+          "value": "10"
+        },
+        {
+          "$$hashKey": "object:1245",
+          "op": "=",
+          "text": "Enforce-trusted-common-name but empty trust-common-name list",
+          "value": "11"
+        },
+        {
+          "$$hashKey": "object:1247",
+          "op": "=",
+          "text": "SSL transport used but cipher-suite list is empty",
+          "value": "12"
+        },
+        {
+          "$$hashKey": "object:1249",
+          "op": "=",
+          "text": "Authentication Scheme is Client-Certificate but no certificate is configured",
+          "value": "13"
+        },
+        {
+          "$$hashKey": "object:1251",
+          "op": "=",
+          "text": "Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL",
+          "value": "14"
+        },
+        {
+          "$$hashKey": "object:1253",
+          "op": "=",
+          "text": "Basic Authentication Scheme used but Basic Client Username not configured",
+          "value": "15"
+        },
+        {
+          "$$hashKey": "object:1255",
+          "op": "=",
+          "text": "Cluster Down",
+          "value": "16"
+        },
+        {
+          "$$hashKey": "object:1257",
+          "op": "=",
+          "text": "Cluster Link Down",
+          "value": "17"
+        },
+        {
+          "$$hashKey": "object:1259",
+          "op": "=",
+          "text": "(no failure)",
+          "value": "18"
+        },
+        {
+          "$$hashKey": "object:1261",
+          "op": "=",
+          "text": "unknown",
+          "value": "-1"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
+      "cards": {
+        "cardHSpacing": 2,
+        "cardMinWidth": 5,
+        "cardRound": null,
+        "cardVSpacing": 2
+      },
+      "color": {
+        "cardColor": "#b4ff00",
+        "colorScale": "sqrt",
+        "colorScheme": "interpolateGnYlRd",
+        "defaultColor": "#757575",
+        "exponent": 0.5,
+        "mode": "discrete",
+        "thresholds": [
+          {
+            "$$hashKey": "object:7612",
+            "color": "#C0D8FF",
+            "tooltip": "Init",
+            "value": "0"
+          },
+          {
+            "$$hashKey": "object:7616",
+            "color": "#C4162A",
+            "tooltip": "Shutdown",
+            "value": "1"
+          },
+          {
+            "$$hashKey": "object:7620",
+            "color": "#8AB8FF",
+            "tooltip": "NoShutdown",
+            "value": "2"
+          },
+          {
+            "$$hashKey": "object:7624",
+            "color": "#3274D9",
+            "tooltip": "Prepare",
+            "value": "3"
+          },
+          {
+            "$$hashKey": "object:7628",
+            "color": "#1F60C4",
+            "tooltip": "WaitToConnect",
+            "value": "4"
+          },
+          {
+            "$$hashKey": "object:7632",
+            "color": "#FADE2A",
+            "tooltip": "FetchingDNS",
+            "value": "5"
+          },
+          {
+            "$$hashKey": "object:7636",
+            "color": "#FADE2A",
+            "tooltip": "NotReady",
+            "value": "6"
+          },
+          {
+            "$$hashKey": "object:7640",
+            "color": "#FADE2A",
+            "tooltip": "Connecting",
+            "value": "7"
+          },
+          {
+            "$$hashKey": "object:7644",
+            "color": "#FADE2A",
+            "tooltip": "Handshaking",
+            "value": "8"
+          },
+          {
+            "$$hashKey": "object:7648",
+            "color": "#FADE2A",
+            "tooltip": "WaitNext",
+            "value": "9"
+          },
+          {
+            "$$hashKey": "object:7652",
+            "color": "#FADE2A",
+            "tooltip": "WaitReuse",
+            "value": "10"
+          },
+          {
+            "$$hashKey": "object:7656",
+            "color": "#FADE2A",
+            "tooltip": "WaitBridgeVersionMismatch",
+            "value": "11"
+          },
+          {
+            "$$hashKey": "object:720",
+            "color": "#FADE2A",
+            "tooltip": "WaitCleanup",
+            "value": "12"
+          },
+          {
+            "$$hashKey": "object:727",
+            "color": "#96D98D",
+            "tooltip": "Ready",
+            "value": "13"
+          },
+          {
+            "$$hashKey": "object:734",
+            "color": "#56A64B",
+            "tooltip": "Subscribing",
+            "value": "14"
+          },
+          {
+            "$$hashKey": "object:741",
+            "color": "#37872D",
+            "tooltip": "InSync",
+            "value": "15"
+          },
+          {
+            "$$hashKey": "object:748",
+            "color": "#B877D9",
+            "tooltip": "NotApplicable",
+            "value": "16"
+          },
+          {
+            "$$hashKey": "object:755",
+            "color": "#F2495C",
+            "tooltip": "Invalid",
+            "value": "17"
+          },
+          {
+            "$$hashKey": "object:786",
+            "color": "#C4162A",
+            "tooltip": "unknown",
+            "value": "-1"
+          }
+        ]
+      },
+      "data": {
+        "decimals": null,
+        "unitFormat": "short"
+      },
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 7
+      },
+      "highlightCards": true,
+      "id": 6,
+      "legend": {
+        "show": true
+      },
+      "nullPointMode": "as empty",
+      "seriesFilterIndex": -1,
+      "targets": [
+        {
+          "expr": "label_replace(solace_bridge_inbound_operational_state{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r\n",
+          "interval": "",
+          "legendFormat": "Inbound",
+          "refId": "A"
+        },
+        {
+          "expr": "label_replace(solace_bridge_outbound_operational_state{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r\n",
+          "interval": "",
+          "legendFormat": "Outbound",
+          "refId": "B"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "tooltip": {
+        "show": true
+      },
+      "transparent": true,
+      "type": "flant-statusmap-panel",
+      "urls": [
+        {
+          "base_url": "",
+          "extraSeries": {
+            "index": -1
+          },
+          "forcelowercase": true,
+          "icon_fa": "external-link",
+          "label": "",
+          "tooltip": "",
+          "useExtraSeries": false,
+          "useseriesname": true
+        }
+      ],
+      "useMax": true,
+      "usingUrl": false,
+      "xAxis": {
+        "labelFormat": "%a %m/%d",
+        "minBucketWidthToShowWeekends": 4,
+        "show": true,
+        "showCrosshair": true,
+        "showWeekends": true
+      },
+      "yAxis": {
+        "maxWidth": -1,
+        "minWidth": -1,
+        "show": true,
+        "showCrosshair": false
+      },
+      "yAxisSort": "metrics"
+    },
+    {
+      "cards": {
+        "cardHSpacing": 2,
+        "cardMinWidth": 5,
+        "cardRound": null,
+        "cardVSpacing": 2
+      },
+      "color": {
+        "cardColor": "#b4ff00",
+        "colorScale": "sqrt",
+        "colorScheme": "interpolateGnYlRd",
+        "defaultColor": "#757575",
+        "exponent": 0.5,
+        "mode": "discrete",
+        "thresholds": [
+          {
+            "$$hashKey": "object:7612",
+            "color": "#B877D9",
+            "tooltip": "NotApplicable",
+            "value": "0"
+          },
+          {
+            "$$hashKey": "object:7616",
+            "color": "#37872D",
+            "tooltip": "Bound",
+            "value": "1"
+          },
+          {
+            "$$hashKey": "object:7620",
+            "color": "#FADE2A",
+            "tooltip": "Unbound",
+            "value": "2"
+          },
+          {
+            "$$hashKey": "object:786",
+            "color": "#F2495C",
+            "tooltip": "unknown",
+            "value": "-1"
+          }
+        ]
+      },
+      "data": {
+        "decimals": null,
+        "unitFormat": "short"
+      },
+      "datasource": "Prometheus",
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "highlightCards": true,
+      "id": 18,
+      "legend": {
+        "show": true
+      },
+      "nullPointMode": "as empty",
+      "seriesFilterIndex": -1,
+      "targets": [
+        {
+          "expr": "label_replace(solace_bridge_queue_operational_state{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r\n",
+          "interval": "",
+          "legendFormat": "Queue",
+          "refId": "C"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "tooltip": {
+        "show": true
+      },
+      "type": "flant-statusmap-panel",
+      "urls": [
+        {
+          "base_url": "",
+          "extraSeries": {
+            "index": -1
+          },
+          "forcelowercase": true,
+          "icon_fa": "external-link",
+          "label": "",
+          "tooltip": "",
+          "useExtraSeries": false,
+          "useseriesname": true
+        }
+      ],
+      "useMax": true,
+      "usingUrl": false,
+      "xAxis": {
+        "labelFormat": "%a %m/%d",
+        "minBucketWidthToShowWeekends": 4,
+        "show": true,
+        "showCrosshair": true,
+        "showWeekends": true
+      },
+      "yAxis": {
+        "maxWidth": -1,
+        "minWidth": -1,
+        "show": true,
+        "showCrosshair": false
+      },
+      "yAxisSort": "metrics"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "id": 13,
+      "panels": [],
+      "title": "Performance",
+      "type": "row"
+    },
+    {
+      "aliasColors": {},
+      "bars": true,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "decimals": null,
+      "description": "Number of subscribers and percentage slow subscribers",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "hiddenSeries": false,
+      "id": 15,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": true,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "$$hashKey": "object:14552",
+          "alias": "Slow",
+          "yaxis": 2
+        },
+        {
+          "alias": "Slow Subscribers",
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "label_replace(solace_bridge_client_num_subscriptions{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "interval": "",
+          "legendFormat": "Clients Subscribing",
+          "refId": "A"
+        },
+        {
+          "expr": "label_replace(solace_bridge_client_slow_subscriber{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "interval": "",
+          "legendFormat": "Slow Subscribers",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Subscribers: Count / Slow",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:8295",
+          "decimals": 0,
+          "format": "short",
+          "label": "Clients",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:8296",
+          "decimals": 0,
+          "format": "short",
+          "label": "Slow",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "hiddenSeries": false,
+      "id": 16,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "label_replace(solace_bridge_total_client_messages_received{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "interval": "",
+          "legendFormat": "Ingress",
+          "refId": "A"
+        },
+        {
+          "expr": "label_replace(solace_bridge_total_client_messages_sent{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "interval": "",
+          "legendFormat": "Egress",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Transfer Messages / sec",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:8295",
+          "decimals": 0,
+          "format": "short",
+          "label": "Msg",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:8296",
+          "decimals": 0,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Prometheus",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 33
+      },
+      "hiddenSeries": false,
+      "id": 17,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "label_replace(solace_bridge_current_ingress_rate_per_second{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "interval": "",
+          "legendFormat": "Ingress",
+          "refId": "A"
+        },
+        {
+          "expr": "label_replace(solace_bridge_current_egress_rate_per_second{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "interval": "",
+          "legendFormat": "Egress",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Transfer Volume / sec",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:8295",
+          "decimals": null,
+          "format": "short",
+          "label": "Msg / sec",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:8296",
+          "decimals": null,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 22,
+  "style": "dark",
+  "tags": [
+    "solace",
+    "bridge"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "s-t-i1-otc1-t01.sbb.ch:10920",
+          "value": "s-t-i1-otc1-t01.sbb.ch:10920"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(up{group=\"Solace\"}, instance)",
+        "hide": 0,
+        "includeAll": false,
+        "index": -1,
+        "label": "Instance",
+        "multi": false,
+        "name": "instance",
+        "options": [],
+        "query": "label_values(up{group=\"Solace\"}, instance)",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "shunting-assistant-dev",
+          "value": "shunting-assistant-dev"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(solace_bridge_admin_state{instance=\"$instance\",job=\"solace\"}, vpn_name)",
+        "hide": 0,
+        "includeAll": false,
+        "index": -1,
+        "label": "VPN",
+        "multi": false,
+        "name": "vpnName",
+        "options": [],
+        "query": "label_values(solace_bridge_admin_state{instance=\"$instance\",job=\"solace\"}, vpn_name)",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "tags": [],
+          "text": "shunting-assistant-dev_lta-dev",
+          "value": "shunting-assistant-dev_lta-dev"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpnName\",job=\"solace\"}, bridge_name)",
+        "hide": 0,
+        "includeAll": false,
+        "index": -1,
+        "label": "Bridge",
+        "multi": false,
+        "name": "bridgeName",
+        "options": [],
+        "query": "label_values(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpnName\",job=\"solace\"}, bridge_name)",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "",
+  "title": "Solace bridge",
+  "uid": "y3WWrMiMk",
+  "variables": {
+    "list": []
+  },
+  "version": 27
+}
