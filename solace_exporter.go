@@ -14,6 +14,7 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/xml"
 	"fmt"
@@ -43,35 +44,47 @@ const (
 type metrics map[string]*prometheus.Desc
 
 var (
-	variableLabelsVpn             = []string{"vpn_name"}
-	variableLabelsVpnClient       = []string{"vpn_name", "client_name", "client_username"}
-	variableLabelsVpnQueue        = []string{"vpn_name", "queue_name"}
-	variableLabelsBridge          = []string{"bridge_name", "vpn_name"}
-	variableLabelsConfigSyncTable = []string{"table_name"}
-	solaceUp                      = prometheus.NewDesc(namespace+"_"+"up", "Was the last scrape of Solace broker successful.", nil, nil)
+	vmrVersion            = string("undefined")
+	solaceExporterVersion = float64(1001006)
+
+	variableLabelsVersion         = []string{"vmrVersion"}
+	variableExporterVersion       = []string{"vmrVersion"}
+	variableLabelsRedundancy      = []string{"vmrVersion", "mate_name"}
+	variableLabelsVpn             = []string{"vmrVersion", "vpn_name"}
+	variableLabelsVpnClient       = []string{"vmrVersion", "vpn_name", "client_name", "client_username"}
+	variableLabelsVpnQueue        = []string{"vmrVersion", "vpn_name", "queue_name"}
+	variableLabelsBridge          = []string{"vmrVersion", "bridge_name", "vpn_name"}
+	variableLabelsConfigSyncTable = []string{"vmrVersion", "table_name"}
+
+	solaceUp = prometheus.NewDesc(namespace+"_"+"up", "Was the last scrape of Solace broker successful.", nil, nil)
 )
 
 var metricsStd = metrics{
-	"system_redundancy_up":                 prometheus.NewDesc(namespace+"_"+"system_redundancy_up", "Is redundancy up? (0=down, 1=up).", nil, nil),
-	"system_redundancy_config":             prometheus.NewDesc(namespace+"_"+"system_redundancy_config", "Redundancy configuration (0=disabled, 1=enabled, 2=shutdown).", nil, nil),
-	"system_redundancy_role":               prometheus.NewDesc(namespace+"_"+"system_redundancy_role", "Redundancy role (0=backup, 1=primary, 2=monitor).", nil, nil),
-	"system_redundancy_local_active":       prometheus.NewDesc(namespace+"_"+"system_redundancy_local_active", "Is local node the active messaging node? (0=not active, 1=active).", nil, nil),
-	"system_spool_quota_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage.", nil, nil),
-	"system_spool_quota_msgs":              prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", nil, nil),
-	"system_spool_usage_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted usage.", nil, nil),
-	"system_spool_usage_msgs":              prometheus.NewDesc(namespace+"_"+"system_spool_usage_msgs", "Spool total number of persisted messages.", nil, nil),
-	"system_disk_latency_min_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_min_seconds", "Minimum disk latency.", nil, nil),
-	"system_disk_latency_max_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_max_seconds", "Maximum disk latency.", nil, nil),
-	"system_disk_latency_avg_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_avg_seconds", "Average disk latency.", nil, nil),
-	"system_disk_latency_cur_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_cur_seconds", "Current disk latency.", nil, nil),
-	"system_compute_latency_min_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_min_seconds", "Minimum compute latency.", nil, nil),
-	"system_compute_latency_max_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_max_seconds", "Maximum compute latency.", nil, nil),
-	"system_compute_latency_avg_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_avg_seconds", "Average compute latency.", nil, nil),
-	"system_compute_latency_cur_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_cur_seconds", "Current compute latency.", nil, nil),
-	"system_mate_link_latency_min_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_min_seconds", "Minimum mate link latency.", nil, nil),
-	"system_mate_link_latency_max_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_max_seconds", "Maximum mate link latency.", nil, nil),
-	"system_mate_link_latency_avg_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_avg_seconds", "Average mate link latency.", nil, nil),
-	"system_mate_link_latency_cur_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_cur_seconds", "Current mate link latency.", nil, nil),
+	"system_version_currentload":      prometheus.NewDesc(namespace+"_"+"system_version_currentload", "Solace Version as WWWXXXYYYZZZ ", variableLabelsVersion, nil),
+	"system_version_uptime_totalsecs": prometheus.NewDesc(namespace+"_"+"system_version_uptime_totalsecs", "Broker uptime in seconds ", variableLabelsVersion, nil),
+	"exporter_version_current":        prometheus.NewDesc(namespace+"_"+"exporter_version_current", "Exporter Version ", variableLabelsVersion, nil),
+
+	"system_redundancy_up":           prometheus.NewDesc(namespace+"_"+"system_redundancy_up", "Is redundancy up? (0=down, 1=up).", variableLabelsRedundancy, nil),
+	"system_redundancy_config":       prometheus.NewDesc(namespace+"_"+"system_redundancy_config", "Redundancy configuration (0=disabled, 1=enabled, 2=shutdown).", variableLabelsRedundancy, nil),
+	"system_redundancy_role":         prometheus.NewDesc(namespace+"_"+"system_redundancy_role", "Redundancy role (0=backup, 1=primary, 2=monitor).", variableLabelsRedundancy, nil),
+	"system_redundancy_local_active": prometheus.NewDesc(namespace+"_"+"system_redundancy_local_active", "Is local node the active messaging node? (0=not active, 1=active).", variableLabelsRedundancy, nil),
+
+	"system_spool_quota_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage.", variableLabelsVersion, nil),
+	"system_spool_quota_msgs":              prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", variableLabelsVersion, nil),
+	"system_spool_usage_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted usage.", variableLabelsVersion, nil),
+	"system_spool_usage_msgs":              prometheus.NewDesc(namespace+"_"+"system_spool_usage_msgs", "Spool total number of persisted messages.", variableLabelsVersion, nil),
+	"system_disk_latency_min_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_min_seconds", "Minimum disk latency.", variableLabelsVersion, nil),
+	"system_disk_latency_max_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_max_seconds", "Maximum disk latency.", variableLabelsVersion, nil),
+	"system_disk_latency_avg_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_avg_seconds", "Average disk latency.", variableLabelsVersion, nil),
+	"system_disk_latency_cur_seconds":      prometheus.NewDesc(namespace+"_"+"system_disk_latency_cur_seconds", "Current disk latency.", variableLabelsVersion, nil),
+	"system_compute_latency_min_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_min_seconds", "Minimum compute latency.", variableLabelsVersion, nil),
+	"system_compute_latency_max_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_max_seconds", "Maximum compute latency.", variableLabelsVersion, nil),
+	"system_compute_latency_avg_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_avg_seconds", "Average compute latency.", variableLabelsVersion, nil),
+	"system_compute_latency_cur_seconds":   prometheus.NewDesc(namespace+"_"+"system_compute_latency_cur_seconds", "Current compute latency.", variableLabelsVersion, nil),
+	"system_mate_link_latency_min_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_min_seconds", "Minimum mate link latency.", variableLabelsVersion, nil),
+	"system_mate_link_latency_max_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_max_seconds", "Maximum mate link latency.", variableLabelsVersion, nil),
+	"system_mate_link_latency_avg_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_avg_seconds", "Average mate link latency.", variableLabelsVersion, nil),
+	"system_mate_link_latency_cur_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_cur_seconds", "Current mate link latency.", variableLabelsVersion, nil),
 
 	"configsync_table_type":               prometheus.NewDesc(namespace+"_"+"configsync_table_type", "Config Sync Resource Type", variableLabelsConfigSyncTable, nil),
 	"configsync_table_timeinstateseconds": prometheus.NewDesc(namespace+"_"+"configsync_table_timeinstateseconds", "Config Sync Time in State", variableLabelsConfigSyncTable, nil),
@@ -91,35 +104,23 @@ var metricsStd = metrics{
 	"vpn_replication_config_state":                 prometheus.NewDesc(namespace+"_"+"vpn_replication_config_state", "Replication Config Status", variableLabelsVpn, nil),
 	"vpn_replication_transaction_replication_mode": prometheus.NewDesc(namespace+"_"+"vpn_replication_transaction_replication_mode", "Replication Tx Replication Mode", variableLabelsVpn, nil),
 
-	"bridges_num_total_bridges":                         prometheus.NewDesc(namespace+"_"+"bridges_num_total_bridges", "Number of Bridges", nil, nil),
-	"bridges_max_num_total_bridges":                     prometheus.NewDesc(namespace+"_"+"bridges_max_num_total_bridges", "Max number of Bridges", nil, nil),
-	"bridges_num_local_bridges":                         prometheus.NewDesc(namespace+"_"+"bridges_num_local_bridges", "Number of Local Bridges", nil, nil),
-	"bridges_max_num_local_bridges":                     prometheus.NewDesc(namespace+"_"+"bridges_max_num_local_bridges", "Max number of Local Bridges", nil, nil),
-	"bridges_num_remote_bridges":                        prometheus.NewDesc(namespace+"_"+"bridges_num_remote_bridges", "Number of Remote Bridges", nil, nil),
-	"bridges_max_num_remote_bridges":                    prometheus.NewDesc(namespace+"_"+"bridges_max_num_remote_bridges", "Max number of Remote Bridges", nil, nil),
-	"bridges_num_total_remote_bridge_subscriptions":     prometheus.NewDesc(namespace+"_"+"bridges_num_total_remote_bridge_subscriptions", "Total number of Remote Bridge Subscription", nil, nil),
-	"bridges_max_num_total_remote_bridge_subscriptions": prometheus.NewDesc(namespace+"_"+"bridges_max_num_total_remote_bridge_subscriptions", "Max total number of Remote Bridge Subscription", nil, nil),
+	"bridges_num_total_bridges":                         prometheus.NewDesc(namespace+"_"+"bridges_num_total_bridges", "Number of Bridges", variableLabelsVersion, nil),
+	"bridges_max_num_total_bridges":                     prometheus.NewDesc(namespace+"_"+"bridges_max_num_total_bridges", "Max number of Bridges", variableLabelsVersion, nil),
+	"bridges_num_local_bridges":                         prometheus.NewDesc(namespace+"_"+"bridges_num_local_bridges", "Number of Local Bridges", variableLabelsVersion, nil),
+	"bridges_max_num_local_bridges":                     prometheus.NewDesc(namespace+"_"+"bridges_max_num_local_bridges", "Max number of Local Bridges", variableLabelsVersion, nil),
+	"bridges_num_remote_bridges":                        prometheus.NewDesc(namespace+"_"+"bridges_num_remote_bridges", "Number of Remote Bridges", variableLabelsVersion, nil),
+	"bridges_max_num_remote_bridges":                    prometheus.NewDesc(namespace+"_"+"bridges_max_num_remote_bridges", "Max number of Remote Bridges", variableLabelsVersion, nil),
+	"bridges_num_total_remote_bridge_subscriptions":     prometheus.NewDesc(namespace+"_"+"bridges_num_total_remote_bridge_subscriptions", "Total number of Remote Bridge Subscription", variableLabelsVersion, nil),
+	"bridges_max_num_total_remote_bridge_subscriptions": prometheus.NewDesc(namespace+"_"+"bridges_max_num_total_remote_bridge_subscriptions", "Max total number of Remote Bridge Subscription", variableLabelsVersion, nil),
 
-	"bridge_admin_state":                  prometheus.NewDesc(namespace+"_"+"bridge_admin_state", "Bridge Administrative State (0-Enabled 1-Disabled)", variableLabelsBridge, nil),
-	"bridge_connection_establisher":       prometheus.NewDesc(namespace+"_"+"bridge_connection_establisher", "Connection Establisher", variableLabelsBridge, nil),
-	"bridge_inbound_operational_state":    prometheus.NewDesc(namespace+"_"+"bridge_inbound_operational_state", "Inbound Ops State", variableLabelsBridge, nil),
-	"bridge_outbound_operational_state":   prometheus.NewDesc(namespace+"_"+"bridge_outbound_operational_state", "Outbound Ops State", variableLabelsBridge, nil),
-	"bridge_queue_operational_state":      prometheus.NewDesc(namespace+"_"+"bridge_queue_operational_state", "Queue Ops State", variableLabelsBridge, nil),
-	"bridge_redundancy":                   prometheus.NewDesc(namespace+"_"+"bridge_redundancy", "Redundancy", variableLabelsBridge, nil),
-	"bridge_connection_uptime_in_seconds": prometheus.NewDesc(namespace+"_"+"bridge_connection_uptime_in_seconds", "Connection Uptime (s)", variableLabelsBridge, nil),
-
-	"bridge_client_num_subscriptions":        prometheus.NewDesc(namespace+"_"+"bridge_client_num_subscriptions", "Bridge Client Subscription", variableLabelsBridge, nil),
-	"bridge_client_slow_subscriber":          prometheus.NewDesc(namespace+"_"+"bridge_client_slow_subscriber", "Bridge Slow Subscriber", variableLabelsBridge, nil),
-	"bridge_total_client_messages_received":  prometheus.NewDesc(namespace+"_"+"bridge_total_client_messages_received", "Bridge Total Client Msg Received", variableLabelsBridge, nil),
-	"bridge_total_client_messages_sent":      prometheus.NewDesc(namespace+"_"+"bridge_total_client_messages_sent", "Bridge Client Messages sent", variableLabelsBridge, nil),
-	"bridge_denied_duplicate_clients":        prometheus.NewDesc(namespace+"_"+"bridge_denied_duplicate_clients", "Bridge Denied Duplicate Clients", variableLabelsBridge, nil),
-	"bridge_not_enough_space_msgs_sent":      prometheus.NewDesc(namespace+"_"+"bridge_not_enough_space_msgs_sent", "Bridge Not Enough Space Msgs sent", variableLabelsBridge, nil),
-	"bridge_max_exceeded_msgs_sent":          prometheus.NewDesc(namespace+"_"+"bridge_max_exceeded_msgs_sent", "Bridge Max Exceeded Msgs sent", variableLabelsBridge, nil),
-	"bridge_not_found_msgs_sent":             prometheus.NewDesc(namespace+"_"+"bridge_not_found_msgs_sent", "Bridge Not Found Msgs sent", variableLabelsBridge, nil),
-	"bridge_current_ingress_rate_per_second": prometheus.NewDesc(namespace+"_"+"bridge_current_ingress_rate_per_second", "Bridge current ingress rate (s)", variableLabelsBridge, nil),
-	"bridge_current_egress_rate_per_second":  prometheus.NewDesc(namespace+"_"+"bridge_current_egress_rate_per_second", "Bridge current egress rate (s)", variableLabelsBridge, nil),
-	"bridge_add_by_subscription_manager":     prometheus.NewDesc(namespace+"_"+"bridge_add_by_subscription_manager", "Add by subscription manager", variableLabelsBridge, nil),
-	"bridge_remove_by_subscription_manager":  prometheus.NewDesc(namespace+"_"+"bridge_remove_by_subscription_manager", "Remove by subscription manager", variableLabelsBridge, nil),
+	"bridge_admin_state":                        prometheus.NewDesc(namespace+"_"+"bridge_admin_state", "Bridge Administrative State (0-Enabled 1-Disabled)", variableLabelsBridge, nil),
+	"bridge_connection_establisher":             prometheus.NewDesc(namespace+"_"+"bridge_connection_establisher", "Connection Establisher", variableLabelsBridge, nil),
+	"bridge_inbound_operational_state":          prometheus.NewDesc(namespace+"_"+"bridge_inbound_operational_state", "Inbound Ops State", variableLabelsBridge, nil),
+	"bridge_inbound_operational_failure_reason": prometheus.NewDesc(namespace+"_"+"bridge_inbound_operational_failure_reason", "Inbound Ops Failure Reason", variableLabelsBridge, nil),
+	"bridge_outbound_operational_state":         prometheus.NewDesc(namespace+"_"+"bridge_outbound_operational_state", "Outbound Ops State", variableLabelsBridge, nil),
+	"bridge_queue_operational_state":            prometheus.NewDesc(namespace+"_"+"bridge_queue_operational_state", "Queue Ops State", variableLabelsBridge, nil),
+	"bridge_redundancy":                         prometheus.NewDesc(namespace+"_"+"bridge_redundancy", "Redundancy", variableLabelsBridge, nil),
+	"bridge_connection_uptime_in_seconds":       prometheus.NewDesc(namespace+"_"+"bridge_connection_uptime_in_seconds", "Connection Uptime (s)", variableLabelsBridge, nil),
 }
 
 var metricsDet = metrics{
@@ -192,6 +193,11 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	var up float64 = 1
 
+	// check version first in any case
+	if up > 0 {
+		up = e.getVersionSemp1(ch)
+	}
+
 	if e.config.details {
 		if up > 0 {
 			up = e.getClientSemp1(ch)
@@ -204,8 +210,10 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		}
 	} else { // Basic
 		if up > 0 && e.config.redundancy {
-			//if up > 0 {
 			up = e.getRedundancySemp1(ch)
+		}
+		if up > 0 && e.config.redundancy {
+			up = e.getConfigSyncSemp1(ch)
 		}
 		if up > 0 {
 			up = e.getSpoolSemp1(ch)
@@ -221,9 +229,6 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		}
 		if up > 0 {
 			up = e.getBridgeSemp1(ch)
-		}
-		if up > 0 {
-			up = e.getBridgeStatsSemp1(ch)
 		}
 	}
 
@@ -289,6 +294,67 @@ func (e *Exporter) checkBrokerAccess() (ok bool) {
 }
 
 // Get system-wide basic redundancy information for HA triples
+func (e *Exporter) getVersionSemp1(ch chan<- prometheus.Metric) (ok float64) {
+
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Version struct {
+					Description string `xml:"description"`
+					CurrentLoad string `xml:"current-load"`
+					Uptime      struct {
+						Days      float64 `xml:"days"`
+						Hours     float64 `xml:"hours"`
+						Mins      float64 `xml:"mins"`
+						Secs      float64 `xml:"secs"`
+						TotalSecs float64 `xml:"total-secs"`
+					} `xml:"uptime"`
+				} `xml:"version"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><version/></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't scrape RedundancySemp1", "err", err)
+		return 0
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't decode Xml RedundancySemp1", "err", err)
+		return 0
+	}
+	if target.ExecuteResult.Result != "ok" {
+		level.Error(e.logger).Log("command", command)
+		return 0
+	}
+
+	// remember this for the label
+	vmrVersion = strings.TrimPrefix(target.RPC.Show.Version.CurrentLoad, "soltr_")
+	// compute a version number so it can be measured by Prometheus
+
+	var vmrVersionStrBuffer bytes.Buffer
+	for _, s := range strings.Split(vmrVersion, ".") {
+		vmrVersionStrBuffer.WriteString(fmt.Sprintf("%03v", s))
+	}
+	var vmrVersionNr float64
+	vmrVersionNr, _ = strconv.ParseFloat(vmrVersionStrBuffer.String(), 64)
+
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_version_currentload"], prometheus.GaugeValue, vmrVersionNr, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_version_uptime_totalsecs"], prometheus.GaugeValue, target.RPC.Show.Version.Uptime.TotalSecs, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["exporter_version_current"], prometheus.GaugeValue, solaceExporterVersion, vmrVersion)
+
+	return 1
+}
+
+// Get system-wide basic redundancy information for HA triples
 func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) {
 	var f float64
 
@@ -300,6 +366,7 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) 
 					RedundancyStatus  string `xml:"redundancy-status"`
 					OperatingMode     string `xml:"operating-mode"`
 					ActiveStandbyRole string `xml:"active-standby-role"`
+					MateRouterName    string `xml:"mate-router-name"`
 					VirtualRouters    struct {
 						Primary struct {
 							Status struct {
@@ -339,9 +406,10 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) 
 		return 0
 	}
 
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_config"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ConfigStatus, []string{"Disabled", "Enabled", "Shutdown"}))
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_up"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.RedundancyStatus, []string{"Down", "Up"}))
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Undefined"}))
+	mateRouterName := "" + target.RPC.Show.Red.MateRouterName
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_config"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ConfigStatus, []string{"Disabled", "Enabled", "Shutdown"}), vmrVersion, mateRouterName)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_up"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.RedundancyStatus, []string{"Down", "Up"}), vmrVersion, mateRouterName)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Undefined"}), vmrVersion, mateRouterName)
 
 	if target.RPC.Show.Red.ActiveStandbyRole == "Primary" && target.RPC.Show.Red.VirtualRouters.Primary.Status.Activity == "Local Active" ||
 		target.RPC.Show.Red.ActiveStandbyRole == "Backup" && target.RPC.Show.Red.VirtualRouters.Backup.Status.Activity == "Local Active" {
@@ -349,7 +417,7 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) 
 	} else {
 		f = 0
 	}
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_local_active"], prometheus.GaugeValue, f)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_local_active"], prometheus.GaugeValue, f, vmrVersion, mateRouterName)
 
 	return 1
 }
@@ -394,15 +462,15 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		return 0
 	}
 
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.QuotaDiskUsage*1048576.0))
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.QuotaDiskUsage*1048576.0), vmrVersion)
 	// MaxMsgCount is in the form "100M"
 	s1 := target.RPC.Show.Spool.Info.QuotaMsgCount[:len(target.RPC.Show.Spool.Info.QuotaMsgCount)-1]
 	f1, err3 := strconv.ParseFloat(s1, 64)
 	if err3 == nil {
-		ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_msgs"], prometheus.GaugeValue, f1*1000000)
+		ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_quota_msgs"], prometheus.GaugeValue, f1*1000000, vmrVersion)
 	}
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.PersistUsage*1048576.0))
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_usage_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.PersistUsage*1048576.0), vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_spool_usage_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount, vmrVersion)
 
 	return 1
 }
@@ -455,18 +523,18 @@ func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		return 0
 	}
 
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMinimumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMaximumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyAverageValue/1e6)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyCurrentValue/1e6)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMinimumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMaximumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyAverageValue/1e6)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyCurrentValue/1e6)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMinimumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMaximumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyAverageValue/1e6)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyCurrentValue/1e6)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMinimumValue/1e6, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMaximumValue/1e6, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyAverageValue/1e6, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_disk_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyCurrentValue/1e6, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMinimumValue/1e6, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMaximumValue/1e6, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyAverageValue/1e6, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_compute_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyCurrentValue/1e6, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMinimumValue/1e6, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMaximumValue/1e6, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyAverageValue/1e6, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_mate_link_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyCurrentValue/1e6, vmrVersion)
 
 	return 1
 }
@@ -488,17 +556,18 @@ func (e *Exporter) getBridgeSemp1(ch chan<- prometheus.Metric) (ok float64) {
 						NumTotalRemoteBridgeSubscriptions    float64 `xml:"num-total-remote-bridge-subscriptions"`
 						MaxNumTotalRemoteBridgeSubscriptions float64 `xml:"max-num-total-remote-bridge-subscriptions"`
 						Bridge                               []struct {
-							BridgeName                string  `xml:"bridge-name"`
-							LocalVpnName              string  `xml:"local-vpn-name"`
-							ConnectedRemoteVpnName    string  `xml:"connected-remote-vpn-name"`
-							ConnectedRemoteRouterName string  `xml:"connected-remote-router-name"`
-							AdminState                string  `xml:"admin-state"`
-							ConnectionEstablisher     string  `xml:"connection-establisher"`
-							InboundOperationalState   string  `xml:"inbound-operational-state"`
-							OutboundOperationalState  string  `xml:"outbound-operational-state"`
-							QueueOperationalState     string  `xml:"queue-operational-state"`
-							Redundancy                string  `xml:"redundancy"`
-							ConnectionUptimeInSeconds float64 `xml:"connection-uptime-in-seconds"`
+							BridgeName                      string  `xml:"bridge-name"`
+							LocalVpnName                    string  `xml:"local-vpn-name"`
+							ConnectedRemoteVpnName          string  `xml:"connected-remote-vpn-name"`
+							ConnectedRemoteRouterName       string  `xml:"connected-remote-router-name"`
+							AdminState                      string  `xml:"admin-state"`
+							ConnectionEstablisher           string  `xml:"connection-establisher"`
+							InboundOperationalState         string  `xml:"inbound-operational-state"`
+							InboundOperationalFailureReason string  `xml:"inbound-operational-failure-reason"`
+							OutboundOperationalState        string  `xml:"outbound-operational-state"`
+							QueueOperationalState           string  `xml:"queue-operational-state"`
+							Redundancy                      string  `xml:"redundancy"`
+							ConnectionUptimeInSeconds       float64 `xml:"connection-uptime-in-seconds"`
 						} `xml:"bridge"`
 					} `xml:"bridges"`
 				} `xml:"bridge"`
@@ -527,115 +596,27 @@ func (e *Exporter) getBridgeSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		level.Error(e.logger).Log("command", command)
 		return 0
 	}
-	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalBridgesValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_max_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalBridgesValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_num_local_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumLocalBridgesValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_max_num_local_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.MaxNumLocalBridgesValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_num_remote_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumRemoteBridgesValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_max_num_remote_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.MaxNumRemoteBridgesValue)
-	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_num_total_remote_bridge_subscriptions"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalRemoteBridgeSubscriptions)
-	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_max_num_total_remote_bridge_subscriptions"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalRemoteBridgeSubscriptions)
-	opStates := []string{"NotApplicable", "Shutdown", "NotReady-Connecting", "NotReady-Handshaking", "NotReady-WaitNext", "NotReady-WaitReuse", "NotReady-WaitCleanup", "Ready-Subscribing", "Ready-InSync", "NotReady", "Ready"}
+	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalBridgesValue, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_max_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalBridgesValue, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_num_local_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumLocalBridgesValue, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_max_num_local_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.MaxNumLocalBridgesValue, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_num_remote_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumRemoteBridgesValue, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_max_num_remote_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.MaxNumRemoteBridgesValue, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_num_total_remote_bridge_subscriptions"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalRemoteBridgeSubscriptions, vmrVersion)
+	ch <- prometheus.MustNewConstMetric(metricsStd["bridges_max_num_total_remote_bridge_subscriptions"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalRemoteBridgeSubscriptions, vmrVersion)
+	opStates := []string{"Init", "Shutdown", "NoShutdown", "Prepare", "Prepare-WaitToConnect", "Prepare-FetchingDNS", "NotReady", "NotReady-Connecting", "NotReady-Handshaking", "NotReady-WaitNext", "NotReady-WaitReuse", "NotRead-WaitBridgeVersionMismatch", "NotReady-WaitCleanup", "Ready", "Ready-Subscribing", "Ready-InSync", "NotApplicable", "Invalid"}
+	failReasons := []string{"Bridge disabled", "No remote message-vpns configured", "SMF service is disabled", "Msg Backbone is disabled", "Local message-vpn is disabled", "Active-Standby Role Mismatch", "Invalid Active-Standby Role", "Redundancy Disabled", "Not active", "Replication standby", "Remote message-vpns disabled", "Enforce-trusted-common-name but empty trust-common-name list", "SSL transport used but cipher-suite list is empty", "Authentication Scheme is Client-Certificate but no certificate is configured", "Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL", "Basic Authentication Scheme used but Basic Client Username not configured", "Cluster Down", "Cluster Link Down", ""}
 	for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
 		bridgeName := bridge.BridgeName
 		vpnName := bridge.LocalVpnName
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_admin_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.AdminState, []string{"Enabled", "Disabled"}), bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_connection_establisher"], prometheus.GaugeValue, encodeMetricMulti(bridge.ConnectionEstablisher, []string{"NotApplicable", "Local", "Remote"}), bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_inbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalState, opStates), bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_outbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.OutboundOperationalState, opStates), bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_queue_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.QueueOperationalState, opStates), bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup"}), bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, bridgeName, vpnName)
-	}
-	return 1
-}
-
-// Get status of bridges for all vpns
-func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64) {
-
-	type Data struct {
-		RPC struct {
-			Show struct {
-				Bridge struct {
-					Bridges struct {
-						Bridge []struct {
-							BridgeName                string `xml:"bridge-name"`
-							LocalVpnName              string `xml:"local-vpn-name"`
-							ConnectedRemoteVpnName    string `xml:"connected-remote-vpn-name"`
-							ConnectedRemoteRouterName string `xml:"connected-remote-router-name"`
-							ConnectedViaAddr          string `xml:"connected-via-addr"`
-							ConnectedViaInterface     string `xml:"connected-via-interface"`
-							Redundancy                string `xml:"redundancy"`
-							AdminState                string `xml:"admin-state"`
-							ConnectionEstablisher     string `xml:"connection-establisher"`
-							Client                    struct {
-								ClientAddress    string  `xml:"client-address"`
-								Name             string  `xml:"name"`
-								NumSubscriptions float64 `xml:"num-subscriptions"`
-								ClientId         float64 `xml:"client-id"`
-								MessageVpn       float64 `xml:"message-vpn"`
-								SlowSubscriber   bool    `xml:"slow-subscriber"`
-								ClientUsername   string  `xml:"client-username"`
-								Stats            struct {
-									TotalClientMessagesReceived float64 `xml:"total-client-messages-received"`
-									TotalClientMessagesSent     float64 `xml:"total-client-messages-sent"`
-									DeniedDuplicateClients      float64 `xml:"denied-duplicate-clients"`
-									NotEnoughSpaceMsgsSent      float64 `xml:"not-enough-space-msgs-sent"`
-									MaxExceededMsgsSent         float64 `xml:"max-exceeded-msgs-sent"`
-									SubscribeClientNotFound     float64 `xml:"subscribe-client-not-found"`
-									NotFoundMsgsSent            float64 `xml:"not-found-msgs-sent"`
-									CurrentIngressRatePerSecond float64 `xml:"current-ingress-rate-per-second"`
-									CurrentEgressRatePerSecond  float64 `xml:"current-egress-rate-per-second"`
-									ManagedSubscriptions        struct {
-										AddBySubscriptionManager    float64 `xml:"add-by-subscription-manager"`
-										RemoveBySubscriptionManager float64 `xml:"remove-by-subscription-manager"`
-									}
-								}
-							}
-						} `xml:"bridge"`
-					} `xml:"bridges"`
-				} `xml:"bridge"`
-			} `xml:"show"`
-		} `xml:"rpc"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-		} `xml:"execute-result"`
-	}
-
-	command := "<rpc><show><bridge><bridge-name-pattern>*</bridge-name-pattern><stats/></bridge></show></rpc>"
-	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
-	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape BridgeSemp1", "err", err)
-		return 0
-	}
-	defer body.Close()
-	decoder := xml.NewDecoder(body)
-	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml BridgeSemp1", "err", err)
-		return 0
-	}
-	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
-		return 0
-	}
-	for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
-		bridgeName := bridge.BridgeName
-		vpnName := bridge.LocalVpnName
-
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_num_subscriptions"], prometheus.GaugeValue, bridge.Client.NumSubscriptions, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(bridge.Client.SlowSubscriber), bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientMessagesReceived, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientMessagesSent, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_denied_duplicate_clients"], prometheus.GaugeValue, bridge.Client.Stats.DeniedDuplicateClients, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_not_enough_space_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotEnoughSpaceMsgsSent, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_max_exceeded_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.MaxExceededMsgsSent, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_not_found_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotFoundMsgsSent, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_current_ingress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentIngressRatePerSecond, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_current_egress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentEgressRatePerSecond, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_add_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.AddBySubscriptionManager, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_remove_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.RemoveBySubscriptionManager, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_admin_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.AdminState, []string{"Enabled", "Disabled"}), vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_connection_establisher"], prometheus.GaugeValue, encodeMetricMulti(bridge.ConnectionEstablisher, []string{"NotApplicable", "Local", "Remote"}), vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_inbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalState, opStates), vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_inbound_operational_failure_reason"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalFailureReason, failReasons), vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_outbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.OutboundOperationalState, opStates), vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_queue_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.QueueOperationalState, []string{"NotApplicable", "Bound", "Unbound"}), vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup"}), vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, vmrVersion, bridgeName, vpnName)
 	}
 	return 1
 }
@@ -700,15 +681,15 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_local_status"], prometheus.GaugeValue, encodeMetricMulti(vpn.LocalStatus, []string{"Down", "Up"}), vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vmrVersion, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_local_status"], prometheus.GaugeValue, encodeMetricMulti(vpn.LocalStatus, []string{"Down", "Up"}), vmrVersion, vpn.Name)
 
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataRxMsgCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataTxMsgCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataRxByteCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataTxByteCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.IngressDiscards.DiscardedRxMsgCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.EgressDiscards.DiscardedTxMsgCount, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataRxMsgCount, vmrVersion, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataTxMsgCount, vmrVersion, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataRxByteCount, vmrVersion, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataTxByteCount, vmrVersion, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_rx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.IngressDiscards.DiscardedRxMsgCount, vmrVersion, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_tx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.EgressDiscards.DiscardedTxMsgCount, vmrVersion, vpn.Name)
 	}
 
 	return 1
@@ -763,10 +744,10 @@ func (e *Exporter) getConfigSyncSemp1(ch chan<- prometheus.Metric) (ok float64) 
 	}
 
 	for _, table := range target.RPC.Show.ConfigSync.Database.Local.Tables.Table {
-		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_type"], prometheus.GaugeValue, encodeMetricMulti(table.Type, []string{"Router", "Vpn"}), table.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_timeinstateseconds"], prometheus.CounterValue, table.TimeInStateSeconds, table.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_ownership"], prometheus.GaugeValue, encodeMetricMulti(table.Ownership, []string{"Master", "Slave"}), table.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_syncstate"], prometheus.GaugeValue, encodeMetricMulti(table.SyncState, []string{"Down", "Up"}), table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_type"], prometheus.GaugeValue, encodeMetricMulti(table.Type, []string{"Router", "Vpn"}), vmrVersion, table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_timeinstateseconds"], prometheus.CounterValue, table.TimeInStateSeconds, vmrVersion, table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_ownership"], prometheus.GaugeValue, encodeMetricMulti(table.Ownership, []string{"Master", "Slave"}), vmrVersion, table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_syncstate"], prometheus.GaugeValue, encodeMetricMulti(table.SyncState, []string{"Down", "Up"}), vmrVersion, table.Name)
 	}
 
 	return 1
@@ -817,9 +798,9 @@ func (e *Exporter) getVpnReplicationSemp1(ch chan<- prometheus.Metric) (ok float
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Replication.MessageVpns.MessageVpn {
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_replication_admin_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.AdminState, []string{"shutdown", "enabled"}), vpn.VpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_replication_config_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.ConfigState, []string{"standby", "active"}), vpn.VpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_replication_transaction_replication_mode"], prometheus.GaugeValue, encodeMetricMulti(vpn.TransactionReplicationMode, []string{"async", "sync"}), vpn.VpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_replication_admin_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.AdminState, []string{"shutdown", "enabled"}), vmrVersion, vpn.VpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_replication_config_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.ConfigState, []string{"standby", "active"}), vmrVersion, vpn.VpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_replication_transaction_replication_mode"], prometheus.GaugeValue, encodeMetricMulti(vpn.TransactionReplicationMode, []string{"async", "sync"}), vmrVersion, vpn.VpnName)
 	}
 
 	return 1
@@ -895,13 +876,13 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		nextRequest = target.MoreCookie.RPC
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_msgs_total"], prometheus.CounterValue, client.Stats.DataRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_msgs_total"], prometheus.CounterValue, client.Stats.DataTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_bytes_total"], prometheus.CounterValue, client.Stats.DataRxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_bytes_total"], prometheus.CounterValue, client.Stats.DataTxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.IngressDiscards.DiscardedRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.EgressDiscards.DiscardedTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(metricsDet["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_msgs_total"], prometheus.CounterValue, client.Stats.DataRxMsgCount, vmrVersion, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_msgs_total"], prometheus.CounterValue, client.Stats.DataTxMsgCount, vmrVersion, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_bytes_total"], prometheus.CounterValue, client.Stats.DataRxByteCount, vmrVersion, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_bytes_total"], prometheus.CounterValue, client.Stats.DataTxByteCount, vmrVersion, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_rx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.IngressDiscards.DiscardedRxMsgCount, vmrVersion, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_tx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.EgressDiscards.DiscardedTxMsgCount, vmrVersion, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- prometheus.MustNewConstMetric(metricsDet["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, vmrVersion, client.ClientName, client.ClientUsername)
 		}
 		body.Close()
 	}
@@ -963,10 +944,10 @@ func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		nextRequest = target.MoreCookie.RPC
 
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_quota_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Quota*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_usage_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Usage*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_usage_msgs"], prometheus.GaugeValue, queue.Info.SpooledMsgCount, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_binds"], prometheus.GaugeValue, queue.Info.BindCount, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_quota_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Quota*1048576.0), vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_usage_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Usage*1048576.0), vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_spool_usage_msgs"], prometheus.GaugeValue, queue.Info.SpooledMsgCount, vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_binds"], prometheus.GaugeValue, queue.Info.BindCount, vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
 		}
 		body.Close()
 	}
@@ -1036,14 +1017,14 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 		nextRequest = target.MoreCookie.RPC
 
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_rx_msg_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.RxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_tx_msg_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.TxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_rx_byte_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.RxByteRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_tx_byte_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.TxByteRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_rx_msg_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_tx_msg_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_rx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxByteRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- prometheus.MustNewConstMetric(metricsDet["queue_tx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxByteRate, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_rx_msg_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.RxMsgRate, vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_tx_msg_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.TxMsgRate, vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_rx_byte_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.RxByteRate, vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_tx_byte_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.TxByteRate, vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_rx_msg_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxMsgRate, vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_tx_msg_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxMsgRate, vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_rx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxByteRate, vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricsDet["queue_tx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxByteRate, vmrVersion, queue.Info.MsgVpnName, queue.QueueName)
 		}
 		body.Close()
 	}
