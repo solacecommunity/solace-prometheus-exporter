@@ -678,7 +678,7 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 										RemoveBySubscriptionManager float64 `xml:"remove-by-subscription-manager"`
 									} `xml:"managed-subscriptions"`
 								} `xml:"stats"`
-							} `xml:"client"`
+							} `xml:"client>."`
 						} `xml:"bridge"`
 					} `xml:"bridges"`
 				} `xml:"bridge"`
@@ -711,8 +711,8 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 		bridgeName := bridge.BridgeName
 		vpnName := bridge.LocalVpnName
 		// check if this element is available in response, skip in case bridge down. In case up, assume the remaining child elements exist as well
-		var metric, err = prometheus.NewConstMetric(metricsStd["bridge_client_num_subscriptions"], prometheus.GaugeValue, bridge.Client.NumSubscriptions, vmrVersion, bridgeName, vpnName)
-		if err == nil {
+		metric, _ := prometheus.NewConstMetric(metricsStd["bridge_client_num_subscriptions"], prometheus.GaugeValue, bridge.Client.NumSubscriptions, vmrVersion, bridgeName, vpnName)
+		if metric != nil {
 			ch <- metric
 			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(bridge.Client.SlowSubscriber), vmrVersion, bridgeName, vpnName)
 			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientMessagesReceived, vmrVersion, bridgeName, vpnName)
