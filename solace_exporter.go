@@ -710,19 +710,22 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 	for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
 		bridgeName := bridge.BridgeName
 		vpnName := bridge.LocalVpnName
-
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_num_subscriptions"], prometheus.GaugeValue, bridge.Client.NumSubscriptions, vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(bridge.Client.SlowSubscriber), vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientMessagesReceived, vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientMessagesSent, vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_denied_duplicate_clients"], prometheus.GaugeValue, bridge.Client.Stats.DeniedDuplicateClients, vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_not_enough_space_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotEnoughSpaceMsgsSent, vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_max_exceeded_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.MaxExceededMsgsSent, vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_not_found_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotFoundMsgsSent, vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_current_ingress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentIngressRatePerSecond, vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_current_egress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentEgressRatePerSecond, vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_add_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.AddBySubscriptionManager, vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_remove_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.RemoveBySubscriptionManager, vmrVersion, bridgeName, vpnName)
+		// check if this element is available in response, skip in case bridge down. In case up, assume the remaining child elements exist as well
+		var metric, err = prometheus.NewConstMetric(metricsStd["bridge_client_num_subscriptions"], prometheus.GaugeValue, bridge.Client.NumSubscriptions, vmrVersion, bridgeName, vpnName)
+		if err == nil {
+			ch <- metric
+			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(bridge.Client.SlowSubscriber), vmrVersion, bridgeName, vpnName)
+			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientMessagesReceived, vmrVersion, bridgeName, vpnName)
+			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientMessagesSent, vmrVersion, bridgeName, vpnName)
+			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_denied_duplicate_clients"], prometheus.GaugeValue, bridge.Client.Stats.DeniedDuplicateClients, vmrVersion, bridgeName, vpnName)
+			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_not_enough_space_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotEnoughSpaceMsgsSent, vmrVersion, bridgeName, vpnName)
+			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_max_exceeded_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.MaxExceededMsgsSent, vmrVersion, bridgeName, vpnName)
+			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_not_found_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotFoundMsgsSent, vmrVersion, bridgeName, vpnName)
+			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_current_ingress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentIngressRatePerSecond, vmrVersion, bridgeName, vpnName)
+			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_current_egress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentEgressRatePerSecond, vmrVersion, bridgeName, vpnName)
+			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_add_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.AddBySubscriptionManager, vmrVersion, bridgeName, vpnName)
+			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_remove_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.RemoveBySubscriptionManager, vmrVersion, bridgeName, vpnName)
+		}
 	}
 	return 1
 }
