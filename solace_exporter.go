@@ -45,7 +45,7 @@ type metrics map[string]*prometheus.Desc
 
 var (
 	vmrVersion            = string("undefined")
-	solaceExporterVersion = float64(1001006)
+	solaceExporterVersion = float64(1001007)
 
 	variableLabelsVersion         = []string{"vmrVersion"}
 	variableExporterVersion       = []string{"vmrVersion"}
@@ -122,18 +122,42 @@ var metricsStd = metrics{
 	"bridge_redundancy":                         prometheus.NewDesc(namespace+"_"+"bridge_redundancy", "Redundancy", variableLabelsBridge, nil),
 	"bridge_connection_uptime_in_seconds":       prometheus.NewDesc(namespace+"_"+"bridge_connection_uptime_in_seconds", "Connection Uptime (s)", variableLabelsBridge, nil),
 
-	"bridge_client_num_subscriptions":        prometheus.NewDesc(namespace+"_"+"bridge_client_num_subscriptions", "Bridge Client Subscription", variableLabelsBridge, nil),
-	"bridge_client_slow_subscriber":          prometheus.NewDesc(namespace+"_"+"bridge_client_slow_subscriber", "Bridge Slow Subscriber", variableLabelsBridge, nil),
-	"bridge_total_client_messages_received":  prometheus.NewDesc(namespace+"_"+"bridge_total_client_messages_received", "Bridge Total Client Msg Received", variableLabelsBridge, nil),
-	"bridge_total_client_messages_sent":      prometheus.NewDesc(namespace+"_"+"bridge_total_client_messages_sent", "Bridge Client Messages sent", variableLabelsBridge, nil),
-	"bridge_denied_duplicate_clients":        prometheus.NewDesc(namespace+"_"+"bridge_denied_duplicate_clients", "Bridge Denied Duplicate Clients", variableLabelsBridge, nil),
-	"bridge_not_enough_space_msgs_sent":      prometheus.NewDesc(namespace+"_"+"bridge_not_enough_space_msgs_sent", "Bridge Not Enough Space Msgs sent", variableLabelsBridge, nil),
-	"bridge_max_exceeded_msgs_sent":          prometheus.NewDesc(namespace+"_"+"bridge_max_exceeded_msgs_sent", "Bridge Max Exceeded Msgs sent", variableLabelsBridge, nil),
-	"bridge_not_found_msgs_sent":             prometheus.NewDesc(namespace+"_"+"bridge_not_found_msgs_sent", "Bridge Not Found Msgs sent", variableLabelsBridge, nil),
-	"bridge_current_ingress_rate_per_second": prometheus.NewDesc(namespace+"_"+"bridge_current_ingress_rate_per_second", "Bridge current ingress rate (s)", variableLabelsBridge, nil),
-	"bridge_current_egress_rate_per_second":  prometheus.NewDesc(namespace+"_"+"bridge_current_egress_rate_per_second", "Bridge current egress rate (s)", variableLabelsBridge, nil),
-	"bridge_add_by_subscription_manager":     prometheus.NewDesc(namespace+"_"+"bridge_add_by_subscription_manager", "Add by subscription manager", variableLabelsBridge, nil),
-	"bridge_remove_by_subscription_manager":  prometheus.NewDesc(namespace+"_"+"bridge_remove_by_subscription_manager", "Remove by subscription manager", variableLabelsBridge, nil),
+	"bridge_client_num_subscriptions": prometheus.NewDesc(namespace+"_"+"bridge_client_num_subscriptions", "Bridge Client Subscription", variableLabelsBridge, nil),
+	"bridge_client_slow_subscriber":   prometheus.NewDesc(namespace+"_"+"bridge_client_slow_subscriber", "Bridge Slow Subscriber", variableLabelsBridge, nil),
+
+	"bridge_total_client_messages_received":         prometheus.NewDesc(namespace+"_"+"bridge_total_client_messages_received", "Bridge Total Client Messages Received", variableLabelsBridge, nil),
+	"bridge_total_client_messages_sent":             prometheus.NewDesc(namespace+"_"+"bridge_total_client_messages_sent", "Bridge Total Client Messages sent", variableLabelsBridge, nil),
+	"bridge_client_data_messages_received":          prometheus.NewDesc(namespace+"_"+"bridge_client_data_messages_received", "Bridge Client Data Msgs Received", variableLabelsBridge, nil),
+	"bridge_client_data_messages_sent":              prometheus.NewDesc(namespace+"_"+"bridge_client_data_messages_sent", "Bridge Client Data Msgs Sent", variableLabelsBridge, nil),
+	"bridge_client_persistent_messages_received":    prometheus.NewDesc(namespace+"_"+"bridge_client_persistent_messages_received", "Bridge Client Persistent Msgs Received", variableLabelsBridge, nil),
+	"bridge_client_persistent_messages_sent":        prometheus.NewDesc(namespace+"_"+"bridge_client_persistent_messages_sent", "Bridge Client Persistent Msgs Sent", variableLabelsBridge, nil),
+	"bridge_client_nonpersistent_messages_received": prometheus.NewDesc(namespace+"_"+"bridge_client_nonpersistent_messages_received", "Bridge Client Non-Persistent Msgs Received", variableLabelsBridge, nil),
+	"bridge_client_nonpersistent_messages_sent":     prometheus.NewDesc(namespace+"_"+"bridge_client_nonpersistent_messages_sent", "Bridge Client Non-Persistent Msgs Sent", variableLabelsBridge, nil),
+	"bridge_client_direct_messages_received":        prometheus.NewDesc(namespace+"_"+"bridge_client_direct_messages_received", "Bridge Client Direct Msgs Received", variableLabelsBridge, nil),
+	"bridge_client_direct_messages_sent":            prometheus.NewDesc(namespace+"_"+"bridge_client_direct_messages_sent", "Bridge Client Direct Msgs Sent", variableLabelsBridge, nil),
+
+	"bridge_total_client_bytes_received":         prometheus.NewDesc(namespace+"_"+"bridge_total_client_bytes_received", "Bridge Total Client Bytes Received", variableLabelsBridge, nil),
+	"bridge_total_client_bytess_sent":            prometheus.NewDesc(namespace+"_"+"bridge_total_client_bytess_sent", "Bridge Total Client Bytes sent", variableLabelsBridge, nil),
+	"bridge_client_data_bytes_received":          prometheus.NewDesc(namespace+"_"+"bridge_client_data_bytes_received", "Bridge Client Data Bytes Received", variableLabelsBridge, nil),
+	"bridge_client_data_bytes_sent":              prometheus.NewDesc(namespace+"_"+"bridge_client_data_bytes_sent", "Bridge Client Data Bytes Sent", variableLabelsBridge, nil),
+	"bridge_client_persistent_bytes_received":    prometheus.NewDesc(namespace+"_"+"bridge_client_persistent_bytes_received", "Bridge Client Persistent Bytes Received", variableLabelsBridge, nil),
+	"bridge_client_persistent_bytes_sent":        prometheus.NewDesc(namespace+"_"+"bridge_client_persistent_bytes_sent", "Bridge Client Persistent Bytes Sent", variableLabelsBridge, nil),
+	"bridge_client_nonpersistent_bytes_received": prometheus.NewDesc(namespace+"_"+"bridge_client_nonpersistent_bytes_received", "Bridge Client Non-Persistent Bytes Received", variableLabelsBridge, nil),
+	"bridge_client_nonpersistent_bytes_sent":     prometheus.NewDesc(namespace+"_"+"bridge_client_nonpersistent_bytes_sent", "Bridge Client Non-Persistent Bytes Sent", variableLabelsBridge, nil),
+	"bridge_client_direct_bytes_received":        prometheus.NewDesc(namespace+"_"+"bridge_client_direct_bytes_received", "Bridge Client Direct Bytes Received", variableLabelsBridge, nil),
+	"bridge_client_direct_bytes_sent":            prometheus.NewDesc(namespace+"_"+"bridge_client_direct_bytes_sent", "Bridge Client Direct Bytes Sent", variableLabelsBridge, nil),
+
+	"bridge_client_large_messages_received":  prometheus.NewDesc(namespace+"_"+"bridge_client_large_messages_received", "Bridge Client Large Messages received", variableLabelsBridge, nil),
+	"bridge_denied_duplicate_clients":        prometheus.NewDesc(namespace+"_"+"bridge_denied_duplicate_clients", "Bridge Deneid Duplicate Clients", variableLabelsBridge, nil),
+	"bridge_not_enough_space_msgs_sent":      prometheus.NewDesc(namespace+"_"+"bridge_not_enough_space_msgs_sent", "Bridge Not Enough Space Messages Sent", variableLabelsBridge, nil),
+	"bridge_max_exceeded_msgs_sent":          prometheus.NewDesc(namespace+"_"+"bridge_max_exceeded_msgs_sent", "Bridge Max Exceeded Messages Sent", variableLabelsBridge, nil),
+	"bridge_subscribe_client_not_found":      prometheus.NewDesc(namespace+"_"+"bridge_subscribe_client_not_found", "Bridge Subscriber Client Not Found", variableLabelsBridge, nil),
+	"bridge_not_found_msgs_sent":             prometheus.NewDesc(namespace+"_"+"bridge_not_found_msgs_sent", "Bridge Not Found Messages Sent", variableLabelsBridge, nil),
+	"bridge_current_ingress_rate_per_second": prometheus.NewDesc(namespace+"_"+"bridge_current_ingress_rate_per_second", "Current Ingress Rate / s", variableLabelsBridge, nil),
+	"bridge_current_egress_rate_per_second":  prometheus.NewDesc(namespace+"_"+"bridge_current_egress_rate_per_second", "Current Egress Rate / s", variableLabelsBridge, nil),
+
+	"bridge_total_ingress_discards": prometheus.NewDesc(namespace+"_"+"bridge_total_ingress_discards", "Total Ingress Discards", variableLabelsBridge, nil),
+	"bridge_total_egress_discards":  prometheus.NewDesc(namespace+"_"+"bridge_total_egress_discards", "Total Egress Discards", variableLabelsBridge, nil),
 }
 
 var metricsDet = metrics{
@@ -660,12 +684,33 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 								Name             string  `xml:"name"`
 								NumSubscriptions float64 `xml:"num-subscriptions"`
 								ClientId         float64 `xml:"client-id"`
-								MessageVpn       float64 `xml:"message-vpn"`
+								MessageVpn       string  `xml:"message-vpn"`
 								SlowSubscriber   bool    `xml:"slow-subscriber"`
 								ClientUsername   string  `xml:"client-username"`
 								Stats            struct {
-									TotalClientMessagesReceived float64 `xml:"total-client-messages-received"`
-									TotalClientMessagesSent     float64 `xml:"total-client-messages-sent"`
+									TotalClientMessagesReceived         float64 `xml:"total-client-messages-received"`
+									TotalClientMessagesSent             float64 `xml:"total-client-messages-sent"`
+									ClientDataMessagesReceived          float64 `xml:"client-data-messages-received"`
+									ClientDataMessagesSent              float64 `xml:"client-data-messages-sent"`
+									ClientPersistentMessagesReceived    float64 `xml:"client-persistent-messages-received"`
+									ClientPersistentMessagesSent        float64 `xml:"client-persistent-messages-sent"`
+									ClientNonPersistentMessagesReceived float64 `xml:"client-non-persistent-messages-received"`
+									ClientNonPersistentMessagesSent     float64 `xml:"client-non-persistent-messages-sent"`
+									ClientDirectMessagesReceived        float64 `xml:"client-direct-messages-received"`
+									ClientDirectMessagesSent            float64 `xml:"client-direct-messages-sent"`
+
+									TotalClientBytesReceived         float64 `xml:"total-client-bytes-received"`
+									TotalClientBytesSent             float64 `xml:"total-client-bytes-sent"`
+									ClientDataBytesReceived          float64 `xml:"client-data-bytes-received"`
+									ClientDataBytesSent              float64 `xml:"client-data-bytes-sent"`
+									ClientPersistentBytesReceived    float64 `xml:"client-persistent-bytes-received"`
+									ClientPersistentBytesSent        float64 `xml:"client-persistent-bytes-sent"`
+									ClientNonPersistentBytesReceived float64 `xml:"client-non-persistent-bytes-received"`
+									ClientNonPersistentBytesSent     float64 `xml:"client-non-persistent-bytes-sent"`
+									ClientDirectBytesReceived        float64 `xml:"client-direct-bytes-received"`
+									ClientDirectBytesSent            float64 `xml:"client-direct-bytes-sent"`
+
+									LargeMessagesReceived       float64 `xml:"large-messages-received"`
 									DeniedDuplicateClients      float64 `xml:"denied-duplicate-clients"`
 									NotEnoughSpaceMsgsSent      float64 `xml:"not-enough-space-msgs-sent"`
 									MaxExceededMsgsSent         float64 `xml:"max-exceeded-msgs-sent"`
@@ -673,12 +718,36 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 									NotFoundMsgsSent            float64 `xml:"not-found-msgs-sent"`
 									CurrentIngressRatePerSecond float64 `xml:"current-ingress-rate-per-second"`
 									CurrentEgressRatePerSecond  float64 `xml:"current-egress-rate-per-second"`
-									ManagedSubscriptions        struct {
+									IngressDiscards             struct {
+										TotalIngressDiscards       float64 `xml:"total-ingress-discards"`
+										NoSubscriptionMatch        float64 `xml:"no-subscription-match"`
+										TopicParseError            float64 `xml:"topic-parse-error"`
+										ParseError                 float64 `xml:"parse-error"`
+										MsgTooBig                  float64 `xml:"msg-too-big"`
+										TtlExceeded                float64 `xml:"ttl-exceeded"`
+										WebParseError              float64 `xml:"web-parse-error"`
+										PublishTopicAcl            float64 `xml:"publish-topic-acl"`
+										MsgSpoolDiscards           float64 `xml:"msg-spool-discards"`
+										MessagePromotionCongestion float64 `xml:"message-promotion-congestion"`
+										MessageSpoolCongestion     float64 `xml:"message-spool-congestion"`
+									} `xml:"ingress-discards"`
+									EgressDiscards struct {
+										TotalEgressDiscards        float64 `xml:"total-egress-discards"`
+										TransmitCongestion         float64 `xml:"transmit-congestion"`
+										CompressionCongestion      float64 `xml:"compression-congestion"`
+										MessageElided              float64 `xml:"message-elided"`
+										TtlExceeded                float64 `xml:"ttl-exceeded"`
+										PayloadCouldNotBeFormatted float64 `xml:"payload-could-not-be-formatted"`
+										MessagePromotionCongestion float64 `xml:"message-promotion-congestion"`
+										MessageSpoolCongestion     float64 `xml:"message-spool-congestion"`
+										ClientNotConnected         float64 `xml:"client-not-connected"`
+									} `xml:"egress-discards"`
+									ManagedSubscriptions struct {
 										AddBySubscriptionManager    float64 `xml:"add-by-subscription-manager"`
 										RemoveBySubscriptionManager float64 `xml:"remove-by-subscription-manager"`
 									} `xml:"managed-subscriptions"`
 								} `xml:"stats"`
-							} `xml:"client>."`
+							} `xml:"client"`
 						} `xml:"bridge"`
 					} `xml:"bridges"`
 				} `xml:"bridge"`
@@ -710,22 +779,45 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 	for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
 		bridgeName := bridge.BridgeName
 		vpnName := bridge.LocalVpnName
-		// check if this element is available in response, skip in case bridge down. In case up, assume the remaining child elements exist as well
-		metric, _ := prometheus.NewConstMetric(metricsStd["bridge_client_num_subscriptions"], prometheus.GaugeValue, bridge.Client.NumSubscriptions, vmrVersion, bridgeName, vpnName)
-		if metric != nil {
-			ch <- metric
-			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(bridge.Client.SlowSubscriber), vmrVersion, bridgeName, vpnName)
-			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientMessagesReceived, vmrVersion, bridgeName, vpnName)
-			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientMessagesSent, vmrVersion, bridgeName, vpnName)
-			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_denied_duplicate_clients"], prometheus.GaugeValue, bridge.Client.Stats.DeniedDuplicateClients, vmrVersion, bridgeName, vpnName)
-			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_not_enough_space_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotEnoughSpaceMsgsSent, vmrVersion, bridgeName, vpnName)
-			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_max_exceeded_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.MaxExceededMsgsSent, vmrVersion, bridgeName, vpnName)
-			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_not_found_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotFoundMsgsSent, vmrVersion, bridgeName, vpnName)
-			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_current_ingress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentIngressRatePerSecond, vmrVersion, bridgeName, vpnName)
-			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_current_egress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentEgressRatePerSecond, vmrVersion, bridgeName, vpnName)
-			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_add_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.AddBySubscriptionManager, vmrVersion, bridgeName, vpnName)
-			ch <- prometheus.MustNewConstMetric(metricsStd["bridge_remove_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.RemoveBySubscriptionManager, vmrVersion, bridgeName, vpnName)
-		}
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_num_subscriptions"], prometheus.GaugeValue, bridge.Client.NumSubscriptions, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(bridge.Client.SlowSubscriber), vmrVersion, bridgeName, vpnName)
+
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientMessagesReceived, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientMessagesSent, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_data_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataMessagesReceived, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_data_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataMessagesSent, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_persistent_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentMessagesReceived, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_persistent_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentMessagesSent, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_nonpersistent_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentMessagesReceived, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_nonpersistent_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentMessagesSent, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_direct_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectMessagesReceived, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_direct_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectMessagesSent, vmrVersion, bridgeName, vpnName)
+
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientBytesReceived, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_client_bytess_sent"], prometheus.GaugeValue, bridge.Client.Stats.TotalClientBytesSent, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_data_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataBytesReceived, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_data_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataBytesSent, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_persistent_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentBytesReceived, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_persistent_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentBytesSent, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_nonpersistent_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentBytesReceived, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_nonpersistent_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentBytesSent, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_direct_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectBytesReceived, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_direct_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectBytesSent, vmrVersion, bridgeName, vpnName)
+
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_client_large_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.LargeMessagesReceived, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_denied_duplicate_clients"], prometheus.GaugeValue, bridge.Client.Stats.DeniedDuplicateClients, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_not_enough_space_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotEnoughSpaceMsgsSent, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_max_exceeded_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.MaxExceededMsgsSent, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_subscribe_client_not_found"], prometheus.GaugeValue, bridge.Client.Stats.SubscribeClientNotFound, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_not_found_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotFoundMsgsSent, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_current_ingress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentIngressRatePerSecond, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_current_egress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentEgressRatePerSecond, vmrVersion, bridgeName, vpnName)
+
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_ingress_discards"], prometheus.GaugeValue, bridge.Client.Stats.IngressDiscards.TotalIngressDiscards, vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_egress_discards"], prometheus.GaugeValue, bridge.Client.Stats.EgressDiscards.TotalEgressDiscards, vmrVersion, bridgeName, vpnName)
+		//
+		//		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_add_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.AddBySubscriptionManager, vmrVersion, bridgeName, vpnName)
+		//		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_remove_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.RemoveBySubscriptionManager, vmrVersion, bridgeName, vpnName)
 	}
 	return 1
 }
