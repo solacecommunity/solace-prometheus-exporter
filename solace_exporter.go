@@ -60,15 +60,18 @@ var (
 )
 
 var metricsStd = metrics{
+	// version
 	"system_version_currentload":      prometheus.NewDesc(namespace+"_"+"system_version_currentload", "Solace Version as WWWXXXYYYZZZ ", variableLabelsVersion, nil),
 	"system_version_uptime_totalsecs": prometheus.NewDesc(namespace+"_"+"system_version_uptime_totalsecs", "Broker uptime in seconds ", variableLabelsVersion, nil),
 	"exporter_version_current":        prometheus.NewDesc(namespace+"_"+"exporter_version_current", "Exporter Version ", variableLabelsVersion, nil),
 
+	// redundancy
 	"system_redundancy_up":           prometheus.NewDesc(namespace+"_"+"system_redundancy_up", "Is redundancy up? (0=down, 1=up).", variableLabelsRedundancy, nil),
 	"system_redundancy_config":       prometheus.NewDesc(namespace+"_"+"system_redundancy_config", "Redundancy configuration (0=disabled, 1=enabled, 2=shutdown).", variableLabelsRedundancy, nil),
 	"system_redundancy_role":         prometheus.NewDesc(namespace+"_"+"system_redundancy_role", "Redundancy role (0=backup, 1=primary, 2=monitor).", variableLabelsRedundancy, nil),
 	"system_redundancy_local_active": prometheus.NewDesc(namespace+"_"+"system_redundancy_local_active", "Is local node the active messaging node? (0=not active, 1=active).", variableLabelsRedundancy, nil),
 
+	// system
 	"system_spool_quota_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage.", variableLabelsVersion, nil),
 	"system_spool_quota_msgs":              prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", variableLabelsVersion, nil),
 	"system_spool_usage_bytes":             prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted usage.", variableLabelsVersion, nil),
@@ -86,24 +89,26 @@ var metricsStd = metrics{
 	"system_mate_link_latency_avg_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_avg_seconds", "Average mate link latency.", variableLabelsVersion, nil),
 	"system_mate_link_latency_cur_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_cur_seconds", "Current mate link latency.", variableLabelsVersion, nil),
 
+	// config sync
 	"configsync_table_type":               prometheus.NewDesc(namespace+"_"+"configsync_table_type", "Config Sync Resource Type", variableLabelsConfigSyncTable, nil),
 	"configsync_table_timeinstateseconds": prometheus.NewDesc(namespace+"_"+"configsync_table_timeinstateseconds", "Config Sync Time in State", variableLabelsConfigSyncTable, nil),
 	"configsync_table_ownership":          prometheus.NewDesc(namespace+"_"+"configsync_table_ownership", "Config Sync Ownership", variableLabelsConfigSyncTable, nil),
 	"configsync_table_syncstate":          prometheus.NewDesc(namespace+"_"+"configsync_table_syncstate", "Config Sync State", variableLabelsConfigSyncTable, nil),
 
-	"vpn_local_status":            prometheus.NewDesc(namespace+"_"+"vpn_local_status", "Local status (0=Down, 1=Up).", variableLabelsVpn, nil),
-	"vpn_connections":             prometheus.NewDesc(namespace+"_"+"vpn_connections", "Number of connections.", variableLabelsVpn, nil),
-	"vpn_rx_msgs_total":           prometheus.NewDesc(namespace+"_"+"vpn_rx_msgs_total", "Number of received messages.", variableLabelsVpn, nil),
-	"vpn_tx_msgs_total":           prometheus.NewDesc(namespace+"_"+"vpn_tx_msgs_total", "Number of transmitted messages.", variableLabelsVpn, nil),
-	"vpn_rx_bytes_total":          prometheus.NewDesc(namespace+"_"+"vpn_rx_bytes_total", "Number of received bytes.", variableLabelsVpn, nil),
-	"vpn_tx_bytes_total":          prometheus.NewDesc(namespace+"_"+"vpn_tx_bytes_total", "Number of transmitted bytes.", variableLabelsVpn, nil),
-	"vpn_rx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"vpn_rx_discarded_msgs_total", "Number of discarded received messages.", variableLabelsVpn, nil),
-	"vpn_tx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"vpn_tx_discarded_msgs_total", "Number of discarded transmitted messages.", variableLabelsVpn, nil),
-
+	// vpn
+	"vpn_local_status":                             prometheus.NewDesc(namespace+"_"+"vpn_local_status", "Local status (0=Down, 1=Up).", variableLabelsVpn, nil),
+	"vpn_connections":                              prometheus.NewDesc(namespace+"_"+"vpn_connections", "Number of connections.", variableLabelsVpn, nil),
+	"vpn_rx_msgs_total":                            prometheus.NewDesc(namespace+"_"+"vpn_rx_msgs_total", "Number of received messages.", variableLabelsVpn, nil),
+	"vpn_tx_msgs_total":                            prometheus.NewDesc(namespace+"_"+"vpn_tx_msgs_total", "Number of transmitted messages.", variableLabelsVpn, nil),
+	"vpn_rx_bytes_total":                           prometheus.NewDesc(namespace+"_"+"vpn_rx_bytes_total", "Number of received bytes.", variableLabelsVpn, nil),
+	"vpn_tx_bytes_total":                           prometheus.NewDesc(namespace+"_"+"vpn_tx_bytes_total", "Number of transmitted bytes.", variableLabelsVpn, nil),
+	"vpn_rx_discarded_msgs_total":                  prometheus.NewDesc(namespace+"_"+"vpn_rx_discarded_msgs_total", "Number of discarded received messages.", variableLabelsVpn, nil),
+	"vpn_tx_discarded_msgs_total":                  prometheus.NewDesc(namespace+"_"+"vpn_tx_discarded_msgs_total", "Number of discarded transmitted messages.", variableLabelsVpn, nil),
 	"vpn_replication_admin_state":                  prometheus.NewDesc(namespace+"_"+"vpn_replication_admin_state", "Replication Admin Status", variableLabelsVpn, nil),
 	"vpn_replication_config_state":                 prometheus.NewDesc(namespace+"_"+"vpn_replication_config_state", "Replication Config Status", variableLabelsVpn, nil),
 	"vpn_replication_transaction_replication_mode": prometheus.NewDesc(namespace+"_"+"vpn_replication_transaction_replication_mode", "Replication Tx Replication Mode", variableLabelsVpn, nil),
 
+	//bridges
 	"bridges_num_total_bridges":                         prometheus.NewDesc(namespace+"_"+"bridges_num_total_bridges", "Number of Bridges", variableLabelsVersion, nil),
 	"bridges_max_num_total_bridges":                     prometheus.NewDesc(namespace+"_"+"bridges_max_num_total_bridges", "Max number of Bridges", variableLabelsVersion, nil),
 	"bridges_num_local_bridges":                         prometheus.NewDesc(namespace+"_"+"bridges_num_local_bridges", "Number of Local Bridges", variableLabelsVersion, nil),
@@ -113,18 +118,17 @@ var metricsStd = metrics{
 	"bridges_num_total_remote_bridge_subscriptions":     prometheus.NewDesc(namespace+"_"+"bridges_num_total_remote_bridge_subscriptions", "Total number of Remote Bridge Subscription", variableLabelsVersion, nil),
 	"bridges_max_num_total_remote_bridge_subscriptions": prometheus.NewDesc(namespace+"_"+"bridges_max_num_total_remote_bridge_subscriptions", "Max total number of Remote Bridge Subscription", variableLabelsVersion, nil),
 
-	"bridge_admin_state":                        prometheus.NewDesc(namespace+"_"+"bridge_admin_state", "Bridge Administrative State (0-Enabled 1-Disabled)", variableLabelsBridge, nil),
-	"bridge_connection_establisher":             prometheus.NewDesc(namespace+"_"+"bridge_connection_establisher", "Connection Establisher", variableLabelsBridge, nil),
-	"bridge_inbound_operational_state":          prometheus.NewDesc(namespace+"_"+"bridge_inbound_operational_state", "Inbound Ops State", variableLabelsBridge, nil),
-	"bridge_inbound_operational_failure_reason": prometheus.NewDesc(namespace+"_"+"bridge_inbound_operational_failure_reason", "Inbound Ops Failure Reason", variableLabelsBridge, nil),
-	"bridge_outbound_operational_state":         prometheus.NewDesc(namespace+"_"+"bridge_outbound_operational_state", "Outbound Ops State", variableLabelsBridge, nil),
-	"bridge_queue_operational_state":            prometheus.NewDesc(namespace+"_"+"bridge_queue_operational_state", "Queue Ops State", variableLabelsBridge, nil),
-	"bridge_redundancy":                         prometheus.NewDesc(namespace+"_"+"bridge_redundancy", "Redundancy", variableLabelsBridge, nil),
-	"bridge_connection_uptime_in_seconds":       prometheus.NewDesc(namespace+"_"+"bridge_connection_uptime_in_seconds", "Connection Uptime (s)", variableLabelsBridge, nil),
-
-	"bridge_client_num_subscriptions": prometheus.NewDesc(namespace+"_"+"bridge_client_num_subscriptions", "Bridge Client Subscription", variableLabelsBridge, nil),
-	"bridge_client_slow_subscriber":   prometheus.NewDesc(namespace+"_"+"bridge_client_slow_subscriber", "Bridge Slow Subscriber", variableLabelsBridge, nil),
-
+	// bridge
+	"bridge_admin_state":                            prometheus.NewDesc(namespace+"_"+"bridge_admin_state", "Bridge Administrative State (0-Enabled 1-Disabled)", variableLabelsBridge, nil),
+	"bridge_connection_establisher":                 prometheus.NewDesc(namespace+"_"+"bridge_connection_establisher", "Connection Establisher", variableLabelsBridge, nil),
+	"bridge_inbound_operational_state":              prometheus.NewDesc(namespace+"_"+"bridge_inbound_operational_state", "Inbound Ops State", variableLabelsBridge, nil),
+	"bridge_inbound_operational_failure_reason":     prometheus.NewDesc(namespace+"_"+"bridge_inbound_operational_failure_reason", "Inbound Ops Failure Reason", variableLabelsBridge, nil),
+	"bridge_outbound_operational_state":             prometheus.NewDesc(namespace+"_"+"bridge_outbound_operational_state", "Outbound Ops State", variableLabelsBridge, nil),
+	"bridge_queue_operational_state":                prometheus.NewDesc(namespace+"_"+"bridge_queue_operational_state", "Queue Ops State", variableLabelsBridge, nil),
+	"bridge_redundancy":                             prometheus.NewDesc(namespace+"_"+"bridge_redundancy", "Redundancy", variableLabelsBridge, nil),
+	"bridge_connection_uptime_in_seconds":           prometheus.NewDesc(namespace+"_"+"bridge_connection_uptime_in_seconds", "Connection Uptime (s)", variableLabelsBridge, nil),
+	"bridge_client_num_subscriptions":               prometheus.NewDesc(namespace+"_"+"bridge_client_num_subscriptions", "Bridge Client Subscription", variableLabelsBridge, nil),
+	"bridge_client_slow_subscriber":                 prometheus.NewDesc(namespace+"_"+"bridge_client_slow_subscriber", "Bridge Slow Subscriber", variableLabelsBridge, nil),
 	"bridge_total_client_messages_received":         prometheus.NewDesc(namespace+"_"+"bridge_total_client_messages_received", "Bridge Total Client Messages Received", variableLabelsBridge, nil),
 	"bridge_total_client_messages_sent":             prometheus.NewDesc(namespace+"_"+"bridge_total_client_messages_sent", "Bridge Total Client Messages sent", variableLabelsBridge, nil),
 	"bridge_client_data_messages_received":          prometheus.NewDesc(namespace+"_"+"bridge_client_data_messages_received", "Bridge Client Data Msgs Received", variableLabelsBridge, nil),
@@ -135,29 +139,26 @@ var metricsStd = metrics{
 	"bridge_client_nonpersistent_messages_sent":     prometheus.NewDesc(namespace+"_"+"bridge_client_nonpersistent_messages_sent", "Bridge Client Non-Persistent Msgs Sent", variableLabelsBridge, nil),
 	"bridge_client_direct_messages_received":        prometheus.NewDesc(namespace+"_"+"bridge_client_direct_messages_received", "Bridge Client Direct Msgs Received", variableLabelsBridge, nil),
 	"bridge_client_direct_messages_sent":            prometheus.NewDesc(namespace+"_"+"bridge_client_direct_messages_sent", "Bridge Client Direct Msgs Sent", variableLabelsBridge, nil),
-
-	"bridge_total_client_bytes_received":         prometheus.NewDesc(namespace+"_"+"bridge_total_client_bytes_received", "Bridge Total Client Bytes Received", variableLabelsBridge, nil),
-	"bridge_total_client_bytess_sent":            prometheus.NewDesc(namespace+"_"+"bridge_total_client_bytess_sent", "Bridge Total Client Bytes sent", variableLabelsBridge, nil),
-	"bridge_client_data_bytes_received":          prometheus.NewDesc(namespace+"_"+"bridge_client_data_bytes_received", "Bridge Client Data Bytes Received", variableLabelsBridge, nil),
-	"bridge_client_data_bytes_sent":              prometheus.NewDesc(namespace+"_"+"bridge_client_data_bytes_sent", "Bridge Client Data Bytes Sent", variableLabelsBridge, nil),
-	"bridge_client_persistent_bytes_received":    prometheus.NewDesc(namespace+"_"+"bridge_client_persistent_bytes_received", "Bridge Client Persistent Bytes Received", variableLabelsBridge, nil),
-	"bridge_client_persistent_bytes_sent":        prometheus.NewDesc(namespace+"_"+"bridge_client_persistent_bytes_sent", "Bridge Client Persistent Bytes Sent", variableLabelsBridge, nil),
-	"bridge_client_nonpersistent_bytes_received": prometheus.NewDesc(namespace+"_"+"bridge_client_nonpersistent_bytes_received", "Bridge Client Non-Persistent Bytes Received", variableLabelsBridge, nil),
-	"bridge_client_nonpersistent_bytes_sent":     prometheus.NewDesc(namespace+"_"+"bridge_client_nonpersistent_bytes_sent", "Bridge Client Non-Persistent Bytes Sent", variableLabelsBridge, nil),
-	"bridge_client_direct_bytes_received":        prometheus.NewDesc(namespace+"_"+"bridge_client_direct_bytes_received", "Bridge Client Direct Bytes Received", variableLabelsBridge, nil),
-	"bridge_client_direct_bytes_sent":            prometheus.NewDesc(namespace+"_"+"bridge_client_direct_bytes_sent", "Bridge Client Direct Bytes Sent", variableLabelsBridge, nil),
-
-	"bridge_client_large_messages_received":  prometheus.NewDesc(namespace+"_"+"bridge_client_large_messages_received", "Bridge Client Large Messages received", variableLabelsBridge, nil),
-	"bridge_denied_duplicate_clients":        prometheus.NewDesc(namespace+"_"+"bridge_denied_duplicate_clients", "Bridge Deneid Duplicate Clients", variableLabelsBridge, nil),
-	"bridge_not_enough_space_msgs_sent":      prometheus.NewDesc(namespace+"_"+"bridge_not_enough_space_msgs_sent", "Bridge Not Enough Space Messages Sent", variableLabelsBridge, nil),
-	"bridge_max_exceeded_msgs_sent":          prometheus.NewDesc(namespace+"_"+"bridge_max_exceeded_msgs_sent", "Bridge Max Exceeded Messages Sent", variableLabelsBridge, nil),
-	"bridge_subscribe_client_not_found":      prometheus.NewDesc(namespace+"_"+"bridge_subscribe_client_not_found", "Bridge Subscriber Client Not Found", variableLabelsBridge, nil),
-	"bridge_not_found_msgs_sent":             prometheus.NewDesc(namespace+"_"+"bridge_not_found_msgs_sent", "Bridge Not Found Messages Sent", variableLabelsBridge, nil),
-	"bridge_current_ingress_rate_per_second": prometheus.NewDesc(namespace+"_"+"bridge_current_ingress_rate_per_second", "Current Ingress Rate / s", variableLabelsBridge, nil),
-	"bridge_current_egress_rate_per_second":  prometheus.NewDesc(namespace+"_"+"bridge_current_egress_rate_per_second", "Current Egress Rate / s", variableLabelsBridge, nil),
-
-	"bridge_total_ingress_discards": prometheus.NewDesc(namespace+"_"+"bridge_total_ingress_discards", "Total Ingress Discards", variableLabelsBridge, nil),
-	"bridge_total_egress_discards":  prometheus.NewDesc(namespace+"_"+"bridge_total_egress_discards", "Total Egress Discards", variableLabelsBridge, nil),
+	"bridge_total_client_bytes_received":            prometheus.NewDesc(namespace+"_"+"bridge_total_client_bytes_received", "Bridge Total Client Bytes Received", variableLabelsBridge, nil),
+	"bridge_total_client_bytess_sent":               prometheus.NewDesc(namespace+"_"+"bridge_total_client_bytess_sent", "Bridge Total Client Bytes sent", variableLabelsBridge, nil),
+	"bridge_client_data_bytes_received":             prometheus.NewDesc(namespace+"_"+"bridge_client_data_bytes_received", "Bridge Client Data Bytes Received", variableLabelsBridge, nil),
+	"bridge_client_data_bytes_sent":                 prometheus.NewDesc(namespace+"_"+"bridge_client_data_bytes_sent", "Bridge Client Data Bytes Sent", variableLabelsBridge, nil),
+	"bridge_client_persistent_bytes_received":       prometheus.NewDesc(namespace+"_"+"bridge_client_persistent_bytes_received", "Bridge Client Persistent Bytes Received", variableLabelsBridge, nil),
+	"bridge_client_persistent_bytes_sent":           prometheus.NewDesc(namespace+"_"+"bridge_client_persistent_bytes_sent", "Bridge Client Persistent Bytes Sent", variableLabelsBridge, nil),
+	"bridge_client_nonpersistent_bytes_received":    prometheus.NewDesc(namespace+"_"+"bridge_client_nonpersistent_bytes_received", "Bridge Client Non-Persistent Bytes Received", variableLabelsBridge, nil),
+	"bridge_client_nonpersistent_bytes_sent":        prometheus.NewDesc(namespace+"_"+"bridge_client_nonpersistent_bytes_sent", "Bridge Client Non-Persistent Bytes Sent", variableLabelsBridge, nil),
+	"bridge_client_direct_bytes_received":           prometheus.NewDesc(namespace+"_"+"bridge_client_direct_bytes_received", "Bridge Client Direct Bytes Received", variableLabelsBridge, nil),
+	"bridge_client_direct_bytes_sent":               prometheus.NewDesc(namespace+"_"+"bridge_client_direct_bytes_sent", "Bridge Client Direct Bytes Sent", variableLabelsBridge, nil),
+	"bridge_client_large_messages_received":         prometheus.NewDesc(namespace+"_"+"bridge_client_large_messages_received", "Bridge Client Large Messages received", variableLabelsBridge, nil),
+	"bridge_denied_duplicate_clients":               prometheus.NewDesc(namespace+"_"+"bridge_denied_duplicate_clients", "Bridge Deneid Duplicate Clients", variableLabelsBridge, nil),
+	"bridge_not_enough_space_msgs_sent":             prometheus.NewDesc(namespace+"_"+"bridge_not_enough_space_msgs_sent", "Bridge Not Enough Space Messages Sent", variableLabelsBridge, nil),
+	"bridge_max_exceeded_msgs_sent":                 prometheus.NewDesc(namespace+"_"+"bridge_max_exceeded_msgs_sent", "Bridge Max Exceeded Messages Sent", variableLabelsBridge, nil),
+	"bridge_subscribe_client_not_found":             prometheus.NewDesc(namespace+"_"+"bridge_subscribe_client_not_found", "Bridge Subscriber Client Not Found", variableLabelsBridge, nil),
+	"bridge_not_found_msgs_sent":                    prometheus.NewDesc(namespace+"_"+"bridge_not_found_msgs_sent", "Bridge Not Found Messages Sent", variableLabelsBridge, nil),
+	"bridge_current_ingress_rate_per_second":        prometheus.NewDesc(namespace+"_"+"bridge_current_ingress_rate_per_second", "Current Ingress Rate / s", variableLabelsBridge, nil),
+	"bridge_current_egress_rate_per_second":         prometheus.NewDesc(namespace+"_"+"bridge_current_egress_rate_per_second", "Current Egress Rate / s", variableLabelsBridge, nil),
+	"bridge_total_ingress_discards":                 prometheus.NewDesc(namespace+"_"+"bridge_total_ingress_discards", "Total Ingress Discards", variableLabelsBridge, nil),
+	"bridge_total_egress_discards":                  prometheus.NewDesc(namespace+"_"+"bridge_total_egress_discards", "Total Egress Discards", variableLabelsBridge, nil),
 }
 
 var metricsDet = metrics{
@@ -661,7 +662,7 @@ func (e *Exporter) getBridgeSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	return 1
 }
 
-// Get status of bridges for all vpns
+// Get statistics of bridges for all vpns
 func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
 	type Data struct {
@@ -815,9 +816,6 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 
 		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_ingress_discards"], prometheus.GaugeValue, bridge.Client.Stats.IngressDiscards.TotalIngressDiscards, vmrVersion, bridgeName, vpnName)
 		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_total_egress_discards"], prometheus.GaugeValue, bridge.Client.Stats.EgressDiscards.TotalEgressDiscards, vmrVersion, bridgeName, vpnName)
-		//
-		//		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_add_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.AddBySubscriptionManager, vmrVersion, bridgeName, vpnName)
-		//		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_remove_by_subscription_manager"], prometheus.GaugeValue, bridge.Client.Stats.ManagedSubscriptions.RemoveBySubscriptionManager, vmrVersion, bridgeName, vpnName)
 	}
 	return 1
 }
@@ -896,7 +894,7 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	return 1
 }
 
-// Config Sync Status
+// Config Sync Status for Broker and Vpn
 func (e *Exporter) getConfigSyncSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
 	type Data struct {
