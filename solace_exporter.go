@@ -45,7 +45,7 @@ type metrics map[string]*prometheus.Desc
 
 var (
 	vmrVersion            = string("undefined")
-	solaceExporterVersion = float64(1001007)
+	solaceExporterVersion = float64(1001008)
 
 	variableLabelsVersion         = []string{"vmrVersion"}
 	variableExporterVersion       = []string{"vmrVersion"}
@@ -162,6 +162,11 @@ var metricsStd = metrics{
 }
 
 var metricsDet = metrics{
+	// version
+	"system_version_currentload":      prometheus.NewDesc(namespace+"_"+"system_version_currentload", "Solace Version as WWWXXXYYYZZZ ", variableLabelsVersion, nil),
+	"system_version_uptime_totalsecs": prometheus.NewDesc(namespace+"_"+"system_version_uptime_totalsecs", "Broker uptime in seconds ", variableLabelsVersion, nil),
+	"exporter_version_current":        prometheus.NewDesc(namespace+"_"+"exporter_version_current", "Exporter Version ", variableLabelsVersion, nil),
+
 	"client_rx_msgs_total":           prometheus.NewDesc(namespace+"_"+"client_rx_msgs_total", "Number of received messages.", variableLabelsVpnClient, nil),
 	"client_tx_msgs_total":           prometheus.NewDesc(namespace+"_"+"client_tx_msgs_total", "Number of transmitted messages.", variableLabelsVpnClient, nil),
 	"client_rx_bytes_total":          prometheus.NewDesc(namespace+"_"+"client_rx_bytes_total", "Number of received bytes.", variableLabelsVpnClient, nil),
