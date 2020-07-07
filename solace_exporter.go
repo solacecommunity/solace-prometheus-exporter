@@ -45,7 +45,7 @@ type metrics map[string]*prometheus.Desc
 
 var (
 	vmrVersion            = string("undefined")
-	solaceExporterVersion = float64(1001008)
+	solaceExporterVersion = float64(1002000)
 
 	variableLabelsVersion         = []string{"vmrVersion"}
 	variableExporterVersion       = []string{"vmrVersion"}
@@ -189,117 +189,6 @@ var metricsDet = metrics{
 	"queue_tx_byte_rate_avg":  prometheus.NewDesc(namespace+"_"+"queue_tx_byte_rate_avg", "Averate rate of transmitted bytes.", variableLabelsVpnQueue, nil),
 }
 
-// Collection of configs
-type config struct {
-	listenAddr string
-	scrapeURI  string
-	username   string
-	password   string
-	sslVerify  bool
-	timeout    time.Duration
-	details    bool
-	redundancy bool
-}
-
-// Exporter collects Solace stats from the given URI and exports them using
-// the prometheus metrics package.
-type Exporter struct {
-	config config
-	logger log.Logger
-}
-
-// NewExporter returns an initialized Exporter.
-func NewExporter(logger log.Logger, conf config) *Exporter {
-	return &Exporter{
-		logger: logger,
-		config: conf,
-	}
-}
-
-// Describe describes all the metrics ever exported by the Solace exporter. It
-// implements prometheus.Collector.
-func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
-	if e.config.details {
-		for _, m := range metricsDet {
-			ch <- m
-		}
-	} else {
-		for _, m := range metricsStd {
-			ch <- m
-		}
-	}
-	ch <- solaceUp
-}
-
-// Collect fetches the stats from configured Solace location and delivers them
-// as Prometheus metrics. It implements prometheus.Collector.
-func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
-	var up float64 = 1
-
-	// check version first in any case
-	if up > 0 {
-		up = e.getVersionSemp1(ch)
-	}
-
-	if e.config.details {
-		if up > 0 {
-			up = e.getClientSemp1(ch)
-		}
-		if up > 0 {
-			up = e.getQueueSemp1(ch)
-		}
-		if up > 0 {
-			up = e.getQueueRatesSemp1(ch)
-		}
-	} else { // Basic
-		if up > 0 && e.config.redundancy {
-			up = e.getRedundancySemp1(ch)
-		}
-		if up > 0 && e.config.redundancy {
-			up = e.getConfigSyncSemp1(ch)
-		}
-		if up > 0 {
-			up = e.getSpoolSemp1(ch)
-		}
-		if up > 0 {
-			up = e.getHealthSemp1(ch)
-		}
-		if up > 0 {
-			up = e.getVpnSemp1(ch)
-		}
-		if up > 0 {
-			up = e.getVpnReplicationSemp1(ch)
-		}
-		if up > 0 {
-			up = e.getBridgeSemp1(ch)
-		}
-		if up > 0 {
-			up = e.getBridgeStatsSemp1(ch)
-		}
-	}
-
-	ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, up)
-}
-
-// Encodes string to 0,1,2,... metric
-func encodeMetricMulti(item string, refItems []string) float64 {
-	uItem := strings.ToUpper(item)
-	for i, s := range refItems {
-		if uItem == strings.ToUpper(s) {
-			return float64(i)
-		}
-	}
-	return -1
-}
-
-// Encodes bool into 0,1 metric
-func encodeMetricBool(item bool) float64 {
-	if item {
-		return 1
-	}
-	return 0
-}
-
 // Redirect callback, re-insert basic auth string into header
 func (e *Exporter) redirectPolicyFunc(req *http.Request, via []*http.Request) error {
 	req.SetBasicAuth(e.config.username, e.config.password)
@@ -366,7 +255,7 @@ func (e *Exporter) getVersionSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	command := "<rpc><show><version/></show></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape RedundancySemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't scrape getVersionSemp1", "err", err)
 		return 0
 	}
 	defer body.Close()
@@ -374,7 +263,7 @@ func (e *Exporter) getVersionSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml RedundancySemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't decode Xml getVersionSemp1", "err", err)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
@@ -661,7 +550,7 @@ func (e *Exporter) getBridgeSemp1(ch chan<- prometheus.Metric) (ok float64) {
 		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_inbound_operational_failure_reason"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalFailureReason, failReasons), vmrVersion, bridgeName, vpnName)
 		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_outbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.OutboundOperationalState, opStates), vmrVersion, bridgeName, vpnName)
 		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_queue_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.QueueOperationalState, []string{"NotApplicable", "Bound", "Unbound"}), vmrVersion, bridgeName, vpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup"}), vmrVersion, bridgeName, vpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup", "static", "none"}), vmrVersion, bridgeName, vpnName)
 		ch <- prometheus.MustNewConstMetric(metricsStd["bridge_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, vmrVersion, bridgeName, vpnName)
 	}
 	return 1
@@ -826,7 +715,7 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 }
 
 // Get status and number of connected clients of all vpn's, and some data stats and rates
-func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
+func (e *Exporter) getVpnStatsSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
 	type Data struct {
 		RPC struct {
@@ -1002,8 +891,8 @@ func (e *Exporter) getVpnReplicationSemp1(ch chan<- prometheus.Metric) (ok float
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Replication.MessageVpns.MessageVpn {
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_replication_admin_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.AdminState, []string{"shutdown", "enabled"}), vmrVersion, vpn.VpnName)
-		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_replication_config_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.ConfigState, []string{"standby", "active"}), vmrVersion, vpn.VpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_replication_admin_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.AdminState, []string{"shutdown", "enabled", "n/a"}), vmrVersion, vpn.VpnName)
+		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_replication_config_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.ConfigState, []string{"standby", "active", "n/a"}), vmrVersion, vpn.VpnName)
 		ch <- prometheus.MustNewConstMetric(metricsStd["vpn_replication_transaction_replication_mode"], prometheus.GaugeValue, encodeMetricMulti(vpn.TransactionReplicationMode, []string{"async", "sync"}), vmrVersion, vpn.VpnName)
 	}
 
@@ -1096,7 +985,7 @@ func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
 // Get some statistics for each individual queue of all vpn's
 // This can result in heavy system load for lots of queues
-func (e *Exporter) getQueueSemp1(ch chan<- prometheus.Metric) (ok float64) {
+func (e *Exporter) getQueueDetailSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
 	type Data struct {
 		RPC struct {
@@ -1236,6 +1125,54 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 	return 1
 }
 
+// Encodes string to 0,1,2,... metric
+func encodeMetricMulti(item string, refItems []string) float64 {
+	uItem := strings.ToUpper(item)
+	for i, s := range refItems {
+		if uItem == strings.ToUpper(s) {
+			return float64(i)
+		}
+	}
+	return -1
+}
+
+// Encodes bool into 0,1 metric
+func encodeMetricBool(item bool) float64 {
+	if item {
+		return 1
+	}
+	return 0
+}
+
+const (
+	scopeBrokerStandard   = "broker"
+	scopeBrokerStatistics = "brokerStats"
+	scopeBrokerDetails    = "brokerDetails"
+	scopeVpnStandard      = "vpn"
+	scopeVpnStatistics    = "vpnStats"
+	scopeVpnDetails       = "vpnDetails"
+)
+
+// Collection of configs
+type config struct {
+	listenAddr string
+	scrapeURI  string
+	username   string
+	password   string
+	sslVerify  bool
+	timeout    time.Duration
+	details    bool
+	redundancy bool
+	scope      string
+}
+
+// Exporter collects Solace stats from the given URI and exports them using
+// the prometheus metrics package.
+type Exporter struct {
+	config config
+	logger log.Logger
+}
+
 func parseConfigBool(cfg *ini.File, logger log.Logger, iniSection string, iniKey string, envKey string, okp *bool) bool {
 	var ok bool = true
 	s := parseConfigString(cfg, logger, iniSection, iniKey, envKey, &ok)
@@ -1307,6 +1244,119 @@ func parseConfig(configFile string, conf *config, logger log.Logger) (ok bool) {
 	return oki
 }
 
+// NewExporter returns an initialized Exporter.
+func NewExporter(logger log.Logger, conf config) *Exporter {
+	return &Exporter{
+		logger: logger,
+		config: conf,
+	}
+}
+
+// Describe describes all the metrics ever exported by the Solace exporter. It
+// implements prometheus.Collector.
+func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
+	if e.config.details {
+		for _, m := range metricsDet {
+			ch <- m
+		}
+	} else {
+		for _, m := range metricsStd {
+			ch <- m
+		}
+	}
+	ch <- solaceUp
+}
+
+// Collect fetches the stats from configured Solace location and delivers them
+// as Prometheus metrics. It implements prometheus.Collector.
+func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
+	var up float64 = 1
+
+	// check version first in any case
+	if up > 0 {
+		up = e.getVersionSemp1(ch)
+	}
+
+	switch e.config.scope {
+	case scopeBrokerStandard:
+		if up > 0 {
+			up = e.getHealthSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getSpoolSemp1(ch)
+		}
+		if up > 0 && e.config.redundancy {
+			up = e.getRedundancySemp1(ch)
+		}
+	case scopeVpnStandard:
+		if up > 0 {
+			up = e.getVpnReplicationSemp1(ch)
+		}
+		if up > 0 && e.config.redundancy {
+			up = e.getConfigSyncSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getBridgeSemp1(ch)
+		}
+	case scopeVpnStatistics:
+		if up > 0 {
+			up = e.getClientSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getVpnStatsSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getBridgeStatsSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getQueueRatesSemp1(ch)
+		}
+	case scopeVpnDetails:
+		if up > 0 {
+			up = e.getQueueDetailSemp1(ch)
+		}
+
+	default:
+		if e.config.details {
+			if up > 0 {
+				up = e.getClientSemp1(ch)
+			}
+			if up > 0 {
+				up = e.getQueueDetailSemp1(ch)
+			}
+			if up > 0 {
+				up = e.getQueueRatesSemp1(ch)
+			}
+		} else { // Basic
+			if up > 0 && e.config.redundancy {
+				up = e.getRedundancySemp1(ch)
+			}
+			if up > 0 && e.config.redundancy {
+				up = e.getConfigSyncSemp1(ch)
+			}
+			if up > 0 {
+				up = e.getSpoolSemp1(ch)
+			}
+			if up > 0 {
+				up = e.getHealthSemp1(ch)
+			}
+			if up > 0 {
+				up = e.getVpnStatsSemp1(ch)
+			}
+			if up > 0 {
+				up = e.getVpnReplicationSemp1(ch)
+			}
+			if up > 0 {
+				up = e.getBridgeSemp1(ch)
+			}
+			if up > 0 {
+				up = e.getBridgeStatsSemp1(ch)
+			}
+		}
+	}
+	ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, up)
+}
+
 func main() {
 
 	kingpin.HelpFlag.Short('h')
@@ -1360,6 +1410,60 @@ func main() {
 	registryDet.MustRegister(version.NewCollector("solace_detailed"))
 	handlerDet := promhttp.HandlerFor(registryDet, promhttp.HandlerOpts{})
 
+	// Exporter for broker standard endpoint
+	conf.details = false
+	conf.scope = scopeBrokerStandard
+	exporterBrokerStd := NewExporter(logger, conf)
+	registryBrokerStd := prometheus.NewRegistry()
+	registryBrokerStd.MustRegister(exporterBrokerStd)
+	registryBrokerStd.MustRegister(version.NewCollector("solace_broker_standard"))
+	handlerBrokerStd := promhttp.HandlerFor(registryBrokerStd, promhttp.HandlerOpts{})
+
+	// Exporter for Vpn standard endpoint
+	conf.details = false
+	conf.scope = scopeVpnStandard
+	exporterVpnStd := NewExporter(logger, conf)
+	registryVpnStd := prometheus.NewRegistry()
+	registryVpnStd.MustRegister(exporterVpnStd)
+	registryVpnStd.MustRegister(version.NewCollector("solace_vpn_standard"))
+	handlerVpnStd := promhttp.HandlerFor(registryVpnStd, promhttp.HandlerOpts{})
+
+	// Exporter for broker stats endpoint
+	conf.details = false
+	conf.scope = scopeBrokerStatistics
+	exporterBrokerStats := NewExporter(logger, conf)
+	registryBrokerStats := prometheus.NewRegistry()
+	registryBrokerStats.MustRegister(exporterBrokerStats)
+	registryBrokerStats.MustRegister(version.NewCollector("solace_broker_stats"))
+	handlerBrokerStats := promhttp.HandlerFor(registryBrokerStats, promhttp.HandlerOpts{})
+
+	// Exporter for Vpn stats endpoint
+	conf.details = false
+	conf.scope = scopeVpnStatistics
+	exporterVpnStats := NewExporter(logger, conf)
+	registryVpnStats := prometheus.NewRegistry()
+	registryVpnStats.MustRegister(exporterVpnStats)
+	registryVpnStats.MustRegister(version.NewCollector("solace_vpn_stats"))
+	handlerVpnStats := promhttp.HandlerFor(registryVpnStats, promhttp.HandlerOpts{})
+
+	// Exporter for broker details endpoint
+	conf.details = true
+	conf.scope = scopeBrokerDetails
+	exporterBrokerDet := NewExporter(logger, conf)
+	registryBrokerDet := prometheus.NewRegistry()
+	registryBrokerDet.MustRegister(exporterBrokerDet)
+	registryBrokerDet.MustRegister(version.NewCollector("solace_broker_details"))
+	handlerBrokerDetails := promhttp.HandlerFor(registryBrokerDet, promhttp.HandlerOpts{})
+
+	// Exporter for Vpn details endpoint
+	conf.details = true
+	conf.scope = scopeVpnDetails
+	exporterVpnDet := NewExporter(logger, conf)
+	registryVpnDet := prometheus.NewRegistry()
+	registryVpnDet.MustRegister(exporterVpnDet)
+	registryVpnDet.MustRegister(version.NewCollector("solace_vpn_details"))
+	handlerVpnDetails := promhttp.HandlerFor(registryVpnDet, promhttp.HandlerOpts{})
+
 	// Test scrape to check if broker can be accessed. If it fails it prints a warn to the log file.
 	// Note that failure is not fatal, as broker might not have started up yet.
 	conf.timeout, _ = time.ParseDuration("2s") // Don't delay startup too much
@@ -1370,6 +1474,14 @@ func main() {
 	http.Handle("/metrics", promhttp.Handler())
 	http.Handle("/solace-std", handlerStd)
 	http.Handle("/solace-det", handlerDet)
+
+	http.Handle("/solace-broker-std", handlerBrokerStd)
+	http.Handle("/solace-vpn-std", handlerVpnStd)
+	http.Handle("/solace-broker-stats", handlerBrokerStats)
+	http.Handle("/solace-vpn-stats", handlerVpnStats)
+	http.Handle("/solace-broker-det", handlerBrokerDetails)
+	http.Handle("/solace-vpn-det", handlerVpnDetails)
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
              <head><title>Solace Exporter</title></head>
