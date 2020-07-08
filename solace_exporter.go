@@ -846,6 +846,122 @@ func (e *Exporter) getConfigSyncSemp1(ch chan<- prometheus.Metric) (ok float64) 
 	return 1
 }
 
+// Config Sync Status for Broker and Vpn
+func (e *Exporter) getConfigSyncRouterSemp1(ch chan<- prometheus.Metric) (ok float64) {
+
+	type Data struct {
+		RPC struct {
+			Show struct {
+				ConfigSync struct {
+					Database struct {
+						Local struct {
+							Tables struct {
+								Table []struct {
+									Type               string  `xml:"type"`
+									TimeInStateSeconds float64 `xml:"time-in-state-seconds"`
+									Name               string  `xml:"name"`
+									Ownership          string  `xml:"ownership"`
+									SyncState          string  `xml:"sync-state"`
+									TimeInState        string  `xml:"time-in-state"`
+								} `xml:"table"`
+							} `xml:"tables"`
+						} `xml:"local"`
+					} `xml:"database"`
+				} `xml:"config-sync"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><config-sync><database/><router/></config-sync></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err)
+		return 0
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't decode Xml ConfigSyncSemp1", "err", err)
+		return 0
+	}
+	if target.ExecuteResult.Result != "ok" {
+		level.Error(e.logger).Log("command", command)
+		return 0
+	}
+
+	for _, table := range target.RPC.Show.ConfigSync.Database.Local.Tables.Table {
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_type"], prometheus.GaugeValue, encodeMetricMulti(table.Type, []string{"Router", "Vpn"}), vmrVersion, table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_timeinstateseconds"], prometheus.CounterValue, table.TimeInStateSeconds, vmrVersion, table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_ownership"], prometheus.GaugeValue, encodeMetricMulti(table.Ownership, []string{"Master", "Slave"}), vmrVersion, table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_syncstate"], prometheus.GaugeValue, encodeMetricMulti(table.SyncState, []string{"Down", "Up"}), vmrVersion, table.Name)
+	}
+
+	return 1
+}
+
+// Config Sync Status for Broker and Vpn
+func (e *Exporter) getConfigSyncVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
+
+	type Data struct {
+		RPC struct {
+			Show struct {
+				ConfigSync struct {
+					Database struct {
+						Local struct {
+							Tables struct {
+								Table []struct {
+									Type               string  `xml:"type"`
+									TimeInStateSeconds float64 `xml:"time-in-state-seconds"`
+									Name               string  `xml:"name"`
+									Ownership          string  `xml:"ownership"`
+									SyncState          string  `xml:"sync-state"`
+									TimeInState        string  `xml:"time-in-state"`
+								} `xml:"table"`
+							} `xml:"tables"`
+						} `xml:"local"`
+					} `xml:"database"`
+				} `xml:"config-sync"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><config-sync><database/><message-vpn/><vpn-name>*</vpn-name></config-sync></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err)
+		return 0
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't decode Xml ConfigSyncSemp1", "err", err)
+		return 0
+	}
+	if target.ExecuteResult.Result != "ok" {
+		level.Error(e.logger).Log("command", command)
+		return 0
+	}
+
+	for _, table := range target.RPC.Show.ConfigSync.Database.Local.Tables.Table {
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_type"], prometheus.GaugeValue, encodeMetricMulti(table.Type, []string{"Router", "Vpn"}), vmrVersion, table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_timeinstateseconds"], prometheus.CounterValue, table.TimeInStateSeconds, vmrVersion, table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_ownership"], prometheus.GaugeValue, encodeMetricMulti(table.Ownership, []string{"Master", "Slave"}), vmrVersion, table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_syncstate"], prometheus.GaugeValue, encodeMetricMulti(table.SyncState, []string{"Down", "Up"}), vmrVersion, table.Name)
+	}
+
+	return 1
+}
+
 // Replication Config and status
 func (e *Exporter) getVpnReplicationSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
@@ -901,7 +1017,7 @@ func (e *Exporter) getVpnReplicationSemp1(ch chan<- prometheus.Metric) (ok float
 
 // Get some statistics for each individual client of all vpn's
 // This can result in heavy system load for lots of clients
-func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric) (ok float64) {
+func (e *Exporter) getClientStatsSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
 	type Data struct {
 		RPC struct {
@@ -1288,19 +1404,22 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		if up > 0 && e.config.redundancy {
 			up = e.getRedundancySemp1(ch)
 		}
+		if up > 0 && e.config.redundancy {
+			up = e.getConfigSyncRouterSemp1(ch)
+		}
 	case scopeVpnStandard:
 		if up > 0 {
 			up = e.getVpnReplicationSemp1(ch)
 		}
 		if up > 0 && e.config.redundancy {
-			up = e.getConfigSyncSemp1(ch)
+			up = e.getConfigSyncVpnSemp1(ch)
 		}
 		if up > 0 {
 			up = e.getBridgeSemp1(ch)
 		}
 	case scopeVpnStatistics:
 		if up > 0 {
-			up = e.getClientSemp1(ch)
+			up = e.getClientStatsSemp1(ch)
 		}
 		if up > 0 {
 			up = e.getVpnStatsSemp1(ch)
@@ -1319,7 +1438,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	default:
 		if e.config.details {
 			if up > 0 {
-				up = e.getClientSemp1(ch)
+				up = e.getClientStatsSemp1(ch)
 			}
 			if up > 0 {
 				up = e.getQueueDetailSemp1(ch)
@@ -1490,6 +1609,12 @@ func main() {
              <p><a href='` + "/metrics" + `'>Default Metrics</a></p>
              <p><a href='` + "/solace-std" + `'>Solace Standard Metrics (System and VPN)</a></p>
              <p><a href='` + "/solace-det" + `'>Solace Detailed Metrics (Client and Queue)</a></p>
+						 <p><a href='` + "/solace-broker-std" + `'>Solace Broker only Standard Metrics (System)</a></p>
+             <p><a href='` + "/solace-vpn-std" + `'>Solace Vpn only Standard Metrics (VPN)</a></p>
+						 <p><a href='` + "/solace-broker-stats" + `'>Solace Broker only Statistics (System)</a></p>
+             <p><a href='` + "/solace-vpn-stats" + `'>Solace Vpn only Statistics (VPN)</a></p>
+						 <p><a href='` + "/solace-broker-det" + `'>Solace Broker only Detailed Metrics (System)</a></p>
+             <p><a href='` + "/solace-vpn-det" + `'>Solace Vpn only Detailed Metrics (VPN)</a></p>
              </body>
              </html>`))
 	})
