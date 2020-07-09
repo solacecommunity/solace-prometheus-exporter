@@ -11,10 +11,17 @@ It is currently only tested against PubSub+ software brokers (VMRs), not applian
 
 The exporter is written in go, based on the Solace Legacy SEMP protocol.<br/>
 It implements the following endpoints:<br/>
-<pre><code>http://&lt;host&gt;:&lt;port&gt;/             Document page showing list of endpoints
-http://&lt;host&gt;:&lt;port&gt;/metrics      Golang and standard Prometheus metrics
-http://&lt;host&gt;:&lt;port&gt;/solace-std   Solace metrics for System and VPN levels
-http://&lt;host&gt;:&lt;port&gt;/solace-det   Solace metrics for Messaging Clients and Queues</code></pre>
+<pre><code>http://&lt;host&gt;:&lt;port&gt;/         Document page showing list of endpoints
+http://&lt;host&gt;:&lt;port&gt;/metrics             Golang and standard Prometheus metrics
+http://&lt;host&gt;:&lt;port&gt;/solace-std          Solace metrics for System and VPN levels
+http://&lt;host&gt;:&lt;port&gt;/solace-det          Solace metrics for Messaging Clients and Queues
+http://&lt;host&gt;:&lt;port&gt;/solace-broker-std   Solace Broker only Standard Metrics (System)
+http://&lt;host&gt;:&lt;port&gt;/solace-broker-stats Solace Broker only Statistics Metrics (System)
+http://&lt;host&gt;:&lt;port&gt;/solace-broker-det   Solace Broker only Detailed Metrics (System)
+http://&lt;host&gt;:&lt;port&gt;/solace-vpn-std      Solace Vpn only Standard Metrics (VPN), available to non-global access right admins
+http://&lt;host&gt;:&lt;port&gt;/solace-vpn-stats    Solace Vpn only Statistics Metrics (VPN), available to non-global access right admins
+http://&lt;host&gt;:&lt;port&gt;/solace-vpn-det      Solace Vpn only Detailed Metrics (VPN), available to non-global access right admins
+</code></pre>
 The [registered](https://github.com/prometheus/prometheus/wiki/Default-port-allocations) default port for Solace is 9628<br/>
 
 ## Usage

@@ -1386,6 +1386,12 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		if up > 0 && e.config.redundancy {
 			up = e.getConfigSyncRouterSemp1(ch)
 		}
+	case scopeBrokerStatistics:
+		{
+		}
+	case scopeBrokerDetails:
+		{
+		}
 	case scopeVpnStandard:
 		if up > 0 {
 			up = e.getVpnReplicationSemp1(ch)
@@ -1413,8 +1419,10 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		if up > 0 {
 			up = e.getQueueDetailSemp1(ch)
 		}
-
 	default:
+		if up > 0 {
+			up = e.getVersionSemp1(ch)
+		}
 		if e.config.details {
 			if up > 0 {
 				up = e.getClientStatsSemp1(ch)
