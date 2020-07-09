@@ -44,7 +44,7 @@ const (
 type metrics map[string]*prometheus.Desc
 
 var (
-	solaceExporterVersion = float64(1002000)
+	solaceExporterVersion = float64(1002001)
 
 	variableLabelsRedundancy      = []string{"mate_name"}
 	variableLabelsVpn             = []string{"vpn_name"}
@@ -60,12 +60,12 @@ var metricsStd = metrics{
 	// version
 	"system_version_currentload":      prometheus.NewDesc(namespace+"_"+"system_version_currentload", "Solace Version as WWWXXXYYYZZZ ", nil, nil),
 	"system_version_uptime_totalsecs": prometheus.NewDesc(namespace+"_"+"system_version_uptime_totalsecs", "Broker uptime in seconds ", nil, nil),
-	"exporter_version_current":        prometheus.NewDesc(namespace+"_"+"exporter_version_current", "Exporter Version ", nil, nil),
+	"exporter_version_current":        prometheus.NewDesc(namespace+"_"+"exporter_version_current", "Exporter Version as XXXYYYZZZ", nil, nil),
 
 	// redundancy
-	"system_redundancy_up":           prometheus.NewDesc(namespace+"_"+"system_redundancy_up", "Is redundancy up? (0=down, 1=up).", variableLabelsRedundancy, nil),
-	"system_redundancy_config":       prometheus.NewDesc(namespace+"_"+"system_redundancy_config", "Redundancy configuration (0=disabled, 1=enabled, 2=shutdown).", variableLabelsRedundancy, nil),
-	"system_redundancy_role":         prometheus.NewDesc(namespace+"_"+"system_redundancy_role", "Redundancy role (0=backup, 1=primary, 2=monitor).", variableLabelsRedundancy, nil),
+	"system_redundancy_up":           prometheus.NewDesc(namespace+"_"+"system_redundancy_up", "Is redundancy up? (0=Down, 1=Up).", variableLabelsRedundancy, nil),
+	"system_redundancy_config":       prometheus.NewDesc(namespace+"_"+"system_redundancy_config", "Redundancy configuration (0-Disabled, 1-Enabled, 2-Shutdown)", variableLabelsRedundancy, nil),
+	"system_redundancy_role":         prometheus.NewDesc(namespace+"_"+"system_redundancy_role", "Redundancy role (0=Backup, 1=Primary, 2=Monitor, 3-Undefined).", variableLabelsRedundancy, nil),
 	"system_redundancy_local_active": prometheus.NewDesc(namespace+"_"+"system_redundancy_local_active", "Is local node the active messaging node? (0=not active, 1=active).", variableLabelsRedundancy, nil),
 
 	// system
@@ -442,7 +442,7 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) 
 	mateRouterName := "" + target.RPC.Show.Red.MateRouterName
 	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_config"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ConfigStatus, []string{"Disabled", "Enabled", "Shutdown"}), mateRouterName)
 	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_up"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.RedundancyStatus, []string{"Down", "Up"}), mateRouterName)
-	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Undefined"}), mateRouterName)
+	ch <- prometheus.MustNewConstMetric(metricsStd["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Monitor", "Undefined"}), mateRouterName)
 
 	if target.RPC.Show.Red.ActiveStandbyRole == "Primary" && target.RPC.Show.Red.VirtualRouters.Primary.Status.Activity == "Local Active" ||
 		target.RPC.Show.Red.ActiveStandbyRole == "Backup" && target.RPC.Show.Red.VirtualRouters.Backup.Status.Activity == "Local Active" {
@@ -1386,6 +1386,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		if up > 0 && e.config.redundancy {
 			up = e.getConfigSyncRouterSemp1(ch)
 		}
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, up)
 	case scopeBrokerStatistics:
 		{
 		}
@@ -1459,8 +1460,8 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 				up = e.getBridgeStatsSemp1(ch)
 			}
 		}
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, up)
 	}
-	ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, up)
 }
 
 func main() {
