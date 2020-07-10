@@ -87,13 +87,13 @@ var metricsStd = metrics{
 	"system_mate_link_latency_cur_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_cur_seconds", "Current mate link latency.", nil, nil),
 
 	// config sync
-	"configsync_table_type":               prometheus.NewDesc(namespace+"_"+"configsync_table_type", "Config Sync Resource Type", variableLabelsConfigSyncTable, nil),
+	"configsync_table_type":               prometheus.NewDesc(namespace+"_"+"configsync_table_type", "Config Sync Resource Type (0-Router, 1-Vpn)", variableLabelsConfigSyncTable, nil),
 	"configsync_table_timeinstateseconds": prometheus.NewDesc(namespace+"_"+"configsync_table_timeinstateseconds", "Config Sync Time in State", variableLabelsConfigSyncTable, nil),
-	"configsync_table_ownership":          prometheus.NewDesc(namespace+"_"+"configsync_table_ownership", "Config Sync Ownership", variableLabelsConfigSyncTable, nil),
-	"configsync_table_syncstate":          prometheus.NewDesc(namespace+"_"+"configsync_table_syncstate", "Config Sync State", variableLabelsConfigSyncTable, nil),
+	"configsync_table_ownership":          prometheus.NewDesc(namespace+"_"+"configsync_table_ownership", "Config Sync Ownership (0-Master, 1-Slave, 2-Unknown)", variableLabelsConfigSyncTable, nil),
+	"configsync_table_syncstate":          prometheus.NewDesc(namespace+"_"+"configsync_table_syncstate", "Config Sync State (0-Down, 1-Up)", variableLabelsConfigSyncTable, nil),
 
 	// vpn
-	"vpn_local_status":                             prometheus.NewDesc(namespace+"_"+"vpn_local_status", "Local status (0=Down, 1=Up).", variableLabelsVpn, nil),
+	"vpn_local_status":                             prometheus.NewDesc(namespace+"_"+"vpn_local_status", "Local status (0=Down, 1=Up)", variableLabelsVpn, nil),
 	"vpn_connections":                              prometheus.NewDesc(namespace+"_"+"vpn_connections", "Number of connections.", variableLabelsVpn, nil),
 	"vpn_rx_msgs_total":                            prometheus.NewDesc(namespace+"_"+"vpn_rx_msgs_total", "Number of received messages.", variableLabelsVpn, nil),
 	"vpn_tx_msgs_total":                            prometheus.NewDesc(namespace+"_"+"vpn_tx_msgs_total", "Number of transmitted messages.", variableLabelsVpn, nil),
@@ -101,9 +101,9 @@ var metricsStd = metrics{
 	"vpn_tx_bytes_total":                           prometheus.NewDesc(namespace+"_"+"vpn_tx_bytes_total", "Number of transmitted bytes.", variableLabelsVpn, nil),
 	"vpn_rx_discarded_msgs_total":                  prometheus.NewDesc(namespace+"_"+"vpn_rx_discarded_msgs_total", "Number of discarded received messages.", variableLabelsVpn, nil),
 	"vpn_tx_discarded_msgs_total":                  prometheus.NewDesc(namespace+"_"+"vpn_tx_discarded_msgs_total", "Number of discarded transmitted messages.", variableLabelsVpn, nil),
-	"vpn_replication_admin_state":                  prometheus.NewDesc(namespace+"_"+"vpn_replication_admin_state", "Replication Admin Status", variableLabelsVpn, nil),
-	"vpn_replication_config_state":                 prometheus.NewDesc(namespace+"_"+"vpn_replication_config_state", "Replication Config Status", variableLabelsVpn, nil),
-	"vpn_replication_transaction_replication_mode": prometheus.NewDesc(namespace+"_"+"vpn_replication_transaction_replication_mode", "Replication Tx Replication Mode", variableLabelsVpn, nil),
+	"vpn_replication_admin_state":                  prometheus.NewDesc(namespace+"_"+"vpn_replication_admin_state", "Replication Admin Status (0-shutdown, 1-enabled, 2-n/a)", variableLabelsVpn, nil),
+	"vpn_replication_config_state":                 prometheus.NewDesc(namespace+"_"+"vpn_replication_config_state", "Replication Config Status (0-standby, 1-active, 2-n/a)", variableLabelsVpn, nil),
+	"vpn_replication_transaction_replication_mode": prometheus.NewDesc(namespace+"_"+"vpn_replication_transaction_replication_mode", "Replication Tx Replication Mode (0-async, 1-sync)", variableLabelsVpn, nil),
 
 	//bridges
 	"bridges_num_total_bridges":                         prometheus.NewDesc(namespace+"_"+"bridges_num_total_bridges", "Number of Bridges", nil, nil),
@@ -117,12 +117,12 @@ var metricsStd = metrics{
 
 	// bridge
 	"bridge_admin_state":                            prometheus.NewDesc(namespace+"_"+"bridge_admin_state", "Bridge Administrative State (0-Enabled 1-Disabled)", variableLabelsBridge, nil),
-	"bridge_connection_establisher":                 prometheus.NewDesc(namespace+"_"+"bridge_connection_establisher", "Connection Establisher", variableLabelsBridge, nil),
-	"bridge_inbound_operational_state":              prometheus.NewDesc(namespace+"_"+"bridge_inbound_operational_state", "Inbound Ops State", variableLabelsBridge, nil),
-	"bridge_inbound_operational_failure_reason":     prometheus.NewDesc(namespace+"_"+"bridge_inbound_operational_failure_reason", "Inbound Ops Failure Reason", variableLabelsBridge, nil),
-	"bridge_outbound_operational_state":             prometheus.NewDesc(namespace+"_"+"bridge_outbound_operational_state", "Outbound Ops State", variableLabelsBridge, nil),
-	"bridge_queue_operational_state":                prometheus.NewDesc(namespace+"_"+"bridge_queue_operational_state", "Queue Ops State", variableLabelsBridge, nil),
-	"bridge_redundancy":                             prometheus.NewDesc(namespace+"_"+"bridge_redundancy", "Redundancy", variableLabelsBridge, nil),
+	"bridge_connection_establisher":                 prometheus.NewDesc(namespace+"_"+"bridge_connection_establisher", "Connection Establisher (0-NotApplicable, 1-Local, 2-Remote)", variableLabelsBridge, nil),
+	"bridge_inbound_operational_state":              prometheus.NewDesc(namespace+"_"+"bridge_inbound_operational_state", "Inbound Ops State (0-Init, 1-Shutdown, 2-NoShutdown, 3-Prepare, 4-Prepare-WaitToConnect, 5-Prepare-FetchingDNS, 6-NotReady, 7-NotReady-Connecting, 8-NotReady-Handshaking, 9-NotReady-WaitNext, 10-NotReady-WaitReuse, 11-NotRead-WaitBridgeVersionMismatch, 12-NotReady-WaitCleanup, 13-Ready, 14-Ready-Subscribing, 15-Ready-InSync, 16-NotApplicable, 17-Invalid)", variableLabelsBridge, nil),
+	"bridge_inbound_operational_failure_reason":     prometheus.NewDesc(namespace+"_"+"bridge_inbound_operational_failure_reason", "Inbound Ops Failure Reason (various very long codes)", variableLabelsBridge, nil),
+	"bridge_outbound_operational_state":             prometheus.NewDesc(namespace+"_"+"bridge_outbound_operational_state", "Outbound Ops State (0-Init, 1-Shutdown, 2-NoShutdown, 3-Prepare, 4-Prepare-WaitToConnect, 5-Prepare-FetchingDNS, 6-NotReady, 7-NotReady-Connecting, 8-NotReady-Handshaking, 9-NotReady-WaitNext, 10-NotReady-WaitReuse, 11-NotRead-WaitBridgeVersionMismatch, 12-NotReady-WaitCleanup, 13-Ready, 14-Ready-Subscribing, 15-Ready-InSync, 16-NotApplicable, 17-Invalid)", variableLabelsBridge, nil),
+	"bridge_queue_operational_state":                prometheus.NewDesc(namespace+"_"+"bridge_queue_operational_state", "Queue Ops State (0-NotApplicable, 1-Bound, 2-Unbound)", variableLabelsBridge, nil),
+	"bridge_redundancy":                             prometheus.NewDesc(namespace+"_"+"bridge_redundancy", "Bridge Redundancy (0-NotApplicable, 1-auto, 2-primary, 3-backup, 4-static, 5-none)", variableLabelsBridge, nil),
 	"bridge_connection_uptime_in_seconds":           prometheus.NewDesc(namespace+"_"+"bridge_connection_uptime_in_seconds", "Connection Uptime (s)", variableLabelsBridge, nil),
 	"bridge_client_num_subscriptions":               prometheus.NewDesc(namespace+"_"+"bridge_client_num_subscriptions", "Bridge Client Subscription", variableLabelsBridge, nil),
 	"bridge_client_slow_subscriber":                 prometheus.NewDesc(namespace+"_"+"bridge_client_slow_subscriber", "Bridge Slow Subscriber", variableLabelsBridge, nil),
@@ -878,7 +878,7 @@ func (e *Exporter) getConfigSyncRouterSemp1(ch chan<- prometheus.Metric) (ok flo
 	for _, table := range target.RPC.Show.ConfigSync.Database.Local.Tables.Table {
 		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_type"], prometheus.GaugeValue, encodeMetricMulti(table.Type, []string{"Router", "Vpn"}), table.Name)
 		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_timeinstateseconds"], prometheus.CounterValue, table.TimeInStateSeconds, table.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_ownership"], prometheus.GaugeValue, encodeMetricMulti(table.Ownership, []string{"Master", "Slave"}), table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_ownership"], prometheus.GaugeValue, encodeMetricMulti(table.Ownership, []string{"Master", "Slave", "Unknown"}), table.Name)
 		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_syncstate"], prometheus.GaugeValue, encodeMetricMulti(table.SyncState, []string{"Down", "Up"}), table.Name)
 	}
 
@@ -936,7 +936,7 @@ func (e *Exporter) getConfigSyncVpnSemp1(ch chan<- prometheus.Metric) (ok float6
 	for _, table := range target.RPC.Show.ConfigSync.Database.Local.Tables.Table {
 		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_type"], prometheus.GaugeValue, encodeMetricMulti(table.Type, []string{"Router", "Vpn"}), table.Name)
 		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_timeinstateseconds"], prometheus.CounterValue, table.TimeInStateSeconds, table.Name)
-		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_ownership"], prometheus.GaugeValue, encodeMetricMulti(table.Ownership, []string{"Master", "Slave"}), table.Name)
+		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_ownership"], prometheus.GaugeValue, encodeMetricMulti(table.Ownership, []string{"Master", "Slave", "Unknown"}), table.Name)
 		ch <- prometheus.MustNewConstMetric(metricsStd["configsync_table_syncstate"], prometheus.GaugeValue, encodeMetricMulti(table.SyncState, []string{"Down", "Up"}), table.Name)
 	}
 
