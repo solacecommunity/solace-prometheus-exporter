@@ -44,7 +44,7 @@ const (
 type metrics map[string]*prometheus.Desc
 
 var (
-	solaceExporterVersion = float64(1002001)
+	solaceExporterVersion = float64(1002002)
 
 	variableLabelsRedundancy      = []string{"mate_name"}
 	variableLabelsVpn             = []string{"vpn_name"}
@@ -1421,9 +1421,6 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up = e.getQueueDetailSemp1(ch)
 		}
 	default:
-		if up > 0 {
-			up = e.getVersionSemp1(ch)
-		}
 		if e.config.details {
 			if up > 0 {
 				up = e.getClientStatsSemp1(ch)
@@ -1435,6 +1432,9 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 				up = e.getQueueRatesSemp1(ch)
 			}
 		} else { // Basic
+			if up > 0 {
+				up = e.getVersionSemp1(ch)
+			}
 			if up > 0 && e.config.redundancy {
 				up = e.getRedundancySemp1(ch)
 			}
@@ -1459,8 +1459,8 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			if up > 0 {
 				up = e.getBridgeStatsSemp1(ch)
 			}
+			ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, up)
 		}
-		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, up)
 	}
 }
 
