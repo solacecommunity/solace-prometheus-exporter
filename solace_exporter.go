@@ -44,7 +44,7 @@ const (
 type metrics map[string]*prometheus.Desc
 
 var (
-	solaceExporterVersion = float64(1002002)
+	solaceExporterVersion = float64(1003000)
 
 	variableLabelsRedundancy      = []string{"mate_name"}
 	variableLabelsVpn             = []string{"vpn_name"}
@@ -1575,17 +1575,58 @@ func main() {
 	// Note that failure is not fatal, as broker might not have started up yet.
 	conf.timeout, _ = time.ParseDuration("2s") // Don't delay startup too much
 
-	// Configure the endpoints and start the server
-	http.Handle("/metrics", promhttp.Handler())
-	http.Handle("/solace-std", handlerStd)
-	http.Handle("/solace-det", handlerDet)
+	// Configure the endpoints
+	http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
+		paramHandler(w, r, conf, exporterStd, promhttp.Handler())
+	})
+	http.HandleFunc("/solace-std", func(w http.ResponseWriter, r *http.Request) {
+		paramHandler(w, r, conf, exporterStd, handlerStd)
+	})
+	http.HandleFunc("/solace-det", func(w http.ResponseWriter, r *http.Request) {
+		paramHandler(w, r, conf, exporterDet, handlerDet)
+	})
 
-	http.Handle("/solace-broker-std", handlerBrokerStd)
-	http.Handle("/solace-vpn-std", handlerVpnStd)
-	http.Handle("/solace-broker-stats", handlerBrokerStats)
-	http.Handle("/solace-vpn-stats", handlerVpnStats)
-	http.Handle("/solace-broker-det", handlerBrokerDetails)
-	http.Handle("/solace-vpn-det", handlerVpnDetails)
+	http.HandleFunc("/solace-broker-std", func(w http.ResponseWriter, r *http.Request) {
+		paramHandler(w, r, conf, exporterBrokerStd, handlerBrokerStd)
+	})
+	http.HandleFunc("/solace-vpn-std", func(w http.ResponseWriter, r *http.Request) {
+		paramHandler(w, r, conf, exporterVpnStd, handlerVpnStd)
+	})
+	http.HandleFunc("/solace-broker-stats", func(w http.ResponseWriter, r *http.Request) {
+		paramHandler(w, r, conf, exporterBrokerStats, handlerBrokerStats)
+	})
+	http.HandleFunc("/solace-vpn-stats", func(w http.ResponseWriter, r *http.Request) {
+		paramHandler(w, r, conf, exporterVpnStats, handlerVpnStats)
+	})
+	http.HandleFunc("/solace-broker-det", func(w http.ResponseWriter, r *http.Request) {
+		paramHandler(w, r, conf, exporterBrokerDet, handlerBrokerDetails)
+	})
+	http.HandleFunc("/solace-vpn-det", func(w http.ResponseWriter, r *http.Request) {
+		paramHandler(w, r, conf, exporterVpnDet, handlerVpnDetails)
+	})
+
+	http.HandleFunc("/config", func(w http.ResponseWriter, r *http.Request) {
+		username := r.FormValue("username")
+		password := r.FormValue("password")
+		scrapeURI := r.FormValue("scrapeURI")
+
+		es := [...]*Exporter{exporterStd, exporterDet, exporterBrokerStd, exporterBrokerStats, exporterBrokerDet, exporterVpnStd, exporterVpnStats, exporterVpnDet}
+		if len(username) > 0 {
+			for _, e := range es {
+				e.config.username = username
+			}
+		}
+		if len(password) > 0 {
+			for _, e := range es {
+				e.config.password = password
+			}
+		}
+		if len(scrapeURI) > 0 {
+			for _, e := range es {
+				e.config.scrapeURI = scrapeURI
+			}
+		}
+	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
@@ -1604,8 +1645,28 @@ func main() {
              </body>
              </html>`))
 	})
+	// start server
 	if err := http.ListenAndServe(conf.listenAddr, nil); err != nil {
 		level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
 		os.Exit(2)
 	}
+}
+
+func paramHandler(w http.ResponseWriter, r *http.Request, c config, e *Exporter, h http.Handler) {
+
+	c.username = r.FormValue("username")
+	c.password = r.FormValue("password")
+	c.scrapeURI = r.FormValue("scrapeURI")
+
+	if len(c.username) > 0 {
+		e.config.username = c.username
+	}
+	if len(c.password) > 0 {
+		e.config.password = c.password
+	}
+	if len(c.scrapeURI) > 0 {
+		e.config.scrapeURI = c.scrapeURI
+	}
+
+	h.ServeHTTP(w, r)
 }
