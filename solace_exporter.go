@@ -238,7 +238,7 @@ func (e *Exporter) getVersionSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't scrape getVersionSemp1", "err", err)
-		return 0
+		return -3
 	}
 	defer body.Close()
 	decoder := xml.NewDecoder(body)
@@ -246,11 +246,11 @@ func (e *Exporter) getVersionSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	err = decoder.Decode(&target)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't decode Xml getVersionSemp1", "err", err)
-		return 0
+		return -2
 	}
 	if target.ExecuteResult.Result != "ok" {
 		level.Error(e.logger).Log("command", command)
-		return 0
+		return -1
 	}
 
 	// remember this for the label
