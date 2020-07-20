@@ -42,7 +42,7 @@ const (
 )
 
 var (
-	solaceExporterVersion = float64(1003001)
+	solaceExporterVersion = float64(1003002)
 
 	variableLabelsRedundancy      = []string{"mate_name"}
 	variableLabelsVpn             = []string{"vpn_name"}
@@ -51,7 +51,8 @@ var (
 	variableLabelsBridge          = []string{"vpn_name", "bridge_name"}
 	variableLabelsConfigSyncTable = []string{"table_name"}
 
-	solaceUp = prometheus.NewDesc(namespace+"_"+"up", "Was the last scrape of Solace broker successful.", nil, nil)
+	solaceUp = prometheus.NewDesc(namespace+"_up", "Was the last scrape of Solace broker successful.", nil, nil)
+	vpnUp    = prometheus.NewDesc(namespace+"_vpn_up", "Was the last scrape of Solace VPN successful.", variableLabelsVpn, nil)
 )
 
 type metrics map[string]*prometheus.Desc
@@ -152,6 +153,7 @@ func (e *Exporter) getVersionSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't scrape getVersionSemp1", "err", err)
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, -3)
 		return -3
 	}
 	defer body.Close()
@@ -160,10 +162,12 @@ func (e *Exporter) getVersionSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	err = decoder.Decode(&target)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't decode Xml getVersionSemp1", "err", err)
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, -2)
 		return -2
 	}
 	if target.ExecuteResult.Result != "ok" {
 		level.Error(e.logger).Log("command", command)
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, -1)
 		return -1
 	}
 
@@ -180,6 +184,7 @@ func (e *Exporter) getVersionSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	ch <- prometheus.MustNewConstMetric(metricsBrokerStd["system_version_currentload"], prometheus.GaugeValue, vmrVersionNr)
 	ch <- prometheus.MustNewConstMetric(metricsBrokerStd["system_version_uptime_totalsecs"], prometheus.GaugeValue, target.RPC.Show.Version.Uptime.TotalSecs)
 	ch <- prometheus.MustNewConstMetric(metricsBrokerStd["exporter_version_current"], prometheus.GaugeValue, solaceExporterVersion)
+	ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 1)
 
 	return 1
 }
@@ -428,6 +433,17 @@ func (e *Exporter) getConfigSyncRouterSemp1(ch chan<- prometheus.Metric) (ok flo
 }
 
 var metricsVpnStd = metrics{
+	// vpn
+	"vpn_is_management_vpn":                 prometheus.NewDesc(namespace+"_"+"vpn_is_management_vpn", "VPN is a management VPN", variableLabelsVpn, nil),
+	"vpn_enabled":                           prometheus.NewDesc(namespace+"_"+"vpn_enabled", "VPN is enabled", variableLabelsVpn, nil),
+	"vpn_operational":                       prometheus.NewDesc(namespace+"_"+"vpn_operational", "VPN is operational", variableLabelsVpn, nil),
+	"vpn_locally_configured":                prometheus.NewDesc(namespace+"_"+"vpn_locally_configured", "VPN is locally configured", variableLabelsVpn, nil),
+	"vpn_local_status":                      prometheus.NewDesc(namespace+"_"+"vpn_local_status", "Local status (0=Down, 1=Up)", variableLabelsVpn, nil),
+	"vpn_unique_subscriptions":              prometheus.NewDesc(namespace+"_"+"vpn_unique_subscriptions", "total subscriptions count", variableLabelsVpn, nil),
+	"vpn_total_local_unique_subscriptions":  prometheus.NewDesc(namespace+"_"+"vpn_total_local_unique_subscriptions", "total unique local subscriptions count", variableLabelsVpn, nil),
+	"vpn_total_remote_unique_subscriptions": prometheus.NewDesc(namespace+"_"+"vpn_total_remote_unique_subscriptions", "total unique remote subscriptions count", variableLabelsVpn, nil),
+	"vpn_total_unique_subscriptions":        prometheus.NewDesc(namespace+"_"+"vpn_total_unique_subscriptions", "total unique subscriptions count", variableLabelsVpn, nil),
+	"vpn_connections":                       prometheus.NewDesc(namespace+"_"+"vpn_connections", "Number of connections.", variableLabelsVpn, nil),
 	// replication
 	"vpn_replication_admin_state":                  prometheus.NewDesc(namespace+"_"+"vpn_replication_admin_state", "Replication Admin Status (0-shutdown, 1-enabled, 2-n/a)", variableLabelsVpn, nil),
 	"vpn_replication_config_state":                 prometheus.NewDesc(namespace+"_"+"vpn_replication_config_state", "Replication Config Status (0-standby, 1-active, 2-n/a)", variableLabelsVpn, nil),
@@ -437,7 +453,6 @@ var metricsVpnStd = metrics{
 	"configsync_table_timeinstateseconds": prometheus.NewDesc(namespace+"_"+"configsync_table_timeinstateseconds", "Config Sync Time in State", variableLabelsConfigSyncTable, nil),
 	"configsync_table_ownership":          prometheus.NewDesc(namespace+"_"+"configsync_table_ownership", "Config Sync Ownership (0-Master, 1-Slave, 2-Unknown)", variableLabelsConfigSyncTable, nil),
 	"configsync_table_syncstate":          prometheus.NewDesc(namespace+"_"+"configsync_table_syncstate", "Config Sync State (0-Down, 1-Up)", variableLabelsConfigSyncTable, nil),
-
 	//bridge
 	"bridges_num_total_bridges":                         prometheus.NewDesc(namespace+"_"+"bridges_num_total_bridges", "Number of Bridges", nil, nil),
 	"bridges_max_num_total_bridges":                     prometheus.NewDesc(namespace+"_"+"bridges_max_num_total_bridges", "Max number of Bridges", nil, nil),
@@ -455,6 +470,74 @@ var metricsVpnStd = metrics{
 	"bridge_queue_operational_state":                    prometheus.NewDesc(namespace+"_"+"bridge_queue_operational_state", "Queue Ops State (0-NotApplicable, 1-Bound, 2-Unbound)", variableLabelsBridge, nil),
 	"bridge_redundancy":                                 prometheus.NewDesc(namespace+"_"+"bridge_redundancy", "Bridge Redundancy (0-NotApplicable, 1-auto, 2-primary, 3-backup, 4-static, 5-none)", variableLabelsBridge, nil),
 	"bridge_connection_uptime_in_seconds":               prometheus.NewDesc(namespace+"_"+"bridge_connection_uptime_in_seconds", "Connection Uptime (s)", variableLabelsBridge, nil),
+}
+
+// Get info of all vpn's
+func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
+
+	type Data struct {
+		RPC struct {
+			Show struct {
+				MessageVpn struct {
+					ManagementMessageVpn string `xml:"management-message-vpn"`
+					Vpn                  []struct {
+						Name                           string  `xml:"name"`
+						IsManagementMessageVpn         bool    `xml:"is-management-message-vpn"`
+						Enabled                        bool    `xml:"enabled"`
+						Operational                    bool    `xml:"operational"`
+						LocallyConfigured              bool    `xml:"locally-configured"`
+						LocalStatus                    string  `xml:"local-status"`
+						UniqueSubscriptions            float64 `xml:"unique-subscriptions"`
+						TotalLocalUniqueSubscriptions  float64 `xml:"total-local-unique-subscriptions"`
+						TotalRemoteUniqueSubscriptions float64 `xml:"total-remote-unique-subscriptions"`
+						TotalUniqueSubscriptions       float64 `xml:"total-unique-subscriptions"`
+						Connections                    float64 `xml:"connections"`
+					} `xml:"vpn"`
+				} `xml:"message-vpn"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><message-vpn><vpn-name>*</vpn-name></message-vpn></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err)
+		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, -3, "")
+		return -3
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err)
+		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, -2, "")
+		return -2
+	}
+	if target.ExecuteResult.Result != "ok" {
+		level.Error(e.logger).Log("command", command)
+		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, -1, "")
+		return -1
+	}
+
+	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
+		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, 1, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_is_management_vpn"], prometheus.GaugeValue, encodeMetricBool(vpn.IsManagementMessageVpn), vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_enabled"], prometheus.GaugeValue, encodeMetricBool(vpn.Enabled), vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_operational"], prometheus.GaugeValue, encodeMetricBool(vpn.Operational), vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_locally_configured"], prometheus.GaugeValue, encodeMetricBool(vpn.LocallyConfigured), vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_local_status"], prometheus.GaugeValue, encodeMetricMulti(vpn.LocalStatus, []string{"Down", "Up"}), vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_unique_subscriptions"], prometheus.GaugeValue, vpn.UniqueSubscriptions, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_total_local_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalLocalUniqueSubscriptions, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_total_remote_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalRemoteUniqueSubscriptions, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_total_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalUniqueSubscriptions, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
+	}
+
+	return 1
 }
 
 // Replication Config and status
@@ -661,8 +744,6 @@ var metricsVpnStats = metrics{
 	"client_slow_subscriber":         prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClient, nil),
 
 	// vpn stats
-	"vpn_local_status":            prometheus.NewDesc(namespace+"_"+"vpn_local_status", "Local status (0=Down, 1=Up)", variableLabelsVpn, nil),
-	"vpn_connections":             prometheus.NewDesc(namespace+"_"+"vpn_connections", "Number of connections.", variableLabelsVpn, nil),
 	"vpn_rx_msgs_total":           prometheus.NewDesc(namespace+"_"+"vpn_rx_msgs_total", "Number of received messages.", variableLabelsVpn, nil),
 	"vpn_tx_msgs_total":           prometheus.NewDesc(namespace+"_"+"vpn_tx_msgs_total", "Number of transmitted messages.", variableLabelsVpn, nil),
 	"vpn_rx_bytes_total":          prometheus.NewDesc(namespace+"_"+"vpn_rx_bytes_total", "Number of received bytes.", variableLabelsVpn, nil),
@@ -799,7 +880,7 @@ func (e *Exporter) getClientStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 	return 1
 }
 
-// Get status and number of connected clients of all vpn's, and some data stats and rates
+// Get statistics of all vpn's
 func (e *Exporter) getVpnStatsSemp1(ch chan<- prometheus.Metric) (ok float64) {
 
 	type Data struct {
@@ -859,9 +940,6 @@ func (e *Exporter) getVpnStatsSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
-		ch <- prometheus.MustNewConstMetric(metricsVpnStats["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(metricsVpnStats["vpn_local_status"], prometheus.GaugeValue, encodeMetricMulti(vpn.LocalStatus, []string{"Down", "Up"}), vpn.Name)
-
 		ch <- prometheus.MustNewConstMetric(metricsVpnStats["vpn_rx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataRxMsgCount, vpn.Name)
 		ch <- prometheus.MustNewConstMetric(metricsVpnStats["vpn_tx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataTxMsgCount, vpn.Name)
 		ch <- prometheus.MustNewConstMetric(metricsVpnStats["vpn_rx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataRxByteCount, vpn.Name)
@@ -1181,6 +1259,30 @@ func (e *Exporter) getQueueDetailSemp1(ch chan<- prometheus.Metric) (ok float64)
 	return 1
 }
 
+func performRequest(e Exporter, target *struct {
+	ExecuteResult struct {
+		Result string `xml:"code,attr"`
+	} `xml:"execute-result"`
+}, nextRequest string) (result int) {
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't scrape QueueRatesSemp1", "err", err)
+		return 0
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	err = decoder.Decode(&target)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't decode QueueRatesSemp1", "err", err)
+		return 0
+	}
+	if target.ExecuteResult.Result != "ok" {
+		level.Error(e.logger).Log("command", "Show queue rates")
+		return 0
+	}
+	return 1
+}
+
 // Encodes string to 0,1,2,... metric
 func encodeMetricMulti(item string, refItems []string) float64 {
 	uItem := strings.ToUpper(item)
@@ -1364,15 +1466,16 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		if up > 0 && e.config.redundancy {
 			up = e.getConfigSyncRouterSemp1(ch)
 		}
-		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, up)
 	case scopeBrokerStatistics:
 		{
 		}
 	case scopeBrokerDetails:
 		{
-			ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, up)
 		}
 	case scopeVpnStandard:
+		if up > 0 {
+			up = e.getVpnSemp1(ch)
+		}
 		if up > 0 {
 			up = e.getVpnReplicationSemp1(ch)
 		}
