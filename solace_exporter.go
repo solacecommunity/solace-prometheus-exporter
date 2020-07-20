@@ -1522,9 +1522,10 @@ func doHandle(w http.ResponseWriter, r *http.Request, scope string, conf config,
 		exporter := NewExporter(logger, conf)
 		registry := prometheus.NewRegistry()
 		registry.MustRegister(exporter)
-		registry.MustRegister(version.NewCollector(conf.scope))
+		if scope == scopeBrokerStandard {
+			registry.MustRegister(version.NewCollector(conf.scope))
+		}
 		handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
-
 		handler.ServeHTTP(w, r)
 	}
 }
