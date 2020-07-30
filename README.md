@@ -33,7 +33,7 @@ Flags:
       --log.format=logfmt        Output format of log messages. One of: [logfmt, json]
       --config-file=CONFIG-FILE  Path and name of config file. See sample file solace_exporter.ini.</code></pre>
 
-The configuration parameters can be placed into a config file or into a set of environment variables. For Docker you should prefer the environment variable configuration method (see below).<br/> If the exporter is started with a config file argument then the config file entries have precedence over the environment variables. If a parameter is neither found in the config file nor in the environment the exporter exits with an error.<br/>
+The configuration parameters can be placed into a config file or into a set of environment variables or can be given via URL. For Docker you should prefer the environment variable configuration method (see below).<br/> If the exporter is started with a config file argument then the config file entries have precedence over the environment variables. If a parameter is neither found in URL nor the config file nor in the environment the exporter exits with an error.<br/>
 
 ### Config File
 
@@ -72,6 +72,39 @@ SOLACE_PASSWORD=admin
 SOLACE_TIMEOUT=5s
 SOLACE_SSL_VERIFY=false
 SOLACE_REDUNDANCY=false</code></pre>
+
+### URL
+
+You can call:
+https://your_exporter:9628/solace-vpn-std?scrapeURI=https%3A%2F%2Fyour-broker%3A943&username=monitoring&password=monitoring
+
+This allows you to over write the parameters:
+- scrapeURI
+- username
+- password
+
+This provides you a single exporter for all your on prem broker.
+
+Security: Only use this feature with HTTPS.
+
+#### Sample prometheus config
+
+<pre><code>- job_name: 'solace-std'
+  scrape_interval: 15s
+  metrics_path: /solace-std
+  static_configs:
+    - targets:
+      - https://USER:PASSWORD@first-broker:943
+      - https://USER:PASSWORD@second-broker:943
+      - https://USER:PASSWORD@third-broker:943
+  relabel_configs:
+    - source_labels: [__address__]
+      target_label: __param_target
+    - source_labels: [__param_target]
+      target_label: instance
+    - target_label: __address__
+      replacement: solace-exporter:9628
+</code></pre>
 
 ## Build
 
