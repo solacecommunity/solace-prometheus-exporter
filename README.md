@@ -11,20 +11,22 @@ It is currently only tested against PubSub+ software brokers (VMRs), not applian
 
 The exporter is written in go, based on the Solace Legacy SEMP protocol.<br/>
 It implements the following endpoints:<br/>
-<pre><code>http://&lt;host&gt;:&lt;port&gt;/         Document page showing list of endpoints
-http://&lt;host&gt;:&lt;port&gt;/metrics             Golang and standard Prometheus metrics
-http://&lt;host&gt;:&lt;port&gt;/solace-std          Solace metrics for System and VPN levels
-http://&lt;host&gt;:&lt;port&gt;/solace-det          Solace metrics for Messaging Clients and Queues
-http://&lt;host&gt;:&lt;port&gt;/solace-broker-std   Solace Broker only Standard Metrics (System)
-http://&lt;host&gt;:&lt;port&gt;/solace-vpn-std      Solace Vpn only Standard Metrics (VPN), available to non-global access right admins
-http://&lt;host&gt;:&lt;port&gt;/solace-vpn-stats    Solace Vpn only Statistics Metrics (VPN), available to non-global access right admins
-http://&lt;host&gt;:&lt;port&gt;/solace-vpn-det      Solace Vpn only Detailed Metrics (VPN), available to non-global access right admins
-</code></pre>
+```
+http://<host>:<port>/         Document page showing list of endpoints
+http://<host>:<port>/metrics             Golang and standard Prometheus metrics
+http://<host>:<port>/solace-std          Solace metrics for System and VPN levels
+http://<host>:<port>/solace-det          Solace metrics for Messaging Clients and Queues
+http://<host>:<port>/solace-broker-std   Solace Broker only Standard Metrics (System)
+http://<host>:<port>/solace-vpn-std      Solace Vpn only Standard Metrics (VPN), available to non-global access right admins
+http://<host>:<port>/solace-vpn-stats    Solace Vpn only Statistics Metrics (VPN), available to non-global access right admins
+http://<host>:<port>/solace-vpn-det      Solace Vpn only Detailed Metrics (VPN), available to non-global access right admins
+```
 The [registered](https://github.com/prometheus/prometheus/wiki/Default-port-allocations) default port for Solace is 9628<br/>
 
 ## Usage
 
-<pre><code>solace_exporter -h
+```
+solace_exporter -h
 usage: solace_exporter [&lt;flags&gt;]
 
 Flags:
@@ -32,15 +34,19 @@ Flags:
       --log.level=info           Only log messages with the given severity or above. One of: [debug, info, warn, error]
       --log.format=logfmt        Output format of log messages. One of: [logfmt, json]
       --config-file=CONFIG-FILE  Path and name of config file. See sample file solace_exporter.ini.</code></pre>
+```
 
-The configuration parameters can be placed into a config file or into a set of environment variables. For Docker you should prefer the environment variable configuration method (see below).<br/> If the exporter is started with a config file argument then the config file entries have precedence over the environment variables. If a parameter is neither found in the config file nor in the environment the exporter exits with an error.<br/>
+The configuration parameters can be placed into a config file or into a set of environment variables or can be given via URL. For Docker you should prefer the environment variable configuration method (see below).<br/> If the exporter is started with a config file argument then the config file entries have precedence over the environment variables. If a parameter is neither found in URL nor the config file nor in the environment the exporter exits with an error.<br/>
 
 ### Config File
 
-<pre><code>solace_exporter --config-file /path/to/config/file.ini</code></pre>
+```bash
+solace_exporter --config-file /path/to/config/file.ini
+```
 
 Sample config file:
-<pre><code>[solace]
+```ini
+[solace]
 # Address to listen on for web interface and telemetry.
 listenAddr=0.0.0.0:9628
 
@@ -61,24 +67,61 @@ sslVerify=false
 
 # Flag that enables scrape of redundancy metrics. Should be used for broker HA groups.
 redundancy=false
-</code></pre>
+```
 
 ### Environment Variables
 Sample environment variables:
-<pre><code>SOLACE_LISTEN_ADDR=0.0.0.0:9628
+```bash
+SOLACE_LISTEN_ADDR=0.0.0.0:9628
 SOLACE_SCRAPE_URI=http://localhost:8080
 SOLACE_USERNAME=admin
 SOLACE_PASSWORD=admin
 SOLACE_TIMEOUT=5s
 SOLACE_SSL_VERIFY=false
-SOLACE_REDUNDANCY=false</code></pre>
+SOLACE_REDUNDANCY=false
+```
+
+### URL
+
+You can call:
+https://your_exporter:9628/solace-vpn-std?scrapeURI=https%3A%2F%2Fyour-broker%3A943&username=monitoring&password=monitoring
+
+This allows you to over write the parameters:
+- scrapeURI
+- username
+- password
+
+This provides you a single exporter for all your on prem broker.
+
+Security: Only use this feature with HTTPS.
+
+#### Sample prometheus config
+
+```prometheus
+- job_name: 'solace-std'
+  scrape_interval: 15s
+  metrics_path: /solace-std
+  static_configs:
+    - targets:
+      - https://USER:PASSWORD@first-broker:943
+      - https://USER:PASSWORD@second-broker:943
+      - https://USER:PASSWORD@third-broker:943
+  relabel_configs:
+    - source_labels: [__address__]
+      target_label: __param_target
+    - source_labels: [__param_target]
+      target_label: instance
+    - target_label: __address__
+      replacement: solace-exporter:9628
+```
 
 ## Build
 
 ### Default Build
-<pre><code>cd &lt;some-directory&gt;/solace_exporter
+```bash
+cd &lt;some-directory&gt;/solace_exporter
 go build
-</code></pre>
+```
 
 ## Docker
 
@@ -91,20 +134,24 @@ This is used to automatically build and push the latest image to the Dockerhub r
 
 Environment variables are recommended to parameterize the exporter in Docker.<br/>
 Put the following parameters, adapted to your situation, into a file on the local host, e.g. env.txt:<br/>
-<pre><code>SOLACE_LISTEN_ADDR=0.0.0.0:9628
+```bash
+SOLACE_LISTEN_ADDR=0.0.0.0:9628
 SOLACE_SCRAPE_URI=http://localhost:8080
 SOLACE_USERNAME=admin
 SOLACE_PASSWORD=admin
 SOLACE_TIMEOUT=5s
 SOLACE_SSL_VERIFY=false
-SOLACE_REDUNDANCY=false</code></pre>
+SOLACE_REDUNDANCY=false
+```
 
 Then run
-<pre><code>docker run -d \
+```bash
+docker run -d \
  -p 9628:9628 \
  --env-file env.txt \
  --name solace-exporter \
- dabgmx/solace-exporter</code></pre>
+ dabgmx/solace-exporter
+```
 
 ## Bonus Material
 
