@@ -151,23 +151,23 @@ func (e *Exporter) getVersionSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	command := "<rpc><show><version/></show></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape getVersionSemp1", "err", err)
-		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, -3)
-		return -3
+		level.Error(e.logger).Log("msg", "Can't scrape getVersionSemp1", "err", err, "broker", e.config.scrapeURI)
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
+		return 0
 	}
 	defer body.Close()
 	decoder := xml.NewDecoder(body)
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml getVersionSemp1", "err", err)
-		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, -2)
-		return -2
+		level.Error(e.logger).Log("msg", "Can't decode Xml getVersionSemp1", "err", err, "broker", e.config.scrapeURI)
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
+		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
-		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, -1)
-		return -1
+		level.Error(e.logger).Log("msg", "Unexpected result for getVersionSemp1", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
+		return 0
 	}
 
 	// remember this for the label
@@ -219,7 +219,7 @@ func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	command := "<rpc><show><system><health/></system></show ></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape HealthSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't scrape HealthSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	defer body.Close()
@@ -227,11 +227,11 @@ func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml HealthSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't decode Xml HealthSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
+		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
 		return 0
 	}
 
@@ -274,7 +274,7 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	command := "<rpc><show><message-spool></message-spool></show ></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape Solace", "err", err)
+		level.Error(e.logger).Log("msg", "Can't scrape Solace", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	defer body.Close()
@@ -282,11 +282,11 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml", "err", err)
+		level.Error(e.logger).Log("msg", "Can't decode Xml", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
+		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
 		return 0
 	}
 
@@ -339,7 +339,7 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) 
 	command := "<rpc><show><redundancy/></show></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape RedundancySemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't scrape RedundancySemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	defer body.Close()
@@ -347,11 +347,11 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64) 
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml RedundancySemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't decode Xml RedundancySemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
+		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
 		return 0
 	}
 
@@ -402,7 +402,7 @@ func (e *Exporter) getConfigSyncRouterSemp1(ch chan<- prometheus.Metric) (ok flo
 	command := "<rpc><show><config-sync><database/><router/></config-sync></show></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	defer body.Close()
@@ -410,11 +410,11 @@ func (e *Exporter) getConfigSyncRouterSemp1(ch chan<- prometheus.Metric) (ok flo
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml ConfigSyncSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't decode Xml ConfigSyncSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
+		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
 		return 0
 	}
 
@@ -500,23 +500,23 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	command := "<rpc><show><message-vpn><vpn-name>*</vpn-name></message-vpn></show></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err)
-		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, -3, "")
-		return -3
+		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", e.config.scrapeURI)
+		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, 0, "")
+		return 0
 	}
 	defer body.Close()
 	decoder := xml.NewDecoder(body)
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err)
-		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, -2, "")
-		return -2
+		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err, "broker", e.config.scrapeURI)
+		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, 0, "")
+		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
-		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, -1, "")
-		return -1
+		level.Error(e.logger).Log("msg", "Unexpected result for VpnSemp1", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, 0, "")
+		return 0
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
@@ -563,7 +563,7 @@ func (e *Exporter) getVpnReplicationSemp1(ch chan<- prometheus.Metric) (ok float
 	command := "<rpc><show><message-vpn><vpn-name>*</vpn-name><replication/></message-vpn></show></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	defer body.Close()
@@ -571,11 +571,11 @@ func (e *Exporter) getVpnReplicationSemp1(ch chan<- prometheus.Metric) (ok float
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
+		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
 		return 0
 	}
 
@@ -619,7 +619,7 @@ func (e *Exporter) getConfigSyncVpnSemp1(ch chan<- prometheus.Metric) (ok float6
 	command := "<rpc><show><config-sync><database/><message-vpn/><vpn-name>*</vpn-name></config-sync></show></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	defer body.Close()
@@ -627,11 +627,11 @@ func (e *Exporter) getConfigSyncVpnSemp1(ch chan<- prometheus.Metric) (ok float6
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml ConfigSyncSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't decode Xml ConfigSyncSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
+		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
 		return 0
 	}
 
@@ -686,7 +686,7 @@ func (e *Exporter) getBridgeSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	command := "<rpc><show><bridge><bridge-name-pattern>*</bridge-name-pattern></bridge></show></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape BridgeSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't scrape BridgeSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	defer body.Close()
@@ -694,11 +694,11 @@ func (e *Exporter) getBridgeSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml BridgeSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't decode Xml BridgeSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
+		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
 		return 0
 	}
 	ch <- prometheus.MustNewConstMetric(metricsVpnStd["bridges_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalBridgesValue)
@@ -838,7 +838,7 @@ func (e *Exporter) getClientStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 	for nextRequest := "<rpc><show><client><name>*</name><stats/><count/><num-elements>100</num-elements></client></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
-			level.Error(e.logger).Log("msg", "Can't scrape ClientSemp1", "err", err)
+			level.Error(e.logger).Log("msg", "Can't scrape ClientSemp1", "err", err, "broker", e.config.scrapeURI)
 			return 0
 		}
 		defer body.Close()
@@ -846,11 +846,11 @@ func (e *Exporter) getClientStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			level.Error(e.logger).Log("msg", "Can't decode ClientSemp1", "err", err)
+			level.Error(e.logger).Log("msg", "Can't decode ClientSemp1", "err", err, "broker", e.config.scrapeURI)
 			return 0
 		}
 		if target.ExecuteResult.Result != "ok" {
-			level.Error(e.logger).Log("command", "Show client stats")
+			level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
 			return 0
 		}
 
@@ -914,7 +914,7 @@ func (e *Exporter) getVpnStatsSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	command := "<rpc><show><message-vpn><vpn-name>*</vpn-name><stats/></message-vpn></show></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	defer body.Close()
@@ -922,11 +922,11 @@ func (e *Exporter) getVpnStatsSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
+		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
 		return 0
 	}
 
@@ -1041,7 +1041,7 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 	command := "<rpc><show><bridge><bridge-name-pattern>*</bridge-name-pattern><stats/></bridge></show></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape BridgeSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't scrape BridgeSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	defer body.Close()
@@ -1049,11 +1049,11 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric) (ok float64)
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode Xml BridgeSemp1", "err", err)
+		level.Error(e.logger).Log("msg", "Can't decode Xml BridgeSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", command)
+		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
 		return 0
 	}
 	for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
@@ -1140,7 +1140,7 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 	for nextRequest := "<rpc><show><queue><name>*</name><rates/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
-			level.Error(e.logger).Log("msg", "Can't scrape QueueRatesSemp1", "err", err)
+			level.Error(e.logger).Log("msg", "Can't scrape QueueRatesSemp1", "err", err, "broker", e.config.scrapeURI)
 			return 0
 		}
 		defer body.Close()
@@ -1148,11 +1148,11 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric) (ok float64) 
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			level.Error(e.logger).Log("msg", "Can't decode QueueRatesSemp1", "err", err)
+			level.Error(e.logger).Log("msg", "Can't decode QueueRatesSemp1", "err", err, "broker", e.config.scrapeURI)
 			return 0
 		}
 		if target.ExecuteResult.Result != "ok" {
-			level.Error(e.logger).Log("command", "Show queue rates")
+			level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
 			return 0
 		}
 
@@ -1215,7 +1215,7 @@ func (e *Exporter) getQueueDetailSemp1(ch chan<- prometheus.Metric) (ok float64)
 	for nextRequest := "<rpc><show><queue><name>*</name><detail/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
-			level.Error(e.logger).Log("msg", "Can't scrape QueueSemp1", "err", err)
+			level.Error(e.logger).Log("msg", "Can't scrape QueueDetailSemp1", "err", err, "broker", e.config.scrapeURI)
 			return 0
 		}
 		defer body.Close()
@@ -1223,11 +1223,11 @@ func (e *Exporter) getQueueDetailSemp1(ch chan<- prometheus.Metric) (ok float64)
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			level.Error(e.logger).Log("msg", "Can't decode QueueSemp1", "err", err)
+			level.Error(e.logger).Log("msg", "Can't decode QueueDetailSemp1", "err", err, "broker", e.config.scrapeURI)
 			return 0
 		}
 		if target.ExecuteResult.Result != "ok" {
-			level.Error(e.logger).Log("command", "Show queue details")
+			level.Error(e.logger).Log("msg", "Can't scrape QueueDetailSemp1", "err", err, "broker", e.config.scrapeURI)
 			return 0
 		}
 
@@ -1246,29 +1246,29 @@ func (e *Exporter) getQueueDetailSemp1(ch chan<- prometheus.Metric) (ok float64)
 	return 1
 }
 
-func performRequest(e Exporter, target *struct {
-	ExecuteResult struct {
-		Result string `xml:"code,attr"`
-	} `xml:"execute-result"`
-}, nextRequest string) (result int) {
-	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
-	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't scrape QueueRatesSemp1", "err", err)
-		return 0
-	}
-	defer body.Close()
-	decoder := xml.NewDecoder(body)
-	err = decoder.Decode(&target)
-	if err != nil {
-		level.Error(e.logger).Log("msg", "Can't decode QueueRatesSemp1", "err", err)
-		return 0
-	}
-	if target.ExecuteResult.Result != "ok" {
-		level.Error(e.logger).Log("command", "Show queue rates")
-		return 0
-	}
-	return 1
-}
+// func performRequest(e Exporter, target *struct {
+// 	ExecuteResult struct {
+// 		Result string `xml:"code,attr"`
+// 	} `xml:"execute-result"`
+// }, nextRequest string) (result int) {
+// 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
+// 	if err != nil {
+// 		level.Error(e.logger).Log("msg", "Can't scrape QueueRatesSemp1", "err", err, "broker", e.config.scrapeURI)
+// 		return 0
+// 	}
+// 	defer body.Close()
+// 	decoder := xml.NewDecoder(body)
+// 	err = decoder.Decode(&target)
+// 	if err != nil {
+// 		level.Error(e.logger).Log("msg", "Can't decode QueueRatesSemp1", "err", err, "broker", e.config.scrapeURI)
+// 		return 0
+// 	}
+// 	if target.ExecuteResult.Result != "ok" {
+// 		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+// 		return 0
+// 	}
+// 	return 1
+// }
 
 // Encodes string to 0,1,2,... metric
 func encodeMetricMulti(item string, refItems []string) float64 {
