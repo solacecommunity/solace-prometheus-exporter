@@ -1515,7 +1515,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	level.Info(logger).Log("msg", "Starting solace_exporter", "version", version.Info())
+	level.Info(logger).Log("msg", "Starting solace_exporter", "version", solaceExporterVersion)
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
 
 	level.Info(logger).Log("msg", "Scraping",
