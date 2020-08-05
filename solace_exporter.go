@@ -42,7 +42,7 @@ const (
 )
 
 var (
-	solaceExporterVersion = float64(1003003)
+	solaceExporterVersion = float64(1003004)
 
 	variableLabelsRedundancy      = []string{"mate_name"}
 	variableLabelsVpn             = []string{"vpn_name"}
@@ -107,10 +107,11 @@ var metricsBrokerStd = metrics{
 	"system_mate_link_latency_cur_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_cur_seconds", "Current mate link latency.", nil, nil),
 
 	// spool
-	"system_spool_quota_bytes": prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage.", nil, nil),
-	"system_spool_quota_msgs":  prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", nil, nil),
-	"system_spool_usage_bytes": prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted usage.", nil, nil),
-	"system_spool_usage_msgs":  prometheus.NewDesc(namespace+"_"+"system_spool_usage_msgs", "Spool total number of persisted messages.", nil, nil),
+	"system_spool_quota_bytes": 						prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage.", nil, nil),
+	"system_spool_quota_msgs":  						prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", nil, nil),
+	"system_spool_disk_partition_usage_active_percent": prometheus.NewDesc(namespace+"_"+"system_spool_disk_partition_usage_active_percent", "Total disk usage in percent.", nil, nil),
+	"system_spool_usage_bytes": 						prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted usage.", nil, nil),
+	"system_spool_usage_msgs":  						prometheus.NewDesc(namespace+"_"+"system_spool_usage_msgs", "Spool total number of persisted messages.", nil, nil),
 
 	// redundancy
 	"system_redundancy_up":           prometheus.NewDesc(namespace+"_"+"system_redundancy_up", "Is redundancy up? (0=Down, 1=Up).", variableLabelsRedundancy, nil),
@@ -262,6 +263,7 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 						QuotaMsgCount   string  `xml:"max-message-count"`
 						PersistUsage    float64 `xml:"current-persist-usage"`
 						PersistMsgCount float64 `xml:"total-messages-currently-spooled"`
+						ActiveDiskPartitionUsage float64 `xml:"active-disk-partition-usage"`
 					} `xml:"message-spool-info"`
 				} `xml:"message-spool"`
 			} `xml:"show"`
@@ -297,6 +299,7 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	if err3 == nil {
 		ch <- prometheus.MustNewConstMetric(metricsBrokerStd["system_spool_quota_msgs"], prometheus.GaugeValue, f1*1000000)
 	}
+	ch <- prometheus.MustNewConstMetric(metricsBrokerStd["system_spool_disk_partition_usage_active_percent"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.ActiveDiskPartitionUsage))
 	ch <- prometheus.MustNewConstMetric(metricsBrokerStd["system_spool_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.PersistUsage*1048576.0))
 	ch <- prometheus.MustNewConstMetric(metricsBrokerStd["system_spool_usage_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount)
 
