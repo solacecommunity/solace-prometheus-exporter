@@ -470,6 +470,11 @@ var metricsVpnStd = metrics{
 	"bridge_queue_operational_state":                    prometheus.NewDesc(namespace+"_"+"bridge_queue_operational_state", "Queue Ops State (0-NotApplicable, 1-Bound, 2-Unbound)", variableLabelsBridge, nil),
 	"bridge_redundancy":                                 prometheus.NewDesc(namespace+"_"+"bridge_redundancy", "Bridge Redundancy (0-NotApplicable, 1-auto, 2-primary, 3-backup, 4-static, 5-none)", variableLabelsBridge, nil),
 	"bridge_connection_uptime_in_seconds":               prometheus.NewDesc(namespace+"_"+"bridge_connection_uptime_in_seconds", "Connection Uptime (s)", variableLabelsBridge, nil),
+
+	//vpn spool
+	"vpn_spool_quota_bytes": 						prometheus.NewDesc(namespace+"_"+"vpn_spool_quota_bytes", "Spool configured max disk usage.", variableLabelsVpn, nil),
+	"vpn_spool_usage_bytes": 						prometheus.NewDesc(namespace+"_"+"vpn_spool_usage_bytes", "Spool total persisted usage.", variableLabelsVpn, nil),
+	"vpn_spool_usage_msgs":  						prometheus.NewDesc(namespace+"_"+"vpn_spool_usage_msgs", "Spool total number of persisted messages.", variableLabelsVpn, nil),
 }
 
 // Get info of all vpn's
@@ -1249,6 +1254,56 @@ func (e *Exporter) getQueueDetailSemp1(ch chan<- prometheus.Metric) (ok float64)
 	return 1
 }
 
+// Replication Config and status
+func (e *Exporter) getVpnSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				MessageSpool struct {
+					MessageVpn struct {
+						Vpn []struct {
+							Name                       string  `xml:"name"`
+							SpooledMsgCount            float64 `xml:"current-messages-spooled"`
+							SpoolUsageCurrentMb        float64 `xml:"current-spool-usage-mb"`
+							SpoolUsageMaxMb            float64  `xml:"maximum-spool-usage-mb"`
+						} `xml:"vpn"`
+					} `xml:"message-vpn"`
+				} `xml:"message-spool"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><message-spool><vpn-name>*</vpn-name></message-spool></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0
+	}
+	if target.ExecuteResult.Result != "ok" {
+		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+		return 0
+	}
+
+	for _, vpn := range target.RPC.Show.MessageSpool.MessageVpn.Vpn {
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_spool_quota_bytes"], prometheus.GaugeValue, vpn.SpoolUsageMaxMb*1024*1024, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_spool_usage_bytes"], prometheus.GaugeValue, vpn.SpoolUsageCurrentMb*1024*1024, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_spool_usage_msgs"], prometheus.GaugeValue, vpn.SpooledMsgCount, vpn.Name)
+	}
+
+	return 1
+}
+
 // func performRequest(e Exporter, target *struct {
 // 	ExecuteResult struct {
 // 		Result string `xml:"code,attr"`
@@ -1471,6 +1526,9 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		}
 		if up > 0 {
 			up = e.getBridgeSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getVpnSpoolSemp1(ch)
 		}
 	case scopeVpnStatistics:
 		if up > 0 {
