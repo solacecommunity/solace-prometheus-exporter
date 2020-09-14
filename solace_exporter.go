@@ -52,7 +52,6 @@ var (
 	variableLabelsConfigSyncTable = []string{"table_name"}
 
 	solaceUp = prometheus.NewDesc(namespace+"_up", "Was the last scrape of Solace broker successful.", nil, nil)
-	vpnUp    = prometheus.NewDesc(namespace+"_vpn_up", "Was the last scrape of Solace VPN successful.", variableLabelsVpn, nil)
 )
 
 type metrics map[string]*prometheus.Desc
@@ -107,11 +106,11 @@ var metricsBrokerStd = metrics{
 	"system_mate_link_latency_cur_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_cur_seconds", "Current mate link latency.", nil, nil),
 
 	// spool
-	"system_spool_quota_bytes": 						prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage.", nil, nil),
-	"system_spool_quota_msgs":  						prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", nil, nil),
+	"system_spool_quota_bytes":                         prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage.", nil, nil),
+	"system_spool_quota_msgs":                          prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", nil, nil),
 	"system_spool_disk_partition_usage_active_percent": prometheus.NewDesc(namespace+"_"+"system_spool_disk_partition_usage_active_percent", "Total disk usage in percent.", nil, nil),
-	"system_spool_usage_bytes": 						prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted usage.", nil, nil),
-	"system_spool_usage_msgs":  						prometheus.NewDesc(namespace+"_"+"system_spool_usage_msgs", "Spool total number of persisted messages.", nil, nil),
+	"system_spool_usage_bytes":                         prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted usage.", nil, nil),
+	"system_spool_usage_msgs":                          prometheus.NewDesc(namespace+"_"+"system_spool_usage_msgs", "Spool total number of persisted messages.", nil, nil),
 
 	// redundancy
 	"system_redundancy_up":           prometheus.NewDesc(namespace+"_"+"system_redundancy_up", "Is redundancy up? (0=Down, 1=Up).", variableLabelsRedundancy, nil),
@@ -259,10 +258,10 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 			Show struct {
 				Spool struct {
 					Info struct {
-						QuotaDiskUsage  float64 `xml:"max-disk-usage"`
-						QuotaMsgCount   string  `xml:"max-message-count"`
-						PersistUsage    float64 `xml:"current-persist-usage"`
-						PersistMsgCount float64 `xml:"total-messages-currently-spooled"`
+						QuotaDiskUsage           float64 `xml:"max-disk-usage"`
+						QuotaMsgCount            string  `xml:"max-message-count"`
+						PersistUsage             float64 `xml:"current-persist-usage"`
+						PersistMsgCount          float64 `xml:"total-messages-currently-spooled"`
 						ActiveDiskPartitionUsage float64 `xml:"active-disk-partition-usage"`
 					} `xml:"message-spool-info"`
 				} `xml:"message-spool"`
@@ -472,9 +471,9 @@ var metricsVpnStd = metrics{
 	"bridge_connection_uptime_in_seconds":               prometheus.NewDesc(namespace+"_"+"bridge_connection_uptime_in_seconds", "Connection Uptime (s)", variableLabelsBridge, nil),
 
 	//vpn spool
-	"vpn_spool_quota_bytes": 						prometheus.NewDesc(namespace+"_"+"vpn_spool_quota_bytes", "Spool configured max disk usage.", variableLabelsVpn, nil),
-	"vpn_spool_usage_bytes": 						prometheus.NewDesc(namespace+"_"+"vpn_spool_usage_bytes", "Spool total persisted usage.", variableLabelsVpn, nil),
-	"vpn_spool_usage_msgs":  						prometheus.NewDesc(namespace+"_"+"vpn_spool_usage_msgs", "Spool total number of persisted messages.", variableLabelsVpn, nil),
+	"vpn_spool_quota_bytes": prometheus.NewDesc(namespace+"_"+"vpn_spool_quota_bytes", "Spool configured max disk usage.", variableLabelsVpn, nil),
+	"vpn_spool_usage_bytes": prometheus.NewDesc(namespace+"_"+"vpn_spool_usage_bytes", "Spool total persisted usage.", variableLabelsVpn, nil),
+	"vpn_spool_usage_msgs":  prometheus.NewDesc(namespace+"_"+"vpn_spool_usage_msgs", "Spool total number of persisted messages.", variableLabelsVpn, nil),
 }
 
 // Get info of all vpn's
@@ -509,7 +508,7 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", e.config.scrapeURI)
-		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, 0, "")
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
 		return 0
 	}
 	defer body.Close()
@@ -518,17 +517,18 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	err = decoder.Decode(&target)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err, "broker", e.config.scrapeURI)
-		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, 0, "")
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
 		level.Error(e.logger).Log("msg", "Unexpected result for VpnSemp1", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, 0, "")
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
 		return 0
 	}
 
+	ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 1)
+
 	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
-		ch <- prometheus.MustNewConstMetric(vpnUp, prometheus.GaugeValue, 1, vpn.Name)
 		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_is_management_vpn"], prometheus.GaugeValue, encodeMetricBool(vpn.IsManagementMessageVpn), vpn.Name)
 		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_enabled"], prometheus.GaugeValue, encodeMetricBool(vpn.Enabled), vpn.Name)
 		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_operational"], prometheus.GaugeValue, encodeMetricBool(vpn.Operational), vpn.Name)
@@ -1262,10 +1262,10 @@ func (e *Exporter) getVpnSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 				MessageSpool struct {
 					MessageVpn struct {
 						Vpn []struct {
-							Name                       string  `xml:"name"`
-							SpooledMsgCount            float64 `xml:"current-messages-spooled"`
-							SpoolUsageCurrentMb        float64 `xml:"current-spool-usage-mb"`
-							SpoolUsageMaxMb            float64  `xml:"maximum-spool-usage-mb"`
+							Name                string  `xml:"name"`
+							SpooledMsgCount     float64 `xml:"current-messages-spooled"`
+							SpoolUsageCurrentMb float64 `xml:"current-spool-usage-mb"`
+							SpoolUsageMaxMb     float64 `xml:"maximum-spool-usage-mb"`
 						} `xml:"vpn"`
 					} `xml:"message-vpn"`
 				} `xml:"message-spool"`
