@@ -16,9 +16,11 @@ package main
 import (
 	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math"
 	"net/http"
 	"os"
@@ -82,6 +84,30 @@ func (e *Exporter) postHTTP(uri string, contentType string, body string) (io.Rea
 		resp.Body.Close()
 		return nil, fmt.Errorf("HTTP status %d (%s)", resp.StatusCode, http.StatusText(resp.StatusCode))
 	}
+	return resp.Body, nil
+}
+
+func (e *Exporter) getHTTP(uri string) (io.ReadCloser, error) {
+	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: !e.config.sslVerify}}
+	client := http.Client{
+		Timeout:       e.config.timeout,
+		Transport:     tr,
+		CheckRedirect: e.redirectPolicyFunc,
+	}
+
+	req, err := http.NewRequest("GET", uri, nil)
+	req.SetBasicAuth(e.config.username, e.config.password)
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
+		resp.Body.Close()
+		return nil, fmt.Errorf("HTTP status %d (%s)", resp.StatusCode, http.StatusText(resp.StatusCode))
+	}
+
 	return resp.Body, nil
 }
 
@@ -1254,6 +1280,63 @@ func (e *Exporter) getQueueDetailSemp1(ch chan<- prometheus.Metric) (ok float64)
 	return 1
 }
 
+var metricsQueueDet = metrics{
+	"queue_deleted_msgs_counts":       prometheus.NewDesc(namespace+"_"+"queue_deleted_msgs_counts", "Deleted queue messages counts.", variableLabelsVpnQueue, nil),
+	"queue_total_inbound_msgs_counts": prometheus.NewDesc(namespace+"_"+"queue_total_inbound_msgs_counts", "Total inbound queue counts of messages.", variableLabelsVpnQueue, nil),
+	"queue_total_inbound_msgs_bytes":  prometheus.NewDesc(namespace+"_"+"queue_total_inbound_msgs_bytes", "Total inbound queue bytes of messages.", variableLabelsVpnQueue, nil),
+}
+
+//Get statistics of all queues
+func (e *Exporter) getQueueSemp2(ch chan<- prometheus.Metric) (ok float64) {
+
+	msgVpns := strings.Split(e.config.vpns, ",")
+
+	for _, msgVpn := range msgVpns {
+		//fmt.Printf("msgVpn", msgVpn)
+		for nextURI := e.config.scrapeURI + "/SEMP/v2/monitor/msgVpns/" + msgVpn + "/queues"; nextURI != ""; {
+			body, err := e.getHTTP(nextURI)
+			if err != nil {
+				level.Error(e.logger).Log("msg", "Can't scrape getQueueSemp2", "err", err)
+				return 0
+			}
+			defer body.Close()
+
+			bodyBytes, err := ioutil.ReadAll(body)
+
+			type QueueData struct {
+				Data []struct {
+					MsgVpnName           string  `json:"msgVpnName"`
+					DeletedMsgCount      float64 `json:"deletedMsgCount"`
+					QueueName            string  `json:"queueName"`
+					TotalInboundMsgByte  float64 `json:"spooledByteCount"`
+					TotalInboundMsgCount float64 `json:"spooledMsgCount"`
+				} `json:"data"`
+				Meta struct {
+					Paging struct {
+						NextPageURI string `json:"nextPageUri"`
+					} `json:"paging"`
+				} `json:"meta"`
+			}
+
+			var target QueueData
+			err2 := json.Unmarshal(bodyBytes, &target)
+			if err2 != nil {
+				level.Error(e.logger).Log("msg", "Can't unmarshal Json QueueSemp2", "err", err2)
+			}
+
+			nextURI = target.Meta.Paging.NextPageURI
+
+			for _, queue := range target.Data {
+				ch <- prometheus.MustNewConstMetric(metricsQueueDet["queue_deleted_msgs_counts"], prometheus.GaugeValue, queue.DeletedMsgCount, queue.MsgVpnName, queue.QueueName)
+				ch <- prometheus.MustNewConstMetric(metricsQueueDet["queue_total_inbound_msgs_counts"], prometheus.GaugeValue, queue.TotalInboundMsgCount, queue.MsgVpnName, queue.QueueName)
+				ch <- prometheus.MustNewConstMetric(metricsQueueDet["queue_total_inbound_msgs_bytes"], prometheus.GaugeValue, queue.TotalInboundMsgByte, queue.MsgVpnName, queue.QueueName)
+			}
+		}
+	}
+
+	return 1
+}
+
 // Replication Config and status
 func (e *Exporter) getVpnSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	type Data struct {
@@ -1355,12 +1438,14 @@ const (
 	scopeVpnStandard      = "vpn"
 	scopeVpnStatistics    = "vpnStats"
 	scopeVpnDetails       = "vpnDetails"
+	scopeQueueDetails     = "queueDetails"
 )
 
 // Collection of configs
 type config struct {
 	listenAddr string
 	scrapeURI  string
+	vpns       string
 	username   string
 	password   string
 	sslVerify  bool
@@ -1437,6 +1522,7 @@ func parseConfig(configFile string, conf *config, logger log.Logger) (ok bool) {
 	}
 
 	conf.listenAddr = parseConfigString(cfg, logger, "solace", "listenAddr", "SOLACE_LISTEN_ADDR", &oki)
+	conf.vpns = parseConfigString(cfg, logger, "solace", "vpns", "SOLACE_MSG_VPNS", &oki)
 	conf.scrapeURI = parseConfigString(cfg, logger, "solace", "scrapeUri", "SOLACE_SCRAPE_URI", &oki)
 	conf.username = parseConfigString(cfg, logger, "solace", "username", "SOLACE_USERNAME", &oki)
 	conf.password = parseConfigString(cfg, logger, "solace", "password", "SOLACE_PASSWORD", &oki)
@@ -1483,7 +1569,12 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 		for _, m := range metricsVpnDet {
 			ch <- m
 		}
+	case scopeQueueDetails:
+		for _, m := range metricsQueueDet {
+			ch <- m
+		}
 	}
+
 }
 
 // Collect fetches the stats from configured Solace location and delivers them
@@ -1547,6 +1638,10 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		if up > 0 {
 			up = e.getQueueDetailSemp1(ch)
 		}
+	case scopeQueueDetails:
+		if up > 0 {
+			up = e.getQueueSemp2(ch)
+		}
 	}
 }
 
@@ -1582,6 +1677,7 @@ func main() {
 	level.Info(logger).Log("msg", "Scraping",
 		"listenAddr", conf.listenAddr,
 		"scrapeURI", conf.scrapeURI,
+		"vpns", conf.vpns,
 		"username", conf.username,
 		"sslVerify", conf.sslVerify,
 		"timeout", conf.timeout,
@@ -1624,6 +1720,9 @@ func main() {
 	http.HandleFunc("/solace-vpn-det", func(w http.ResponseWriter, r *http.Request) {
 		doHandle(w, r, scopeVpnDetails, conf, logger)
 	})
+	http.HandleFunc("/solace-queue-det", func(w http.ResponseWriter, r *http.Request) {
+		doHandle(w, r, scopeQueueDetails, conf, logger)
+	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
@@ -1638,6 +1737,7 @@ func main() {
                 <li><a href='` + "/solace-vpn-std" + `'>Solace Vpn only Standard Metrics (VPN Access)</a></li>
                 <li><a href='` + "/solace-vpn-stats" + `'>Solace Vpn only Statistics (VPN Access)</a></li>
                 <li><a href='` + "/solace-vpn-det" + `'>Solace Vpn only Detailed Metrics (VPN Access)</a></li>
+				<li><a href='` + "/solace-queue-det" + `'>Solace Queue only Detailed Metrics</a></li>
             <ul>
             </body>
             </html>`))
