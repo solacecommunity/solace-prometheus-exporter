@@ -72,12 +72,16 @@ func (e *Exporter) postHTTP(uri string, contentType string, body string) (io.Rea
 	}
 
 	req, err := http.NewRequest("GET", uri, strings.NewReader(body))
-	req.SetBasicAuth(e.config.username, e.config.password)
-	resp, err := client.Do(req)
-
 	if err != nil {
 		return nil, err
 	}
+
+	req.SetBasicAuth(e.config.username, e.config.password)
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
 		resp.Body.Close()
 		return nil, fmt.Errorf("HTTP status %d (%s)", resp.StatusCode, http.StatusText(resp.StatusCode))
@@ -1324,11 +1328,11 @@ func encodeMetricBool(item bool) float64 {
 }
 
 const (
-	scopeExporterMetrics  = "metrics"
-	scopeBrokerStandard   = "broker"
+	scopeExporterMetrics  = "exporterMetrics"
+	scopeBrokerStandard   = "brokerStandard"
 	scopeBrokerStatistics = "brokerStats"
 	scopeBrokerDetails    = "brokerDetails"
-	scopeVpnStandard      = "vpn"
+	scopeVpnStandard      = "vpnStandard"
 	scopeVpnStatistics    = "vpnStats"
 	scopeVpnDetails       = "vpnDetails"
 )
@@ -1647,7 +1651,8 @@ func doHandle(w http.ResponseWriter, r *http.Request, scope string, conf config,
 			conf.scrapeURI = scrapeURI
 		}
 
-		level.Info(logger).Log("handle http request", "scope", scope, "scrapeURI", conf.scrapeURI)
+		level.Info(logger).Log("msg", "handle http request", "scope", scope, "scrapeURI", conf.scrapeURI)
+
 		exporter := NewExporter(logger, conf)
 		registry := prometheus.NewRegistry()
 		registry.MustRegister(exporter)
