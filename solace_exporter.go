@@ -1304,30 +1304,6 @@ func (e *Exporter) getVpnSpoolSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	return 1
 }
 
-// func performRequest(e Exporter, target *struct {
-// 	ExecuteResult struct {
-// 		Result string `xml:"code,attr"`
-// 	} `xml:"execute-result"`
-// }, nextRequest string) (result int) {
-// 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
-// 	if err != nil {
-// 		level.Error(e.logger).Log("msg", "Can't scrape QueueRatesSemp1", "err", err, "broker", e.config.scrapeURI)
-// 		return 0
-// 	}
-// 	defer body.Close()
-// 	decoder := xml.NewDecoder(body)
-// 	err = decoder.Decode(&target)
-// 	if err != nil {
-// 		level.Error(e.logger).Log("msg", "Can't decode QueueRatesSemp1", "err", err, "broker", e.config.scrapeURI)
-// 		return 0
-// 	}
-// 	if target.ExecuteResult.Result != "ok" {
-// 		level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-// 		return 0
-// 	}
-// 	return 1
-// }
-
 // Encodes string to 0,1,2,... metric
 func encodeMetricMulti(item string, refItems []string) float64 {
 	uItem := strings.ToUpper(item)
@@ -1490,6 +1466,8 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 // as Prometheus metrics. It implements prometheus.Collector.
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	var up float64 = 1
+
+	level.Info(e.logger).Log()
 
 	switch e.config.scope {
 	case scopeBrokerStandard:
@@ -1668,6 +1646,8 @@ func doHandle(w http.ResponseWriter, r *http.Request, scope string, conf config,
 		if len(scrapeURI) > 0 {
 			conf.scrapeURI = scrapeURI
 		}
+
+		level.Info(logger).Log("handle http request", "scope", scope, "scrapeURI", conf.scrapeURI)
 		exporter := NewExporter(logger, conf)
 		registry := prometheus.NewRegistry()
 		registry.MustRegister(exporter)
