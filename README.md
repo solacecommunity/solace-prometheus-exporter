@@ -1,11 +1,13 @@
 
-# solace_exporter, a Prometheus Exporter for Solace Message Brokers
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 
-## Disclaimer
+# solace-prometheus-exporter, a Prometheus Exporter for Solace Message Brokers
 
-This exporter is not developed and maintained by Solace.<br/>
-It can be used as-is or as a basis for development of customer specific exporters for Solace brokers.<br/>
-It is currently only tested against PubSub+ software brokers (VMRs), not appliances.<br/>
+## Overview
+TODO: Fill in with quick explanation and maybe an arch diagram from the video. 
+
+Video Intro available on youtube: [Integrating Prometheus and Grafana with Solace PubSub+ | Solace Community Lightning Talk
+](https://youtu.be/72Wz5rrStAU?t=35)
 
 ## Features
 
@@ -156,3 +158,22 @@ docker run -d \
 ## Bonus Material
 
 The sub directory **testfiles** contains some sample curl commands and their outputs. This is just fyi and not needed for building.
+
+## Resources
+
+For more information try these resources:
+
+- The Solace Developer Portal website at: https://solace.dev
+- Ask the [Solace Community](https://solace.community)
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+
+## Authors
+
+See the list of [contributors](https://github.com/solacecommunity/<github-repo>/graphs/contributors) who participated in this project.
+
+## License
+
+See the [LICENSE](LICENSE) file for details.
