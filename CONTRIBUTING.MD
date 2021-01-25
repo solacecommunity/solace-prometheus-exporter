@@ -32,7 +32,7 @@ Fork the current repository and clone your fork
 locally.
 
 ```sh
-git clone https://github.com/solacese/<github-repo>
+git clone https://github.com/solacecommunity/solace-prometheus-exporter
 ```
 
 #### Step 2: Branch
@@ -66,7 +66,7 @@ $ git rebase upstream/master
 If you have not set the upstream, do so as follows:
 
 ```sh
-$ git remote add upstream https://github.com/solacese/<github-repo>
+$ git remote add upstream https://github.com/solacecommunity/solace-prometheus-exporter
 ```
 
 If you have already pushed your fork, then do not rebase. Instead merge any changes from master that are not already part of your branch.
