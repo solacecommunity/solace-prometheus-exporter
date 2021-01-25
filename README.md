@@ -86,7 +86,7 @@ SOLACE_REDUNDANCY=false
 ### URL
 
 You can call:
-https://your_exporter:9628/solace-vpn-std?scrapeURI=https%3A%2F%2Fyour-broker%3A943&username=monitoring&password=monitoring
+`https://your_exporter:9628/solace-vpn-std?scrapeURI=https%3A%2F%2Fyour-broker%3A943&username=monitoring&password=monitoring`
 
 This allows you to over write the parameters:
 - scrapeURI
