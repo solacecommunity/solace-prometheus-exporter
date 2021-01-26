@@ -1546,7 +1546,7 @@ func main() {
 
 	configFile := kingpin.Flag(
 		"config-file",
-		"Path and name of ini file with configuration settings. See sample file solace_exporter.ini.",
+		"Path and name of ini file with configuration settings. See sample file solace_prometheus_exporter.ini.",
 	).String()
 
 	kingpin.Parse()
@@ -1558,7 +1558,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	level.Info(logger).Log("msg", "Starting solace_exporter", "version", solaceExporterVersion)
+	level.Info(logger).Log("msg", "Starting solace_prometheus_exporter", "version", solaceExporterVersion)
 	level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
 
 	level.Info(logger).Log("msg", "Scraping",

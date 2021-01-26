@@ -4,15 +4,19 @@
 # solace-prometheus-exporter, a Prometheus Exporter for Solace Message Brokers
 
 ## Overview
-TODO: Fill in with quick explanation and maybe an arch diagram from the video. 
+
+![Archtiecture overview](/doc/architecture_001.png)
+
+The exporter is written in go, based on the Solace Legacy SEMP protocol.  
+I graps metrics via SEMP v1 and provide those as prometheus friendly http endpoints.
+
 
 Video Intro available on youtube: [Integrating Prometheus and Grafana with Solace PubSub+ | Solace Community Lightning Talk
 ](https://youtu.be/72Wz5rrStAU?t=35)
 
 ## Features
 
-The exporter is written in go, based on the Solace Legacy SEMP protocol.<br/>
-It implements the following endpoints:<br/>
+It implements the following endpoints:  
 ```
 http://<host>:<port>/         Document page showing list of endpoints
 http://<host>:<port>/metrics             Golang and standard Prometheus metrics
@@ -23,27 +27,35 @@ http://<host>:<port>/solace-vpn-std      Solace Vpn only Standard Metrics (VPN),
 http://<host>:<port>/solace-vpn-stats    Solace Vpn only Statistics Metrics (VPN), available to non-global access right admins
 http://<host>:<port>/solace-vpn-det      Solace Vpn only Detailed Metrics (VPN), available to non-global access right admins
 ```
-The [registered](https://github.com/prometheus/prometheus/wiki/Default-port-allocations) default port for Solace is 9628<br/>
+There are 3 type that have different performance criticality.
+- std: not harm the broker performance
+- stats: may slow down your broker a little
+- det: will harm broker performance, if you have up to 1000 queues
+
+If you are running a cloud broker, you should use the `solace-vpn` endpoints. Because you will not have the permissions required for the global one.
+
+The [registered](https://github.com/prometheus/prometheus/wiki/Default-port-allocations) default port for Solace is 9628  
 
 ## Usage
 
 ```
-solace_exporter -h
-usage: solace_exporter [&lt;flags&gt;]
+solace_prometheus_exporter -h
+usage: solace_prometheus_exporter [&lt;flags&gt;]
 
 Flags:
   -h, --help                     Show context-sensitive help (also try --help-long and --help-man).
       --log.level=info           Only log messages with the given severity or above. One of: [debug, info, warn, error]
       --log.format=logfmt        Output format of log messages. One of: [logfmt, json]
-      --config-file=CONFIG-FILE  Path and name of config file. See sample file solace_exporter.ini.</code></pre>
+      --config-file=CONFIG-FILE  Path and name of config file. See sample file solace_prometheus_exporter.ini.</code></pre>
 ```
 
-The configuration parameters can be placed into a config file or into a set of environment variables or can be given via URL. For Docker you should prefer the environment variable configuration method (see below).<br/> If the exporter is started with a config file argument then the config file entries have precedence over the environment variables. If a parameter is neither found in URL nor the config file nor in the environment the exporter exits with an error.<br/>
+The configuration parameters can be placed into a config file or into a set of environment variables or can be given via URL. For Docker you should prefer the environment variable configuration method (see below).  
+If the exporter is started with a config file argument then the config file entries have precedence over the environment variables. If a parameter is neither found in URL nor the config file nor in the environment the exporter exits with an error.  
 
 ### Config File
 
 ```bash
-solace_exporter --config-file /path/to/config/file.ini
+solace_prometheus_exporter --config-file /path/to/config/file.ini
 ```
 
 Sample config file:
@@ -121,7 +133,7 @@ Security: Only use this feature with HTTPS.
 
 ### Default Build
 ```bash
-cd &lt;some-directory&gt;/solace_exporter
+cd &lt;some-directory&gt;/solace-prometheus-exporter
 go build
 ```
 
@@ -158,6 +170,12 @@ docker run -d \
 ## Bonus Material
 
 The sub directory **testfiles** contains some sample curl commands and their outputs. This is just fyi and not needed for building.
+
+## Security
+
+Please enshure to run this application only in an secured network or protected by a proxy.  
+It may reveald insigts of your application you dont want.  
+If you use the feature to pass broker credentials via HTTP body/header. You are forced to run this application within kubernetes/openshift or simular to add a HTTPS layer.
 
 ## Resources
 

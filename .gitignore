@@ -1,4 +1,5 @@
 go.sum
 solace_exporter
-solace_exporter.exe
+solace_prometheus_exporter
+*.exe
 .vscode

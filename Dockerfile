@@ -14,12 +14,12 @@ RUN go get -d -v ./... \
  && go build \
     -a \
     -ldflags '-s -w -extldflags "-static"' \
-    -o /bin/solace_exporter
+    -o /bin/solace_prometheus_exporter
 
 
 
 FROM scratch
-LABEL maintainer="Daniel Brunold <dab@gmx.ch>"
+LABEL maintainer="https://github.com/solacecommunity/solace-prometheus-exporter"
 
 ENV SOLACE_LISTEN_ADDR="0.0.0.0:9628"
 ENV SOLACE_SCRAPE_URI=http://localhost:8080
@@ -30,9 +30,9 @@ ENV SOLACE_SSL_VERIFY="false"
 ENV SOLACE_REDUNDANCY="false"
 
 EXPOSE 9628
-ENTRYPOINT [ "/solace_exporter" ]
+ENTRYPOINT [ "/solace_prometheus_exporter" ]
 CMD [ ]
 
 COPY --from=builder /etc/passwd /etc/passwd
 
-COPY --from=builder /bin/solace_exporter /solace_exporter
+COPY --from=builder /bin/solace_prometheus_exporter /solace_prometheus_exporter
