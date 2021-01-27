@@ -5,7 +5,7 @@
 
 ## Overview
 
-![Archtiecture overview](/doc/architecture_001.png)
+![Archtiecture overview](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/doc/architecture_001.png)
 
 The exporter is written in go, based on the Solace Legacy SEMP protocol.  
 I graps metrics via SEMP v1 and provide those as prometheus friendly http endpoints.
