@@ -3,3 +3,5 @@ solace_exporter
 solace_prometheus_exporter
 *.exe
 .vscode
+.idea
+*.iml

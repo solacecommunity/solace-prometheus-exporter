@@ -481,7 +481,7 @@ var metricsVpnStd = metrics{
 }
 
 // Get info of all vpn's
-func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
+func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric, doSolaceUp bool) (ok float64) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -512,7 +512,9 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", e.config.scrapeURI)
-		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
+		if doSolaceUp {
+			ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
+		}
 		return 0
 	}
 	defer body.Close()
@@ -521,16 +523,22 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	err = decoder.Decode(&target)
 	if err != nil {
 		level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err, "broker", e.config.scrapeURI)
-		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
+		if doSolaceUp {
+			ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
+		}
 		return 0
 	}
 	if target.ExecuteResult.Result != "ok" {
 		level.Error(e.logger).Log("msg", "Unexpected result for VpnSemp1", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
+		if doSolaceUp {
+			ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 0)
+		}
 		return 0
 	}
 
-	ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 1)
+	if doSolaceUp {
+		ch <- prometheus.MustNewConstMetric(solaceUp, prometheus.GaugeValue, 1)
+	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
 		ch <- prometheus.MustNewConstMetric(metricsVpnStd["vpn_is_management_vpn"], prometheus.GaugeValue, encodeMetricBool(vpn.IsManagementMessageVpn), vpn.Name)
@@ -1329,6 +1337,8 @@ func encodeMetricBool(item bool) float64 {
 
 const (
 	scopeExporterMetrics  = "exporterMetrics"
+	scopeStandard         = "standard"
+	scopeDetails          = "details"
 	scopeBrokerStandard   = "brokerStandard"
 	scopeBrokerStatistics = "brokerStats"
 	scopeBrokerDetails    = "brokerDetails"
@@ -1439,6 +1449,19 @@ func NewExporter(logger log.Logger, conf config) *Exporter {
 // implements prometheus.Collector.
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	switch e.config.scope {
+	case scopeStandard:
+		for _, m := range metricsBrokerStd {
+			ch <- m
+		}
+		for _, m := range metricsVpnStd {
+			ch <- m
+		}
+		ch <- solaceUp
+	case scopeDetails:
+		for _, m := range metricsVpnDet {
+			ch <- m
+		}
+		ch <- solaceUp
 	case scopeBrokerStandard:
 		for _, m := range metricsBrokerStd {
 			ch <- m
@@ -1471,9 +1494,56 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	var up float64 = 1
 
-	level.Info(e.logger).Log()
-
 	switch e.config.scope {
+	case scopeStandard:
+		if up > 0 {
+			up = e.getVersionSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getHealthSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getSpoolSemp1(ch)
+		}
+		if up > 0 && e.config.redundancy {
+			up = e.getRedundancySemp1(ch)
+		}
+		if up > 0 && e.config.redundancy {
+			up = e.getConfigSyncRouterSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getVpnSemp1(ch, false)
+		}
+		if up > 0 {
+			up = e.getVpnReplicationSemp1(ch)
+		}
+		if up > 0 && e.config.redundancy {
+			up = e.getConfigSyncVpnSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getBridgeSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getVpnSpoolSemp1(ch)
+		}
+
+	case scopeDetails:
+		if up > 0 {
+			up = e.getClientStatsSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getVpnStatsSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getBridgeStatsSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getQueueRatesSemp1(ch)
+		}
+		if up > 0 {
+			up = e.getQueueDetailSemp1(ch)
+		}
+
 	case scopeBrokerStandard:
 		if up > 0 {
 			up = e.getVersionSemp1(ch)
@@ -1498,7 +1568,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		}
 	case scopeVpnStandard:
 		if up > 0 {
-			up = e.getVpnSemp1(ch)
+			up = e.getVpnSemp1(ch, true)
 		}
 		if up > 0 {
 			up = e.getVpnReplicationSemp1(ch)
@@ -1578,14 +1648,10 @@ func main() {
 		doHandle(w, r, scopeExporterMetrics, conf, logger)
 	})
 	http.HandleFunc("/solace-std", func(w http.ResponseWriter, r *http.Request) {
-		doHandle(w, r, scopeBrokerStandard, conf, logger)
-		doHandle(w, r, scopeBrokerStatistics, conf, logger)
-		doHandle(w, r, scopeVpnStandard, conf, logger)
-		doHandle(w, r, scopeVpnStatistics, conf, logger)
+		doHandle(w, r, scopeStandard, conf, logger)
 	})
 	http.HandleFunc("/solace-det", func(w http.ResponseWriter, r *http.Request) {
-		doHandle(w, r, scopeBrokerDetails, conf, logger)
-		doHandle(w, r, scopeVpnDetails, conf, logger)
+		doHandle(w, r, scopeDetails, conf, logger)
 	})
 
 	http.HandleFunc("/solace-broker-std", func(w http.ResponseWriter, r *http.Request) {
