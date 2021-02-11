@@ -8,7 +8,7 @@
 ![Archtiecture overview](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/doc/architecture_001.png)
 
 The exporter is written in go, based on the Solace Legacy SEMP protocol.  
-I graps metrics via SEMP v1 and provide those as prometheus friendly http endpoints.
+It grabs metrics via SEMP v1 and provides those as Prometheus-friendly http endpoints.
 
 
 Video Intro available on youtube: [Integrating Prometheus and Grafana with Solace PubSub+ | Solace Community Lightning Talk
@@ -40,7 +40,7 @@ The [registered](https://github.com/prometheus/prometheus/wiki/Default-port-allo
 
 ```
 solace_prometheus_exporter -h
-usage: solace_prometheus_exporter [&lt;flags&gt;]
+usage: solace_prometheus_exporter [<flags>]
 
 Flags:
   -h, --help                     Show context-sensitive help (also try --help-long and --help-man).
@@ -100,7 +100,7 @@ SOLACE_REDUNDANCY=false
 You can call:
 `https://your_exporter:9628/solace-vpn-std?scrapeURI=https%3A%2F%2Fyour-broker%3A943&username=monitoring&password=monitoring`
 
-This allows you to over write the parameters:
+This allows you to overwrite the parameters:
 - scrapeURI
 - username
 - password
@@ -133,7 +133,7 @@ Security: Only use this feature with HTTPS.
 
 ### Default Build
 ```bash
-cd &lt;some-directory&gt;/solace-prometheus-exporter
+cd <some-directory>/solace-prometheus-exporter
 go build
 ```
 
@@ -173,9 +173,9 @@ The sub directory **testfiles** contains some sample curl commands and their out
 
 ## Security
 
-Please enshure to run this application only in an secured network or protected by a proxy.  
-It may reveald insigts of your application you dont want.  
-If you use the feature to pass broker credentials via HTTP body/header. You are forced to run this application within kubernetes/openshift or simular to add a HTTPS layer.
+Please ensure to run this application only in an secured network or protected by a proxy.  
+It may reveal insights of your application you don't want.  
+If you use the feature to pass broker credentials via HTTP body/header. You are forced to run this application within kubernetes/openshift, or similar, to add a HTTPS layer.
 
 ## Resources
 
