@@ -334,7 +334,7 @@ func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64) {
 	command := "<rpc><show><system><health/></system></show ></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't scrape HealthSemp1", "err", err, "broker", e.config.scrapeURI)
+		_ = level.Error(e.logger).Log("msg", "Can't scrape HealthSemp1. Attention this is only supported by software broker not by appliances", "err", err, "broker", e.config.scrapeURI)
 		return 0
 	}
 	defer body.Close()
@@ -1421,27 +1421,29 @@ func parseConfig(configFile string, conf *config, logger log.Logger) (bool, map[
 	conf.sslVerify = parseConfigBool(cfg, logger, "solace", "sslVerify", "SOLACE_SSL_VERIFY", &oki)
 
 	endpoints := make(map[string][]DataSource)
-	for _, section := range cfg.Sections() {
-		if strings.HasPrefix(section.Name(), "endpoint.") {
-			endpointName := strings.TrimPrefix(section.Name(), "endpoint.")
+	if cfg != nil {
+		for _, section := range cfg.Sections() {
+			if strings.HasPrefix(section.Name(), "endpoint.") {
+				endpointName := strings.TrimPrefix(section.Name(), "endpoint.")
 
-			var dataSource []DataSource
-			for _, key := range section.Keys() {
-				scrapeTarget := key.Name()
+				var dataSource []DataSource
+				for _, key := range section.Keys() {
+					scrapeTarget := key.Name()
 
-				parts := strings.Split(key.String(), "|")
-				if len(parts) != 2 {
-					_ = level.Error(logger).Log("msg", "Exactly one | expected. Use VPN wildcard. |. Item wildcard.", "endpointName", endpointName, "key", key.Name(), "value", key.String())
-				} else {
-					dataSource = append(dataSource, DataSource{
-						name:       scrapeTarget,
-						vpnFilter:  parts[0],
-						itemFilter: parts[1],
-					})
+					parts := strings.Split(key.String(), "|")
+					if len(parts) != 2 {
+						_ = level.Error(logger).Log("msg", "Exactly one | expected. Use VPN wildcard. |. Item wildcard.", "endpointName", endpointName, "key", key.Name(), "value", key.String())
+					} else {
+						dataSource = append(dataSource, DataSource{
+							name:       scrapeTarget,
+							vpnFilter:  parts[0],
+							itemFilter: parts[1],
+						})
+					}
 				}
-			}
 
-			endpoints[endpointName] = dataSource
+				endpoints[endpointName] = dataSource
+			}
 		}
 	}
 

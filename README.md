@@ -72,23 +72,23 @@ Get the same result as the legacy `solace-det` endpoint, but from a specific bro
 #### Scrape targets
 
 
-| scrape target	| vpn filter supports | item filter supported | performance impact | corresponding cli cmd |
-| :------------ | :------------------ | :-------------------- | :----------------- | :-------------------- |
-| Version | no | no | dont harm broker | show version |
-| Health | no | no | dont harm broker | show system health |
-| Spool | no | no | dont harm broker | show message-spool |
-| Redundancy (only for HA broker) | no | no | dont harm broker | show redundancy |
-| ConfigSyncRouter (only for HA broker) | no | no | dont harm broker | show config-sync database router |
-| Vpn | yes | no | dont harm broker | show message-vpn vpnFilter |
-| VpnReplication | yes | no | dont harm broker | show message-vpn vpnFilter replication |
-| ConfigSyncVpn (only for HA broker) | yes | no | dont harm broker | show config-sync database message-vpn vpnFilter |
-| Bridge | yes | yes | dont harm broker | show bridge itemFilter message-vpn vpnFilter |
-| VpnSpool | yes | no | dont harm broker |  show message-spool message-vpn vpnFilter |
-| ClientStats | yes | no | may harm broker if many clients | show client itemFilter stats count 100 (paged) | 
-| VpnStats | yes | no | has a very small performance down site | show message-vpn vpnFilter stats |
-| BridgeStats | yes | yes | has a very small performance down site | show bridge itemFilter message-vpn vpnFilter stats |
-| QueueRates | yes | yes | may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged) |
-| QueueDetails | yes | yes | may harm broker if many queues | show queue itemFilter message-vpn vpnFilter detail count 100 (paged) |
+| scrape target	| vpn filter supports | item filter supported | performance impact | corresponding cli cmd | supported by |
+| :------------ | :------------------ | :-------------------- | :----------------- | :-------------------- | :-------------------- |
+| Version | no | no | dont harm broker | show version | software, appliance |
+| Health | no | no | dont harm broker | show system health | software |
+| Spool | no | no | dont harm broker | show message-spool | software, appliance |
+| Redundancy (only for HA broker) | no | no | dont harm broker | show redundancy | software, appliance |
+| ConfigSyncRouter (only for HA broker) | no | no | dont harm broker | show config-sync database router | software, appliance |
+| Vpn | yes | no | dont harm broker | show message-vpn vpnFilter | software, appliance |
+| VpnReplication | yes | no | dont harm broker | show message-vpn vpnFilter replication | software, appliance |
+| ConfigSyncVpn (only for HA broker) | yes | no | dont harm broker | show config-sync database message-vpn vpnFilter | software, appliance |
+| Bridge | yes | yes | dont harm broker | show bridge itemFilter message-vpn vpnFilter | software, appliance |
+| VpnSpool | yes | no | dont harm broker |  show message-spool message-vpn vpnFilter | software, appliance |
+| ClientStats | yes | no | may harm broker if many clients | show client itemFilter stats count 100 (paged) | software, appliance | 
+| VpnStats | yes | no | has a very small performance down site | show message-vpn vpnFilter stats | software, appliance |
+| BridgeStats | yes | yes | has a very small performance down site | show bridge itemFilter message-vpn vpnFilter stats | software, appliance |
+| QueueRates | yes | yes | may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged) | software, appliance |
+| QueueDetails | yes | yes | may harm broker if many queues | show queue itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
 
 ### Modular endpoint configs
 
