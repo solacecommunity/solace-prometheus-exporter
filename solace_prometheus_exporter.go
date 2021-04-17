@@ -1382,16 +1382,18 @@ func parseConfigDuration(cfg *ini.File, logger log.Logger, iniSection string, in
 }
 
 func parseConfigString(cfg *ini.File, logger log.Logger, iniSection string, iniKey string, envKey string, okp *bool) string {
+	s := os.Getenv(envKey)
+	if len(s) > 0 {
+		return s
+	}
+
 	if cfg != nil {
 		s := cfg.Section(iniSection).Key(iniKey).String()
 		if len(s) > 0 {
 			return s
 		}
 	}
-	s := os.Getenv(envKey)
-	if len(s) > 0 {
-		return s
-	}
+
 	_ = level.Error(logger).Log("msg", "Config param missing", "iniKey", iniKey, "envKey", envKey)
 	*okp = false
 	return ""
