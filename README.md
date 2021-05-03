@@ -58,13 +58,13 @@ Get the same result as the legacy `solace-det` endpoint, but only from VPN `myVp
 `http://your-exporter:9628/solace?m.ClientStats=myVpn|*&m.VpnStats=myVpn|*&m.BridgeStats=myVpn|*&m.QueueRates=myVpn|*&m.QueueDetails=myVpn|*`
 
 Get all queue information, where the queue name starts with `BRAVO`or `ARBON` and only from VPN `myVpn`.
-`http://your-exporter:9628/solace?m.QueueRates=myVpn|ARBON*&m.QueueRates=myVpn|BRAVO*&m.QueueDetails=myVpn|ARBON*&m.QueueDetails=myVpn|BRAVO*`
+`http://your-exporter:9628/solace?m.QueueStats=myVpn|ARBON*&m.QueueStats=myVpn|BRAVO*&m.QueueDetails=myVpn|ARBON*&m.QueueDetails=myVpn|BRAVO*`
 
 Get all queue information, where the queue name starts with `BRAVO`or `ARBON` and only from VPN where the name contains a `my`.
-`http://your-exporter:9628/solace?m.QueueRates=*my*|ARBON*&m.QueueRates=*my*|BRAVO*&m.QueueDetails=*my*|ARBON*&m.QueueDetails=*my*|BRAVO*`
+`http://your-exporter:9628/solace?m.QueueStats=*my*|ARBON*&m.QueueStats=*my*|BRAVO*&m.QueueDetails=*my*|ARBON*&m.QueueDetails=*my*|BRAVO*`
 
 Get all queue information, where the queue name starts with `BRAVO`or `ARBON` and only from VPN where the name contains a `my` and ends with and `prod`.
-`http://your-exporter:9628/solace?m.QueueRates=*my*prod|ARBON*&m.QueueRates=*my*prod|BRAVO*&m.QueueDetails=*my*prod|ARBON*&m.QueueDetails=*my*prod|BRAVO*`
+`http://your-exporter:9628/solace?m.QueueStats=*my*prod|ARBON*&m.QueueStats=*my*prod|BRAVO*&m.QueueDetails=*my*prod|ARBON*&m.QueueDetails=*my*prod|BRAVO*`
 
 Get the same result as the legacy `solace-det` endpoint, but from a specific broker.  
 `http://your-exporter:9628/solace?m.ClientStats=*|*&m.VpnStats=*|*&m.BridgeStats=*|*&m.QueueRates=*|*&m.QueueDetails=*|*&scrapeURI=http://your-broker-url:8080`
@@ -87,7 +87,8 @@ Get the same result as the legacy `solace-det` endpoint, but from a specific bro
 | ClientStats | yes | no | may harm broker if many clients | show client itemFilter stats count 100 (paged) | software, appliance | 
 | VpnStats | yes | no | has a very small performance down site | show message-vpn vpnFilter stats | software, appliance |
 | BridgeStats | yes | yes | has a very small performance down site | show bridge itemFilter message-vpn vpnFilter stats | software, appliance |
-| QueueRates | yes | yes | may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged) | software, appliance |
+| QueueRates | yes | yes | DEPRECATED: may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged) | software, appliance |
+| QueueStats | yes | yes | may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged) | software, appliance |
 | QueueDetails | yes | yes | may harm broker if many queues | show queue itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
 
 ### Modular endpoint configs

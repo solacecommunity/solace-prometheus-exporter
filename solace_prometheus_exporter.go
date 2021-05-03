@@ -242,6 +242,15 @@ var metricDesc = map[string]Metrics{
 		"queue_spool_usage_msgs":  prometheus.NewDesc(namespace+"_"+"queue_spool_usage_msgs", "Queue spooled number of messages.", variableLabelsVpnQueue, nil),
 		"queue_binds":             prometheus.NewDesc(namespace+"_"+"queue_binds", "Number of clients bound to queue.", variableLabelsVpnQueue, nil),
 	},
+	"QueueStats": {
+		"total_bytes_spooled":             prometheus.NewDesc(namespace+"_"+"queue_byte_spooled", "Queue spool total of all spooled messages in bytes.", variableLabelsVpnQueue, nil),
+		"total_messages_spooled":          prometheus.NewDesc(namespace+"_"+"queue_msg_spooled", "Queue spool total of all spooled messages.", variableLabelsVpnQueue, nil),
+		"messages_redelivered":            prometheus.NewDesc(namespace+"_"+"queue_msg_redelivered", "Queue total msg redeliveries.", variableLabelsVpnQueue, nil),
+		"messages_transport_retransmited": prometheus.NewDesc(namespace+"_"+"queue_msg_retransmited", "Queue total msg retransmitted on transport.", variableLabelsVpnQueue, nil),
+		"spool_usage_exceeded":            prometheus.NewDesc(namespace+"_"+"queue_msg_spool_usage_exceeded", "Queue total number of messages exceeded the spool usage.", variableLabelsVpnQueue, nil),
+		"max_message_size_exceeded":       prometheus.NewDesc(namespace+"_"+"queue_msg_max_msg_size_exceeded", "Queue total number of messages exceeded the max message size.", variableLabelsVpnQueue, nil),
+		"total_deleted_messages":          prometheus.NewDesc(namespace+"_"+"queue_msg_total_deleted", "Queuse total number that was deleted.", variableLabelsVpnQueue, nil),
+	},
 }
 
 // Get version of broker
@@ -1110,6 +1119,7 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric, vpnFilter st
 
 // Get rates for each individual queue of all vpn's
 // This can result in heavy system load for lots of queues
+// Deprecated: in facor of: getQueueStatsSemp1
 func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric, vpnFilter string, itemFilter string) (ok float64) {
 	type Data struct {
 		RPC struct {
@@ -1177,6 +1187,89 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric, vpnFilter str
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueRates"]["queue_tx_msg_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueRates"]["queue_rx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxByteRate, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueRates"]["queue_tx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxByteRate, queue.Info.MsgVpnName, queue.QueueName)
+		}
+		body.Close()
+	}
+
+	return 1
+}
+
+// Get rates for each individual queue of all vpn's
+// This can result in heavy system load for lots of queues
+func (e *Exporter) getQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string, itemFilter string) (ok float64) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Queue struct {
+					Queues struct {
+						Queue []struct {
+							QueueName string `xml:"name"`
+							Info      struct {
+								MsgVpnName string `xml:"message-vpn"`
+							} `xml:"info"`
+							Stats struct {
+								MessageSpoolStats struct {
+									TotalByteSpooled       float64 `xml:"total-bytes-spooled"`
+									TotalMsgSpooled        float64 `xml:"total-messages-spooled"`
+									MsgRedelivered         float64 `xml:"messages-redelivered"`
+									MsgRetransmit          float64 `xml:"messages-transport-retransmit"`
+									SpoolUsageExceeded     float64 `xml:"spool-usage-exceeded"`
+									MsgSizeExceeded        float64 `xml:"max-message-size-exceeded"`
+									SpoolShutdownDiscard   float64 `xml:"spool-shutdown-discard"`
+									DestinationGroupError  float64 `xml:"destination-group-error"`
+									LowPrioMsgDiscard      float64 `xml:"low-priority-msg-congestion-discard"`
+									Deleted                float64 `xml:"total-deleted-messages"`
+									TtlDisacarded          float64 `xml:"total-ttl-expired-discard-messages"`
+									TtlDmq                 float64 `xml:"total-ttl-expired-to-dmq-messages"`
+									TtlDmqFailed           float64 `xml:"total-ttl-expired-to-dmq-failures"`
+									MaxRedeliveryDiscarded float64 `xml:"max-redelivery-exceeded-discard-messages"`
+									MaxRedeliveryDmq       float64 `xml:"max-redelivery-exceeded-to-dmq-messages"`
+									MaxRedeliveryDmqFailed float64 `xml:"max-redelivery-exceeded-to-dmq-failures"`
+								} `xml:"message-spool-stats"`
+							} `xml:"stats"`
+						} `xml:"queue"`
+					} `xml:"queues"`
+				} `xml:"queue"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		MoreCookie struct {
+			RPC string `xml:",innerxml"`
+		} `xml:"more-cookie"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	for nextRequest := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><stats/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
+		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't scrape QueueStatsSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0
+		}
+		defer body.Close()
+		decoder := xml.NewDecoder(body)
+		var target Data
+		err = decoder.Decode(&target)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't decode QueueStatsSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0
+		}
+		if target.ExecuteResult.Result != "ok" {
+			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+			return 0
+		}
+
+		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
+		nextRequest = target.MoreCookie.RPC
+
+		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
+			ch <- prometheus.MustNewConstMetric(metricDesc["QueueStats"]["total_bytes_spooled"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.TotalByteSpooled, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["QueueStats"]["total_messages_spooled"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.TotalMsgSpooled, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["QueueStats"]["messages_redelivered"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MsgRedelivered, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["QueueStats"]["messages_transport_retransmited"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MsgRetransmit, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["QueueStats"]["spool_usage_exceeded"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.SpoolUsageExceeded, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["QueueStats"]["max_message_size_exceeded"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MsgSizeExceeded, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["QueueStats"]["total_deleted_messages"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.Deleted, queue.Info.MsgVpnName, queue.QueueName)
 		}
 		body.Close()
 	}
@@ -1515,6 +1608,8 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up = e.getBridgeStatsSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
 		case "QueueRates":
 			up = e.getQueueRatesSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
+		case "QueueStats":
+			up = e.getQueueStatsSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
 		case "QueueDetails":
 			up = e.getQueueDetailsSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
 		}
@@ -1641,7 +1736,8 @@ func main() {
 					<tr><td>ClientStats</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
 					<tr><td>VpnStats</td><td>yes</td><td>no</td><td>has a very small performance down site</td></tr>
 					<tr><td>BridgeStats</td><td>yes</td><td>yes</td><td>has a very small performance down site</td></tr>
-					<tr><td>QueueRates</td><td>yes</td><td>yes</td><td>may harm broker if many queues</td></tr>
+					<tr><td>QueueRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many queues</td></tr>
+					<tr><td>QueueStats</td><td>yes</td><td>yes</td><td>may harm broker if many queues</td></tr>
 					<tr><td>QueueDetails</td><td>yes</td><td>yes</td><td>may harm broker if many queues</td></tr>
 				</table>
 				<br>
