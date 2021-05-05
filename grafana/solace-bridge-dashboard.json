@@ -1447,11 +1447,7 @@
     "list": [
       {
         "allValue": null,
-        "current": {
-          "selected": true,
-          "text": "s-t-i1-otc1-t01.sbb.ch:10920",
-          "value": "s-t-i1-otc1-t01.sbb.ch:10920"
-        },
+        "current": {},
         "datasource": "Thanos",
         "definition": "label_values(solace_up{group=\"Solace\"}, instance)",
         "hide": 0,
@@ -1474,11 +1470,7 @@
       },
       {
         "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "shunting-assistant-test",
-          "value": "shunting-assistant-test"
-        },
+        "current": {},
         "datasource": "Thanos",
         "definition": "label_values(solace_bridge_admin_state{instance=\"$instance\"}, vpn_name)",
         "hide": 0,
@@ -1501,11 +1493,7 @@
       },
       {
         "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "shunting-assistant-test_ssp-test",
-          "value": "shunting-assistant-test_ssp-test"
-        },
+        "current": {},
         "datasource": "Thanos",
         "definition": "label_values(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpn_name\"}, bridge_name)",
         "hide": 0,

@@ -36,7 +36,7 @@
       "title": "Help: Vpn",
       "tooltip": "Help: Vpn Monitoring Dashboard",
       "type": "link",
-      "url": "https://confluence.sbb.ch/display/MOPRO/Solace+Monitoring+Dashboard%3A+Vpn"
+      "url": "https://mydocupage.org"
     }
   ],
   "panels": [
@@ -1481,11 +1481,7 @@
     "list": [
       {
         "allValue": null,
-        "current": {
-          "selected": true,
-          "text": "s-t-i1-otc1-t01.sbb.ch:10920",
-          "value": "s-t-i1-otc1-t01.sbb.ch:10920"
-        },
+        "current": {},
         "datasource": "Thanos",
         "definition": "label_values(solace_up{group=\"Solace\"}, instance)",
         "hide": 0,
@@ -1508,11 +1504,7 @@
       },
       {
         "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "shunting-assistant-dev",
-          "value": "shunting-assistant-dev"
-        },
+        "current": {},
         "datasource": "Thanos",
         "definition": "label_values(solace_vpn_connections{instance=\"$instance\",group=\"Solace\"}, vpn_name)",
         "hide": 0,

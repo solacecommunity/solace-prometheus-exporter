@@ -3433,10 +3433,7 @@
       "list": [
         {
           "allValue": null,
-          "current": {
-            "text": "All",
-            "value": "$__all"
-          },
+          "current": {},
           "datasource": "Prometheus",
           "definition": "label_values(solace_vpn_connections, instance)",
           "hide": 0,
