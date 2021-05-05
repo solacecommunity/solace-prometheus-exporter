@@ -16,7 +16,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "iteration": 1593432007433,
+  "iteration": 1596025193157,
   "links": [
     {
       "$$hashKey": "object:393",
@@ -35,7 +35,7 @@
       "title": "Help: Bridge",
       "tooltip": "Help: Bridge Monitoring Dashboard",
       "type": "link",
-      "url": "https://confluence.sbb.ch/display/MOPRO/Solace+Monitoring+Dashboard%3A+Bridge"
+      "url": ""
     }
   ],
   "panels": [
@@ -71,13 +71,13 @@
           {
             "$$hashKey": "object:3298",
             "color": "#37872D",
-            "tooltip": "up",
+            "tooltip": "Enabled",
             "value": "0"
           },
           {
             "$$hashKey": "object:3302",
             "color": "#C4162A",
-            "tooltip": "down",
+            "tooltip": "Disabled",
             "value": "1"
           }
         ]
@@ -86,7 +86,7 @@
         "decimals": null,
         "unitFormat": "short"
       },
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "description": "",
       "gridPos": {
         "h": 3,
@@ -109,7 +109,7 @@
       "seriesFilterIndex": -1,
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")",
           "interval": "",
           "legendFormat": " ",
           "refId": "A"
@@ -163,7 +163,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "decimals": 2,
       "format": "s",
       "gauge": {
@@ -221,7 +221,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_connection_uptime_in_seconds{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_bridge_connection_uptime_in_seconds{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")",
           "instant": true,
           "interval": "",
           "legendFormat": "uptime",
@@ -253,7 +253,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "description": "which side is initiating the bridge connection",
       "format": "none",
       "gauge": {
@@ -310,7 +310,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_connection_establisher{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_bridge_connection_establisher{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")",
           "instant": true,
           "interval": "",
           "legendFormat": "Connection Establisher",
@@ -327,37 +327,37 @@
         {
           "$$hashKey": "object:8072",
           "op": "=",
-          "text": "N/A",
+          "text": "Not Available",
           "value": "null"
         },
         {
           "$$hashKey": "object:8108",
           "op": "=",
-          "text": "n/a",
+          "text": "Not Available",
           "value": "-1"
         },
         {
           "$$hashKey": "object:8110",
           "op": "=",
-          "text": "NotApplicable",
+          "text": "Not Applicable",
           "value": "0"
-        },
-        {
-          "$$hashKey": "object:8112",
-          "op": "=",
-          "text": "auto",
-          "value": "1"
         },
         {
           "$$hashKey": "object:8114",
           "op": "=",
           "text": "Local",
-          "value": "2"
+          "value": "1"
         },
         {
           "$$hashKey": "object:8116",
           "op": "=",
           "text": "Remote",
+          "value": "2"
+        },
+        {
+          "$$hashKey": "object:256",
+          "op": "=",
+          "text": "Invalid",
           "value": "3"
         }
       ],
@@ -372,7 +372,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "description": "connection setup when connecting to redundancy pair",
       "format": "none",
       "gauge": {
@@ -429,7 +429,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_redundancy{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_bridge_redundancy{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")",
           "instant": true,
           "interval": "",
           "legendFormat": "Connection Establisher",
@@ -446,19 +446,19 @@
         {
           "$$hashKey": "object:8072",
           "op": "=",
-          "text": "N/A",
+          "text": "Not Available",
           "value": "null"
         },
         {
           "$$hashKey": "object:8108",
           "op": "=",
-          "text": "n/a",
+          "text": "Not Available",
           "value": "-1"
         },
         {
           "$$hashKey": "object:8110",
           "op": "=",
-          "text": "NotApplicable",
+          "text": "Not Applicable",
           "value": "0"
         },
         {
@@ -478,6 +478,18 @@
           "op": "=",
           "text": "backup",
           "value": "3"
+        },
+        {
+          "$$hashKey": "object:1405",
+          "op": "=",
+          "text": "static",
+          "value": "4"
+        },
+        {
+          "$$hashKey": "object:1407",
+          "op": "=",
+          "text": "none",
+          "value": "5"
         }
       ],
       "valueName": "current"
@@ -491,7 +503,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#299c46"
       ],
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -547,7 +559,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_inbound_operational_failure_reason{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_bridge_inbound_operational_failure_reason{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")",
           "instant": true,
           "interval": "",
           "legendFormat": "Connection Establisher",
@@ -819,7 +831,7 @@
         "decimals": null,
         "unitFormat": "short"
       },
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "gridPos": {
         "h": 4,
         "w": 24,
@@ -835,13 +847,13 @@
       "seriesFilterIndex": -1,
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_inbound_operational_state{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r\n",
+          "expr": "label_replace(solace_bridge_inbound_operational_state{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r\n",
           "interval": "",
           "legendFormat": "Inbound",
           "refId": "A"
         },
         {
-          "expr": "label_replace(solace_bridge_outbound_operational_state{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r\n",
+          "expr": "label_replace(solace_bridge_outbound_operational_state{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r\n",
           "interval": "",
           "legendFormat": "Outbound",
           "refId": "B"
@@ -931,7 +943,7 @@
         "decimals": null,
         "unitFormat": "short"
       },
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "gridPos": {
         "h": 3,
         "w": 24,
@@ -947,7 +959,7 @@
       "seriesFilterIndex": -1,
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_queue_operational_state{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r\n",
+          "expr": "label_replace(solace_bridge_queue_operational_state{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r\n",
           "interval": "",
           "legendFormat": "Queue",
           "refId": "C"
@@ -1010,13 +1022,13 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "decimals": null,
       "description": "Number of subscribers and percentage slow subscribers",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 9,
+        "h": 7,
         "w": 24,
         "x": 0,
         "y": 15
@@ -1026,15 +1038,15 @@
       "interval": "",
       "legend": {
         "avg": false,
-        "current": true,
+        "current": false,
         "hideEmpty": false,
         "hideZero": false,
-        "max": true,
+        "max": false,
         "min": false,
         "rightSide": false,
         "show": true,
         "total": false,
-        "values": true
+        "values": false
       },
       "lines": true,
       "linewidth": 1,
@@ -1046,31 +1058,21 @@
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "$$hashKey": "object:14552",
-          "alias": "Slow",
-          "yaxis": 2
-        },
-        {
-          "alias": "Slow Subscribers",
-          "yaxis": 2
-        }
-      ],
+      "seriesOverrides": [],
       "spaceLength": 10,
       "stack": false,
       "steppedLine": false,
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_client_num_subscriptions{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "expr": "label_replace(solace_bridge_client_num_subscriptions{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
           "interval": "",
-          "legendFormat": "Clients Subscribing",
+          "legendFormat": "Subscriber",
           "refId": "A"
         },
         {
-          "expr": "label_replace(solace_bridge_client_slow_subscriber{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "expr": "label_replace(solace_bridge_client_slow_subscriber{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
           "interval": "",
-          "legendFormat": "Slow Subscribers",
+          "legendFormat": "Is Slow Subscriber",
           "refId": "B"
         }
       ],
@@ -1125,14 +1127,14 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 22
       },
       "hiddenSeries": false,
       "id": 16,
@@ -1162,13 +1164,13 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_total_client_messages_received{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "expr": "label_replace(irate(solace_bridge_total_client_messages_received{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}[5m]), \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
           "interval": "",
           "legendFormat": "Ingress",
           "refId": "A"
         },
         {
-          "expr": "label_replace(solace_bridge_total_client_messages_sent{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "expr": "label_replace(irate(solace_bridge_total_client_messages_sent{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}[5m]), \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
           "interval": "",
           "legendFormat": "Egress",
           "refId": "B"
@@ -1224,14 +1226,14 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 33
+        "y": 31
       },
       "hiddenSeries": false,
       "id": 17,
@@ -1261,16 +1263,30 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_current_ingress_rate_per_second{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "expr": "label_replace(solace_bridge_current_ingress_rate_per_second{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
+          "hide": true,
           "interval": "",
-          "legendFormat": "Ingress",
+          "legendFormat": "Ingress Rate",
           "refId": "A"
         },
         {
-          "expr": "label_replace(solace_bridge_current_egress_rate_per_second{instance=\"$instance\",vpn_name=\"$vpnName\",bridge_name=\"$bridgeName\",job=\"solace\"}, \"bridge_short\", \"$1\", \"bridgeName\", \"([\\\\w\\\\-]+).*\")\r",
+          "expr": "label_replace(solace_bridge_current_egress_rate_per_second{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
+          "hide": true,
           "interval": "",
-          "legendFormat": "Egress",
+          "legendFormat": "Egress Rate",
           "refId": "B"
+        },
+        {
+          "expr": "label_replace(irate(solace_bridge_total_client_bytes_received{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}[5m]), \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
+          "interval": "",
+          "legendFormat": "Bytes received",
+          "refId": "C"
+        },
+        {
+          "expr": "label_replace(irate(solace_bridge_total_client_bytess_sent{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}[5m]), \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
+          "interval": "",
+          "legendFormat": "Bytes sent",
+          "refId": "D"
         }
       ],
       "thresholds": [],
@@ -1296,7 +1312,108 @@
           "$$hashKey": "object:8295",
           "decimals": null,
           "format": "short",
-          "label": "Msg / sec",
+          "label": "byte / sec",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "$$hashKey": "object:8296",
+          "decimals": null,
+          "format": "short",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Thanos",
+      "description": "Discarded messages on ingress and egress",
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "hiddenSeries": false,
+      "id": 20,
+      "interval": "",
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "label_replace(irate(solace_bridge_total_ingress_discards{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}[5m]), \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
+          "interval": "",
+          "legendFormat": "Ingress discards",
+          "refId": "C"
+        },
+        {
+          "expr": "label_replace(irate(solace_bridge_total_egress_discards{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}[5m]), \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "Egress discards",
+          "refId": "D"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Discards",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "$$hashKey": "object:8295",
+          "decimals": null,
+          "format": "short",
+          "label": "msg/ sec",
           "logBase": 1,
           "max": null,
           "min": "0",
@@ -1335,8 +1452,8 @@
           "text": "s-t-i1-otc1-t01.sbb.ch:10920",
           "value": "s-t-i1-otc1-t01.sbb.ch:10920"
         },
-        "datasource": "Prometheus",
-        "definition": "label_values(up{group=\"Solace\"}, instance)",
+        "datasource": "Thanos",
+        "definition": "label_values(solace_up{group=\"Solace\"}, instance)",
         "hide": 0,
         "includeAll": false,
         "index": -1,
@@ -1344,8 +1461,8 @@
         "multi": false,
         "name": "instance",
         "options": [],
-        "query": "label_values(up{group=\"Solace\"}, instance)",
-        "refresh": 1,
+        "query": "label_values(solace_up{group=\"Solace\"}, instance)",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -1358,21 +1475,21 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
-          "text": "shunting-assistant-dev",
-          "value": "shunting-assistant-dev"
+          "selected": false,
+          "text": "shunting-assistant-test",
+          "value": "shunting-assistant-test"
         },
-        "datasource": "Prometheus",
-        "definition": "label_values(solace_bridge_admin_state{instance=\"$instance\",job=\"solace\"}, vpn_name)",
+        "datasource": "Thanos",
+        "definition": "label_values(solace_bridge_admin_state{instance=\"$instance\"}, vpn_name)",
         "hide": 0,
         "includeAll": false,
         "index": -1,
         "label": "VPN",
         "multi": false,
-        "name": "vpnName",
+        "name": "vpn_name",
         "options": [],
-        "query": "label_values(solace_bridge_admin_state{instance=\"$instance\",job=\"solace\"}, vpn_name)",
-        "refresh": 1,
+        "query": "label_values(solace_bridge_admin_state{instance=\"$instance\"}, vpn_name)",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -1385,21 +1502,21 @@
       {
         "allValue": null,
         "current": {
-          "tags": [],
-          "text": "shunting-assistant-dev_lta-dev",
-          "value": "shunting-assistant-dev_lta-dev"
+          "selected": false,
+          "text": "shunting-assistant-test_ssp-test",
+          "value": "shunting-assistant-test_ssp-test"
         },
-        "datasource": "Prometheus",
-        "definition": "label_values(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpnName\",job=\"solace\"}, bridge_name)",
+        "datasource": "Thanos",
+        "definition": "label_values(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpn_name\"}, bridge_name)",
         "hide": 0,
         "includeAll": false,
         "index": -1,
         "label": "Bridge",
         "multi": false,
-        "name": "bridgeName",
+        "name": "bridge_name",
         "options": [],
-        "query": "label_values(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpnName\",job=\"solace\"}, bridge_name)",
-        "refresh": 1,
+        "query": "label_values(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpn_name\"}, bridge_name)",
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -1412,7 +1529,7 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {
@@ -1435,5 +1552,5 @@
   "variables": {
     "list": []
   },
-  "version": 27
+  "version": 31
 }

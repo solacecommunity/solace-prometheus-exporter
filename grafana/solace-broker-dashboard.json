@@ -2,7 +2,6 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:10",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -17,10 +16,10 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 2,
-  "iteration": 1593433934225,
+  "id": 4,
+  "iteration": 1618988081246,
   "links": [
     {
-      "$$hashKey": "object:110",
       "icon": "external link",
       "includeVars": true,
       "tags": [
@@ -29,7 +28,6 @@
       "type": "dashboards"
     },
     {
-      "$$hashKey": "object:224",
       "icon": "external link",
       "tags": [],
       "targetBlank": true,
@@ -56,24 +54,24 @@
         "mode": "discrete",
         "thresholds": [
           {
-            "$$hashKey": "object:1678",
             "color": "red",
             "tooltip": "down",
             "value": "0"
           },
           {
-            "$$hashKey": "object:1680",
             "color": "green",
             "tooltip": "up",
             "value": "1"
           }
         ]
       },
-      "data": {
-        "decimals": null,
-        "unitFormat": "short"
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
       },
-      "datasource": "Prometheus",
       "gridPos": {
         "h": 4,
         "w": 9,
@@ -92,10 +90,14 @@
         }
       ],
       "nullPointMode": "as empty",
+      "pageSize": 15,
       "seriesFilterIndex": -1,
+      "statusmap": {
+        "ConfigVersion": "v1"
+      },
       "targets": [
         {
-          "expr": "label_replace(solace_up{instance=\"$instance\",job=\"solace\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_up{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -108,44 +110,80 @@
       "timeShift": null,
       "title": "Broker status",
       "tooltip": {
-        "show": true
+        "freezeOnClick": false,
+        "items": [],
+        "show": true,
+        "showItems": false
       },
       "transparent": true,
       "type": "flant-statusmap-panel",
-      "urls": [
-        {
-          "base_url": "",
-          "extraSeries": {
-            "index": -1
-          },
-          "forcelowercase": true,
-          "icon_fa": "external-link",
-          "label": "",
-          "tooltip": "",
-          "useExtraSeries": false,
-          "useseriesname": true
-        }
-      ],
       "useMax": true,
-      "usingUrl": false,
+      "usingPagination": false,
       "xAxis": {
-        "labelFormat": "%a %m/%d",
-        "minBucketWidthToShowWeekends": 4,
-        "show": true,
-        "showCrosshair": true,
-        "showWeekends": true
+        "show": true
       },
       "yAxis": {
         "maxWidth": -1,
         "minWidth": -1,
-        "show": true,
-        "showCrosshair": false
+        "show": true
       },
       "yAxisSort": "metrics"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "description": "Redundancy status for High Availability support on this broker",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": "Remote Active",
+              "to": "",
+              "type": 1,
+              "value": "0"
+            },
+            {
+              "from": "",
+              "id": 2,
+              "operator": "",
+              "text": "Local Active",
+              "to": "",
+              "type": 1,
+              "value": "1"
+            },
+            {
+              "from": "",
+              "id": 3,
+              "operator": "",
+              "text": "Not HA",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 4,
         "w": 3,
@@ -155,69 +193,22 @@
       "id": 34,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "mappings": [
-              {
-                "from": "",
-                "id": 1,
-                "operator": "",
-                "text": "Remote Active",
-                "to": "",
-                "type": 1,
-                "value": "0"
-              },
-              {
-                "from": "",
-                "id": 2,
-                "operator": "",
-                "text": "Local Active",
-                "to": "",
-                "type": 1,
-                "value": "1"
-              },
-              {
-                "from": "",
-                "id": 3,
-                "operator": "",
-                "text": "Not HA",
-                "to": "",
-                "type": 1,
-                "value": "null"
-              }
-            ],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "blue",
-                  "value": null
-                },
-                {
-                  "color": "yellow",
-                  "value": 0
-                },
-                {
-                  "color": "green",
-                  "value": 1
-                }
-              ]
-            }
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "label_replace(solace_system_redundancy_local_active{instance=\"$instance\",job=\"solace\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_system_redundancy_local_active{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -231,8 +222,52 @@
       "type": "stat"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "description": "Network latency to HA mate, empty in case of no HA configured",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {},
+          "mappings": [
+            {
+              "from": "-1",
+              "id": 1,
+              "operator": "",
+              "text": " ",
+              "to": "0",
+              "type": 2,
+              "value": "NaN"
+            }
+          ],
+          "max": 0.01,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1e-20
+              },
+              {
+                "color": "#EAB839",
+                "value": 0.007
+              },
+              {
+                "color": "red",
+                "value": 0.008
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 6,
         "w": 4,
@@ -242,78 +277,21 @@
       "id": 20,
       "links": [],
       "options": {
-        "fieldOptions": {
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [
-              {
-                "from": "-1",
-                "id": 1,
-                "operator": "",
-                "text": " ",
-                "to": "0",
-                "type": 2,
-                "value": "NaN"
-              }
-            ],
-            "max": 0.01,
-            "min": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "blue",
-                  "value": null
-                },
-                {
-                  "color": "green",
-                  "value": 1e-20
-                },
-                {
-                  "color": "#EAB839",
-                  "value": 0.007
-                },
-                {
-                  "color": "red",
-                  "value": 0.008
-                }
-              ]
-            },
-            "unit": "s"
-          },
-          "overrides": [],
-          "thresholds": [
-            {
-              "color": "green",
-              "index": 0,
-              "value": null
-            },
-            {
-              "color": "#EAB839",
-              "index": 1,
-              "value": 0.007
-            },
-            {
-              "color": "red",
-              "index": 2,
-              "value": 0.008
-            }
-          ],
+          "fields": "",
           "values": false
         },
-        "orientation": "auto",
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "label_replace(solace_system_mate_link_latency_avg_seconds{instance=\"$instance\",job=\"solace\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_system_mate_link_latency_avg_seconds{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -328,8 +306,41 @@
       "type": "gauge"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "description": "latency for disk read/write operations",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {},
+          "mappings": [],
+          "max": 0.1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 6,
         "w": 4,
@@ -339,67 +350,21 @@
       "id": 21,
       "links": [],
       "options": {
-        "fieldOptions": {
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "max": 0.1,
-            "min": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "index": 0,
-                  "value": null
-                },
-                {
-                  "color": "#EAB839",
-                  "index": 1,
-                  "value": 0.07
-                },
-                {
-                  "color": "red",
-                  "index": 2,
-                  "value": 0.08
-                }
-              ]
-            },
-            "unit": "s"
-          },
-          "overrides": [],
-          "thresholds": [
-            {
-              "color": "green",
-              "index": 0,
-              "value": null
-            },
-            {
-              "color": "#EAB839",
-              "index": 1,
-              "value": 0.07
-            },
-            {
-              "color": "red",
-              "index": 2,
-              "value": 0.08
-            }
-          ],
+          "fields": "",
           "values": false
         },
-        "orientation": "auto",
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "label_replace(solace_system_disk_latency_avg_seconds{instance=\"$instance\",job=\"solace\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_system_disk_latency_avg_seconds{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -414,8 +379,41 @@
       "type": "gauge"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "description": "latency for CPU instructions  on the broker",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {},
+          "mappings": [],
+          "max": 0.1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "index": 0,
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "index": 1,
+                "value": 0.07
+              },
+              {
+                "color": "red",
+                "index": 2,
+                "value": 0.08
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 6,
         "w": 4,
@@ -425,67 +423,21 @@
       "id": 22,
       "links": [],
       "options": {
-        "fieldOptions": {
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "color": {
-              "mode": "thresholds"
-            },
-            "mappings": [],
-            "max": 0.1,
-            "min": 0,
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "index": 0,
-                  "value": null
-                },
-                {
-                  "color": "#EAB839",
-                  "index": 1,
-                  "value": 0.07
-                },
-                {
-                  "color": "red",
-                  "index": 2,
-                  "value": 0.08
-                }
-              ]
-            },
-            "unit": "s"
-          },
-          "overrides": [],
-          "thresholds": [
-            {
-              "color": "green",
-              "index": 0,
-              "value": null
-            },
-            {
-              "color": "#EAB839",
-              "index": 1,
-              "value": 0.07
-            },
-            {
-              "color": "red",
-              "index": 2,
-              "value": 0.08
-            }
-          ],
+          "fields": "",
           "values": false
         },
-        "orientation": "auto",
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "label_replace(solace_system_compute_latency_avg_seconds{instance=\"$instance\",job=\"solace\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_system_compute_latency_avg_seconds{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -500,8 +452,13 @@
       "type": "gauge"
     },
     {
-      "content": "Sol Ver\nsion",
       "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 3,
         "w": 1,
@@ -509,7 +466,11 @@
         "y": 4
       },
       "id": 41,
-      "mode": "markdown",
+      "options": {
+        "content": "Sol Ver\nsion",
+        "mode": "markdown"
+      },
+      "pluginVersion": "7.3.4",
       "timeFrom": null,
       "timeShift": null,
       "title": "",
@@ -517,7 +478,29 @@
       "type": "text"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 0,
+          "mappings": [],
+          "noValue": "Only for OnPrem",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 2,
         "w": 2,
@@ -527,38 +510,22 @@
       "id": 35,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "decimals": 0,
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "red",
-                  "value": null
-                },
-                {
-                  "color": "green",
-                  "value": 1
-                }
-              ]
-            }
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "solace_system_version_currentload{instance=\"$instance\",job=\"solace\"}/1000000000",
+          "expr": "solace_system_version_currentload{instance=\"$instance\"}/1000000000",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -572,7 +539,34 @@
       "type": "stat"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 0,
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": " ",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 2,
         "w": 2,
@@ -582,44 +576,22 @@
       "id": 37,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "decimals": 0,
-            "mappings": [
-              {
-                "from": "",
-                "id": 1,
-                "operator": "",
-                "text": " ",
-                "to": "",
-                "type": 1,
-                "value": "null"
-              }
-            ],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "(solace_system_version_currentload{instance=\"$instance\",job=\"solace\"} % 1000000000)/ 1000000",
+          "expr": "(solace_system_version_currentload{instance=\"$instance\"} % 1000000000)/ 1000000",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -633,7 +605,34 @@
       "type": "stat"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 0,
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": " ",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 2,
         "w": 2,
@@ -643,44 +642,22 @@
       "id": 38,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "decimals": 0,
-            "mappings": [
-              {
-                "from": "",
-                "id": 1,
-                "operator": "",
-                "text": " ",
-                "to": "",
-                "type": 1,
-                "value": "null"
-              }
-            ],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "(solace_system_version_currentload{instance=\"$instance\",job=\"solace\"} % 1000000)/ 100",
+          "expr": "(solace_system_version_currentload{instance=\"$instance\"} % 1000000)/ 100",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -694,7 +671,34 @@
       "type": "stat"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 0,
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": " ",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 2,
         "w": 2,
@@ -704,44 +708,22 @@
       "id": 39,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "decimals": 0,
-            "mappings": [
-              {
-                "from": "",
-                "id": 1,
-                "operator": "",
-                "text": " ",
-                "to": "",
-                "type": 1,
-                "value": "null"
-              }
-            ],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "green",
-                  "value": null
-                }
-              ]
-            }
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "(solace_system_version_currentload{instance=\"$instance\",job=\"solace\"} % 1000)",
+          "expr": "(solace_system_version_currentload{instance=\"$instance\"} % 1000)",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -755,7 +737,30 @@
       "type": "stat"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 2,
+          "mappings": [],
+          "noValue": "Only for OnPrem",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 2,
         "w": 3,
@@ -765,39 +770,22 @@
       "id": 36,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "decimals": 2,
-            "mappings": [],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "red",
-                  "value": null
-                },
-                {
-                  "color": "green",
-                  "value": 1
-                }
-              ]
-            },
-            "unit": "s"
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "label_replace(solace_system_version_uptime_totalsecs{instance=\"$instance\",job=\"solace\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_system_version_uptime_totalsecs{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -814,8 +802,20 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "description": "Client Connections Count, per Vpn. Drill down into Vpn available",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": [
+            {
+              "title": "VPN $\"vpn_name\"",
+              "url": "d/FXk5NbPWz/solace-vpn?orgId=1&var-instance=${instance}&var-vpn_name=$\"vpn_name\""
+            }
+          ]
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -841,14 +841,10 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": [
-          {
-            "title": "VPN ${__field.labels.vpn_name}",
-            "url": "d/FXk5NbPWz/solace-vpn?orgId=1&var-instance=${instance}&var-vpn_name=${__field.labels.vpn_name}"
-          }
-        ]
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "7.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -858,7 +854,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "label_replace(solace_vpn_connections{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_vpn_connections{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "interval": "",
           "legendFormat": "{{vpn_name}}",
           "refId": "A"
@@ -885,7 +881,6 @@
       },
       "yaxes": [
         {
-          "$$hashKey": "object:816",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -894,7 +889,6 @@
           "show": true
         },
         {
-          "$$hashKey": "object:817",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -909,7 +903,72 @@
       }
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": "Disabled",
+              "to": "",
+              "type": 1,
+              "value": "0"
+            },
+            {
+              "from": "",
+              "id": 2,
+              "operator": "",
+              "text": "Enabled",
+              "to": "",
+              "type": 1,
+              "value": "1"
+            },
+            {
+              "from": "",
+              "id": 3,
+              "operator": "",
+              "text": "Shutdown",
+              "to": "",
+              "type": 1,
+              "value": "2"
+            },
+            {
+              "from": "",
+              "id": 4,
+              "operator": "",
+              "text": "Not HA",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 2
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -919,82 +978,22 @@
       "id": 31,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "mappings": [
-              {
-                "from": "",
-                "id": 1,
-                "operator": "",
-                "text": "Disabled",
-                "to": "",
-                "type": 1,
-                "value": "0"
-              },
-              {
-                "from": "",
-                "id": 2,
-                "operator": "",
-                "text": "Enabled",
-                "to": "",
-                "type": 1,
-                "value": "1"
-              },
-              {
-                "from": "",
-                "id": 3,
-                "operator": "",
-                "text": "Shutdown",
-                "to": "",
-                "type": 1,
-                "value": "2"
-              },
-              {
-                "from": "",
-                "id": 4,
-                "operator": "",
-                "text": "Not HA",
-                "to": "",
-                "type": 1,
-                "value": "null"
-              }
-            ],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "blue",
-                  "value": null
-                },
-                {
-                  "color": "yellow",
-                  "value": 0
-                },
-                {
-                  "color": "green",
-                  "value": 1
-                },
-                {
-                  "color": "red",
-                  "value": 2
-                }
-              ]
-            }
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "label_replace(solace_system_redundancy_config{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_system_redundancy_config{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -1007,7 +1006,59 @@
       "type": "stat"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": "Down",
+              "to": "",
+              "type": 1,
+              "value": "0"
+            },
+            {
+              "from": "",
+              "id": 2,
+              "operator": "",
+              "text": "Up",
+              "to": "",
+              "type": 1,
+              "value": "1"
+            },
+            {
+              "from": "",
+              "id": 3,
+              "operator": "",
+              "text": " ",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -1017,69 +1068,22 @@
       "id": 32,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "mappings": [
-              {
-                "from": "",
-                "id": 1,
-                "operator": "",
-                "text": "Down",
-                "to": "",
-                "type": 1,
-                "value": "0"
-              },
-              {
-                "from": "",
-                "id": 2,
-                "operator": "",
-                "text": "Up",
-                "to": "",
-                "type": 1,
-                "value": "1"
-              },
-              {
-                "from": "",
-                "id": 3,
-                "operator": "",
-                "text": " ",
-                "to": "",
-                "type": 1,
-                "value": "null"
-              }
-            ],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "blue",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": 0
-                },
-                {
-                  "color": "green",
-                  "value": 1
-                }
-              ]
-            }
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "label_replace(solace_redundancy_up{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_redundancy_up{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -1092,7 +1096,81 @@
       "type": "stat"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": "Backup",
+              "to": "",
+              "type": 1,
+              "value": "0"
+            },
+            {
+              "from": "",
+              "id": 2,
+              "operator": "",
+              "text": "Primary",
+              "to": "",
+              "type": 1,
+              "value": "1"
+            },
+            {
+              "from": "",
+              "id": 3,
+              "operator": "",
+              "text": "Monitor",
+              "to": "",
+              "type": 1,
+              "value": "2"
+            },
+            {
+              "from": "",
+              "id": 4,
+              "operator": "",
+              "text": " Undefined",
+              "to": "",
+              "type": 1,
+              "value": "3"
+            },
+            {
+              "from": "",
+              "id": 5,
+              "operator": "",
+              "text": " ",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 50.5
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -1102,82 +1180,22 @@
       "id": 33,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "mappings": [
-              {
-                "from": "",
-                "id": 1,
-                "operator": "",
-                "text": "Backup",
-                "to": "",
-                "type": 1,
-                "value": "0"
-              },
-              {
-                "from": "",
-                "id": 2,
-                "operator": "",
-                "text": "Primary",
-                "to": "",
-                "type": 1,
-                "value": "1"
-              },
-              {
-                "from": "",
-                "id": 3,
-                "operator": "",
-                "text": "Undefined",
-                "to": "",
-                "type": 1,
-                "value": "2"
-              },
-              {
-                "from": "",
-                "id": 4,
-                "operator": "",
-                "text": " ",
-                "to": "",
-                "type": 1,
-                "value": "null"
-              }
-            ],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "blue",
-                  "value": null
-                },
-                {
-                  "color": "dark-green",
-                  "value": 0
-                },
-                {
-                  "color": "green",
-                  "value": 1
-                },
-                {
-                  "color": "red",
-                  "value": 50.5
-                }
-              ]
-            }
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "label_replace(solace_system_redundancy_role{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_system_redundancy_role{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -1191,8 +1209,14 @@
     },
     {
       "columns": [],
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "description": "Bridges Administrative Status, drill down into Bridge available",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fontSize": "100%",
       "gridPos": {
         "h": 8,
@@ -1215,19 +1239,17 @@
       },
       "styles": [
         {
-          "$$hashKey": "object:175",
           "alias": "",
           "align": "auto",
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "link": false,
           "linkTooltip": "Instance",
-          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=$instance&var-vpnName=${__data.fields[vpn_name]}",
+          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=$instance&var-vpn_name=$\"vpn_name\"",
           "mappingType": 1,
           "pattern": "Time",
           "type": "hidden"
         },
         {
-          "$$hashKey": "object:1498",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -1245,7 +1267,6 @@
           "unit": "short"
         },
         {
-          "$$hashKey": "object:176",
           "alias": "Bridge",
           "align": "right",
           "colorMode": "value",
@@ -1258,7 +1279,7 @@
           "link": true,
           "linkTargetBlank": false,
           "linkTooltip": "Bridge",
-          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=${instance}&var-vpnName=${__cell_8}&&var-bridgeName=${__cell_2}",
+          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=${instance}&var-vpn_name=$\"vpn_name\"&&var-bridge_name=\"$bridge_name\"",
           "mappingType": 1,
           "pattern": "bridge_name",
           "thresholds": [
@@ -1268,7 +1289,6 @@
           "unit": "short"
         },
         {
-          "$$hashKey": "object:1725",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -1286,7 +1306,6 @@
           "unit": "short"
         },
         {
-          "$$hashKey": "object:1736",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -1304,7 +1323,6 @@
           "unit": "short"
         },
         {
-          "$$hashKey": "object:1747",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -1322,7 +1340,6 @@
           "unit": "short"
         },
         {
-          "$$hashKey": "object:1758",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -1340,7 +1357,6 @@
           "unit": "short"
         },
         {
-          "$$hashKey": "object:1769",
           "alias": "VPN",
           "align": "auto",
           "colorMode": "value",
@@ -1354,7 +1370,7 @@
           "link": true,
           "linkTargetBlank": false,
           "linkTooltip": "Bridge",
-          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=${instance}&var-vpnName=${__cell_8}&&var-bridgeName=${__cell_2}",
+          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=${instance}&var-vpn_name=$\"vpn_name\"&&var-bridge_name=\"$bridge_name\"",
           "mappingType": 1,
           "pattern": "vpn_name",
           "thresholds": [
@@ -1364,7 +1380,6 @@
           "unit": "short"
         },
         {
-          "$$hashKey": "object:1790",
           "alias": "Admin State",
           "align": "auto",
           "colorMode": "row",
@@ -1378,7 +1393,7 @@
           "link": true,
           "linkTargetBlank": false,
           "linkTooltip": "Bridge",
-          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=${instance}&var-vpnName=${__cell_8}&&var-bridgeName=${__cell_2}",
+          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=${instance}&var-vpn_name=$\"vpn_name\"&&var-bridge_name=\"$bridge_name\"",
           "mappingType": 1,
           "pattern": "Value",
           "thresholds": [
@@ -1388,19 +1403,16 @@
           "unit": "short",
           "valueMaps": [
             {
-              "$$hashKey": "object:288",
               "text": "up",
               "value": "0"
             },
             {
-              "$$hashKey": "object:290",
               "text": "down",
               "value": "1"
             }
           ]
         },
         {
-          "$$hashKey": "object:867",
           "alias": "",
           "align": "auto",
           "colorMode": null,
@@ -1420,7 +1432,7 @@
       ],
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_admin_state{instance=\"$instance\",job=\"solace\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_bridge_admin_state{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -1432,10 +1444,71 @@
       "timeShift": null,
       "title": "Bridges Admin Status",
       "transform": "table",
-      "type": "table"
+      "type": "table-old"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": "Down",
+              "to": "",
+              "type": 1,
+              "value": "0"
+            },
+            {
+              "from": "",
+              "id": 2,
+              "operator": "",
+              "text": "Up",
+              "to": "",
+              "type": 1,
+              "value": "1"
+            },
+            {
+              "from": "",
+              "id": 3,
+              "operator": "",
+              "text": "Not HA",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            },
+            {
+              "from": "",
+              "id": 4,
+              "operator": "",
+              "text": "Unknown",
+              "to": "",
+              "type": 1,
+              "value": "-1"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": -1
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -1445,78 +1518,22 @@
       "id": 26,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "mappings": [
-              {
-                "from": "",
-                "id": 1,
-                "operator": "",
-                "text": "Down",
-                "to": "",
-                "type": 1,
-                "value": "0"
-              },
-              {
-                "from": "",
-                "id": 2,
-                "operator": "",
-                "text": "Up",
-                "to": "",
-                "type": 1,
-                "value": "1"
-              },
-              {
-                "from": "",
-                "id": 3,
-                "operator": "",
-                "text": "Not HA",
-                "to": "",
-                "type": 1,
-                "value": "null"
-              },
-              {
-                "from": "",
-                "id": 4,
-                "operator": "",
-                "text": "unknown",
-                "to": "",
-                "type": 1,
-                "value": "-1"
-              }
-            ],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "blue",
-                  "value": null
-                },
-                {
-                  "color": "red",
-                  "value": -1
-                },
-                {
-                  "color": "green",
-                  "value": 1
-                }
-              ]
-            }
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "label_replace(solace_configsync_table_syncstate{instance=\"$instance\",table_name=\"site\",job=\"solace\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_configsync_table_syncstate{instance=\"$instance\",table_name=\"site\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -1529,7 +1546,39 @@
       "type": "stat"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 2,
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": " ",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -1539,49 +1588,22 @@
       "id": 28,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "decimals": 2,
-            "mappings": [
-              {
-                "from": "",
-                "id": 1,
-                "operator": "",
-                "text": " ",
-                "to": "",
-                "type": 1,
-                "value": "null"
-              }
-            ],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "red",
-                  "value": null
-                },
-                {
-                  "color": "green",
-                  "value": 1
-                }
-              ]
-            },
-            "unit": "s"
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "label_replace(solace_configsync_table_timeinstateseconds{instance=\"$instance\",table_name=\"site\",job=\"solace\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_configsync_table_timeinstateseconds{instance=\"$instance\",table_name=\"site\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -1594,7 +1616,68 @@
       "type": "stat"
     },
     {
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": "Master",
+              "to": "",
+              "type": 1,
+              "value": "0"
+            },
+            {
+              "from": "",
+              "id": 2,
+              "operator": "",
+              "text": "Slave",
+              "to": "",
+              "type": 1,
+              "value": "1"
+            },
+            {
+              "from": "",
+              "id": 4,
+              "operator": "",
+              "text": " Unknown",
+              "to": "",
+              "type": 1,
+              "value": "2"
+            },
+            {
+              "from": "",
+              "id": 5,
+              "operator": "",
+              "text": " ",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              },
+              {
+                "color": "dark-green",
+                "value": 0
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 4,
         "w": 4,
@@ -1604,69 +1687,22 @@
       "id": 30,
       "options": {
         "colorMode": "value",
-        "fieldOptions": {
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
             "last"
           ],
-          "defaults": {
-            "mappings": [
-              {
-                "from": "",
-                "id": 1,
-                "operator": "",
-                "text": "Master",
-                "to": "",
-                "type": 1,
-                "value": "0"
-              },
-              {
-                "from": "",
-                "id": 2,
-                "operator": "",
-                "text": "Slave",
-                "to": "",
-                "type": 1,
-                "value": "1"
-              },
-              {
-                "from": "",
-                "id": 4,
-                "operator": "",
-                "text": " ",
-                "to": "",
-                "type": 1,
-                "value": "null"
-              }
-            ],
-            "thresholds": {
-              "mode": "absolute",
-              "steps": [
-                {
-                  "color": "blue",
-                  "value": null
-                },
-                {
-                  "color": "dark-green",
-                  "value": 0
-                },
-                {
-                  "color": "green",
-                  "value": 1
-                }
-              ]
-            }
-          },
-          "overrides": [],
+          "fields": "",
           "values": false
         },
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto"
+        "textMode": "auto"
       },
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.3.4",
       "targets": [
         {
-          "expr": "label_replace(solace_configsync_table_ownership{instance=\"$instance\",table_name=\"site\",job=\"solace\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_configsync_table_ownership{instance=\"$instance\",table_name=\"site\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -1683,7 +1719,14 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1708,9 +1751,10 @@
       "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "7.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1720,7 +1764,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "label_replace(irate(solace_vpn_rx_bytes_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(irate(solace_vpn_rx_bytes_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{vpn_name}}@{{instance_short}} IN",
@@ -1773,7 +1817,14 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1798,9 +1849,10 @@
       "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "7.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1810,7 +1862,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "label_replace(irate(solace_vpn_tx_bytes_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(irate(solace_vpn_tx_bytes_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{vpn_name}}@{{instance_short}} OUT",
@@ -1864,7 +1916,14 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1889,9 +1948,10 @@
       "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "7.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1901,7 +1961,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "label_replace(irate(solace_vpn_rx_msgs_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(irate(solace_vpn_rx_msgs_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -1955,7 +2015,14 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -1980,9 +2047,10 @@
       "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "7.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1992,7 +2060,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "label_replace(irate(solace_vpn_tx_msgs_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(irate(solace_vpn_tx_msgs_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{vpn_name}}@{{instance_short}} OUT",
@@ -2045,9 +2113,16 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "decimals": 2,
       "description": "Number of spooled messages on the broker, against max. quota of spool available",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -2072,15 +2147,15 @@
       "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "7.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "$$hashKey": "object:1424",
           "alias": "/quota .*/",
           "color": "#F2495C",
           "fill": 0
@@ -2091,7 +2166,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "label_replace(solace_system_spool_usage_msgs{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_system_spool_usage_msgs{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2100,13 +2175,20 @@
           "refId": "A"
         },
         {
-          "expr": "label_replace(solace_system_spool_quota_msgs{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_system_spool_quota_msgs{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
           "legendFormat": "quota {{instance_short}}",
           "refId": "B"
+        },
+        {
+          "expr": "label_replace(solace_vpn_spool_usage_msgs{instance=\"$instance\", vpn_name!~\"default\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "spooled msgs {{instance_short}} {{vpn_name}}",
+          "refId": "C"
         }
       ],
       "thresholds": [],
@@ -2130,7 +2212,6 @@
       },
       "yaxes": [
         {
-          "$$hashKey": "object:1439",
           "decimals": 0,
           "format": "short",
           "label": null,
@@ -2140,7 +2221,6 @@
           "show": true
         },
         {
-          "$$hashKey": "object:1440",
           "format": "short",
           "label": null,
           "logBase": 1,
@@ -2159,9 +2239,16 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "Prometheus",
+      "datasource": "Thanos",
       "decimals": 2,
       "description": "Amount of spooled data on the broker, against max. quota of spool available",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "links": []
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -2186,9 +2273,10 @@
       "links": [],
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "7.3.4",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2204,18 +2292,32 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "label_replace(solace_system_spool_usage_bytes{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_system_spool_usage_bytes{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "spooled msgs {{instance_short}}",
           "refId": "A"
         },
         {
-          "expr": "label_replace(solace_system_spool_quota_bytes{instance=\"$instance\"}, \"instance_short\", \"$1\", \"instance\", \"([\\\\w\\\\-]+).*\")",
+          "expr": "label_replace(solace_system_spool_quota_bytes{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "quota {{instance_short}}",
           "refId": "B"
+        },
+        {
+          "expr": "label_replace(solace_vpn_spool_usage_bytes{instance=\"$instance\", vpn_name!~\"default\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "spooled msgs {{instance_short}} {{vpn_name}}",
+          "refId": "C"
+        },
+        {
+          "expr": "label_replace(solace_vpn_spool_quota_bytes{instance=\"$instance\", vpn_name!~\"default\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "quota {{instance_short}} {{vpn_name}}",
+          "refId": "D"
         }
       ],
       "thresholds": [],
@@ -2260,10 +2362,354 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 49
+      },
+      "id": 56,
+      "options": {
+        "content": "",
+        "mode": "markdown"
+      },
+      "pluginVersion": "7.3.4",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "OnPrem specific: The following content applies only for OnPrem broker.",
+      "type": "text"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 3,
+        "x": 0,
+        "y": 50
+      },
+      "id": 52,
+      "options": {
+        "content": "Exporter Version",
+        "mode": "markdown"
+      },
+      "pluginVersion": "7.3.4",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "text"
+    },
+    {
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 0,
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": " ",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 1,
+        "x": 3,
+        "y": 50
+      },
+      "id": 49,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "expr": "(solace_exporter_version_current{instance=\"$instance\"} % 1000000000)/ 1000000",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 0,
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": " ",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 1,
+        "x": 4,
+        "y": 50
+      },
+      "id": 50,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "expr": "(solace_exporter_version_current{instance=\"$instance\"} % 1000000)/ 1000",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "decimals": 0,
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "operator": "",
+              "text": " ",
+              "to": "",
+              "type": 1,
+              "value": "null"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 1,
+        "x": 5,
+        "y": 50
+      },
+      "id": 51,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "last"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "expr": "(solace_exporter_version_current{instance=\"$instance\"} % 1000)",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "Thanos",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 50
+      },
+      "hiddenSeries": false,
+      "id": 54,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.3.4",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "solace_system_spool_disk_partition_usage_active_percent{instance=\"$instance\"}",
+          "interval": "",
+          "legendFormat": "",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Hardware spool",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": "10s",
-  "schemaVersion": 22,
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [
     "solace",
@@ -2274,21 +2720,21 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": "s-t-i1-otc1-t01.sbb.ch:10920",
-          "value": "s-t-i1-otc1-t01.sbb.ch:10920"
+          "selected": false,
+          "text": "s-lt2-otc1-t01.sbb.ch:9628",
+          "value": "s-lt2-otc1-t01.sbb.ch:9628"
         },
-        "datasource": "Prometheus",
+        "datasource": "Thanos",
         "definition": "label_values(up{group=\"Solace\"}, instance)",
+        "error": null,
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "",
         "multi": false,
         "name": "instance",
         "options": [],
         "query": "label_values(up{group=\"Solace\"}, instance)",
-        "refresh": 1,
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
@@ -2334,5 +2780,5 @@
   "variables": {
     "list": []
   },
-  "version": 25
+  "version": 31
 }
