@@ -34,7 +34,7 @@
       "title": "Help: Broker",
       "tooltip": "Help: Broker Monitoring Dashboard",
       "type": "link",
-      "url": "https://confluence.sbb.ch/display/MOPRO/Solace+Monitoring+Dashboard%3A+Broker"
+      "url": "https://mydocupage.org"
     }
   ],
   "panels": [
@@ -1228,7 +1228,7 @@
       "links": [
         {
           "title": "Bridges for this Broker",
-          "url": "http://monitoring-rcs.sbb.ch/d/0zeRtZmGk/solace-bridges?orgId=1&var-instance=${instance}"
+          "url": "https://mydocupage.org"
         }
       ],
       "pageSize": null,
@@ -2719,11 +2719,7 @@
     "list": [
       {
         "allValue": null,
-        "current": {
-          "selected": false,
-          "text": "s-lt2-otc1-t01.sbb.ch:9628",
-          "value": "s-lt2-otc1-t01.sbb.ch:9628"
-        },
+        "current": {},
         "datasource": "Thanos",
         "definition": "label_values(up{group=\"Solace\"}, instance)",
         "error": null,

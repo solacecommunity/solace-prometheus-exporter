@@ -35,7 +35,7 @@
       "title": "Help: Bridges",
       "tooltip": "Help: Bridges Monitoring Dashboard",
       "type": "link",
-      "url": "https://confluence.sbb.ch/display/MOPRO/Solace+Monitoring+Dashboard%3A+Bridges"
+      "url": "https://mydocupage.org"
     }
   ],
   "panels": [
@@ -1177,11 +1177,7 @@
     "list": [
       {
         "allValue": null,
-        "current": {
-          "selected": true,
-          "text": "s-t-i1-otc1-t01.sbb.ch:10920",
-          "value": "s-t-i1-otc1-t01.sbb.ch:10920"
-        },
+        "current": {},
         "datasource": "Thanos",
         "definition": "label_values(up{group=\"Solace\"}, instance)",
         "hide": 0,

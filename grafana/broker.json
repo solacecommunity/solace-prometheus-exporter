@@ -730,10 +730,7 @@
       "list": [
         {
           "allValue": null,
-          "current": {
-            "text": "shared-rcssolace-node02.otc-test.sbb.ch:9628",
-            "value": "shared-rcssolace-node02.otc-test.sbb.ch:9628"
-          },
+          "current": {},
           "datasource": "Prometheus",
           "definition": "label_values(solace_vpn_connections, instance)",
           "hide": 0,
