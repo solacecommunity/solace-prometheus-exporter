@@ -72,24 +72,42 @@ Get the same result as the legacy `solace-det` endpoint, but from a specific bro
 #### Scrape targets
 
 
-| scrape target	| vpn filter supports | item filter supported | performance impact | corresponding cli cmd | supported by |
-| :------------ | :------------------ | :-------------------- | :----------------- | :-------------------- | :-------------------- |
-| Version | no | no | dont harm broker | show version | software, appliance |
-| Health | no | no | dont harm broker | show system health | software |
-| Spool | no | no | dont harm broker | show message-spool | software, appliance |
-| Redundancy (only for HA broker) | no | no | dont harm broker | show redundancy | software, appliance |
-| ConfigSyncRouter (only for HA broker) | no | no | dont harm broker | show config-sync database router | software, appliance |
-| Vpn | yes | no | dont harm broker | show message-vpn vpnFilter | software, appliance |
-| VpnReplication | yes | no | dont harm broker | show message-vpn vpnFilter replication | software, appliance |
-| ConfigSyncVpn (only for HA broker) | yes | no | dont harm broker | show config-sync database message-vpn vpnFilter | software, appliance |
-| Bridge | yes | yes | dont harm broker | show bridge itemFilter message-vpn vpnFilter | software, appliance |
-| VpnSpool | yes | no | dont harm broker |  show message-spool message-vpn vpnFilter | software, appliance |
-| ClientStats | yes | no | may harm broker if many clients | show client itemFilter stats count 100 (paged) | software, appliance | 
-| VpnStats | yes | no | has a very small performance down site | show message-vpn vpnFilter stats | software, appliance |
-| BridgeStats | yes | yes | has a very small performance down site | show bridge itemFilter message-vpn vpnFilter stats | software, appliance |
-| QueueRates | yes | yes | DEPRECATED: may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged) | software, appliance |
-| QueueStats | yes | yes | may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged) | software, appliance |
-| QueueDetails | yes | yes | may harm broker if many queues | show queue itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
+| scrape target                         | vpn filter supports | item filter supported | performance impact                         | corresponding cli cmd                                                | supported by        |
+| :------------------------------------ | :------------------ | :-------------------- | :----------------------------------------- | :------------------------------------------------------------------- | :------------------ |
+| Version                               | no                  | no                    | dont harm broker                           | show version                                                         | software, appliance |
+| Health                                | no                  | no                    | dont harm broker                           | show system health                                                   | software            |
+| Spool                                 | no                  | no                    | dont harm broker                           | show message-spool                                                   | software, appliance |
+| Redundancy (only for HA broker)       | no                  | no                    | dont harm broker                           | show redundancy                                                      | software, appliance |
+| ConfigSyncRouter (only for HA broker) | no                  | no                    | dont harm broker                           | show config-sync database router                                     | software, appliance |
+| Vpn                                   | yes                 | no                    | dont harm broker                           | show message-vpn vpnFilter                                           | software, appliance |
+| VpnReplication                        | yes                 | no                    | dont harm broker                           | show message-vpn vpnFilter replication                               | software, appliance |
+| ConfigSyncVpn (only for HA broker)    | yes                 | no                    | dont harm broker                           | show config-sync database message-vpn vpnFilter                      | software, appliance |
+| Bridge                                | yes                 | yes                   | dont harm broker                           | show bridge itemFilter message-vpn vpnFilter                         | software, appliance |
+| VpnSpool                              | yes                 | no                    | dont harm broker                           | show message-spool message-vpn vpnFilter                             | software, appliance |
+| ClientStats                           | yes                 | no                    | may harm broker if many clients            | show client itemFilter stats count 100 (paged)                       | software, appliance |
+| VpnStats                              | yes                 | no                    | has a very small performance down site     | show message-vpn vpnFilter stats                                     | software, appliance |
+| BridgeStats                           | yes                 | yes                   | has a very small performance down site     | show bridge itemFilter message-vpn vpnFilter stats                   | software, appliance |
+| QueueRates                            | yes                 | yes                   | DEPRECATED: may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
+| QueueStats                            | yes                 | yes                   | may harm broker if many queues             | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
+| QueueDetails                          | yes                 | yes                   | may harm broker if many queues             | show queue itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
+
+#### Broker Connectivity Metric
+
+No matter which combination of targets and filters you're using, there is always one metric available that will show the success (or failure) when trying to connect to the Solace broker. 
+
+```
+# HELP solace_up Was the last scrape of Solace broker successful.
+# TYPE solace_up gauge
+solace_up{error=""} 1
+```
+
+If any problem arises while querying the broker, the metric value will become `0` and the label will show the most recent error as shown in the following examples:
+
+```
+solace_up{error="Get \"http://localhost:8080/SEMP\": dial tcp 127.0.0.1:8080: connect: connection refused"} 0
+solace_up{error="HTTP status 401 (Unauthorized)"} 0
+...
+```
 
 ### Modular endpoint configs
 
