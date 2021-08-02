@@ -868,7 +868,7 @@ func (e *Exporter) getClientStatsSemp1(ch chan<- prometheus.Metric, itemFilter s
 								} `xml:"egress-discards"`
 							} `xml:"stats"`
 						} `xml:"client"`
-					} `xml:"primary-virtual-router"`
+					} `xml:",any"`
 				} `xml:"client"`
 			} `xml:"show"`
 		} `xml:"rpc"`
