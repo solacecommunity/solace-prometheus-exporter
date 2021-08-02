@@ -17,6 +17,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -48,6 +49,7 @@ var (
 	variableLabelsRedundancy      = []string{"mate_name"}
 	variableLabelsVpn             = []string{"vpn_name"}
 	variableLabelsVpnClient       = []string{"vpn_name", "client_name", "client_username"}
+	variableLabelsVpnClientFlow   = []string{"vpn_name", "client_name", "client_username", "flow_id"}
 	variableLabelsVpnQueue        = []string{"vpn_name", "queue_name"}
 	variableLabelsBridge          = []string{"vpn_name", "bridge_name"}
 	variableLabelsConfigSyncTable = []string{"table_name"}
@@ -185,6 +187,30 @@ var metricDesc = map[string]Metrics{
 		"client_tx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"client_tx_discarded_msgs_total", "Number of discarded transmitted messages.", variableLabelsVpnClient, nil),
 		"client_slow_subscriber":         prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClient, nil),
 	},
+	"ClientMessageSpoolStats": {
+		"spooling_not_ready":                prometheus.NewDesc(namespace+"_"+"client_ingress_spooling_not_ready", "Number of connections closed caused by spoolingNotReady", variableLabelsVpnClientFlow, nil),
+		"out_of_order_messages_received":    prometheus.NewDesc(namespace+"_"+"client_ingress_out_of_order_messages_received", "Number of messages, received in wrong order.", variableLabelsVpnClientFlow, nil),
+		"duplicate_messages_received":       prometheus.NewDesc(namespace+"_"+"client_ingress_duplicate_messages_received", "Number of messages, received more than once", variableLabelsVpnClientFlow, nil),
+		"no_eligible_destinations":          prometheus.NewDesc(namespace+"_"+"client_ingress_no_eligible_destinations", "???", variableLabelsVpnClientFlow, nil),
+		"guaranteed_messages":               prometheus.NewDesc(namespace+"_"+"client_ingress_guaranteed_messages", "Number of gurantied messages, received.", variableLabelsVpnClientFlow, nil),
+		"no_local_delivery":                 prometheus.NewDesc(namespace+"_"+"client_ingress__no_local_delivery", "Number of messages, no localy delivered.", variableLabelsVpnClientFlow, nil),
+		"seq_num_rollover":                  prometheus.NewDesc(namespace+"_"+"client_ingress_seq_num_rollover", "???", variableLabelsVpnClientFlow, nil),
+		"seq_num_messages_discarded":        prometheus.NewDesc(namespace+"_"+"client_ingress_seq_num_messages_discarded", "???", variableLabelsVpnClientFlow, nil),
+		"transacted_messages_not_sequenced": prometheus.NewDesc(namespace+"_"+"client_ingress_transacted_messages_not_sequenced", "???", variableLabelsVpnClientFlow, nil),
+		"destination_group_error":           prometheus.NewDesc(namespace+"_"+"client_ingress_destination_group_error", "???", variableLabelsVpnClientFlow, nil),
+		"smf_ttl_exceeded":                  prometheus.NewDesc(namespace+"_"+"client_ingress_smf_ttl_exceeded", "???", variableLabelsVpnClientFlow, nil),
+		"publish_acl_denied":                prometheus.NewDesc(namespace+"_"+"client_ingress_publish_acl_denied", "???", variableLabelsVpnClientFlow, nil),
+
+		"window_size":                           prometheus.NewDesc(namespace+"_"+"client_egress_window_size", "Configured window size", variableLabelsVpnClientFlow, nil),
+		"used_window":                           prometheus.NewDesc(namespace+"_"+"client_egress_used_window", "Used windows size.", variableLabelsVpnClientFlow, nil),
+		"window_closed":                         prometheus.NewDesc(namespace+"_"+"client_egress_window_closed", "Number windows closed.", variableLabelsVpnClientFlow, nil),
+		"message_redelivered":                   prometheus.NewDesc(namespace+"_"+"client_egress_message_redelivered", "Number of messages, was been redelivered.", variableLabelsVpnClientFlow, nil),
+		"message_transport_retransmit":          prometheus.NewDesc(namespace+"_"+"client_egress_message_transport_retransmit", "Number of messages, was been retransmitted.", variableLabelsVpnClientFlow, nil),
+		"message_confirmed_delivered":           prometheus.NewDesc(namespace+"_"+"client_egress_message_confirmed_delivered", "Number of messacess succesfully delivered.", variableLabelsVpnClientFlow, nil),
+		"confirmed_delivered_store_and_forward": prometheus.NewDesc(namespace+"_"+"client_egress_confirmed_delivered_store_and_forward", "???", variableLabelsVpnClientFlow, nil),
+		"confirmed_delivered_cut_through":       prometheus.NewDesc(namespace+"_"+"client_egress_confirmed_delivered_cut_through", "???", variableLabelsVpnClientFlow, nil),
+		"unacked_messages":                      prometheus.NewDesc(namespace+"_"+"client_egress_unacked_messages", "Number of unacknowledged messages.", variableLabelsVpnClientFlow, nil),
+	},
 	"VpnStats": {
 		"vpn_rx_msgs_total":           prometheus.NewDesc(namespace+"_"+"vpn_rx_msgs_total", "Number of received messages.", variableLabelsVpn, nil),
 		"vpn_tx_msgs_total":           prometheus.NewDesc(namespace+"_"+"vpn_tx_msgs_total", "Number of transmitted messages.", variableLabelsVpn, nil),
@@ -293,7 +319,7 @@ func (e *Exporter) getVersionSemp1(ch chan<- prometheus.Metric) (ok float64, err
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "Unexpected result for getVersionSemp1", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 
 	// remember this for the label
@@ -357,7 +383,7 @@ func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64, err 
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 
 	ch <- prometheus.MustNewConstMetric(metricDesc["Health"]["system_disk_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMinimumValue/1e6)
@@ -413,7 +439,7 @@ func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64, err e
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 
 	ch <- prometheus.MustNewConstMetric(metricDesc["Spool"]["system_spool_quota_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.QuotaDiskUsage*1048576.0))
@@ -479,7 +505,7 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64, 
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 
 	mateRouterName := "" + target.RPC.Show.Red.MateRouterName
@@ -542,7 +568,7 @@ func (e *Exporter) getConfigSyncRouterSemp1(ch chan<- prometheus.Metric) (ok flo
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 
 	for _, table := range target.RPC.Show.ConfigSync.Database.Local.Tables.Table {
@@ -599,7 +625,7 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric, vpnFilter string) (o
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "Unexpected result for VpnSemp1", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
@@ -658,7 +684,7 @@ func (e *Exporter) getVpnReplicationSemp1(ch chan<- prometheus.Metric, vpnFilter
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Replication.MessageVpns.MessageVpn {
@@ -714,7 +740,7 @@ func (e *Exporter) getConfigSyncVpnSemp1(ch chan<- prometheus.Metric, vpnFilter 
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 
 	for _, table := range target.RPC.Show.ConfigSync.Database.Local.Tables.Table {
@@ -781,7 +807,7 @@ func (e *Exporter) getBridgeSemp1(ch chan<- prometheus.Metric, vpnFilter string,
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 	ch <- prometheus.MustNewConstMetric(metricDesc["Bridge"]["bridges_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalBridgesValue)
 	ch <- prometheus.MustNewConstMetric(metricDesc["Bridge"]["bridges_max_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalBridgesValue)
@@ -870,7 +896,7 @@ func (e *Exporter) getClientStatsSemp1(ch chan<- prometheus.Metric, itemFilter s
 		}
 		if target.ExecuteResult.Result != "ok" {
 			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-			return 0, err
+			return 0, errors.New("unexpected result: see log")
 		}
 
 		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
@@ -885,6 +911,115 @@ func (e *Exporter) getClientStatsSemp1(ch chan<- prometheus.Metric, itemFilter s
 			ch <- prometheus.MustNewConstMetric(metricDesc["ClientStats"]["client_tx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.EgressDiscards.DiscardedTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
 			ch <- prometheus.MustNewConstMetric(metricDesc["ClientStats"]["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, client.ClientUsername)
 		}
+		body.Close()
+	}
+
+	return 1, nil
+}
+
+// Get some statistics for each individual client of all vpn's
+// This can result in heavy system load for lots of clients
+func (e *Exporter) getClientMessageSpoolStatsSemp1(ch chan<- prometheus.Metric, itemFilter string) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Client struct {
+					PrimaryVirtualRouter struct {
+						Client []struct {
+							ClientName        string `xml:"name"`
+							ClientUsername    string `xml:"client-username"`
+							MsgVpnName        string `xml:"message-vpn"`
+							SlowSubscriber    bool   `xml:"slow-subscriber"`
+							MessageSpoolStats struct {
+								IngressFlowStats []struct {
+									SpoolingNotReady               float64 `xml:"spooling-not-ready"`
+									OutOfOrderMessagesReceived     float64 `xml:"out-of-order-messages-received"`
+									DuplicateMessagesReceived      float64 `xml:"duplicate-messages-received"`
+									NoEligibleDestinations         float64 `xml:"no-eligible-destinations"`
+									GuaranteedMessages             float64 `xml:"guaranteed-messages"`
+									NoLocalDelivery                float64 `xml:"no-local-delivery"`
+									SeqNumRollover                 float64 `xml:"seq-num-rollover"`
+									SeqNumMessagesDiscarded        float64 `xml:"seq-num-messages-discarded"`
+									TransactedMessagesNotSequenced float64 `xml:"transacted-messages-not-sequenced"`
+									DestinationGroupError          float64 `xml:"destination-group-error"`
+									SmfTtlExceeded                 float64 `xml:"smf-ttl-exceeded"`
+									PublishAclDenied               float64 `xml:"publish-acl-denied"`
+								} `xml:"ingress-flow-stats"`
+								EgressFlowStats []struct {
+									WindowSize                        float64 `xml:"window-size"`
+									UsedWindow                        float64 `xml:"used-window"`
+									WindowClosed                      float64 `xml:"window-closed"`
+									MessageRedelivered                float64 `xml:"message-redelivered"`
+									MessageTransportRetransmit        float64 `xml:"message-transport-retransmit"`
+									MessageConfirmedDelivered         float64 `xml:"message-confirmed-delivered"`
+									ConfirmedDeliveredStoreAndForward float64 `xml:"confirmed-delivered-store-and-forward"`
+									ConfirmedDeliveredCutThrough      float64 `xml:"confirmed-delivered-cut-through"`
+									UnackedMessages                   float64 `xml:"unacked-messages"`
+								} `xml:"egress-flow-stats"`
+							} `xml:"message-spool-stats"`
+						} `xml:"client"`
+					} `xml:",any"`
+				} `xml:"client"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		MoreCookie struct {
+			RPC string `xml:",innerxml"`
+		} `xml:"more-cookie"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><message-spool-stats/><count/><num-elements>100</num-elements></client></show></rpc>"; nextRequest != ""; {
+		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't scrape ClientMessageSpoolStatsSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		defer body.Close()
+		decoder := xml.NewDecoder(body)
+		var target Data
+		err = decoder.Decode(&target)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't decode ClientMessageSpoolStatsSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		if target.ExecuteResult.Result != "ok" {
+			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+			return 0, errors.New("unexpected result: see log")
+		}
+
+		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
+		nextRequest = target.MoreCookie.RPC
+
+		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
+			for flowId, ingressFlow := range client.MessageSpoolStats.IngressFlowStats {
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["spooling_not_ready"], prometheus.CounterValue, ingressFlow.SpoolingNotReady, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["out_of_order_messages_received"], prometheus.CounterValue, ingressFlow.OutOfOrderMessagesReceived, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["duplicate_messages_received"], prometheus.CounterValue, ingressFlow.DuplicateMessagesReceived, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["no_eligible_destinations"], prometheus.CounterValue, ingressFlow.NoEligibleDestinations, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["guaranteed_messages"], prometheus.CounterValue, ingressFlow.GuaranteedMessages, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["no_local_delivery"], prometheus.CounterValue, ingressFlow.NoLocalDelivery, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["seq_num_rollover"], prometheus.CounterValue, ingressFlow.SeqNumRollover, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["seq_num_messages_discarded"], prometheus.CounterValue, ingressFlow.SeqNumMessagesDiscarded, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["transacted_messages_not_sequenced"], prometheus.CounterValue, ingressFlow.TransactedMessagesNotSequenced, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["destination_group_error"], prometheus.CounterValue, ingressFlow.DestinationGroupError, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["smf_ttl_exceeded"], prometheus.CounterValue, ingressFlow.SmfTtlExceeded, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["publish_acl_denied"], prometheus.CounterValue, ingressFlow.PublishAclDenied, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+			}
+			for flowId, egressFlow := range client.MessageSpoolStats.EgressFlowStats {
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["window_size"], prometheus.CounterValue, egressFlow.WindowSize, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["used_window"], prometheus.CounterValue, egressFlow.UsedWindow, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["window_closed"], prometheus.CounterValue, egressFlow.WindowClosed, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["message_redelivered"], prometheus.CounterValue, egressFlow.MessageRedelivered, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["message_transport_retransmit"], prometheus.CounterValue, egressFlow.MessageTransportRetransmit, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["message_confirmed_delivered"], prometheus.CounterValue, egressFlow.MessageConfirmedDelivered, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["confirmed_delivered_store_and_forward"], prometheus.CounterValue, egressFlow.ConfirmedDeliveredStoreAndForward, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["confirmed_delivered_cut_through"], prometheus.CounterValue, egressFlow.ConfirmedDeliveredCutThrough, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["unacked_messages"], prometheus.CounterValue, egressFlow.UnackedMessages, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+			}
+		}
+
 		body.Close()
 	}
 
@@ -946,7 +1081,7 @@ func (e *Exporter) getVpnStatsSemp1(ch chan<- prometheus.Metric, vpnFilter strin
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
@@ -1073,7 +1208,7 @@ func (e *Exporter) getBridgeStatsSemp1(ch chan<- prometheus.Metric, vpnFilter st
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 	for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
 		bridgeName := bridge.BridgeName
@@ -1173,7 +1308,7 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric, vpnFilter str
 		}
 		if target.ExecuteResult.Result != "ok" {
 			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-			return 0, err
+			return 0, errors.New("unexpected result: see log")
 		}
 
 		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
@@ -1257,7 +1392,7 @@ func (e *Exporter) getQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter str
 		}
 		if target.ExecuteResult.Result != "ok" {
 			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-			return 0, err
+			return 0, errors.New("unexpected result: see log")
 		}
 
 		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
@@ -1324,7 +1459,7 @@ func (e *Exporter) getQueueDetailsSemp1(ch chan<- prometheus.Metric, vpnFilter s
 		}
 		if target.ExecuteResult.Result != "ok" {
 			_ = level.Error(e.logger).Log("msg", "Can't scrape QueueDetailsSemp1", "err", err, "broker", e.config.scrapeURI)
-			return 0, err
+			return 0, errors.New("unexpected result: see log")
 		}
 
 		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
@@ -1380,7 +1515,7 @@ func (e *Exporter) getVpnSpoolSemp1(ch chan<- prometheus.Metric, vpnFilter strin
 	}
 	if target.ExecuteResult.Result != "ok" {
 		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
-		return 0, err
+		return 0, errors.New("unexpected result: see log")
 	}
 
 	for _, vpn := range target.RPC.Show.MessageSpool.MessageVpn.Vpn {
@@ -1611,6 +1746,9 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up, err = e.getVpnSpoolSemp1(ch, dataSource.vpnFilter)
 		case "ClientStats":
 			up, err = e.getClientStatsSemp1(ch, dataSource.vpnFilter)
+		case "ClientMessageSpoolStats":
+			up, err = e.getClientMessageSpoolStatsSemp1(ch, dataSource.vpnFilter)
+
 		case "VpnStats":
 			up, err = e.getVpnStatsSemp1(ch, dataSource.vpnFilter)
 		case "BridgeStats":
@@ -1744,6 +1882,7 @@ func main() {
 					<tr><td>Bridge</td><td>yes</td><td>yes</td><td>dont harm broker</td></tr>
 					<tr><td>VpnSpool</td><td>yes</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>ClientStats</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
+					<tr><td>ClientMessageSpoolStats</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
 					<tr><td>VpnStats</td><td>yes</td><td>no</td><td>has a very small performance down site</td></tr>
 					<tr><td>BridgeStats</td><td>yes</td><td>yes</td><td>has a very small performance down site</td></tr>
 					<tr><td>QueueRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many queues</td></tr>
