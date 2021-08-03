@@ -1,4 +1,3 @@
-go.sum
 solace_exporter
 solace_prometheus_exporter
 *.exe
