@@ -51,6 +51,7 @@ var (
 	variableLabelsVpnClient       = []string{"vpn_name", "client_name", "client_username"}
 	variableLabelsVpnClientFlow   = []string{"vpn_name", "client_name", "client_username", "flow_id"}
 	variableLabelsVpnQueue        = []string{"vpn_name", "queue_name"}
+	variableLabelsCluserLink      = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
 	variableLabelsBridge          = []string{"vpn_name", "bridge_name"}
 	variableLabelsConfigSyncTable = []string{"table_name"}
 )
@@ -277,6 +278,11 @@ var metricDesc = map[string]Metrics{
 		"spool_usage_exceeded":            prometheus.NewDesc(namespace+"_"+"queue_msg_spool_usage_exceeded", "Queue total number of messages exceeded the spool usage.", variableLabelsVpnQueue, nil),
 		"max_message_size_exceeded":       prometheus.NewDesc(namespace+"_"+"queue_msg_max_msg_size_exceeded", "Queue total number of messages exceeded the max message size.", variableLabelsVpnQueue, nil),
 		"total_deleted_messages":          prometheus.NewDesc(namespace+"_"+"queue_msg_total_deleted", "Queuse total number that was deleted.", variableLabelsVpnQueue, nil),
+	},
+	"ClusterLinks": {
+		"enabled":     prometheus.NewDesc(namespace+"_"+"cluster_link_enabled", "Clustter link is enabled.", variableLabelsCluserLink, nil),
+		"oper_up":     prometheus.NewDesc(namespace+"_"+"cluster_link_operational", "Clustter link is operational.", variableLabelsCluserLink, nil),
+		"oper_uptime": prometheus.NewDesc(namespace+"_"+"cluster_link_uptime", "Clustter link utime in seconds.", variableLabelsCluserLink, nil),
 	},
 }
 
@@ -1531,6 +1537,65 @@ func (e *Exporter) getVpnSpoolSemp1(ch chan<- prometheus.Metric, vpnFilter strin
 	return 1, nil
 }
 
+// Cluster link states of broker
+func (e *Exporter) getClusterLinkSemp1(ch chan<- prometheus.Metric, clusterFilter string, linkFilter string) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Cluster struct {
+					Clusters struct {
+						Cluster []struct {
+							ClusterName string `xml:"cluster-name"`
+							NodeName    string `xml:"node-name"`
+							Links       struct {
+								Link []struct {
+									Enabled           string  `xml:"enabled"`
+									Operational       string  `xml:"oper-up"`
+									UptimeInSeconds   float64 `xml:"oper-uptime-seconds"`
+									RemoteClusterName string  `xml:"remote-cluster-name"`
+									RemoteNodeName    string  `xml:"remote-node-name"`
+								} `xml:"link"`
+							} `xml:"links"`
+						} `xml:"cluster"`
+					} `xml:"clusters"`
+				} `xml:"cluster"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><cluster><cluster-name-pattern>" + clusterFilter + "</cluster-name-pattern><link-name-pattern>" + linkFilter + "</link-name-pattern></cluster></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't scrape ClusterLinkSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't decode Xml ClusterLinkSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	if target.ExecuteResult.Result != "ok" {
+		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+		return 0, errors.New("unexpected result: see log")
+	}
+
+	for _, cluster := range target.RPC.Show.Cluster.Clusters.Cluster {
+		for _, link := range cluster.Links.Link {
+			ch <- prometheus.MustNewConstMetric(metricDesc["ClusterLinks"]["enabled"], prometheus.GaugeValue, encodeMetricMulti(link.Enabled, []string{"false", "true", "n/a"}), cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["ClusterLinks"]["oper_up"], prometheus.GaugeValue, encodeMetricMulti(link.Operational, []string{"false", "true", "n/a"}), cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["ClusterLinks"]["oper_uptime"], prometheus.GaugeValue, link.UptimeInSeconds, cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
+		}
+	}
+
+	return 1, nil
+}
+
 // Encodes string to 0,1,2,... metric
 func encodeMetricMulti(item string, refItems []string) float64 {
 	uItem := strings.ToUpper(item)
@@ -1752,6 +1817,8 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up, err = e.getClientStatsSemp1(ch, dataSource.vpnFilter)
 		case "ClientMessageSpoolStats":
 			up, err = e.getClientMessageSpoolStatsSemp1(ch, dataSource.vpnFilter)
+		case "ClusterLink":
+			up, err = e.getClusterLinkSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
 
 		case "VpnStats":
 			up, err = e.getVpnStatsSemp1(ch, dataSource.vpnFilter)
@@ -1886,7 +1953,8 @@ func main() {
 					<tr><td>Bridge</td><td>yes</td><td>yes</td><td>dont harm broker</td></tr>
 					<tr><td>VpnSpool</td><td>yes</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>ClientStats</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
-					<tr><td>ClientMessageSpoolStats</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
+					<tr><td>ClientMessageSpoolStats</td><td>yes</td><td>yes</td><td>no</td></tr>
+					<tr><td>ClusterLink</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
 					<tr><td>VpnStats</td><td>yes</td><td>no</td><td>has a very small performance down site</td></tr>
 					<tr><td>BridgeStats</td><td>yes</td><td>yes</td><td>has a very small performance down site</td></tr>
 					<tr><td>QueueRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many queues</td></tr>

@@ -91,6 +91,7 @@ Get the same result as the legacy `solace-det` endpoint, but from a specific bro
 | QueueRates                            | yes                 | yes                   | DEPRECATED: may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
 | QueueStats                            | yes                 | yes                   | may harm broker if many queues             | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
 | QueueDetails                          | yes                 | yes                   | may harm broker if many queues             | show queue itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
+| ClusterLink                           | yes                 | yes                   | dont harm broker                           | show the state of the cluster links. Filters are for clusterName and linkName | software, appliance |
 
 #### Broker Connectivity Metric
 
