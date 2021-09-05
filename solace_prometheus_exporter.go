@@ -45,15 +45,16 @@ const (
 var (
 	solaceExporterVersion = float64(1003004)
 
-	variableLabelsUp              = []string{"error"}
-	variableLabelsRedundancy      = []string{"mate_name"}
-	variableLabelsVpn             = []string{"vpn_name"}
-	variableLabelsVpnClient       = []string{"vpn_name", "client_name", "client_username"}
-	variableLabelsVpnClientFlow   = []string{"vpn_name", "client_name", "client_username", "flow_id"}
-	variableLabelsVpnQueue        = []string{"vpn_name", "queue_name"}
-	variableLabelsCluserLink      = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
-	variableLabelsBridge          = []string{"vpn_name", "bridge_name"}
-	variableLabelsConfigSyncTable = []string{"table_name"}
+	variableLabelsUp               = []string{"error"}
+	variableLabelsRedundancy       = []string{"mate_name"}
+	variableLabelsVpn              = []string{"vpn_name"}
+	variableLabelsVpnClient        = []string{"vpn_name", "client_name", "client_username"}
+	variableLabelsVpnClientFlow    = []string{"vpn_name", "client_name", "client_username", "flow_id"}
+	variableLabelsVpnQueue         = []string{"vpn_name", "queue_name"}
+	variableLabelsVpnTopicEndpoint = []string{"vpn_name", "topic_endpoint_name"}
+	variableLabelsCluserLink       = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
+	variableLabelsBridge           = []string{"vpn_name", "bridge_name"}
+	variableLabelsConfigSyncTable  = []string{"table_name"}
 )
 
 type Metrics map[string]*prometheus.Desc
@@ -278,6 +279,31 @@ var metricDesc = map[string]Metrics{
 		"spool_usage_exceeded":            prometheus.NewDesc(namespace+"_"+"queue_msg_spool_usage_exceeded", "Queue total number of messages exceeded the spool usage.", variableLabelsVpnQueue, nil),
 		"max_message_size_exceeded":       prometheus.NewDesc(namespace+"_"+"queue_msg_max_msg_size_exceeded", "Queue total number of messages exceeded the max message size.", variableLabelsVpnQueue, nil),
 		"total_deleted_messages":          prometheus.NewDesc(namespace+"_"+"queue_msg_total_deleted", "Queuse total number that was deleted.", variableLabelsVpnQueue, nil),
+	},
+	"TopicEndpointRates": {
+		"rx_msg_rate":      prometheus.NewDesc(namespace+"_"+"topic_endpoint_rx_msg_rate", "Rate of received messages.", variableLabelsVpnTopicEndpoint, nil),
+		"tx_msg_rate":      prometheus.NewDesc(namespace+"_"+"topic_endpoint_tx_msg_rate", "Rate of transmitted messages.", variableLabelsVpnTopicEndpoint, nil),
+		"rx_byte_rate":     prometheus.NewDesc(namespace+"_"+"topic_endpoint_rx_byte_rate", "Rate of received bytes.", variableLabelsVpnTopicEndpoint, nil),
+		"tx_byte_rate":     prometheus.NewDesc(namespace+"_"+"topic_endpoint_tx_byte_rate", "Rate of transmitted bytes.", variableLabelsVpnTopicEndpoint, nil),
+		"rx_msg_rate_avg":  prometheus.NewDesc(namespace+"_"+"topic_endpoint_rx_msg_rate_avg", "Averate rate of received messages.", variableLabelsVpnTopicEndpoint, nil),
+		"tx_msg_rate_avg":  prometheus.NewDesc(namespace+"_"+"topic_endpoint_tx_msg_rate_avg", "Averate rate of transmitted messages.", variableLabelsVpnTopicEndpoint, nil),
+		"rx_byte_rate_avg": prometheus.NewDesc(namespace+"_"+"topic_endpoint_rx_byte_rate_avg", "Averate rate of received bytes.", variableLabelsVpnTopicEndpoint, nil),
+		"tx_byte_rate_avg": prometheus.NewDesc(namespace+"_"+"topic_endpoint_tx_byte_rate_avg", "Averate rate of transmitted bytes.", variableLabelsVpnTopicEndpoint, nil),
+	},
+	"TopicEndpointDetails": {
+		"spool_quota_bytes": prometheus.NewDesc(namespace+"_"+"topic_endpoint_spool_quota_bytes", "Topic Endpoint spool configured max disk usage in bytes.", variableLabelsVpnTopicEndpoint, nil),
+		"spool_usage_bytes": prometheus.NewDesc(namespace+"_"+"topic_endpoint_spool_usage_bytes", "Topic Endpoint spool usage in bytes.", variableLabelsVpnTopicEndpoint, nil),
+		"spool_usage_msgs":  prometheus.NewDesc(namespace+"_"+"topic_endpoint_spool_usage_msgs", "Topic Endpoint spooled number of messages.", variableLabelsVpnTopicEndpoint, nil),
+		"binds":             prometheus.NewDesc(namespace+"_"+"topic_endpoint_binds", "Number of clients bound to topic-endpoin.", variableLabelsVpnTopicEndpoint, nil),
+	},
+	"TopicEndpointStats": {
+		"total_bytes_spooled":             prometheus.NewDesc(namespace+"_"+"topic_endpoint_byte_spooled", "Topic Endpoint spool total of all spooled messages in bytes.", variableLabelsVpnTopicEndpoint, nil),
+		"total_messages_spooled":          prometheus.NewDesc(namespace+"_"+"topic_endpoint_msg_spooled", "Topic Endpoint spool total of all spooled messages.", variableLabelsVpnTopicEndpoint, nil),
+		"messages_redelivered":            prometheus.NewDesc(namespace+"_"+"topic_endpoint_msg_redelivered", "Topic Endpoint total msg redeliveries.", variableLabelsVpnTopicEndpoint, nil),
+		"messages_transport_retransmited": prometheus.NewDesc(namespace+"_"+"topic_endpoint_msg_retransmited", "Topic Endpoint total msg retransmitted on transport.", variableLabelsVpnTopicEndpoint, nil),
+		"spool_usage_exceeded":            prometheus.NewDesc(namespace+"_"+"topic_endpoint_msg_spool_usage_exceeded", "Topic Endpoint total number of messages exceeded the spool usage.", variableLabelsVpnTopicEndpoint, nil),
+		"max_message_size_exceeded":       prometheus.NewDesc(namespace+"_"+"topic_endpoint_msg_max_msg_size_exceeded", "Topic Endpoint total number of messages exceeded the max message size.", variableLabelsVpnTopicEndpoint, nil),
+		"total_deleted_messages":          prometheus.NewDesc(namespace+"_"+"topic_endpoint_msg_total_deleted", "Topic Endpoint total number that was deleted.", variableLabelsVpnTopicEndpoint, nil),
 	},
 	"ClusterLinks": {
 		"enabled":     prometheus.NewDesc(namespace+"_"+"cluster_link_enabled", "Clustter link is enabled.", variableLabelsCluserLink, nil),
@@ -1487,6 +1513,230 @@ func (e *Exporter) getQueueDetailsSemp1(ch chan<- prometheus.Metric, vpnFilter s
 	return 1, nil
 }
 
+// Get rates for each individual topic-endpoint of all vpn's
+// This can result in heavy system load for lots of topic-endpoints
+// Deprecated: in facor of: getTopicEndpointStatsSemp1
+func (e *Exporter) getTopicEndpointRatesSemp1(ch chan<- prometheus.Metric, vpnFilter string, itemFilter string) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				TopicEndpoint struct {
+					TopicEndpoints struct {
+						TopicEndpoint []struct {
+							TopicEndointName string `xml:"name"`
+							Info             struct {
+								MsgVpnName string `xml:"message-vpn"`
+							} `xml:"info"`
+							Rates struct {
+								Qendpt struct {
+									AverageRxByteRate float64 `xml:"average-ingress-byte-rate-per-minute"`
+									AverageRxMsgRate  float64 `xml:"average-ingress-rate-per-minute"`
+									AverageTxByteRate float64 `xml:"average-egress-byte-rate-per-minute"`
+									AverageTxMsgRate  float64 `xml:"average-egress-rate-per-minute"`
+									RxByteRate        float64 `xml:"current-ingress-byte-rate-per-second"`
+									RxMsgRate         float64 `xml:"current-ingress-rate-per-second"`
+									TxByteRate        float64 `xml:"current-egress-byte-rate-per-second"`
+									TxMsgRate         float64 `xml:"current-egress-rate-per-second"`
+								} `xml:"qendpt-data-rates"`
+							} `xml:"rates"`
+						} `xml:"topic-endpoint"`
+					} `xml:"topic-endpoints"`
+				} `xml:"topic-endpoint"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		MoreCookie struct {
+			RPC string `xml:",innerxml"`
+		} `xml:"more-cookie"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	for nextRequest := "<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><rates/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; nextRequest != ""; {
+		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't scrape TopicEndpointRatesSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		defer body.Close()
+		decoder := xml.NewDecoder(body)
+		var target Data
+		err = decoder.Decode(&target)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't decode TopicEndpointRatesSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		if target.ExecuteResult.Result != "ok" {
+			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+			return 0, errors.New("unexpected result: see log")
+		}
+
+		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
+		nextRequest = target.MoreCookie.RPC
+
+		for _, topicEndpoint := range target.RPC.Show.TopicEndpoint.TopicEndpoints.TopicEndpoint {
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointRates"]["rx_msg_rate"], prometheus.GaugeValue, topicEndpoint.Rates.Qendpt.RxMsgRate, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointRates"]["tx_msg_rate"], prometheus.GaugeValue, topicEndpoint.Rates.Qendpt.TxMsgRate, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointRates"]["rx_byte_rate"], prometheus.GaugeValue, topicEndpoint.Rates.Qendpt.RxByteRate, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointRates"]["tx_byte_rate"], prometheus.GaugeValue, topicEndpoint.Rates.Qendpt.TxByteRate, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointRates"]["rx_msg_rate_avg"], prometheus.GaugeValue, topicEndpoint.Rates.Qendpt.AverageRxMsgRate, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointRates"]["tx_msg_rate_avg"], prometheus.GaugeValue, topicEndpoint.Rates.Qendpt.AverageTxMsgRate, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointRates"]["rx_byte_rate_avg"], prometheus.GaugeValue, topicEndpoint.Rates.Qendpt.AverageRxByteRate, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointRates"]["tx_byte_rate_avg"], prometheus.GaugeValue, topicEndpoint.Rates.Qendpt.AverageTxByteRate, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+		}
+		body.Close()
+	}
+
+	return 1, nil
+}
+
+// Get rates for each individual topic-endpoint of all vpn's
+// This can result in heavy system load for lots of topc-endpoints
+func (e *Exporter) getTopicEndpointStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string, itemFilter string) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				TopicEndpoint struct {
+					TopicEndpoints struct {
+						TopicEndpoint []struct {
+							TopicEndointName string `xml:"name"`
+							Info             struct {
+								MsgVpnName string `xml:"message-vpn"`
+							} `xml:"info"`
+							Stats struct {
+								MessageSpoolStats struct {
+									TotalByteSpooled       float64 `xml:"total-bytes-spooled"`
+									TotalMsgSpooled        float64 `xml:"total-messages-spooled"`
+									MsgRedelivered         float64 `xml:"messages-redelivered"`
+									MsgRetransmit          float64 `xml:"messages-transport-retransmit"`
+									SpoolUsageExceeded     float64 `xml:"spool-usage-exceeded"`
+									MsgSizeExceeded        float64 `xml:"max-message-size-exceeded"`
+									SpoolShutdownDiscard   float64 `xml:"spool-shutdown-discard"`
+									DestinationGroupError  float64 `xml:"destination-group-error"`
+									LowPrioMsgDiscard      float64 `xml:"low-priority-msg-congestion-discard"`
+									Deleted                float64 `xml:"total-deleted-messages"`
+									TtlDisacarded          float64 `xml:"total-ttl-expired-discard-messages"`
+									TtlDmq                 float64 `xml:"total-ttl-expired-to-dmq-messages"`
+									TtlDmqFailed           float64 `xml:"total-ttl-expired-to-dmq-failures"`
+									MaxRedeliveryDiscarded float64 `xml:"max-redelivery-exceeded-discard-messages"`
+									MaxRedeliveryDmq       float64 `xml:"max-redelivery-exceeded-to-dmq-messages"`
+									MaxRedeliveryDmqFailed float64 `xml:"max-redelivery-exceeded-to-dmq-failures"`
+								} `xml:"message-spool-stats"`
+							} `xml:"stats"`
+						} `xml:"topic-endpoint"`
+					} `xml:"topic-endpoints"`
+				} `xml:"topic-endpoint"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		MoreCookie struct {
+			RPC string `xml:",innerxml"`
+		} `xml:"more-cookie"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	for nextRequest := "<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><stats/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; nextRequest != ""; {
+		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't scrape TopicEndpointStatsSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		defer body.Close()
+		decoder := xml.NewDecoder(body)
+		var target Data
+		err = decoder.Decode(&target)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't decode TopicEndpointStatsSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		if target.ExecuteResult.Result != "ok" {
+			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+			return 0, errors.New("unexpected result: see log")
+		}
+
+		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
+		nextRequest = target.MoreCookie.RPC
+
+		for _, topicEndpoint := range target.RPC.Show.TopicEndpoint.TopicEndpoints.TopicEndpoint {
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointStats"]["total_bytes_spooled"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.TotalByteSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointStats"]["total_messages_spooled"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.TotalMsgSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointStats"]["messages_redelivered"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.MsgRedelivered, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointStats"]["messages_transport_retransmited"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.MsgRetransmit, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointStats"]["spool_usage_exceeded"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.SpoolUsageExceeded, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointStats"]["max_message_size_exceeded"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.MsgSizeExceeded, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointStats"]["total_deleted_messages"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.Deleted, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+		}
+		body.Close()
+	}
+
+	return 1, nil
+}
+
+// Get some statistics for each individual topic-endpoint of all vpn's
+// This can result in heavy system load for lots of topic endpoints
+func (e *Exporter) getTopicEndpointDetailsSemp1(ch chan<- prometheus.Metric, vpnFilter string, itemFilter string) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				TopicEndpoint struct {
+					TopicEndpoints struct {
+						TopicEndpoint []struct {
+							TopicEndointName string `xml:"name"`
+							Info             struct {
+								MsgVpnName      string  `xml:"message-vpn"`
+								Quota           float64 `xml:"quota"`
+								Usage           float64 `xml:"current-spool-usage-in-mb"`
+								SpooledMsgCount float64 `xml:"num-messages-spooled"`
+								BindCount       float64 `xml:"bind-count"`
+							} `xml:"info"`
+						} `xml:"topic-endpoint"`
+					} `xml:"topic-endpoints"`
+				} `xml:"topic-endpoint"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		MoreCookie struct {
+			RPC string `xml:",innerxml"`
+		} `xml:"more-cookie"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	for nextRequest := "<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; nextRequest != ""; {
+		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't scrape TopicEndpointDetailsSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		defer body.Close()
+		decoder := xml.NewDecoder(body)
+		var target Data
+		err = decoder.Decode(&target)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't decode TopicEndpointDetailsSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		if target.ExecuteResult.Result != "ok" {
+			_ = level.Error(e.logger).Log("msg", "Can't scrape TopicEndpointDetailsSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, errors.New("unexpected result: see log")
+		}
+
+		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
+		nextRequest = target.MoreCookie.RPC
+
+		for _, topicEndpoint := range target.RPC.Show.TopicEndpoint.TopicEndpoints.TopicEndpoint {
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointDetails"]["spool_quota_bytes"], prometheus.GaugeValue, math.Round(topicEndpoint.Info.Quota*1048576.0), topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointDetails"]["spool_usage_bytes"], prometheus.GaugeValue, math.Round(topicEndpoint.Info.Usage*1048576.0), topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointDetails"]["spool_usage_msgs"], prometheus.GaugeValue, topicEndpoint.Info.SpooledMsgCount, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointDetails"]["binds"], prometheus.GaugeValue, topicEndpoint.Info.BindCount, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+		}
+		body.Close()
+	}
+
+	return 1, nil
+}
+
 // Replication Config and status
 func (e *Exporter) getVpnSpoolSemp1(ch chan<- prometheus.Metric, vpnFilter string) (ok float64, err error) {
 	type Data struct {
@@ -1830,6 +2080,12 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up, err = e.getQueueStatsSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
 		case "QueueDetails":
 			up, err = e.getQueueDetailsSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
+		case "TopicEndpointRates":
+			up, err = e.getTopicEndpointRatesSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
+		case "TopicEndpointStats":
+			up, err = e.getTopicEndpointStatsSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
+		case "TopicEndpointDetails":
+			up, err = e.getTopicEndpointDetailsSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
 		}
 	}
 	ch <- prometheus.MustNewConstMetric(metricDesc["Global"]["up"], prometheus.GaugeValue, 1, "")
@@ -1960,6 +2216,9 @@ func main() {
 					<tr><td>QueueRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many queues</td></tr>
 					<tr><td>QueueStats</td><td>yes</td><td>yes</td><td>may harm broker if many queues</td></tr>
 					<tr><td>QueueDetails</td><td>yes</td><td>yes</td><td>may harm broker if many queues</td></tr>
+					<tr><td>TopicEndpointRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many topic-endpoints</td></tr>
+					<tr><td>TopicEndpointStats</td><td>yes</td><td>yes</td><td>may harm broker if many topic-endpoints</td></tr>
+					<tr><td>TopicEndpointDetails</td><td>yes</td><td>yes</td><td>may harm broker if many topic-endpoints</td></tr>
 				</table>
 				<br>
 				</p>

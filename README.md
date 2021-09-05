@@ -88,9 +88,12 @@ Get the same result as the legacy `solace-det` endpoint, but from a specific bro
 | ClientMessageSpoolStats      | yes                  | no                    | may harm broker if many clients            | show client itemFilter stats count 100 (paged)                       | software, appliance | 
 | VpnStats                              | yes                 | no                    | has a very small performance down site     | show message-vpn vpnFilter stats                                     | software, appliance |
 | BridgeStats                           | yes                 | yes                   | has a very small performance down site     | show bridge itemFilter message-vpn vpnFilter stats                   | software, appliance |
-| QueueRates                            | yes                 | yes                   | DEPRECATED: may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
-| QueueStats                            | yes                 | yes                   | may harm broker if many queues             | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
-| QueueDetails                          | yes                 | yes                   | may harm broker if many queues             | show queue itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
+| QueueRates                       | yes                 | yes                   | DEPRECATED: may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
+| QueueStats                       | yes                 | yes                   | may harm broker if many queues             | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
+| QueueDetails                     | yes                 | yes                   | may harm broker if many queues             | show queue itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
+| TopicEndpointRates               | yes                 | yes                   | DEPRECATED: may harm broker if many topic-endpoints | show topic-endpoint itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
+| TopicEndpointStats               | yes                 | yes                   | may harm broker if many topic-endpoint             | show topic-endpoint itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
+| TopicEndpointDetails             | yes                 | yes                   | may harm broker if many topic-endpoints             | show topic-endpoint itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
 | ClusterLink                           | yes                 | yes                   | dont harm broker                           | show the state of the cluster links. Filters are for clusterName and linkName | software, appliance |
 
 #### Broker Connectivity Metric
