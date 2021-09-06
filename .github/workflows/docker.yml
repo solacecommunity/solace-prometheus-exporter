@@ -1,8 +1,10 @@
-name: Go
+name: Docker
 
 on:
   push:
     branches: [ master ]
+    tags:        
+      - v*
   pull_request:
     branches: [ master ]
 
@@ -12,7 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-     
+
+    - name: Docker meta
+      id: meta
+      uses: crazy-max/ghaction-docker-meta@v2
+      with:
+        images: solacecommunity/solace-prometheus-exporter
+        tags: |
+          type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
+          type=ref,event=tag
+        flavor: |
+
     - name: Login to DockerHub
       uses: docker/login-action@v1 
       with:
@@ -24,5 +36,5 @@ jobs:
       # uses: docker/build-push-action@1bc1040caef9e604eb543693ba89b5bf4fc80935
       uses: docker/build-push-action@v2.6.1
       with:
-        push: true
-        tags: solacecommunity/solace-prometheus-exporter:latest
+        push: ${{ GitHub.event_name != 'pull_request' }}
+        tags: ${{ steps.meta.outputs.tags }}
