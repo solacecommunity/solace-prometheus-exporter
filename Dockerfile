@@ -21,14 +21,6 @@ RUN go get -d -v ./... \
 FROM scratch
 LABEL maintainer="https://github.com/solacecommunity/solace-prometheus-exporter"
 
-ENV SOLACE_LISTEN_ADDR="0.0.0.0:9628"
-ENV SOLACE_SCRAPE_URI=http://localhost:8080
-ENV SOLACE_USERNAME="admin"
-ENV SOLACE_PASSWORD="admin"
-ENV SOLACE_TIMEOUT="5s"
-ENV SOLACE_SSL_VERIFY="false"
-ENV SOLACE_REDUNDANCY="false"
-
 EXPOSE 9628
 ENTRYPOINT [ "/solace_prometheus_exporter", "--config-file=/etc/solace/solace_prometheus_exporter.ini" ]
 CMD [ ]
