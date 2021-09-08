@@ -23,6 +23,7 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -2008,13 +2009,14 @@ func parseConfig(configFile string, conf *config, logger log.Logger) (bool, map[
 
 	endpoints := make(map[string][]DataSource)
 	if cfg != nil {
+		var scrapeTargetRe = regexp.MustCompile(`^(\w+)(\.\d+)?$`)
 		for _, section := range cfg.Sections() {
 			if strings.HasPrefix(section.Name(), "endpoint.") {
 				endpointName := strings.TrimPrefix(section.Name(), "endpoint.")
 
 				var dataSource []DataSource
 				for _, key := range section.Keys() {
-					scrapeTarget := key.Name()
+					scrapeTarget := scrapeTargetRe.ReplaceAllString(key.Name(), `$1`)
 
 					parts := strings.Split(key.String(), "|")
 					if len(parts) != 2 {

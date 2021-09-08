@@ -133,6 +133,15 @@ http://your-exporter:9628/solace-det
 This will provide the same output as:    
 http://your-exporter:9628/solace?m.ClientStats=*|*&?m.VpnStats=*|*&?m.BridgeStats=*|*&?m.QueueRates=*|*&?m.QueueDetails=*|*
 
+If you want to use wildcards to only have a subset but needs more then one wildcard,
+you have to add a dot and an incrementing number. Like this:
+
+```ini
+[endpoint.my-sample]
+QueueRates.0=*|internal/tms/iad/*
+QueueRates.1=*|bridge_*
+```
+
 ### Port registration
 
 The [registered](https://github.com/prometheus/prometheus/wiki/Default-port-allocations) default port for Solace is 9628  
