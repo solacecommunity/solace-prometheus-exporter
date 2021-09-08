@@ -1328,6 +1328,7 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric, vpnFilter str
 		} `xml:"execute-result"`
 	}
 
+	var lastQueueName = ""
 	for nextRequest := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><rates/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
@@ -1351,6 +1352,11 @@ func (e *Exporter) getQueueRatesSemp1(ch chan<- prometheus.Metric, vpnFilter str
 		nextRequest = target.MoreCookie.RPC
 
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
+			queueKey := queue.Info.MsgVpnName + "___" + queue.QueueName
+			if queueKey == lastQueueName {
+				continue
+			}
+			lastQueueName = queueKey
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueRates"]["queue_rx_msg_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.RxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueRates"]["queue_tx_msg_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.TxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueRates"]["queue_rx_byte_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.RxByteRate, queue.Info.MsgVpnName, queue.QueueName)
@@ -1412,6 +1418,7 @@ func (e *Exporter) getQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter str
 		} `xml:"execute-result"`
 	}
 
+	var lastQueueName = ""
 	for nextRequest := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><stats/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
@@ -1433,8 +1440,12 @@ func (e *Exporter) getQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter str
 
 		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC
-
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
+			queueKey := queue.Info.MsgVpnName + "___" + queue.QueueName
+			if queueKey == lastQueueName {
+				continue
+			}
+			lastQueueName = queueKey
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueStats"]["total_bytes_spooled"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.TotalByteSpooled, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueStats"]["total_messages_spooled"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.TotalMsgSpooled, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueStats"]["messages_redelivered"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MsgRedelivered, queue.Info.MsgVpnName, queue.QueueName)
@@ -1479,6 +1490,7 @@ func (e *Exporter) getQueueDetailsSemp1(ch chan<- prometheus.Metric, vpnFilter s
 		} `xml:"execute-result"`
 	}
 
+	var lastQueueName = ""
 	for nextRequest := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
@@ -1502,6 +1514,11 @@ func (e *Exporter) getQueueDetailsSemp1(ch chan<- prometheus.Metric, vpnFilter s
 		nextRequest = target.MoreCookie.RPC
 
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
+			queueKey := queue.Info.MsgVpnName + "___" + queue.QueueName
+			if queueKey == lastQueueName {
+				continue
+			}
+			lastQueueName = queueKey
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueDetails"]["queue_spool_quota_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Quota*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueDetails"]["queue_spool_usage_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Usage*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["QueueDetails"]["queue_spool_usage_msgs"], prometheus.GaugeValue, queue.Info.SpooledMsgCount, queue.Info.MsgVpnName, queue.QueueName)
@@ -1552,6 +1569,7 @@ func (e *Exporter) getTopicEndpointRatesSemp1(ch chan<- prometheus.Metric, vpnFi
 		} `xml:"execute-result"`
 	}
 
+	var lastTopicEndpointName = ""
 	for nextRequest := "<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><rates/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
@@ -1575,6 +1593,11 @@ func (e *Exporter) getTopicEndpointRatesSemp1(ch chan<- prometheus.Metric, vpnFi
 		nextRequest = target.MoreCookie.RPC
 
 		for _, topicEndpoint := range target.RPC.Show.TopicEndpoint.TopicEndpoints.TopicEndpoint {
+			topicEndpointKey := topicEndpoint.Info.MsgVpnName + "___" + topicEndpoint.TopicEndointName
+			if topicEndpointKey == lastTopicEndpointName {
+				continue
+			}
+			lastTopicEndpointName = topicEndpointKey
 			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointRates"]["rx_msg_rate"], prometheus.GaugeValue, topicEndpoint.Rates.Qendpt.RxMsgRate, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointRates"]["tx_msg_rate"], prometheus.GaugeValue, topicEndpoint.Rates.Qendpt.TxMsgRate, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointRates"]["rx_byte_rate"], prometheus.GaugeValue, topicEndpoint.Rates.Qendpt.RxByteRate, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
@@ -1636,6 +1659,7 @@ func (e *Exporter) getTopicEndpointStatsSemp1(ch chan<- prometheus.Metric, vpnFi
 		} `xml:"execute-result"`
 	}
 
+	var lastTopicEndpointName = ""
 	for nextRequest := "<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><stats/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
@@ -1659,6 +1683,11 @@ func (e *Exporter) getTopicEndpointStatsSemp1(ch chan<- prometheus.Metric, vpnFi
 		nextRequest = target.MoreCookie.RPC
 
 		for _, topicEndpoint := range target.RPC.Show.TopicEndpoint.TopicEndpoints.TopicEndpoint {
+			topicEndpointKey := topicEndpoint.Info.MsgVpnName + "___" + topicEndpoint.TopicEndointName
+			if topicEndpointKey == lastTopicEndpointName {
+				continue
+			}
+			lastTopicEndpointName = topicEndpointKey
 			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointStats"]["total_bytes_spooled"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.TotalByteSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointStats"]["total_messages_spooled"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.TotalMsgSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointStats"]["messages_redelivered"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.MsgRedelivered, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
@@ -1703,6 +1732,7 @@ func (e *Exporter) getTopicEndpointDetailsSemp1(ch chan<- prometheus.Metric, vpn
 		} `xml:"execute-result"`
 	}
 
+	var lastTopicEndpointName = ""
 	for nextRequest := "<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
@@ -1726,6 +1756,11 @@ func (e *Exporter) getTopicEndpointDetailsSemp1(ch chan<- prometheus.Metric, vpn
 		nextRequest = target.MoreCookie.RPC
 
 		for _, topicEndpoint := range target.RPC.Show.TopicEndpoint.TopicEndpoints.TopicEndpoint {
+			topicEndpointKey := topicEndpoint.Info.MsgVpnName + "___" + topicEndpoint.TopicEndointName
+			if topicEndpointKey == lastTopicEndpointName {
+				continue
+			}
+			lastTopicEndpointName = topicEndpointKey
 			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointDetails"]["spool_quota_bytes"], prometheus.GaugeValue, math.Round(topicEndpoint.Info.Quota*1048576.0), topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointDetails"]["spool_usage_bytes"], prometheus.GaugeValue, math.Round(topicEndpoint.Info.Usage*1048576.0), topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
 			ch <- prometheus.MustNewConstMetric(metricDesc["TopicEndpointDetails"]["spool_usage_msgs"], prometheus.GaugeValue, topicEndpoint.Info.SpooledMsgCount, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
