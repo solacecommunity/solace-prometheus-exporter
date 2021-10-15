@@ -140,6 +140,7 @@ var metricDesc = map[string]Metrics{
 		"vpn_total_remote_unique_subscriptions": prometheus.NewDesc(namespace+"_"+"vpn_total_remote_unique_subscriptions", "total unique remote subscriptions count", variableLabelsVpn, nil),
 		"vpn_total_unique_subscriptions":        prometheus.NewDesc(namespace+"_"+"vpn_total_unique_subscriptions", "total unique subscriptions count", variableLabelsVpn, nil),
 		"vpn_connections":                       prometheus.NewDesc(namespace+"_"+"vpn_connections", "Number of connections.", variableLabelsVpn, nil),
+		"vpn_quota_connections":                 prometheus.NewDesc(namespace+"_"+"vpn_quota_connections", "Maximum number of connections.", variableLabelsVpn, nil),
 	},
 	"VpnReplication": {
 		"vpn_replication_admin_state":                  prometheus.NewDesc(namespace+"_"+"vpn_replication_admin_state", "Replication Admin Status (0-shutdown, 1-enabled, 2-n/a)", variableLabelsVpn, nil),
@@ -637,6 +638,7 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric, vpnFilter string) (o
 						TotalRemoteUniqueSubscriptions float64 `xml:"total-remote-unique-subscriptions"`
 						TotalUniqueSubscriptions       float64 `xml:"total-unique-subscriptions"`
 						Connections                    float64 `xml:"connections"`
+						QuotaConnections               float64 `xml:"max-connections"`
 					} `xml:"vpn"`
 				} `xml:"message-vpn"`
 			} `xml:"show"`
@@ -676,6 +678,7 @@ func (e *Exporter) getVpnSemp1(ch chan<- prometheus.Metric, vpnFilter string) (o
 		ch <- prometheus.MustNewConstMetric(metricDesc["Vpn"]["vpn_total_remote_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalRemoteUniqueSubscriptions, vpn.Name)
 		ch <- prometheus.MustNewConstMetric(metricDesc["Vpn"]["vpn_total_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalUniqueSubscriptions, vpn.Name)
 		ch <- prometheus.MustNewConstMetric(metricDesc["Vpn"]["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
+		ch <- prometheus.MustNewConstMetric(metricDesc["Vpn"]["vpn_quota_connections"], prometheus.GaugeValue, vpn.QuotaConnections, vpn.Name)
 	}
 
 	return 1, nil
