@@ -931,7 +931,7 @@ func (e *Exporter) getClientStatsSemp1(ch chan<- prometheus.Metric, itemFilter s
 		} `xml:"execute-result"`
 	}
 
-	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><stats/><count/><num-elements>100</num-elements></client></show></rpc>"; nextRequest != ""; {
+	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><stats/></client></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
 			_ = level.Error(e.logger).Log("msg", "Can't scrape ClientStatSemp1", "err", err, "broker", e.config.scrapeURI)
