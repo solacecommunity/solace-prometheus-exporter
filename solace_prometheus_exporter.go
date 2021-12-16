@@ -50,7 +50,8 @@ var (
 	variableLabelsRedundancy       = []string{"mate_name"}
 	variableLabelsVpn              = []string{"vpn_name"}
 	variableLabelsVpnClient        = []string{"vpn_name", "client_name", "client_username"}
-	variableLabelsVpnClientFlow    = []string{"vpn_name", "client_name", "client_username", "flow_id"}
+	variableLabelsVpnClientDetail  = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile"}
+	variableLabelsVpnClientFlow    = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
 	variableLabelsVpnQueue         = []string{"vpn_name", "queue_name"}
 	variableLabelsVpnTopicEndpoint = []string{"vpn_name", "topic_endpoint_name"}
 	variableLabelsCluserLink       = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
@@ -192,6 +193,10 @@ var metricDesc = map[string]Metrics{
 		"client_slow_subscriber":         prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClient, nil),
 	},
 	"ClientMessageSpoolStats": {
+		"client_flows_ingress":   prometheus.NewDesc(namespace+"_"+"client_flows_ingress", "Number of ingress flows, created/openend by this client.", variableLabelsVpnClientDetail, nil),
+		"client_flows_egress":    prometheus.NewDesc(namespace+"_"+"client_flows_egress", "Number of egress flows, created/openend by this client.", variableLabelsVpnClientDetail, nil),
+		"client_slow_subscriber": prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClientDetail, nil),
+
 		"spooling_not_ready":                prometheus.NewDesc(namespace+"_"+"client_ingress_spooling_not_ready", "Number of connections closed caused by spoolingNotReady", variableLabelsVpnClientFlow, nil),
 		"out_of_order_messages_received":    prometheus.NewDesc(namespace+"_"+"client_ingress_out_of_order_messages_received", "Number of messages, received in wrong order.", variableLabelsVpnClientFlow, nil),
 		"duplicate_messages_received":       prometheus.NewDesc(namespace+"_"+"client_ingress_duplicate_messages_received", "Number of messages, received more than once", variableLabelsVpnClientFlow, nil),
@@ -857,8 +862,14 @@ func (e *Exporter) getBridgeSemp1(ch chan<- prometheus.Metric, vpnFilter string,
 	ch <- prometheus.MustNewConstMetric(metricDesc["Bridge"]["bridges_max_num_remote_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.MaxNumRemoteBridgesValue)
 	ch <- prometheus.MustNewConstMetric(metricDesc["Bridge"]["bridges_num_total_remote_bridge_subscriptions"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalRemoteBridgeSubscriptions)
 	ch <- prometheus.MustNewConstMetric(metricDesc["Bridge"]["bridges_max_num_total_remote_bridge_subscriptions"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalRemoteBridgeSubscriptions)
-	opStates := []string{"Init", "Shutdown", "NoShutdown", "Prepare", "Prepare-WaitToConnect", "Prepare-FetchingDNS", "NotReady", "NotReady-Connecting", "NotReady-Handshaking", "NotReady-WaitNext", "NotReady-WaitReuse", "NotRead-WaitBridgeVersionMismatch", "NotReady-WaitCleanup", "Ready", "Ready-Subscribing", "Ready-InSync", "NotApplicable", "Invalid"}
-	failReasons := []string{"Bridge disabled", "No remote message-vpns configured", "SMF service is disabled", "Msg Backbone is disabled", "Local message-vpn is disabled", "Active-Standby Role Mismatch", "Invalid Active-Standby Role", "Redundancy Disabled", "Not active", "Replication standby", "Remote message-vpns disabled", "Enforce-trusted-common-name but empty trust-common-name list", "SSL transport used but cipher-suite list is empty", "Authentication Scheme is Client-Certificate but no certificate is configured", "Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL", "Basic Authentication Scheme used but Basic Client Username not configured", "Cluster Down", "Cluster Link Down", ""}
+	opStates := []string{"Init", "Shutdown", "NoShutdown", "Prepare", "Prepare-WaitToConnect",
+		"Prepare-FetchingDNS", "NotReady", "NotReady-Connecting", "NotReady-Handshaking", "NotReady-WaitNext",
+		"NotReady-WaitReuse", "NotRead-WaitBridgeVersionMismatch", "NotReady-WaitCleanup", "Ready", "Ready-Subscribing",
+		"Ready-InSync", "NotApplicable", "Invalid"}
+	failReasons := []string{"Bridge disabled", "No remote message-vpns configured", "SMF service is disabled", "Msg Backbone is disabled",
+		"Local message-vpn is disabled", "Active-Standby Role Mismatch", "Invalid Active-Standby Role", "Redundancy Disabled", "Not active",
+		"Replication standby", "Remote message-vpns disabled", "Enforce-trusted-common-name but empty trust-common-name list", "SSL transport used but cipher-suite list is empty", "Authentication Scheme is Client-Certificate but no certificate is configured",
+		"Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL", "Basic Authentication Scheme used but Basic Client Username not configured", "Cluster Down", "Cluster Link Down", ""}
 	for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
 		bridgeName := bridge.BridgeName
 		vpnName := bridge.LocalVpnName
@@ -923,7 +934,7 @@ func (e *Exporter) getClientStatsSemp1(ch chan<- prometheus.Metric, itemFilter s
 	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><stats/><count/><num-elements>100</num-elements></client></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't scrape ClientSemp1", "err", err, "broker", e.config.scrapeURI)
+			_ = level.Error(e.logger).Log("msg", "Can't scrape ClientStatSemp1", "err", err, "broker", e.config.scrapeURI)
 			return 0, err
 		}
 		defer body.Close()
@@ -931,7 +942,7 @@ func (e *Exporter) getClientStatsSemp1(ch chan<- prometheus.Metric, itemFilter s
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't decode ClientSemp1", "err", err, "broker", e.config.scrapeURI)
+			_ = level.Error(e.logger).Log("msg", "Can't decode ClientStatSemp1", "err", err, "broker", e.config.scrapeURI)
 			return 0, err
 		}
 		if target.ExecuteResult.Result != "ok" {
@@ -966,10 +977,15 @@ func (e *Exporter) getClientMessageSpoolStatsSemp1(ch chan<- prometheus.Metric, 
 				Client struct {
 					PrimaryVirtualRouter struct {
 						Client []struct {
-							ClientName        string `xml:"name"`
-							ClientUsername    string `xml:"client-username"`
-							MsgVpnName        string `xml:"message-vpn"`
-							SlowSubscriber    bool   `xml:"slow-subscriber"`
+							ClientName        string  `xml:"name"`
+							ClientUsername    string  `xml:"client-username"`
+							MsgVpnName        string  `xml:"message-vpn"`
+							ClientProfile     string  `xml:"profile"`
+							AclProfile        string  `xml:"acl-profile"`
+							SlowSubscriber    bool    `xml:"slow-subscriber"`
+							ElidingTopics     float64 `xml:"eliding-topics"`
+							FlowsIngress      float64 `xml:"total-ingress-flows"`
+							FlowsEgress       float64 `xml:"total-egress-flows"`
 							MessageSpoolStats struct {
 								IngressFlowStats []struct {
 									SpoolingNotReady               float64 `xml:"spooling-not-ready"`
@@ -1010,7 +1026,7 @@ func (e *Exporter) getClientMessageSpoolStatsSemp1(ch chan<- prometheus.Metric, 
 		} `xml:"execute-result"`
 	}
 
-	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><message-spool-stats/><count/><num-elements>100</num-elements></client></show></rpc>"; nextRequest != ""; {
+	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><message-spool-stats/></client></show></rpc>"; nextRequest != ""; {
 		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
 		if err != nil {
 			_ = level.Error(e.logger).Log("msg", "Can't scrape ClientMessageSpoolStatsSemp1", "err", err, "broker", e.config.scrapeURI)
@@ -1033,30 +1049,34 @@ func (e *Exporter) getClientMessageSpoolStatsSemp1(ch chan<- prometheus.Metric, 
 		nextRequest = target.MoreCookie.RPC
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
+			ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["client_flows_ingress"], prometheus.GaugeValue, client.FlowsIngress, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile)
+			ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["client_flows_egress"], prometheus.GaugeValue, client.FlowsEgress, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile)
+			ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile)
+
 			for flowId, ingressFlow := range client.MessageSpoolStats.IngressFlowStats {
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["spooling_not_ready"], prometheus.CounterValue, ingressFlow.SpoolingNotReady, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["out_of_order_messages_received"], prometheus.CounterValue, ingressFlow.OutOfOrderMessagesReceived, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["duplicate_messages_received"], prometheus.CounterValue, ingressFlow.DuplicateMessagesReceived, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["no_eligible_destinations"], prometheus.CounterValue, ingressFlow.NoEligibleDestinations, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["guaranteed_messages"], prometheus.CounterValue, ingressFlow.GuaranteedMessages, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["no_local_delivery"], prometheus.CounterValue, ingressFlow.NoLocalDelivery, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["seq_num_rollover"], prometheus.CounterValue, ingressFlow.SeqNumRollover, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["seq_num_messages_discarded"], prometheus.CounterValue, ingressFlow.SeqNumMessagesDiscarded, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["transacted_messages_not_sequenced"], prometheus.CounterValue, ingressFlow.TransactedMessagesNotSequenced, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["destination_group_error"], prometheus.CounterValue, ingressFlow.DestinationGroupError, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["smf_ttl_exceeded"], prometheus.CounterValue, ingressFlow.SmfTtlExceeded, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["publish_acl_denied"], prometheus.CounterValue, ingressFlow.PublishAclDenied, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["spooling_not_ready"], prometheus.CounterValue, ingressFlow.SpoolingNotReady, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["out_of_order_messages_received"], prometheus.CounterValue, ingressFlow.OutOfOrderMessagesReceived, client.MsgVpnName, client.ClientName, client.ClientProfile, client.AclProfile, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["duplicate_messages_received"], prometheus.CounterValue, ingressFlow.DuplicateMessagesReceived, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["no_eligible_destinations"], prometheus.CounterValue, ingressFlow.NoEligibleDestinations, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["guaranteed_messages"], prometheus.CounterValue, ingressFlow.GuaranteedMessages, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["no_local_delivery"], prometheus.CounterValue, ingressFlow.NoLocalDelivery, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["seq_num_rollover"], prometheus.CounterValue, ingressFlow.SeqNumRollover, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["seq_num_messages_discarded"], prometheus.CounterValue, ingressFlow.SeqNumMessagesDiscarded, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["transacted_messages_not_sequenced"], prometheus.CounterValue, ingressFlow.TransactedMessagesNotSequenced, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["destination_group_error"], prometheus.CounterValue, ingressFlow.DestinationGroupError, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["smf_ttl_exceeded"], prometheus.CounterValue, ingressFlow.SmfTtlExceeded, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["publish_acl_denied"], prometheus.CounterValue, ingressFlow.PublishAclDenied, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
 			}
 			for flowId, egressFlow := range client.MessageSpoolStats.EgressFlowStats {
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["window_size"], prometheus.CounterValue, egressFlow.WindowSize, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["used_window"], prometheus.CounterValue, egressFlow.UsedWindow, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["window_closed"], prometheus.CounterValue, egressFlow.WindowClosed, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["message_redelivered"], prometheus.CounterValue, egressFlow.MessageRedelivered, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["message_transport_retransmit"], prometheus.CounterValue, egressFlow.MessageTransportRetransmit, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["message_confirmed_delivered"], prometheus.CounterValue, egressFlow.MessageConfirmedDelivered, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["confirmed_delivered_store_and_forward"], prometheus.CounterValue, egressFlow.ConfirmedDeliveredStoreAndForward, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["confirmed_delivered_cut_through"], prometheus.CounterValue, egressFlow.ConfirmedDeliveredCutThrough, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["unacked_messages"], prometheus.CounterValue, egressFlow.UnackedMessages, client.MsgVpnName, client.ClientName, client.ClientUsername, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["window_size"], prometheus.CounterValue, egressFlow.WindowSize, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["used_window"], prometheus.CounterValue, egressFlow.UsedWindow, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["window_closed"], prometheus.CounterValue, egressFlow.WindowClosed, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["message_redelivered"], prometheus.CounterValue, egressFlow.MessageRedelivered, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["message_transport_retransmit"], prometheus.CounterValue, egressFlow.MessageTransportRetransmit, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["message_confirmed_delivered"], prometheus.CounterValue, egressFlow.MessageConfirmedDelivered, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["confirmed_delivered_store_and_forward"], prometheus.CounterValue, egressFlow.ConfirmedDeliveredStoreAndForward, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["confirmed_delivered_cut_through"], prometheus.CounterValue, egressFlow.ConfirmedDeliveredCutThrough, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(metricDesc["ClientMessageSpoolStats"]["unacked_messages"], prometheus.CounterValue, egressFlow.UnackedMessages, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
 			}
 		}
 
