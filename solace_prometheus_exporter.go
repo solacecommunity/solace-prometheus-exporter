@@ -44,7 +44,7 @@ const (
 )
 
 var (
-	solaceExporterVersion = float64(1003004)
+	solaceExporterVersion = float64(1004003)
 
 	variableLabelsUp               = []string{"error"}
 	variableLabelsRedundancy       = []string{"mate_name"}
