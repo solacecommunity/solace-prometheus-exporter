@@ -1847,7 +1847,7 @@ func (e *Exporter) getVpnSpoolSemp1(ch chan<- prometheus.Metric, vpnFilter strin
 }
 
 // Cluster link states of broker
-func (e *Exporter) getClusterLinkSemp1(ch chan<- prometheus.Metric, clusterFilter string, linkFilter string) (ok float64, err error) {
+func (e *Exporter) getClusterLinksSemp1(ch chan<- prometheus.Metric, clusterFilter string, linkFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -1878,7 +1878,7 @@ func (e *Exporter) getClusterLinkSemp1(ch chan<- prometheus.Metric, clusterFilte
 	command := "<rpc><show><cluster><cluster-name-pattern>" + clusterFilter + "</cluster-name-pattern><link-name-pattern>" + linkFilter + "</link-name-pattern></cluster></show></rpc>"
 	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't scrape ClusterLinkSemp1", "err", err, "broker", e.config.scrapeURI)
+		_ = level.Error(e.logger).Log("msg", "Can't scrape ClusterLinksSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0, err
 	}
 	defer body.Close()
@@ -1886,7 +1886,7 @@ func (e *Exporter) getClusterLinkSemp1(ch chan<- prometheus.Metric, clusterFilte
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't decode Xml ClusterLinkSemp1", "err", err, "broker", e.config.scrapeURI)
+		_ = level.Error(e.logger).Log("msg", "Can't decode Xml ClusterLinksSemp1", "err", err, "broker", e.config.scrapeURI)
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
@@ -2080,7 +2080,10 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 			}
 		} else {
 			permittedNames := make([]string, 0, len(metricDesc))
-			_ = level.Error(e.logger).Log("msg", "Unexpected data source name: "+dataSource.name, "permitted", permittedNames)
+			for index := range metricDesc {
+				permittedNames = append(permittedNames, index)
+			}
+			_ = level.Error(e.logger).Log("msg", "Unexpected data source name: "+dataSource.name, "permitted", strings.Join(permittedNames, ","))
 		}
 
 	}
@@ -2127,8 +2130,8 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up, err = e.getClientStatsSemp1(ch, dataSource.vpnFilter)
 		case "ClientMessageSpoolStats":
 			up, err = e.getClientMessageSpoolStatsSemp1(ch, dataSource.vpnFilter)
-		case "ClusterLink":
-			up, err = e.getClusterLinkSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
+		case "ClusterLinks":
+			up, err = e.getClusterLinksSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
 
 		case "VpnStats":
 			up, err = e.getVpnStatsSemp1(ch, dataSource.vpnFilter)
@@ -2270,7 +2273,7 @@ func main() {
 					<tr><td>VpnSpool</td><td>yes</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>ClientStats</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
 					<tr><td>ClientMessageSpoolStats</td><td>yes</td><td>yes</td><td>no</td></tr>
-					<tr><td>ClusterLink</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
+					<tr><td>ClusterLinks</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
 					<tr><td>VpnStats</td><td>yes</td><td>no</td><td>has a very small performance down site</td></tr>
 					<tr><td>BridgeStats</td><td>yes</td><td>yes</td><td>has a very small performance down site</td></tr>
 					<tr><td>QueueRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many queues</td></tr>
