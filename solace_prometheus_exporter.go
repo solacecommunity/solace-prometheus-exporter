@@ -48,7 +48,9 @@ var (
 
 	variableLabelsUp               = []string{"error"}
 	variableLabelsRedundancy       = []string{"mate_name"}
+	variableLabelsReplication      = []string{"mate_name"}
 	variableLabelsVpn              = []string{"vpn_name"}
+	variableLabelsClientInfo       = []string{"vpn_name", "client_name", "client_address"}
 	variableLabelsVpnClient        = []string{"vpn_name", "client_name", "client_username"}
 	variableLabelsVpnClientDetail  = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile"}
 	variableLabelsVpnClientFlow    = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
@@ -57,6 +59,9 @@ var (
 	variableLabelsCluserLink       = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
 	variableLabelsBridge           = []string{"vpn_name", "bridge_name"}
 	variableLabelsConfigSyncTable  = []string{"table_name"}
+	variableLabelsStorageElement   = []string{"path", "device_name", "element_name"}
+	variableLabelsDisk             = []string{"path", "device_name"}
+	variableLabelsInterface        = []string{"interface_name"}
 )
 
 type Metrics map[string]*prometheus.Desc
@@ -117,6 +122,40 @@ var metricDesc = map[string]Metrics{
 		"system_mate_link_latency_avg_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_avg_seconds", "Average mate link latency.", nil, nil),
 		"system_mate_link_latency_cur_seconds": prometheus.NewDesc(namespace+"_"+"system_mate_link_latency_cur_seconds", "Current mate link latency.", nil, nil),
 	},
+	//SEMPv1 (Software): show storage element <element-name>
+	"StorageElement": {
+		"system_storage_used_percent": prometheus.NewDesc(namespace+"_"+"system_storage_used_percent", "Storage Element used percent.", variableLabelsStorageElement, nil),
+		"system_storage_used_bytes":   prometheus.NewDesc(namespace+"_"+"system_storage_used_bytes", "Storage Element used bytes.", variableLabelsStorageElement, nil),
+		"system_storage_avail_bytes":  prometheus.NewDesc(namespace+"_"+"system_storage_avail_bytes", "Storage Element available bytes.", variableLabelsStorageElement, nil),
+	},
+	//SEMPv1 (Appliance): show disk detail
+	"Disk": {
+		"system_disk_used_percent": prometheus.NewDesc(namespace+"_"+"system_disk_used_percent", "Disk used percent.", variableLabelsDisk, nil),
+		"system_disk_used_bytes":   prometheus.NewDesc(namespace+"_"+"system_disk_used_bytes", "Disk used bytes.", variableLabelsDisk, nil),
+		"system_disk_avail_bytes":  prometheus.NewDesc(namespace+"_"+"system_disk_avail_bytes", "Disk available bytes.", variableLabelsDisk, nil),
+	},
+	//SEMPv1: show memory
+	"Memory": {
+		"system_memory_physical_usage_percent":     prometheus.NewDesc(namespace+"_"+"system_memory_physical_usage_percent", "Physical memory usage percent.", nil, nil),
+		"system_memory_subscription_usage_percent": prometheus.NewDesc(namespace+"_"+"system_memory_subscription_usage_percent", "Subscription memory usage percent.", nil, nil),
+		"system_nab_buffer_load_factor":            prometheus.NewDesc(namespace+"_"+"system_nab_buffer_load_factor", "NAB buffer load factor.", nil, nil),
+	},
+	//SEMPv1: show interface <interface-name>
+	"Interface": {
+		"network_if_rx_bytes": prometheus.NewDesc(namespace+"_"+"network_if_rx_bytes", "Network Interface Received Bytes.", variableLabelsInterface, nil),
+		"network_if_tx_bytes": prometheus.NewDesc(namespace+"_"+"network_if_tx_bytes", "Network Interface Transmitted Bytes.", variableLabelsInterface, nil),
+		"network_if_state":    prometheus.NewDesc(namespace+"_"+"network_if_state", "Network Interface State.", variableLabelsInterface, nil),
+	},
+	//SEMPv1: show stats client
+	"GlobalStats": {
+		"system_total_clients_connected": prometheus.NewDesc(namespace+"_"+"system_total_clients_connected", "Total clients connected.", nil, nil),
+		"system_rx_msgs_total":           prometheus.NewDesc(namespace+"_"+"system_rx_msgs_total", "Total client messages received.", nil, nil),
+		"system_tx_msgs_total":           prometheus.NewDesc(namespace+"_"+"system_tx_msgs_total", "Total client messages sent.", nil, nil),
+		"system_rx_bytes_total":          prometheus.NewDesc(namespace+"_"+"system_rx_bytes_total", "Total client bytes received.", nil, nil),
+		"system_tx_bytes_total":          prometheus.NewDesc(namespace+"_"+"system_tx_bytes_total", "Total client bytes sent.", nil, nil),
+		"system_total_rx_discards":       prometheus.NewDesc(namespace+"_"+"system_total_rx_discards", "Total ingress discards.", nil, nil),
+		"system_total_tx_discards":       prometheus.NewDesc(namespace+"_"+"system_total_tx_discards", "Total egress discards.", nil, nil),
+	},
 	"Spool": {
 		"system_spool_quota_bytes":                         prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage.", nil, nil),
 		"system_spool_quota_msgs":                          prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", nil, nil),
@@ -129,6 +168,40 @@ var metricDesc = map[string]Metrics{
 		"system_redundancy_config":       prometheus.NewDesc(namespace+"_"+"system_redundancy_config", "Redundancy configuration (0-Disabled, 1-Enabled, 2-Shutdown)", variableLabelsRedundancy, nil),
 		"system_redundancy_role":         prometheus.NewDesc(namespace+"_"+"system_redundancy_role", "Redundancy role (0=Backup, 1=Primary, 2=Monitor, 3-Undefined).", variableLabelsRedundancy, nil),
 		"system_redundancy_local_active": prometheus.NewDesc(namespace+"_"+"system_redundancy_local_active", "Is local node the active messaging node? (0-not active, 1-active).", variableLabelsRedundancy, nil),
+	},
+	//SEMPv1: show replication stats
+	"ReplicationStats": {
+		//Active stats
+		//Message processing
+		"system_replication_bridge_admin_state":                   prometheus.NewDesc(namespace+"_"+"system_replication_bridge_admin_state", "Replication Config Sync Bridge Admin State", variableLabelsReplication, nil),
+		"system_replication_bridge_state":                         prometheus.NewDesc(namespace+"_"+"system_replication_bridge_state", "Replication Config Sync Bridge State", variableLabelsReplication, nil),
+		"system_replication_sync_msgs_queued_to_standby":          prometheus.NewDesc(namespace+"_"+"system_replication_sync_msgs_queued_to_standby", "Replication sync messages queued to standby", variableLabelsReplication, nil),
+		"system_replication_sync_msgs_queued_to_standby_as_async": prometheus.NewDesc(namespace+"_"+"system_replication_sync_msgs_queued_to_standby_as_async", "Replication sync messages queued to standby as Async", variableLabelsReplication, nil),
+		"system_replication_async_msgs_queued_to_standby":         prometheus.NewDesc(namespace+"_"+"system_replication_async_msgs_queued_to_standby", "Replication async messages queued to standby", variableLabelsReplication, nil),
+		"system_replication_promoted_msgs_queued_to_standby":      prometheus.NewDesc(namespace+"_"+"system_replication_promoted_msgs_queued_to_standby", "Replication promoted messages queued to standby", variableLabelsReplication, nil),
+		"system_replication_pruned_locally_consumed_msgs":         prometheus.NewDesc(namespace+"_"+"system_replication_pruned_locally_consumed_msgs", "Replication Pruned locally consumed messages", variableLabelsReplication, nil),
+		//Sync replication
+		"system_replication_transitions_to_ineligible": prometheus.NewDesc(namespace+"_"+"system_replication_transitions_to_ineligible", "Replication transitions to ineligible", variableLabelsReplication, nil),
+		//Ack propagation
+		"system_replication_msgs_tx_to_standby":   prometheus.NewDesc(namespace+"_"+"system_replication_msgs_tx_to_standby", "system_replication_msgs_tx_to_standby", variableLabelsReplication, nil),
+		"system_replication_rec_req_from_standby": prometheus.NewDesc(namespace+"_"+"system_replication_rec_req_from_standby", "system_replication_rec_req_from_standby", variableLabelsReplication, nil),
+		//Standby stats
+		//Message processing
+		"system_replication_msgs_rx_from_active": prometheus.NewDesc(namespace+"_"+"system_replication_msgs_rx_from_active", "Replication msgs rx from active", variableLabelsReplication, nil),
+		//Ack propagation
+		"system_replication_ack_prop_msgs_rx": prometheus.NewDesc(namespace+"_"+"system_replication_ack_prop_msgs_rx", "Replication ack prop msgs rx", variableLabelsReplication, nil),
+		"system_replication_recon_req_tx":     prometheus.NewDesc(namespace+"_"+"system_replication_recon_req_tx", "Replication recon req tx", variableLabelsReplication, nil),
+		"system_replication_out_of_seq_rx":    prometheus.NewDesc(namespace+"_"+"system_replication_out_of_seq_rx", "Replication out of seq rx", variableLabelsReplication, nil),
+		//Transaction replication
+		"system_replication_xa_req":                  prometheus.NewDesc(namespace+"_"+"system_replication_xa_req", "Replication transanction requests", variableLabelsReplication, nil),
+		"system_replication_xa_req_success":          prometheus.NewDesc(namespace+"_"+"system_replication_xa_req_success", "Replication transanction requests success", variableLabelsReplication, nil),
+		"system_replication_xa_req_success_prepare":  prometheus.NewDesc(namespace+"_"+"system_replication_xa_req_success_prepare", "Replication transanction requests success prepare", variableLabelsReplication, nil),
+		"system_replication_xa_req_success_commit":   prometheus.NewDesc(namespace+"_"+"system_replication_xa_req_success_commit", "Replication transanction requests success commit", variableLabelsReplication, nil),
+		"system_replication_xa_req_success_rollback": prometheus.NewDesc(namespace+"_"+"system_replication_xa_req_success_rollback", "Replication transanction requests success rollback", variableLabelsReplication, nil),
+		"system_replication_xa_req_fail":             prometheus.NewDesc(namespace+"_"+"system_replication_xa_req_fail", "Replication transanction requests fail", variableLabelsReplication, nil),
+		"system_replication_xa_req_fail_prepare":     prometheus.NewDesc(namespace+"_"+"system_replication_xa_req_fail_prepare", "Replication transanction requests fail prepare", variableLabelsReplication, nil),
+		"system_replication_xa_req_fail_commit":      prometheus.NewDesc(namespace+"_"+"system_replication_xa_req_fail_commit", "Replication transanction requests fail commit", variableLabelsReplication, nil),
+		"system_replication_xa_req_fail_rollback":    prometheus.NewDesc(namespace+"_"+"system_replication_xa_req_fail_rollback", "Replication transanction requests fail rollback", variableLabelsReplication, nil),
 	},
 	"Vpn": {
 		"vpn_is_management_vpn":                 prometheus.NewDesc(namespace+"_"+"vpn_is_management_vpn", "VPN is a management VPN", variableLabelsVpn, nil),
@@ -182,6 +255,14 @@ var metricDesc = map[string]Metrics{
 		"vpn_spool_quota_bytes": prometheus.NewDesc(namespace+"_"+"vpn_spool_quota_bytes", "Spool configured max disk usage.", variableLabelsVpn, nil),
 		"vpn_spool_usage_bytes": prometheus.NewDesc(namespace+"_"+"vpn_spool_usage_bytes", "Spool total persisted usage.", variableLabelsVpn, nil),
 		"vpn_spool_usage_msgs":  prometheus.NewDesc(namespace+"_"+"vpn_spool_usage_msgs", "Spool total number of persisted messages.", variableLabelsVpn, nil),
+	},
+	//SEMPv1: show client <client-name> message-vpn <vpn-name> connected
+	"Client": {
+		"client_num_subscriptions": prometheus.NewDesc(namespace+"_"+"client_num_subscriptions", "Number of client subscriptions.", variableLabelsClientInfo, nil),
+	},
+	//SEMPv1: show client <client-name> message-vpn <vpn-name> connected
+	"ClientSlowSubscriber": {
+		"client_slow_subscriber": prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsClientInfo, nil),
 	},
 	"ClientStats": {
 		"client_rx_msgs_total":           prometheus.NewDesc(namespace+"_"+"client_rx_msgs_total", "Number of received messages.", variableLabelsVpnClient, nil),
@@ -441,6 +522,280 @@ func (e *Exporter) getHealthSemp1(ch chan<- prometheus.Metric) (ok float64, err 
 	return 1, nil
 }
 
+// Get system storage-element information (for Software Broker)
+func (e *Exporter) getStorageElementSemp1(ch chan<- prometheus.Metric, storageElementFilter string) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				StorageElements struct {
+					StorageElement []struct {
+						Name        string  `xml:"name"`
+						Path        string  `xml:"path"`
+						DeviceName  string  `xml:"device-name"`
+						TotalBlocks float64 `xml:"total-blocks"`
+						UsedBlocks  float64 `xml:"used-blocks"`
+						AvailBlocks float64 `xml:"available-blocks"`
+						UsedPercent float64 `xml:"used-percentage"`
+					} `xml:"storage-element"`
+				} `xml:"storage-element"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><storage-element><pattern>" + storageElementFilter + "</pattern></storage-element></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't scrape StorageElementSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't decode Xml StorageElementSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	if target.ExecuteResult.Result != "ok" {
+		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+		return 0, errors.New("unexpected result: see log")
+	}
+
+	blockSize := 1024.0
+
+	for _, element := range target.RPC.Show.StorageElements.StorageElement {
+		ch <- prometheus.MustNewConstMetric(metricDesc["StorageElement"]["system_storage_used_percent"], prometheus.GaugeValue, element.UsedPercent, element.Path, element.DeviceName, element.Name)
+		ch <- prometheus.MustNewConstMetric(metricDesc["StorageElement"]["system_storage_used_bytes"], prometheus.GaugeValue, element.UsedBlocks*blockSize, element.Path, element.DeviceName, element.Name)
+		ch <- prometheus.MustNewConstMetric(metricDesc["StorageElement"]["system_storage_avail_bytes"], prometheus.GaugeValue, element.AvailBlocks*blockSize, element.Path, element.DeviceName, element.Name)
+	}
+
+	return 1, nil
+}
+
+// Get system disk information (for Appliance)
+func (e *Exporter) getDiskSemp1(ch chan<- prometheus.Metric) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Disk struct {
+					DiskInfos struct {
+						DiskInfo []struct {
+							Path        string  `xml:"mounted-on"`
+							DeviceName  string  `xml:"file-system"`
+							TotalBlocks float64 `xml:"blocks"`
+							UsedBlocks  float64 `xml:"used"`
+							AvailBlocks float64 `xml:"available"`
+							UsedPercent string  `xml:"use"`
+						} `xml:"disk-info"`
+					} `xml:"disk-infos"`
+				} `xml:"disk"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><disk><detail/></disk></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't scrape DiskSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't decode Xml DiskSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	if target.ExecuteResult.Result != "ok" {
+		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+		return 0, errors.New("unexpected result: see log")
+	}
+
+	blockSize := 1024.0
+	for _, disk := range target.RPC.Show.Disk.DiskInfos.DiskInfo {
+		var usedPercent float64
+		usedPercent, _ = strconv.ParseFloat(strings.Trim(disk.UsedPercent, "%"), 64)
+		ch <- prometheus.MustNewConstMetric(metricDesc["Disk"]["system_disk_used_percent"], prometheus.GaugeValue, usedPercent, disk.Path, disk.DeviceName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["Disk"]["system_disk_used_bytes"], prometheus.GaugeValue, disk.UsedBlocks*blockSize, disk.Path, disk.DeviceName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["Disk"]["system_disk_avail_bytes"], prometheus.GaugeValue, disk.AvailBlocks*blockSize, disk.Path, disk.DeviceName)
+	}
+
+	return 1, nil
+}
+
+// Get system memory information
+func (e *Exporter) getMemorySemp1(ch chan<- prometheus.Metric) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Memory struct {
+					PhysicalUsagePercent     float64 `xml:"physical-memory-usage-percent"`
+					SubscriptionUsagePercent float64 `xm:"subscription-memory-usage-percent"`
+					SlotInfos                struct {
+						SlotInfo []struct {
+							Slot             string  `xml:"slot"`
+							NabBufLoadFactor float64 `xml:"nab-buffer-load-factor"`
+						} `xml:"slot-info"`
+					} `xml:"slot-infos"`
+				} `xml:"memory"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><memory/></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't scrape MemorySemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't decode Xml MemorySemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	if target.ExecuteResult.Result != "ok" {
+		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+		return 0, errors.New("unexpected result: see log")
+	}
+
+	ch <- prometheus.MustNewConstMetric(metricDesc["Memory"]["system_memory_physical_usage_percent"], prometheus.GaugeValue, target.RPC.Show.Memory.PhysicalUsagePercent)
+	ch <- prometheus.MustNewConstMetric(metricDesc["Memory"]["system_memory_subscription_usage_percent"], prometheus.GaugeValue, target.RPC.Show.Memory.SubscriptionUsagePercent)
+	ch <- prometheus.MustNewConstMetric(metricDesc["Memory"]["system_nab_buffer_load_factor"], prometheus.GaugeValue, target.RPC.Show.Memory.SlotInfos.SlotInfo[0].NabBufLoadFactor)
+
+	return 1, nil
+}
+
+// Get interface information
+func (e *Exporter) getInterfaceSemp1(ch chan<- prometheus.Metric, interfaceFilter string) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Interface struct {
+					Interfaces struct {
+						Interface []struct {
+							Name    string `xml:"phy-interface"`
+							Enabled string `xml:"enabled"`
+							State   string `xml:"oper-status"`
+							Stats   struct {
+								RxBytes float64 `xml:"rx-bytes"`
+								TxBytes float64 `xml:"tx-bytes"`
+							} `xml:"stats"`
+						} `xml:"interface"`
+					} `xml:"interfaces"`
+				} `xml:"interface"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><interface><phy-interface>" + interfaceFilter + "</phy-interface></interface></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't scrape InterfaceSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't decode Xml InterfaceSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	if target.ExecuteResult.Result != "ok" {
+		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+		return 0, errors.New("unexpected result: see log")
+	}
+
+	for _, intf := range target.RPC.Show.Interface.Interfaces.Interface {
+		ch <- prometheus.MustNewConstMetric(metricDesc["Interface"]["network_if_rx_bytes"], prometheus.CounterValue, intf.Stats.RxBytes, intf.Name)
+		ch <- prometheus.MustNewConstMetric(metricDesc["Interface"]["network_if_tx_bytes"], prometheus.CounterValue, intf.Stats.TxBytes, intf.Name)
+		ch <- prometheus.MustNewConstMetric(metricDesc["Interface"]["network_if_state"], prometheus.GaugeValue, encodeMetricMulti(intf.State, []string{"Down", "Up"}), intf.Name)
+	}
+
+	return 1, nil
+}
+
+// Get global stats information
+func (e *Exporter) getGlobalStatsSemp1(ch chan<- prometheus.Metric) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Stats struct {
+					Client struct {
+						Global struct {
+							Stats struct {
+								ClientsConnected float64 `xml:"total-clients-connected"`
+								DataRxMsgCount   float64 `xml:"client-data-messages-received"`
+								DataTxMsgCount   float64 `xml:"client-data-messages-sent"`
+								DataRxByteCount  float64 `xml:"client-data-bytes-received"`
+								DataTxByteCount  float64 `xml:"client-data-bytes-sent"`
+								RxMsgsRate       float64 `xml:"current-ingress-rate-per-second"`
+								TxMsgsRate       float64 `xml:"current-egress-rate-per-second"`
+								RxBytesRate      float64 `xml:"current-ingress-byte-rate-per-second"`
+								TxBytesRate      float64 `xml:"current-egress-byte-rate-per-second"`
+								IngressDiscards  struct {
+									DiscardedRxMsgCount float64 `xml:"total-ingress-discards"`
+								} `xml:"ingress-discards"`
+								EgressDiscards struct {
+									DiscardedTxMsgCount float64 `xml:"total-egress-discards"`
+								} `xml:"egress-discards"`
+							} `xml:"stats"`
+						} `xml:"global"`
+					} `xml:"client"`
+				} `xml:"stats"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><stats><client/></stats></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't scrape GlobalStatsSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't decode Xml GlobalStatsSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	if target.ExecuteResult.Result != "ok" {
+		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+		return 0, errors.New("unexpected result: see log")
+	}
+
+	ch <- prometheus.MustNewConstMetric(metricDesc["GlobalStats"]["system_total_clients_connected"], prometheus.GaugeValue, target.RPC.Show.Stats.Client.Global.Stats.ClientsConnected)
+	ch <- prometheus.MustNewConstMetric(metricDesc["GlobalStats"]["system_rx_msgs_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataRxMsgCount)
+	ch <- prometheus.MustNewConstMetric(metricDesc["GlobalStats"]["system_tx_msgs_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataTxMsgCount)
+	ch <- prometheus.MustNewConstMetric(metricDesc["GlobalStats"]["system_rx_bytes_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataRxByteCount)
+	ch <- prometheus.MustNewConstMetric(metricDesc["GlobalStats"]["system_tx_bytes_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataTxByteCount)
+	ch <- prometheus.MustNewConstMetric(metricDesc["GlobalStats"]["system_total_rx_discards"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.IngressDiscards.DiscardedRxMsgCount)
+	ch <- prometheus.MustNewConstMetric(metricDesc["GlobalStats"]["system_total_tx_discards"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.EgressDiscards.DiscardedTxMsgCount)
+
+	return 1, nil
+}
+
 // Get system-wide spool information
 func (e *Exporter) getSpoolSemp1(ch chan<- prometheus.Metric) (ok float64, err error) {
 	type Data struct {
@@ -563,6 +918,128 @@ func (e *Exporter) getRedundancySemp1(ch chan<- prometheus.Metric) (ok float64, 
 		f = 0
 	}
 	ch <- prometheus.MustNewConstMetric(metricDesc["Redundancy"]["system_redundancy_local_active"], prometheus.GaugeValue, f, mateRouterName)
+
+	return 1, nil
+}
+
+// Get DR replication statistics
+func (e *Exporter) getReplicationStatsSemp1(ch chan<- prometheus.Metric) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Repl struct {
+					Mate struct {
+						Name string `xml:"router-name"`
+					} `xml:"mate"`
+					ConfigSync struct {
+						Bridge struct {
+							AdminState string `xml:"admin-state"`
+							State      string `xml:"state"`
+						} `xml:"bridge"`
+					} `xml:"config-sync"`
+					Stats struct {
+						ActiveStats struct {
+							MsgProcessing struct {
+								SyncQ2Standby      float64 `xml:"sync-msgs-queued-to-standby"`
+								SyncQ2StandbyAsync float64 `xml:"sync-msgs-queued-to-standby-as-async"`
+								AsyncQ2Standby     float64 `xml:"async-msgs-queued-to-standby"`
+								PromotedQ2Standby  float64 `xml:"promoted-msgs-queued-to-standby"`
+								PrunedConsumed     float64 `xml:"pruned-locally-consumed-msgs"`
+							} `xml:"message-processing"`
+							SyncRepl struct {
+								Trans2Ineligible float64 `xml:"transitions-to-ineligible"`
+							} `xml:"sync-replication"`
+							AckPropagation struct {
+								TxMsgToStandby   float64 `xml:"msgs-tx-to-standby"`
+								RxReqFromStandby float64 `xml:"rec-req-from-standby"`
+							} `xml:"ack-propagation"`
+						} `xml:"active-stats"`
+						StandbyStats struct {
+							MsgProcessing struct {
+								RxMsgFromActive float64 `xml:"msgs-rx-from-active"`
+							} `xml:"message-processing"`
+							AckPropagation struct {
+								RxAckPropMsgs float64 `xml:"ack-prop-msgs-rx"`
+								TxReconReq    float64 `xml:"recon-req-tx"`
+								RxOutOfSeq    float64 `xml:"out-of-seq-rx"`
+							} `xml:"ack-propagation"`
+							XaRepl struct {
+								XaReq                float64 `xml:"transaction-request"`
+								XaReqSuccess         float64 `xml:"transaction-request-success"`
+								XaReqSuccessPrepare  float64 `xml:"transaction-request-success-prepare"`
+								XaReqSuccessCommit   float64 `xml:"transaction-request-success-commit"`
+								XaReqSuccessRollback float64 `xml:"transaction-request-success-rollback"`
+								XaReqFail            float64 `xml:"transaction-request-fail"`
+								XaReqFailPrepare     float64 `xml:"transaction-request-fail-prepare"`
+								XaReqFailCommit      float64 `xml:"transaction-request-fail-commit"`
+								XaReqFailRollback    float64 `xml:"transaction-request-fail-rollback"`
+							} `xml:"transaction-replication"`
+						} `xml:"standby-stats"`
+					} `xml:"stats"`
+				} `xml:"replication"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><replication><stats/></replication></show></rpc>"
+	body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", command)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't scrape ReplicationStatsSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't decode Xml ReplicationStatsSemp1", "err", err, "broker", e.config.scrapeURI)
+		return 0, err
+	}
+	if target.ExecuteResult.Result != "ok" {
+		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+		return 0, errors.New("unexpected result: see log")
+	}
+
+	replMateName := "" + target.RPC.Show.Repl.Mate.Name
+	if replMateName != "" {
+		replBridge := target.RPC.Show.Repl.ConfigSync.Bridge
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_bridge_admin_state"], prometheus.GaugeValue, encodeMetricMulti(replBridge.AdminState, []string{"Disabled", "Enabled", "-"}), replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_bridge_state"], prometheus.GaugeValue, encodeMetricMulti(replBridge.State, []string{"down", "up", "n/a"}), replMateName)
+		//Active stats
+		activeStats := target.RPC.Show.Repl.Stats.ActiveStats
+		//Message processing
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_sync_msgs_queued_to_standby"], prometheus.GaugeValue, activeStats.MsgProcessing.SyncQ2Standby, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_sync_msgs_queued_to_standby_as_async"], prometheus.GaugeValue, activeStats.MsgProcessing.SyncQ2StandbyAsync, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_async_msgs_queued_to_standby"], prometheus.GaugeValue, activeStats.MsgProcessing.AsyncQ2Standby, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_promoted_msgs_queued_to_standby"], prometheus.GaugeValue, activeStats.MsgProcessing.PromotedQ2Standby, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_pruned_locally_consumed_msgs"], prometheus.GaugeValue, activeStats.MsgProcessing.PrunedConsumed, replMateName)
+		//Sync replication
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_transitions_to_ineligible"], prometheus.GaugeValue, activeStats.SyncRepl.Trans2Ineligible, replMateName)
+		//Ack propagation
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_msgs_tx_to_standby"], prometheus.GaugeValue, activeStats.AckPropagation.TxMsgToStandby, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_rec_req_from_standby"], prometheus.GaugeValue, activeStats.AckPropagation.RxReqFromStandby, replMateName)
+		//Standby stats
+		standbyStats := target.RPC.Show.Repl.Stats.StandbyStats
+		//Message processing
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_msgs_rx_from_active"], prometheus.GaugeValue, standbyStats.MsgProcessing.RxMsgFromActive, replMateName)
+		//Ack propagation
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_ack_prop_msgs_rx"], prometheus.GaugeValue, standbyStats.AckPropagation.RxAckPropMsgs, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_recon_req_tx"], prometheus.GaugeValue, standbyStats.AckPropagation.TxReconReq, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_out_of_seq_rx"], prometheus.GaugeValue, standbyStats.AckPropagation.RxOutOfSeq, replMateName)
+		//Transaction replication
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_xa_req"], prometheus.GaugeValue, standbyStats.XaRepl.XaReq, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_xa_req_success"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccess, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_xa_req_success_prepare"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccessPrepare, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_xa_req_success_commit"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccessCommit, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_xa_req_success_rollback"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccessRollback, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_xa_req_fail"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFail, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_xa_req_fail_prepare"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFailPrepare, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_xa_req_fail_commit"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFailCommit, replMateName)
+		ch <- prometheus.MustNewConstMetric(metricDesc["ReplicationStats"]["system_replication_xa_req_fail_rollback"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFailRollback, replMateName)
+	}
 
 	return 1, nil
 }
@@ -882,6 +1359,123 @@ func (e *Exporter) getBridgeSemp1(ch chan<- prometheus.Metric, vpnFilter string,
 		ch <- prometheus.MustNewConstMetric(metricDesc["Bridge"]["bridge_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup", "static", "none"}), vpnName, bridgeName)
 		ch <- prometheus.MustNewConstMetric(metricDesc["Bridge"]["bridge_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, vpnName, bridgeName)
 	}
+	return 1, nil
+}
+
+// Get summary for each client of vpns
+// This can result in heavy system load when lots of clients are connected
+func (e *Exporter) getClientSemp1(ch chan<- prometheus.Metric, vpnFilter string, itemFilter string) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Client struct {
+					PrimaryVirtualRouter struct {
+						Client []struct {
+							ClientAddress    string  `xml:"client-address"`
+							ClientName       string  `xml:"name"`
+							MsgVpnName       string  `xml:"message-vpn"`
+							NumSubscriptions float64 `xml:"num-subscriptions"`
+						} `xml:"client"`
+					} `xml:",any"`
+				} `xml:"client"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		MoreCookie struct {
+			RPC string `xml:",innerxml"`
+		} `xml:"more-cookie"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><connected/></client></show></rpc>"; nextRequest != ""; {
+		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't scrape ClientSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		defer body.Close()
+		decoder := xml.NewDecoder(body)
+		var target Data
+		err = decoder.Decode(&target)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't decode ClientSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		if target.ExecuteResult.Result != "ok" {
+			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+			return 0, errors.New("unexpected result: see log")
+		}
+
+		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
+		nextRequest = target.MoreCookie.RPC
+
+		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
+			clientIp := strings.Split(client.ClientAddress, ":")[0]
+			ch <- prometheus.MustNewConstMetric(metricDesc["Client"]["client_num_subscriptions"], prometheus.GaugeValue, client.NumSubscriptions, client.MsgVpnName, client.ClientName, clientIp)
+		}
+		body.Close()
+	}
+
+	return 1, nil
+}
+
+// Get slow subscriber client of vpns
+// This can result in heavy system load when lots of clients are connected
+func (e *Exporter) getClientSlowSubscriberSemp1(ch chan<- prometheus.Metric, vpnFilter string, itemFilter string) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				Client struct {
+					PrimaryVirtualRouter struct {
+						Client []struct {
+							ClientAddress string `xml:"client-address"`
+							ClientName    string `xml:"name"`
+							MsgVpnName    string `xml:"message-vpn"`
+						} `xml:"client"`
+					} `xml:",any"`
+				} `xml:"client"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		MoreCookie struct {
+			RPC string `xml:",innerxml"`
+		} `xml:"more-cookie"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><slow-subscriber/></client></show></rpc>"; nextRequest != ""; {
+		body, err := e.postHTTP(e.config.scrapeURI+"/SEMP", "application/xml", nextRequest)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't scrape ClientSlowSubscriberSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		defer body.Close()
+		decoder := xml.NewDecoder(body)
+		var target Data
+		err = decoder.Decode(&target)
+		if err != nil {
+			_ = level.Error(e.logger).Log("msg", "Can't decode ClientSlowSubscriberSemp1", "err", err, "broker", e.config.scrapeURI)
+			return 0, err
+		}
+		if target.ExecuteResult.Result != "ok" {
+			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.config.scrapeURI)
+			return 0, errors.New("unexpected result: see log")
+		}
+
+		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
+		nextRequest = target.MoreCookie.RPC
+		var slowSubscriber float64
+		slowSubscriber = 1
+
+		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
+			clientIp := strings.Split(client.ClientAddress, ":")[0]
+			ch <- prometheus.MustNewConstMetric(metricDesc["ClientSlowSubscriber"]["client_slow_subscriber"], prometheus.GaugeValue, slowSubscriber, client.MsgVpnName, client.ClientName, clientIp)
+		}
+		body.Close()
+	}
+
 	return 1, nil
 }
 
@@ -2110,10 +2704,22 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up, err = e.getVersionSemp1(ch)
 		case "Health":
 			up, err = e.getHealthSemp1(ch)
+		case "StorageElement":
+			up, err = e.getStorageElementSemp1(ch, dataSource.itemFilter)
+		case "Disk":
+			up, err = e.getDiskSemp1(ch)
+		case "Memory":
+			up, err = e.getMemorySemp1(ch)
+		case "Interface":
+			up, err = e.getInterfaceSemp1(ch, dataSource.itemFilter)
+		case "GlobalStats":
+			up, err = e.getGlobalStatsSemp1(ch)
 		case "Spool":
 			up, err = e.getSpoolSemp1(ch)
 		case "Redundancy":
 			up, err = e.getRedundancySemp1(ch)
+		case "ReplicationStats":
+			up, err = e.getReplicationStatsSemp1(ch)
 		case "ConfigSyncRouter":
 			up, err = e.getConfigSyncRouterSemp1(ch)
 		case "Vpn":
@@ -2126,6 +2732,10 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up, err = e.getBridgeSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
 		case "VpnSpool":
 			up, err = e.getVpnSpoolSemp1(ch, dataSource.vpnFilter)
+		case "Client":
+			up, err = e.getClientSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
+		case "ClientSlowSubscriber":
+			up, err = e.getClientSlowSubscriberSemp1(ch, dataSource.vpnFilter, dataSource.itemFilter)
 		case "ClientStats":
 			up, err = e.getClientStatsSemp1(ch, dataSource.vpnFilter)
 		case "ClientMessageSpoolStats":
@@ -2263,14 +2873,22 @@ func main() {
 				<table><tr><th>scape target</th><th>vpn filter supports</th><th>item filter supported</th><th>performance</th><tr>
 					<tr><td>Version</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Health</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>StorageElement</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>Disk</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>
+					<tr><td>Memory</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>Interface</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>
+					<tr><td>GlobalStats</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Spool</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Redundancy (only for HA broker)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>ConfigSyncRouter (only for HA broker)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>ReplicationStats (only for DR replication broker)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Vpn</td><td>yes</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>VpnReplication</td><td>yes</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>ConfigSyncVpn (only for HA broker)</td><td>yes</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Bridge</td><td>yes</td><td>yes</td><td>dont harm broker</td></tr>
 					<tr><td>VpnSpool</td><td>yes</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>Client</td><td>yes</td><td>yes</td><td>may harm broker if many clients</td></tr>
+					<tr><td>ClientSlowSubscriber</td><td>yes</td><td>yes</td><td>may harm broker if many clients</td></tr>
 					<tr><td>ClientStats</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
 					<tr><td>ClientMessageSpoolStats</td><td>yes</td><td>yes</td><td>no</td></tr>
 					<tr><td>ClusterLinks</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
