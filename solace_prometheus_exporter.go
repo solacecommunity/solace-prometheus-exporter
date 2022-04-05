@@ -22,6 +22,7 @@ import (
 	"io"
 	"math"
 	"net/http"
+	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -74,7 +75,11 @@ func (e *Exporter) redirectPolicyFunc(req *http.Request, _ []*http.Request) erro
 
 // Call http post for the supplied uri and body
 func (e *Exporter) postHTTP(uri string, _ string, body string) (io.ReadCloser, error) {
-	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: !e.config.sslVerify}}
+	var proxy func(req *http.Request) (*url.URL, error)
+	if e.config.useSystemProxy {
+		proxy = http.ProxyFromEnvironment
+	}
+	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: !e.config.sslVerify}, Proxy: proxy}
 	client := http.Client{
 		Timeout:       e.config.timeout,
 		Transport:     tr,
@@ -2520,13 +2525,14 @@ func encodeMetricBool(item bool) float64 {
 
 // Collection of configs
 type config struct {
-	listenAddr string
-	scrapeURI  string
-	username   string
-	password   string
-	sslVerify  bool
-	timeout    time.Duration
-	dataSource []DataSource
+	listenAddr     string
+	scrapeURI      string
+	username       string
+	password       string
+	sslVerify      bool
+	useSystemProxy bool
+	timeout        time.Duration
+	dataSource     []DataSource
 }
 
 // Exporter collects Solace stats from the given URI and exports them using

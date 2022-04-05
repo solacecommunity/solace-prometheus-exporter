@@ -197,6 +197,10 @@ timeout=5s
 
 # Flag that enables SSL certificate verification for the scrape URI.
 sslVerify=false
+
+# Flag that enables Usage of the operating system proxy configuration.
+# false=No proxy will be used at all.
+useSystemProxy=false
 ```
 
 ### Environment Variables
