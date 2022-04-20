@@ -45,7 +45,7 @@ const (
 )
 
 var (
-	solaceExporterVersion = float64(1004003)
+	solaceExporterVersion = float64(1004005)
 
 	variableLabelsUp               = []string{"error"}
 	variableLabelsRedundancy       = []string{"mate_name"}
@@ -2526,6 +2526,9 @@ func encodeMetricBool(item bool) float64 {
 // Collection of configs
 type config struct {
 	listenAddr     string
+	enableTLS      bool
+	certificate    string
+	privateKey     string
 	scrapeURI      string
 	username       string
 	password       string
@@ -2533,6 +2536,16 @@ type config struct {
 	useSystemProxy bool
 	timeout        time.Duration
 	dataSource     []DataSource
+}
+
+// getListenURI returns the `listenAddr` with proper protocol (http/https),
+// based on the `enableTLS` configuration parameter
+func (c *config) getListenURI() string {
+	if c.enableTLS {
+		return "https://" + c.listenAddr
+	} else {
+		return "http://" + c.listenAddr
+	}
 }
 
 // Exporter collects Solace stats from the given URI and exports them using
@@ -2624,6 +2637,9 @@ func parseConfig(configFile string, conf *config, logger log.Logger) (bool, map[
 	}
 
 	conf.listenAddr = parseConfigString(cfg, logger, "solace", "listenAddr", "SOLACE_LISTEN_ADDR", &oki)
+	conf.enableTLS = parseConfigBool(cfg, logger, "solace", "enableTLS", "SOLACE_LISTEN_TLS", &oki)
+	conf.certificate = parseConfigString(cfg, logger, "solace", "certificate", "SOLACE_SERVER_CERT", &oki)
+	conf.privateKey = parseConfigString(cfg, logger, "solace", "privateKey", "SOLACE_PRIVATE_KEY", &oki)
 	conf.scrapeURI = parseConfigString(cfg, logger, "solace", "scrapeUri", "SOLACE_SCRAPE_URI", &oki)
 	conf.username = parseConfigString(cfg, logger, "solace", "username", "SOLACE_USERNAME", &oki)
 	conf.password = parseConfigString(cfg, logger, "solace", "password", "SOLACE_PASSWORD", &oki)
@@ -2801,7 +2817,7 @@ func main() {
 	_ = level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
 
 	_ = level.Info(logger).Log("msg", "Scraping",
-		"listenAddr", "http://"+conf.listenAddr,
+		"listenAddr", conf.getListenURI(),
 		"scrapeURI", conf.scrapeURI,
 		"username", conf.username,
 		"sslVerify", conf.sslVerify,
@@ -2914,11 +2930,20 @@ func main() {
             </body>
             </html>`))
 	})
+
 	// start server
-	if err := http.ListenAndServe(conf.listenAddr, nil); err != nil {
-		_ = level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
-		os.Exit(2)
+	if conf.enableTLS {
+		if err := http.ListenAndServeTLS(conf.listenAddr, conf.certificate, conf.privateKey, nil); err != nil {
+			_ = level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
+			os.Exit(2)
+		}
+	} else {
+		if err := http.ListenAndServe(conf.listenAddr, nil); err != nil {
+			_ = level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
+			os.Exit(2)
+		}
 	}
+
 }
 
 func doHandle(w http.ResponseWriter, r *http.Request, dataSource []DataSource, conf config, logger log.Logger) (resultCode string) {

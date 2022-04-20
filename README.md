@@ -182,6 +182,18 @@ Sample config file:
 # Address to listen on for web interface and telemetry.
 listenAddr=0.0.0.0:9628
 
+# Enable TLS on listenAddr endpoint. Make sure to provide certificate and private key files. 
+# can be overridden via env varibale SOLACE_LISTEN_TLS
+enableTLS=true
+
+# Path to the server certificate (including intermediates and CA's certificate)
+# can be overridden via env varibale SOLACE_SERVER_CERT
+certificate=cert.pem
+
+# Path to the private key pem file
+# can be overridden via env varibale SOLACE_PRIVATE_KEY
+privateKey=key.pem
+
 # Base URI on which to scrape Solace broker.
 scrapeUri=http://your-exporter:8080
 
@@ -207,6 +219,9 @@ useSystemProxy=false
 Sample environment variables:
 ```bash
 SOLACE_LISTEN_ADDR=0.0.0.0:9628
+SOLACE_LISTEN_TLS=true
+SOLACE_SERVER_CERT=/path/to/your/cert.pem
+SOLACE_PRIVATE_KEY=/path/to/your/key.pem
 SOLACE_SCRAPE_URI=http://your-broker:8080
 SOLACE_USERNAME=admin
 SOLACE_PASSWORD=admin
