@@ -72,37 +72,37 @@ Get the same result as the legacy `solace-det` endpoint, but from a specific bro
 #### Scrape targets
 
 
-| scrape target                         | vpn filter supports | item filter supported | performance impact                         | corresponding cli cmd                                                | supported by        |
-| :------------------------------------ | :------------------ | :-------------------- | :----------------------------------------- | :------------------------------------------------------------------- | :------------------ |
-| Version                               | no                  | no                    | dont harm broker                           | show version                                                         | software, appliance |
-| Health                                | no                  | no                    | dont harm broker                           | show system health                                                   | software            |
-| StorageElement                        | no                  | yes                   | dont harm broker                           | show storage-element storageElementFilter                            | software            |
-| Disk                                  | no                  | no                    | dont harm broker                           | show disk detail                                                     | appliance |
-| Memory                                | no                  | no                    | dont harm broker                           | show memory                                                          | software, appliance |
-| Interface                             | no                  | yes                   | dont harm broker                           | show interface interfaceFilter                                       | software, appliance |
-| GlobalStats                           | no                  | no                    | dont harm broker                           | show stats client                                                    | software, appliance |
-| Spool                                 | no                  | no                    | dont harm broker                           | show message-spool                                                   | software, appliance |
-| Redundancy (only for HA broker)       | no                  | no                    | dont harm broker                           | show redundancy                                                      | software, appliance |
-| ConfigSyncRouter (only for HA broker) | no                  | no                    | dont harm broker                           | show config-sync database router                                     | software, appliance |
-| Replication (only for DR broker)      | no                  | no                    | dont harm broker                           | show replication stats                                               | software, appliance |
-| Vpn                                   | yes                 | no                    | dont harm broker                           | show message-vpn vpnFilter                                           | software, appliance |
-| VpnReplication                        | yes                 | no                    | dont harm broker                           | show message-vpn vpnFilter replication                               | software, appliance |
-| ConfigSyncVpn (only for HA broker)    | yes                 | no                    | dont harm broker                           | show config-sync database message-vpn vpnFilter                      | software, appliance |
-| Bridge                                | yes                 | yes                   | dont harm broker                           | show bridge itemFilter message-vpn vpnFilter                         | software, appliance |
-| VpnSpool                              | yes                 | no                    | dont harm broker                           | show message-spool message-vpn vpnFilter                             | software, appliance |
-| Client                                | yes                 | yes                   | may harm broker if many clients            | show client itemFilter message-vpn vpnFilter connected           | software, appliance |
-| ClientSlowSubscriber                  | yes                 | yes                   | may harm broker if many clients            | show client itemFilter message-vpn vpnFilter slow-subscriber     | software, appliance |
-| ClientStats                           | yes                 | no                    | may harm broker if many clients            | show client itemFilter stats (paged)                       | software, appliance |
-| ClientMessageSpoolStats      | yes                  | no                    | may harm broker if many clients            | show client itemFilter stats(paged)                       | software, appliance | 
-| VpnStats                              | yes                 | no                    | has a very small performance down site     | show message-vpn vpnFilter stats                                     | software, appliance |
-| BridgeStats                           | yes                 | yes                   | has a very small performance down site     | show bridge itemFilter message-vpn vpnFilter stats                   | software, appliance |
-| QueueRates                       | yes                 | yes                   | DEPRECATED: may harm broker if many queues | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
-| QueueStats                       | yes                 | yes                   | may harm broker if many queues             | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
-| QueueDetails                     | yes                 | yes                   | may harm broker if many queues             | show queue itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
-| TopicEndpointRates               | yes                 | yes                   | DEPRECATED: may harm broker if many topic-endpoints | show topic-endpoint itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
-| TopicEndpointStats               | yes                 | yes                   | may harm broker if many topic-endpoint             | show topic-endpoint itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
-| TopicEndpointDetails             | yes                 | yes                   | may harm broker if many topic-endpoints             | show topic-endpoint itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
-| ClusterLinks                          | yes                 | yes                   | dont harm broker                           | show the state of the cluster links. Filters are for clusterName and linkName | software, appliance |
+| scrape target                         | vpn filter supports | item filter supported | performance impact                                  | corresponding cli cmd                                                         | supported by        |
+| :------------------------------------ | :------------------ | :-------------------- | :-------------------------------------------------- | :---------------------------------------------------------------------------- | :------------------ |
+| Version                               | no                  | no                    | dont harm broker                                    | show version                                                                  | software, appliance |
+| Health                                | no                  | no                    | dont harm broker                                    | show system health                                                            | software            |
+| StorageElement                        | no                  | yes                   | dont harm broker                                    | show storage-element storageElementFilter                                     | software            |
+| Disk                                  | no                  | no                    | dont harm broker                                    | show disk detail                                                              | appliance           |
+| Memory                                | no                  | no                    | dont harm broker                                    | show memory                                                                   | software, appliance |
+| Interface                             | no                  | yes                   | dont harm broker                                    | show interface interfaceFilter                                                | software, appliance |
+| GlobalStats                           | no                  | no                    | dont harm broker                                    | show stats client                                                             | software, appliance |
+| Spool                                 | no                  | no                    | dont harm broker                                    | show message-spool                                                            | software, appliance |
+| Redundancy (only for HA broker)       | no                  | no                    | dont harm broker                                    | show redundancy                                                               | software, appliance |
+| ConfigSyncRouter (only for HA broker) | no                  | no                    | dont harm broker                                    | show config-sync database router                                              | software, appliance |
+| Replication (only for DR broker)      | no                  | no                    | dont harm broker                                    | show replication stats                                                        | software, appliance |
+| Vpn                                   | yes                 | no                    | dont harm broker                                    | show message-vpn vpnFilter                                                    | software, appliance |
+| VpnReplication                        | yes                 | no                    | dont harm broker                                    | show message-vpn vpnFilter replication                                        | software, appliance |
+| ConfigSyncVpn (only for HA broker)    | yes                 | no                    | dont harm broker                                    | show config-sync database message-vpn vpnFilter                               | software, appliance |
+| Bridge                                | yes                 | yes                   | dont harm broker                                    | show bridge itemFilter message-vpn vpnFilter                                  | software, appliance |
+| VpnSpool                              | yes                 | no                    | dont harm broker                                    | show message-spool message-vpn vpnFilter                                      | software, appliance |
+| Client                                | yes                 | yes                   | may harm broker if many clients                     | show client itemFilter message-vpn vpnFilter connected                        | software, appliance |
+| ClientSlowSubscriber                  | yes                 | yes                   | may harm broker if many clients                     | show client itemFilter message-vpn vpnFilter slow-subscriber                  | software, appliance |
+| ClientStats                           | yes                 | no                    | may harm broker if many clients                     | show client itemFilter stats (paged)                                          | software, appliance |
+| ClientMessageSpoolStats               | yes                 | no                    | may harm broker if many clients                     | show client itemFilter stats(paged)                                           | software, appliance |
+| VpnStats                              | yes                 | no                    | has a very small performance down site              | show message-vpn vpnFilter stats                                              | software, appliance |
+| BridgeStats                           | yes                 | yes                   | has a very small performance down site              | show bridge itemFilter message-vpn vpnFilter stats                            | software, appliance |
+| QueueRates                            | yes                 | yes                   | DEPRECATED: may harm broker if many queues          | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)           | software, appliance |
+| QueueStats                            | yes                 | yes                   | may harm broker if many queues                      | show queue itemFilter message-vpn vpnFilter rates count 100 (paged)           | software, appliance |
+| QueueDetails                          | yes                 | yes                   | may harm broker if many queues                      | show queue itemFilter message-vpn vpnFilter detail count 100 (paged)          | software, appliance |
+| TopicEndpointRates                    | yes                 | yes                   | DEPRECATED: may harm broker if many topic-endpoints | show topic-endpoint itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
+| TopicEndpointStats                    | yes                 | yes                   | may harm broker if many topic-endpoint              | show topic-endpoint itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
+| TopicEndpointDetails                  | yes                 | yes                   | may harm broker if many topic-endpoints             | show topic-endpoint itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
+| ClusterLinks                          | yes                 | yes                   | dont harm broker                                    | show the state of the cluster links. Filters are for clusterName and linkName | software, appliance |
 
 #### Broker Connectivity Metric
 
@@ -311,9 +311,50 @@ The sub directory **testfiles** contains some sample curl commands and their out
 
 ## Security
 
-Please ensure to run this application only in a secured network or protected by a proxy.  
+Please ensure to run this application only in a secured network or protected by a reverse proxy.
 It may reveal insights of your application you don`t want.  
-If you use the feature to pass broker credentials via HTTP body/header, you are forced to run this application within kubernetes/openshift or similar to add an HTTPS layer.
+If you use the feature to pass broker credentials via HTTP body/header, you are forced to enable TLS on the listening
+port or to run this application within kubernetes/openshift or similar to add an HTTPS layer.
+
+### How to enable TLS
+
+By default, the endpoint configured via `listenAddr=0.0.0.0:9628` is unencrypted and served via HTTP only.
+To enable encryption make sure to set `enableTLS=true` or use the environment varibale `export SOLACE_LISTEN_TLS=true` 
+or cli flag `--enable-tls` respectively.
+
+TLS encryption requires you to provide two files in PEM (base64) format. You can define the path to those files in 
+different ways:
+
+- Server certificate (including intermediates and CA's certificate)
+    - __cli parameter__: `--certificate=cert.pem`
+    - __environment variable__: `SOLACE_SERVER_CERT` 
+    - __config file__: `certificate=cert.pem`
+- Server private Key
+    - __cli parameter__: `--private-key=key.pem`
+    - __environment variable__: `SOLACE_PRIVATE_KEY` 
+    - __config file__: `privateKey=key.pem`
+
+If you're running the exporter via Docker container, you can map the certificate files during your `docker run` command 
+from the host to the container.
+
+```bash
+docker run -d \
+ -p 9628:9628 \
+ --env-file env.txt \
+ -v ${PWD}/cert.pem:/etc/solace/cert.pem \
+ -v ${PWD}/key.pem:/etc/solace/key.pem \
+ [...]
+ solacecommunity/solace-prometheus-exporter
+```
+
+Of course, make sure to set the right local paths in the `env.txt` provided.
+
+```.env
+SOLACE_LISTEN_TLS=true
+SOLACE_SERVER_CERT=/etc/solace/cert.pem
+SOLACE_PRIVATE_KEY=/etc/solace/key.pem
+```
+
 
 ## Resources
 
