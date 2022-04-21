@@ -4,3 +4,4 @@ solace_prometheus_exporter
 .vscode
 .idea
 *.iml
+*.pem
