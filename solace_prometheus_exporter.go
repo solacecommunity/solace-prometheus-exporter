@@ -2802,6 +2802,18 @@ func main() {
 		"config-file",
 		"Path and name of ini file with configuration settings. See sample file solace_prometheus_exporter.ini.",
 	).String()
+	enableTLS := kingpin.Flag(
+		"enable-tls",
+		"Set to true, to start listenAddr as TLS port. Make sure to provide valid server certificate and private key files.",
+	).Default("false").Bool()
+	certfile := kingpin.Flag(
+		"certificate",
+		"If using TLS, you must provide a valid server certificate in PEM format. Can be set via config file, cli parameter or env variable.",
+	).ExistingFile()
+	privateKey := kingpin.Flag(
+		"private-key",
+		"If using TLS, you must provide a valid private key in PEM format. Can be set via config file, cli parameter or env variable.",
+	).ExistingFile()
 
 	kingpin.Parse()
 
@@ -2815,6 +2827,16 @@ func main() {
 
 	_ = level.Info(logger).Log("msg", "Starting solace_prometheus_exporter", "version", solaceExporterVersion)
 	_ = level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
+
+	if enableTLS != nil {
+		conf.enableTLS = *enableTLS
+	}
+	if len(*certfile) > 0 {
+		conf.certificate = *certfile
+	}
+	if len(*privateKey) > 0 {
+		conf.privateKey = *privateKey
+	}
 
 	_ = level.Info(logger).Log("msg", "Scraping",
 		"listenAddr", conf.getListenURI(),
