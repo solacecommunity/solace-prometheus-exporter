@@ -164,7 +164,10 @@ Flags:
   -h, --help                     Show context-sensitive help (also try --help-long and --help-man).
       --log.level=info           Only log messages with the given severity or above. One of: [debug, info, warn, error]
       --log.format=logfmt        Output format of log messages. One of: [logfmt, json]
-      --config-file=CONFIG-FILE  Path and name of config file. See sample file solace_prometheus_exporter.ini.</code></pre>
+      --config-file=CONFIG-FILE  Path and name of config file. See sample file solace_prometheus_exporter.ini.
+      --enable-tls               Set to true, to start listenAddr as TLS port. Make sure to provide valid server certificate and private key files.
+      --certificate=CERTIFICATE  If using TLS, you must provide a valid server certificate in PEM format. Can be set via config file, cli parameter or env variable.
+      --private-key=PRIVATE-KEY  If using TLS, you must provide a valid private key in PEM format. Can be set via config file, cli parameter or env variable.
 ```
 
 The configuration parameters can be placed into a config file or into a set of environment variables or can be given via URL. If you use docker, you should prefer the environment variable configuration method (see below).  
@@ -173,7 +176,7 @@ If the exporter is started with a config file argument then the config file entr
 ### Config File
 
 ```bash
-solace_prometheus_exporter --config-file /path/to/config/file.ini
+solace_prometheus_exporter --config-file=/path/to/config/file.ini
 ```
 
 Sample config file:

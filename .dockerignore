@@ -15,6 +15,7 @@ _test
 .idea
 *.iml
 .vscode
+*.pem
 
 .DS_Store
 
