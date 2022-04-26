@@ -2805,7 +2805,7 @@ func main() {
 	enableTLS := kingpin.Flag(
 		"enable-tls",
 		"Set to true, to start listenAddr as TLS port. Make sure to provide valid server certificate and private key files.",
-	).Default("false").Bool()
+	).Bool()
 	certfile := kingpin.Flag(
 		"certificate",
 		"If using TLS, you must provide a valid server certificate in PEM format. Can be set via config file, cli parameter or env variable.",
@@ -2828,7 +2828,7 @@ func main() {
 	_ = level.Info(logger).Log("msg", "Starting solace_prometheus_exporter", "version", solaceExporterVersion)
 	_ = level.Info(logger).Log("msg", "Build context", "context", version.BuildContext())
 
-	if enableTLS != nil {
+	if *enableTLS {
 		conf.enableTLS = *enableTLS
 	}
 	if len(*certfile) > 0 {
