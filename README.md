@@ -161,13 +161,17 @@ solace_prometheus_exporter -h
 usage: solace_prometheus_exporter [<flags>]
 
 Flags:
-  -h, --help                     Show context-sensitive help (also try --help-long and --help-man).
-      --log.level=info           Only log messages with the given severity or above. One of: [debug, info, warn, error]
-      --log.format=logfmt        Output format of log messages. One of: [logfmt, json]
-      --config-file=CONFIG-FILE  Path and name of config file. See sample file solace_prometheus_exporter.ini.
-      --enable-tls               Set to true, to start listenAddr as TLS port. Make sure to provide valid server certificate and private key files.
-      --certificate=CERTIFICATE  If using TLS, you must provide a valid server certificate in PEM format. Can be set via config file, cli parameter or env variable.
-      --private-key=PRIVATE-KEY  If using TLS, you must provide a valid private key in PEM format. Can be set via config file, cli parameter or env variable.
+  -h, --help                         Show context-sensitive help (also try --help-long and --help-man).
+      --log.level=info               Only log messages with the given severity or above. One of: [debug, info, warn, error]
+      --log.format=logfmt            Output format of log messages. One of: [logfmt, json]
+      --config-file=CONFIG-FILE      Path and name of config file. See sample file solace_prometheus_exporter.ini.
+      --enable-tls                   Set to true, to start listenAddr as TLS port. Make sure to provide valid server certificate and private key files.
+      --certificate=CERTIFICATE      If using TLS, you must provide a valid server certificate in PEM format. Can be set via config file, cli parameter or env variable.
+      --private-key=PRIVATE-KEY      If using TLS, you must provide a valid private key in PEM format. Can be set via config file, cli parameter or env variable.
+      --hash-password=HASH-PASSWORD  To use basic auth, you must provide hashed passwords. Use this flag to create a hashed password.
+      --enable-basic-auth            Set to true, to enable basic authentication on all endpoints. Make sure to provide a valid users file.
+      --users-file=USERS-FILE        File with user / password hashes to be used with Basic Authentication.
+
 ```
 
 The configuration parameters can be placed into a config file or into a set of environment variables or can be given via URL. If you use docker, you should prefer the environment variable configuration method (see below).  
@@ -197,6 +201,18 @@ certificate=cert.pem
 # can be overridden via env varibale SOLACE_PRIVATE_KEY
 privateKey=key.pem
 
+# Enable Basic Authentication for the exporter UI and the metrics endpoint. 
+# You must provide a users file with valid usernames and password hashes.
+# can be overridden via env variable SOLACE_BASIC_AUTH
+enableBasicAuth=false
+
+# Name of the realm, presented when using Basic Authentication for the exporter
+basicAuthRealm=Solace Prometheus Exporter
+
+# File with user / password hashes to be used with Basic Authenticatio
+# can be overridden via env variable SOLACE_BASIC_AUTH_USERS
+basicAuthUsers=users.txt
+
 # Base URI on which to scrape Solace broker.
 scrapeUri=http://your-exporter:8080
 
@@ -225,6 +241,7 @@ SOLACE_LISTEN_ADDR=0.0.0.0:9628
 SOLACE_LISTEN_TLS=true
 SOLACE_SERVER_CERT=/path/to/your/cert.pem
 SOLACE_PRIVATE_KEY=/path/to/your/key.pem
+SOLACE_BASIC_AUTH=true
 SOLACE_SCRAPE_URI=http://your-broker:8080
 SOLACE_USERNAME=admin
 SOLACE_PASSWORD=admin
@@ -305,10 +322,6 @@ docker run -d \
  solacecommunity/solace-prometheus-exporter
 ```
 
-## Bonus Material
-
-The sub directory **testfiles** contains some sample curl commands and their outputs. This is just fyi and not needed for building.
-
 ## Security
 
 Please ensure to run this application only in a secured network or protected by a reverse proxy.
@@ -355,7 +368,46 @@ SOLACE_SERVER_CERT=/etc/solace/cert.pem
 SOLACE_PRIVATE_KEY=/etc/solace/key.pem
 ```
 
+### How to enable Basic Authentication
 
+By default, the UI and the endpoints of the Solace Prometheus Exporter can be accessed without authorization.
+To enable Basic Authentication, first you must create a list of allowed users and password hashes. A sample is
+provided in the `users.txt` file.
+
+```properties
+# Valid list of users and password hashes, separated by ":"
+# To create a password hash, use 
+# ./solace_exporter --hash-password <your-password>
+# Each user must be on it's own line
+
+admin:$2a$10....
+user1:$2a$10....
+```
+
+As mentioned in the sample, to create a hash for a given password, you can call the exporter binary with a cli
+parameter:
+
+```
+./solace_exporter --hash-password=secret
+$2a$10$zXd...
+```
+
+To enable Basic Authentication, you finally need to set the corresponding configuration parameters:
+- Generally enable Basic Authentication for all Endpoints
+    - __cli parameter__: `--enable-basic-auth`
+    - __environment variable__: `SOLACE_BASIC_AUTH=true` 
+    - __config file__: `enableBasicAuth=true`
+- Configure the path to the users file
+    - __cli parameter__: `--users-file=users.txt`
+    - __environment variable__: `SOLACE_BASIC_AUTH_USERS=users.txt` 
+    - __config file__: `basicAuthUsers=users.txt`
+
+
+> :warning: **If you are using Basic Authentication without TLS encryption, your user and password will be transfered in clear-text.**
+  Make sure to enable TLS!
+## Bonus Material
+
+The sub directory **testfiles** contains some sample curl commands and their outputs. This is just fyi and not needed for building.
 ## Resources
 
 For more information try these resources:

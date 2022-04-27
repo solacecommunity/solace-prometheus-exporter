@@ -1,0 +1,6 @@
+# Valid list of users and password hashes, separated by ":"
+# To create a password hash, use 
+# ./solace_exporter --hash-password <your-password>
+# Each user must be on it's own line
+
+admin:$2a$10$T5CVUmGBhPVY55A5AYPGruWZ9Qimt6xfjf0J.wJ0983.k3gi2PhNa

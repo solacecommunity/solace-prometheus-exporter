@@ -14,6 +14,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"crypto/tls"
 	"encoding/xml"
@@ -36,6 +37,7 @@ import (
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
 	"github.com/prometheus/common/version"
+	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/ini.v1"
 )
@@ -45,7 +47,7 @@ const (
 )
 
 var (
-	solaceExporterVersion = float64(1004005)
+	solaceExporterVersion = float64(1004006)
 
 	variableLabelsUp               = []string{"error"}
 	variableLabelsRedundancy       = []string{"mate_name"}
@@ -2536,6 +2538,13 @@ type config struct {
 	useSystemProxy bool
 	timeout        time.Duration
 	dataSource     []DataSource
+	// Configuration for Basic Auth
+	auth struct {
+		enabled    bool
+		realm      string
+		passwdFile string
+		users      map[string][]byte
+	}
 }
 
 // getListenURI returns the `listenAddr` with proper protocol (http/https),
@@ -2645,6 +2654,9 @@ func parseConfig(configFile string, conf *config, logger log.Logger) (bool, map[
 	conf.password = parseConfigString(cfg, logger, "solace", "password", "SOLACE_PASSWORD", &oki)
 	conf.timeout = parseConfigDuration(cfg, logger, "solace", "timeout", "SOLACE_TIMEOUT", &oki)
 	conf.sslVerify = parseConfigBool(cfg, logger, "solace", "sslVerify", "SOLACE_SSL_VERIFY", &oki)
+	conf.auth.enabled = parseConfigBool(cfg, logger, "solace", "enableBasicAuth", "SOLACE_BASIC_AUTH", &oki)
+	conf.auth.realm = parseConfigString(cfg, logger, "solace", "basicAuthRealm", "SOLACE_BASIC_AUTH_REALM", &oki)
+	conf.auth.passwdFile = parseConfigString(cfg, logger, "solace", "basicAuthUsers", "SOLACE_BASIC_AUTH_USERS", &oki)
 
 	endpoints := make(map[string][]DataSource)
 	if cfg != nil {
@@ -2786,6 +2798,71 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(metricDesc["Global"]["up"], prometheus.GaugeValue, 1, "")
 }
 
+func hashPassword(password string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+}
+
+func validateAuthentication(conf config, w http.ResponseWriter, r *http.Request) error {
+	if !conf.auth.enabled {
+		return nil
+	}
+	var err error
+
+	// Get BasicAuth header from http request
+	user, pwd, ok := r.BasicAuth()
+	if ok {
+		// Get username from stored users
+		pwdhash, ok := conf.auth.users[user]
+		if ok {
+			// Validate given password with stores password hash
+			hasherr := bcrypt.CompareHashAndPassword(pwdhash, []byte(pwd))
+			if hasherr == nil {
+				return nil
+			} else {
+				err = hasherr
+			}
+		} else {
+			err = fmt.Errorf("user %s not found", user)
+		}
+	} else {
+		err = fmt.Errorf("no basic auth header given")
+	}
+
+	// if we come to here, authentication was not successful
+	w.Header().Set("WWW-Authenticate", fmt.Sprintf(`Basic realm="%s", charset="UTF-8"`, conf.auth.realm))
+	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	return err
+}
+
+// readUsersFile reads the file with user and password hashes and returns the users or an error
+func readUsersFile(filename string) (map[string][]byte, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	users := map[string][]byte{}
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		// skip empty lines or comments
+		if len(line) == 0 || strings.HasPrefix(line, "#") {
+			continue
+		}
+		// split line by ":" into username and password hash
+		usr := strings.SplitAfterN(line, ":", 2)
+		if len(usr) != 2 {
+			return nil, fmt.Errorf("error reading users file, line %s cannot be parsed", line)
+		}
+		users[strings.TrimSuffix(usr[0], ":")] = []byte(usr[1])
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 func main() {
 
 	kingpin.HelpFlag.Short('h')
@@ -2814,10 +2891,35 @@ func main() {
 		"private-key",
 		"If using TLS, you must provide a valid private key in PEM format. Can be set via config file, cli parameter or env variable.",
 	).ExistingFile()
+	hashPwd := kingpin.Flag(
+		"hash-password",
+		"To use basic auth, you must provide hashed passwords. Use this flag to create a hashed password.",
+	).String()
+	enableBasicAuth := kingpin.Flag(
+		"enable-basic-auth",
+		"Set to true, to enable basic authentication on all endpoints. Make sure to provide a valid users file.",
+	).Bool()
+	usersFile := kingpin.Flag(
+		"users-file",
+		"File with user / password hashes to be used with Basic Authentication.",
+	).ExistingFile()
 
 	kingpin.Parse()
 
 	logger := promlog.New(&promlogConfig)
+
+	// If hashPwd is set, we generate a hash for the password and exit. Should be used to generate paassword hashes
+	// for basic authentication
+	if len(*hashPwd) > 0 {
+		pwd, err := hashPassword(*hashPwd)
+		if err != nil {
+			_ = level.Info(logger).Log("msg", "Error hashing password", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("%s\n", pwd)
+		os.Exit(0)
+	}
 
 	var conf config
 	oki, endpoints := parseConfig(*configFile, &conf, logger)
@@ -2837,6 +2939,12 @@ func main() {
 	if len(*privateKey) > 0 {
 		conf.privateKey = *privateKey
 	}
+	if *enableBasicAuth {
+		conf.auth.enabled = true
+	}
+	if len(*usersFile) > 0 {
+		conf.auth.passwdFile = *usersFile
+	}
 
 	_ = level.Info(logger).Log("msg", "Scraping",
 		"listenAddr", conf.getListenURI(),
@@ -2845,18 +2953,38 @@ func main() {
 		"sslVerify", conf.sslVerify,
 		"timeout", conf.timeout)
 
+	if conf.auth.enabled {
+		_ = level.Info(logger).Log("msg", "BasicAuth enabled, reading users", "basicAuthUsers", conf.auth.passwdFile)
+		users, err := readUsersFile(conf.auth.passwdFile)
+		if err != nil {
+			_ = level.Error(logger).Log("msg", "Cannot read users file", "error", err)
+			return
+		}
+		conf.auth.users = users
+		_ = level.Info(logger).Log("msg", "Successfully loaded users", "#users", len(users))
+	}
+
 	// Test scrape to check if broker can be accessed. If it fails it prints a warn to the log file.
 	// Note that failure is not fatal, as broker might not have started up yet.
 	conf.timeout, _ = time.ParseDuration("2s") // Don't delay startup too much
 
 	// Configure endpoints
 	http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
+		err := validateAuthentication(conf, w, r)
+		if err != nil {
+			return
+		}
 		doHandle(w, r, nil, conf, logger)
 	})
 
 	declareHandlerFromConfig := func(urlPath string, dataSource []DataSource) {
 		_ = level.Info(logger).Log("msg", "Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
 		http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
+			err := validateAuthentication(conf, w, r)
+			if err != nil {
+				return
+			}
+
 			doHandle(w, r, dataSource, conf, logger)
 		})
 	}
@@ -2865,7 +2993,12 @@ func main() {
 	}
 
 	http.HandleFunc("/solace", func(w http.ResponseWriter, r *http.Request) {
-		var err = r.ParseForm()
+		err := validateAuthentication(conf, w, r)
+		if err != nil {
+			return
+		}
+
+		err = r.ParseForm()
 		if err != nil {
 			_ = level.Error(logger).Log("msg", "Can not parse the request parameter", "err", err)
 			return
@@ -2893,6 +3026,11 @@ func main() {
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		err := validateAuthentication(conf, w, r)
+		if err != nil {
+			return
+		}
+
 		var endpointsDoc bytes.Buffer
 		for urlPath, dataSources := range endpoints {
 			endpointsDoc.WriteString("<li><a href='/" + urlPath + "'>Custom Exporter " + urlPath + " -> " + logDataSource(dataSources) + "</a></li>")
