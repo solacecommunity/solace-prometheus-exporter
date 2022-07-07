@@ -1,0 +1,25 @@
+# The image pull policy
+imagePullPolicy: Always
+
+solace_exporter:
+  cpuMin: 300m
+  cpuMax: 300m
+  memoryMin: 500M
+  memoryMax: 800M
+  imageVersion: v1.4.3
+
+exporter_proxy:
+  cpuMin: 10m
+  cpuMax: 50m
+  memoryMin: 20Mi
+  memoryMax: 100Mi
+  imageVersion: 1.23-alpine
+
+  # Hostname of the ingress
+  hostname: demo.local
+
+  # Cache exporter results. To reduce load on broker if your operate a ha prometheus setup.
+  useCache: true
+
+# Set this variable to true if you use openshift instead of kubernetes
+openshift: false

@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+{{ range $path, $bytes := $.Files.Glob "config_maps/nginx/*.*" }}
+{{ $path | base | indent 2 }}: |-
+{{ tpl ($.Files.Get $path) $ | indent 4 }}
+{{ end }}
