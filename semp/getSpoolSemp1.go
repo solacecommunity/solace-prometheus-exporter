@@ -16,11 +16,12 @@ func (e *Semp) GetSpoolSemp1(ch chan<- prometheus.Metric) (ok float64, err error
 			Show struct {
 				Spool struct {
 					Info struct {
-						QuotaDiskUsage           float64 `xml:"max-disk-usage"`
-						QuotaMsgCount            string  `xml:"max-message-count"`
-						PersistUsage             float64 `xml:"current-persist-usage"`
-						PersistMsgCount          float64 `xml:"total-messages-currently-spooled"`
-						ActiveDiskPartitionUsage string  `xml:"active-disk-partition-usage"` // May be "-"
+						QuotaDiskUsage                  float64 `xml:"max-disk-usage"`
+						QuotaMsgCount                   string  `xml:"max-message-count"`
+						PersistUsage                    float64 `xml:"current-persist-usage"`
+						PersistMsgCount                 float64 `xml:"total-messages-currently-spooled"`
+						ActiveDiskPartitionUsage        string  `xml:"active-disk-partition-usage"`        // May be "-"
+						SpoolFilesUtilizationPercentage string  `xml:"spool-files-utilization-percentage"` // May be "-"
 					} `xml:"message-spool-info"`
 				} `xml:"message-spool"`
 			} `xml:"show"`
@@ -52,13 +53,14 @@ func (e *Semp) GetSpoolSemp1(ch chan<- prometheus.Metric) (ok float64, err error
 	ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_quota_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.QuotaDiskUsage*1048576.0))
 	// MaxMsgCount is in the form "100M"
 	s1 := target.RPC.Show.Spool.Info.QuotaMsgCount[:len(target.RPC.Show.Spool.Info.QuotaMsgCount)-1]
-	f1, err3 := strconv.ParseFloat(s1, 64)
-	if err3 == nil {
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_quota_msgs"], prometheus.GaugeValue, f1*1000000)
+	if value, err := strconv.ParseFloat(s1, 64); err == nil {
+		ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_quota_msgs"], prometheus.GaugeValue, value*1000000)
 	}
-	ActiveDiskPartitionUsage, err4 := strconv.ParseFloat(target.RPC.Show.Spool.Info.ActiveDiskPartitionUsage, 64)
-	if err4 == nil {
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_disk_partition_usage_active_percent"], prometheus.GaugeValue, math.Round(ActiveDiskPartitionUsage))
+	if value, err := strconv.ParseFloat(target.RPC.Show.Spool.Info.ActiveDiskPartitionUsage, 64); err == nil {
+		ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_disk_partition_usage_active_percent"], prometheus.GaugeValue, math.Round(value))
+	}
+	if value, err := strconv.ParseFloat(target.RPC.Show.Spool.Info.SpoolFilesUtilizationPercentage, 64); err == nil {
+		ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_files_utilization_percent"], prometheus.GaugeValue, math.Round(value))
 	}
 
 	ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.PersistUsage*1048576.0))
