@@ -3,9 +3,10 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
+	"strings"
+
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"strings"
 )
 
 // Get slow subscriber client of vpns
@@ -54,8 +55,7 @@ func (e *Semp) GetClientSlowSubscriberSemp1(ch chan<- prometheus.Metric, vpnFilt
 
 		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC
-		var slowSubscriber float64
-		slowSubscriber = 1
+		const slowSubscriber float64 = 1.0
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientIp := strings.Split(client.ClientAddress, ":")[0]
