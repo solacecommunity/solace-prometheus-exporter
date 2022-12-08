@@ -32,7 +32,7 @@ func (e *Semp) GetQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string,
 									DestinationGroupError  float64 `xml:"destination-group-error"`
 									LowPrioMsgDiscard      float64 `xml:"low-priority-msg-congestion-discard"`
 									Deleted                float64 `xml:"total-deleted-messages"`
-									TtlDisacarded          float64 `xml:"total-ttl-expired-discard-messages"`
+									TtlDiscarded           float64 `xml:"total-ttl-expired-discard-messages"`
 									TtlDmq                 float64 `xml:"total-ttl-expired-to-dmq-messages"`
 									TtlDmqFailed           float64 `xml:"total-ttl-expired-to-dmq-failures"`
 									MaxRedeliveryDiscarded float64 `xml:"max-redelivery-exceeded-discard-messages"`
@@ -88,6 +88,13 @@ func (e *Semp) GetQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string,
 			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["spool_usage_exceeded"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.SpoolUsageExceeded, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["max_message_size_exceeded"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MsgSizeExceeded, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["total_deleted_messages"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.Deleted, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["messages_shutdown_discarded"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.SpoolShutdownDiscard, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["messages_ttl_discarded"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.TtlDiscarded, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["messages_ttl_dmq"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.TtlDmq, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["messages_ttl_dmq_failed"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.TtlDmqFailed, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["messages_max_redelivered_discarded"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MaxRedeliveryDiscarded, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["messages_max_redelivered_dmq"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MaxRedeliveryDmq, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["messages_max_redelivered_dmq_failed"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MaxRedeliveryDmqFailed, queue.Info.MsgVpnName, queue.QueueName)
 		}
 		body.Close()
 	}
