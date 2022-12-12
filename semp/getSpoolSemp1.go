@@ -3,10 +3,11 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
-	"github.com/go-kit/kit/log/level"
-	"github.com/prometheus/client_golang/prometheus"
 	"math"
 	"strconv"
+
+	"github.com/go-kit/kit/log/level"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Get system-wide spool information
@@ -21,6 +22,7 @@ func (e *Semp) GetSpoolSemp1(ch chan<- prometheus.Metric) (ok float64, err error
 						PersistUsage                    float64 `xml:"current-persist-usage"`
 						PersistMsgCount                 float64 `xml:"total-messages-currently-spooled"`
 						ActiveDiskPartitionUsage        string  `xml:"active-disk-partition-usage"`        // May be "-"
+						MateDiskPartitionUsage          string  `xml:"mate-disk-partition-usage"`          // May be "-"
 						SpoolFilesUtilizationPercentage string  `xml:"spool-files-utilization-percentage"` // May be "-"
 					} `xml:"message-spool-info"`
 				} `xml:"message-spool"`
@@ -58,6 +60,9 @@ func (e *Semp) GetSpoolSemp1(ch chan<- prometheus.Metric) (ok float64, err error
 	}
 	if value, err := strconv.ParseFloat(target.RPC.Show.Spool.Info.ActiveDiskPartitionUsage, 64); err == nil {
 		ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_disk_partition_usage_active_percent"], prometheus.GaugeValue, math.Round(value))
+	}
+	if value, err := strconv.ParseFloat(target.RPC.Show.Spool.Info.MateDiskPartitionUsage, 64); err == nil {
+		ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_disk_partition_usage_mate_percent"], prometheus.GaugeValue, math.Round(value))
 	}
 	if value, err := strconv.ParseFloat(target.RPC.Show.Spool.Info.SpoolFilesUtilizationPercentage, 64); err == nil {
 		ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_files_utilization_percent"], prometheus.GaugeValue, math.Round(value))
