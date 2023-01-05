@@ -88,6 +88,7 @@ var MetricDesc = map[string]Metrics{
 		"system_spool_quota_bytes":                         prometheus.NewDesc(namespace+"_"+"system_spool_quota_bytes", "Spool configured max disk usage.", nil, nil),
 		"system_spool_quota_msgs":                          prometheus.NewDesc(namespace+"_"+"system_spool_quota_msgs", "Spool configured max number of messages.", nil, nil),
 		"system_spool_disk_partition_usage_active_percent": prometheus.NewDesc(namespace+"_"+"system_spool_disk_partition_usage_active_percent", "Total disk usage in percent.", nil, nil),
+		"system_spool_disk_partition_usage_mate_percent":   prometheus.NewDesc(namespace+"_"+"system_spool_disk_partition_usage_mate_percent", "Total disk usage of mate instance in percent.", nil, nil),
 		"system_spool_usage_bytes":                         prometheus.NewDesc(namespace+"_"+"system_spool_usage_bytes", "Spool total persisted usage.", nil, nil),
 		"system_spool_usage_msgs":                          prometheus.NewDesc(namespace+"_"+"system_spool_usage_msgs", "Spool total number of persisted messages.", nil, nil),
 		"system_spool_files_utilization_percent":           prometheus.NewDesc(namespace+"_"+"system_spool_files_utilization_percent", "Utilization of spool files in percent.", nil, nil),
