@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: solace-exporter-proxy
+  labels:
+    app: solace-exporter-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: solace-exporter-proxy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+  template:
+    metadata:
+      labels:
+        app: solace-exporter-proxy
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/solace_exporter/ConfigMap.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: solace-exporter-proxy
+          image: nginx:{{ .Values.exporter_proxy.imageVersion }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          name: solace-exporter-proxy
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx
+              readOnly: true
+          resources:
+            limits:
+              cpu: {{ .Values.exporter_proxy.cpuMax }}
+              memory: {{ .Values.exporter_proxy.memoryMax }}
+            requests:
+              cpu: {{ .Values.exporter_proxy.cpuMin }}
+              memory: {{ .Values.exporter_proxy.memoryMin }}
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 120
+            timeoutSeconds: 3
+            periodSeconds: 5
+            successThreshold: 1
+            failureThreshold: 10
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config

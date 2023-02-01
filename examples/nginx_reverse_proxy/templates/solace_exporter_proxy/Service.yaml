@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: solace-exporter-proxy
+spec:
+  ports:
+    - name: 9000-tcp
+      port: 9000
+      protocol: TCP
+      targetPort: 9000
+  selector:
+    app: solace-exporter-proxy
+  sessionAffinity: None
+  type: ClusterIP

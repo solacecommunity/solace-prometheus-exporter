@@ -1,0 +1,19 @@
+{{- if $.Values.openshift }}
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: solace-exporter-proxy
+  annotations:
+    haproxy.router.openshift.io/timeout: 10m
+spec:
+  host: {{ $.Values.exporter_proxy.hostname }}
+  path: /
+  port:
+    targetPort: 9000-tcp
+  to:
+    kind: Service
+    name: solace-exporter-proxy
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Allow
+{{ end }}
