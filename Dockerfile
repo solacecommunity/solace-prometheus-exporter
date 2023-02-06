@@ -9,9 +9,9 @@ WORKDIR /go/src/app
 COPY . .
 
 RUN go get -d -v ./... \
- && go install -v ./... \
- && go test -short ./... \
- && go build \
+RUN go install -v ./... \
+RUN go test -short ./... \
+RUN go build \
     -a \
     -ldflags '-s -w -extldflags "-static"' \
     -o /bin/solace_prometheus_exporter
