@@ -4,9 +4,6 @@ node(label: 'centos7_router_devserver') {
     library 'jenkins-pipeline-library@main'
     cleanWs()
     
-    agent {
-        dockerfile true;
-    }
 
     String PROMETHEUS_BRANCH = env.BRANCH_NAME
     stage("prometheus-exporter-build") {
