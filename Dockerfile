@@ -8,9 +8,9 @@ ENV GOARCH=amd64
 WORKDIR /go/src/app
 COPY . .
 
-RUN go get -d -v ./... \
-RUN go install -v ./... \
-RUN go test -short ./... \
+RUN go get -d -v ./... 
+RUN go install -v ./... 
+RUN go test -short ./... 
 RUN go build \
     -a \
     -ldflags '-s -w -extldflags "-static"' \
