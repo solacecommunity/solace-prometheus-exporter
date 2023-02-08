@@ -8,13 +8,10 @@ ENV GOARCH=amd64
 WORKDIR /go/src/app
 COPY . .
 
-RUN go get -d -v ./... 
-
-RUN go install -v ./... 
-
-RUN go test -short ./... 
-
-RUN go build \
+RUN go get -d -v ./... \
+ && go install -v ./... \
+ && go test -short ./... \
+ && go build \
     -a \
     -ldflags '-s -w -extldflags "-static"' \
     -o /bin/solace_prometheus_exporter
