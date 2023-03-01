@@ -3,7 +3,6 @@ package exporter
 import (
 	"crypto/tls"
 	"fmt"
-	"gopkg.in/ini.v1"
 	"net/http"
 	"net/url"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"gopkg.in/ini.v1"
 )
 
 // Collection of configs
@@ -63,11 +64,11 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 		return nil, nil, err
 	}
 	conf.Certificate, err = parseConfigString(cfg, "solace", "certificate", "SOLACE_SERVER_CERT")
-	if err != nil {
+	if conf.EnableTLS && err != nil {
 		return nil, nil, err
 	}
 	conf.PrivateKey, err = parseConfigString(cfg, "solace", "privateKey", "SOLACE_PRIVATE_KEY")
-	if err != nil {
+	if conf.EnableTLS && err != nil {
 		return nil, nil, err
 	}
 	conf.ScrapeURI, err = parseConfigString(cfg, "solace", "scrapeUri", "SOLACE_SCRAPE_URI")
