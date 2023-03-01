@@ -1,8 +1,9 @@
 package exporter
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
 	"solace_exporter/semp"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Collect fetches the stats from configured Solace location and delivers them
@@ -11,7 +12,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	var up float64 = 1
 	var err error = nil
 
-	for _, dataSource := range e.config.DataSource {
+	for _, dataSource := range *e.dataSource {
 		if up < 1 {
 			if err != nil {
 				ch <- prometheus.MustNewConstMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, err.Error())

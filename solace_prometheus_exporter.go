@@ -104,13 +104,13 @@ func main() {
 
 	// Configure endpoints
 	http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
-		doHandle(w, r, nil, conf, logger)
+		doHandle(w, r, nil, *conf, logger)
 	})
 
 	declareHandlerFromConfig := func(urlPath string, dataSource []exporter.DataSource) {
 		level.Info(logger).Log("msg", "Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
 		http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
-			doHandle(w, r, dataSource, conf, logger)
+			doHandle(w, r, dataSource, *conf, logger)
 		})
 	}
 	for urlPath, dataSource := range endpoints {
@@ -142,7 +142,7 @@ func main() {
 			}
 		}
 
-		doHandle(w, r, dataSource, conf, logger)
+		doHandle(w, r, dataSource, *conf, logger)
 	})
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -221,14 +221,13 @@ func main() {
 
 }
 
-func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf *exporter.Config, logger log.Logger) (resultCode string) {
+func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf exporter.Config, logger log.Logger) (resultCode string) {
 
 	if dataSource == nil {
 		handler := promhttp.Handler()
 		handler.ServeHTTP(w, r)
 	} else {
 		// Exporter for endpoint
-		conf.DataSource = dataSource
 		username := r.FormValue("username")
 		password := r.FormValue("password")
 		scrapeURI := r.FormValue("scrapeURI")
@@ -252,7 +251,7 @@ func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.Data
 
 		level.Info(logger).Log("msg", "handle http request", "dataSource", logDataSource(dataSource), "scrapeURI", conf.ScrapeURI)
 
-		exp := exporter.NewExporter(logger, conf, version)
+		exp := exporter.NewExporter(logger, &conf, &dataSource, version)
 		registry := prometheus.NewRegistry()
 		registry.MustRegister(exp)
 		handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})

@@ -26,7 +26,6 @@ type Config struct {
 	SslVerify      bool
 	useSystemProxy bool
 	Timeout        time.Duration
-	DataSource     []DataSource
 }
 
 // getListenURI returns the `listenAddr` with proper protocol (http/https),

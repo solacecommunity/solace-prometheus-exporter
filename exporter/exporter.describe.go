@@ -1,16 +1,17 @@
 package exporter
 
 import (
-	"github.com/go-kit/kit/log/level"
-	"github.com/prometheus/client_golang/prometheus"
 	"solace_exporter/semp"
 	"strings"
+
+	"github.com/go-kit/kit/log/level"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Describe describes all the metrics ever exported by the Solace exporter. It
 // implements prometheus.Collector.
 func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
-	for _, dataSource := range e.config.DataSource {
+	for _, dataSource := range *e.dataSource {
 		if metricDescItems, ok := semp.MetricDesc[dataSource.Name]; ok {
 			for _, m := range metricDescItems {
 				ch <- m
