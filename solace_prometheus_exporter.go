@@ -187,6 +187,7 @@ func main() {
 					<tr><td>Client</td><td>yes</td><td>yes</td><td>may harm broker if many clients</td></tr>
 					<tr><td>ClientSlowSubscriber</td><td>yes</td><td>yes</td><td>may harm broker if many clients</td></tr>
 					<tr><td>ClientStats</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
+					<tr><td>ClientConnections</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
 					<tr><td>ClientMessageSpoolStats</td><td>yes</td><td>yes</td><td>no</td></tr>
 					<tr><td>ClusterLinks</td><td>yes</td><td>no</td><td>may harm broker if many clients</td></tr>
 					<tr><td>VpnStats</td><td>yes</td><td>no</td><td>has a very small performance down site</td></tr>

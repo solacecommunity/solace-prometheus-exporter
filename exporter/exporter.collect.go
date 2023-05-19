@@ -61,6 +61,8 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up, err = e.semp.GetClientSlowSubscriberSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "ClientStats":
 			up, err = e.semp.GetClientStatsSemp1(ch, dataSource.VpnFilter)
+		case "ClientConnections":
+			up, err = e.semp.GetClientConnectionStatsSemp1(ch, dataSource.VpnFilter)
 		case "ClientMessageSpoolStats":
 			up, err = e.semp.GetClientMessageSpoolStatsSemp1(ch, dataSource.VpnFilter)
 		case "ClusterLinks":

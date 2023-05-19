@@ -12,7 +12,8 @@ var (
 	variableLabelsReplication      = []string{"mate_name"}
 	variableLabelsVpn              = []string{"vpn_name"}
 	variableLabelsClientInfo       = []string{"vpn_name", "client_name", "client_address"}
-	variableLabelsVpnClient        = []string{"vpn_name", "client_name", "client_username"}
+	variableLabelsVpnClient        = []string{"vpn_name", "client_name"}
+	variableLabelsVpnClientUser    = []string{"vpn_name", "client_name", "client_username"}
 	variableLabelsVpnClientDetail  = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile"}
 	variableLabelsVpnClientFlow    = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
 	variableLabelsVpnQueue         = []string{"vpn_name", "queue_name"}
@@ -196,13 +197,13 @@ var MetricDesc = map[string]Metrics{
 		"client_slow_subscriber": prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsClientInfo, nil),
 	},
 	"ClientStats": {
-		"client_rx_msgs_total":           prometheus.NewDesc(namespace+"_"+"client_rx_msgs_total", "Number of received messages.", variableLabelsVpnClient, nil),
-		"client_tx_msgs_total":           prometheus.NewDesc(namespace+"_"+"client_tx_msgs_total", "Number of transmitted messages.", variableLabelsVpnClient, nil),
-		"client_rx_bytes_total":          prometheus.NewDesc(namespace+"_"+"client_rx_bytes_total", "Number of received bytes.", variableLabelsVpnClient, nil),
-		"client_tx_bytes_total":          prometheus.NewDesc(namespace+"_"+"client_tx_bytes_total", "Number of transmitted bytes.", variableLabelsVpnClient, nil),
-		"client_rx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"client_rx_discarded_msgs_total", "Number of discarded received messages.", variableLabelsVpnClient, nil),
-		"client_tx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"client_tx_discarded_msgs_total", "Number of discarded transmitted messages.", variableLabelsVpnClient, nil),
-		"client_slow_subscriber":         prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClient, nil),
+		"client_rx_msgs_total":           prometheus.NewDesc(namespace+"_"+"client_rx_msgs_total", "Number of received messages.", variableLabelsVpnClientUser, nil),
+		"client_tx_msgs_total":           prometheus.NewDesc(namespace+"_"+"client_tx_msgs_total", "Number of transmitted messages.", variableLabelsVpnClientUser, nil),
+		"client_rx_bytes_total":          prometheus.NewDesc(namespace+"_"+"client_rx_bytes_total", "Number of received bytes.", variableLabelsVpnClientUser, nil),
+		"client_tx_bytes_total":          prometheus.NewDesc(namespace+"_"+"client_tx_bytes_total", "Number of transmitted bytes.", variableLabelsVpnClientUser, nil),
+		"client_rx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"client_rx_discarded_msgs_total", "Number of discarded received messages.", variableLabelsVpnClientUser, nil),
+		"client_tx_discarded_msgs_total": prometheus.NewDesc(namespace+"_"+"client_tx_discarded_msgs_total", "Number of discarded transmitted messages.", variableLabelsVpnClientUser, nil),
+		"client_slow_subscriber":         prometheus.NewDesc(namespace+"_"+"client_slow_subscriber", "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClientUser, nil),
 	},
 	"ClientMessageSpoolStats": {
 		"client_flows_ingress":   prometheus.NewDesc(namespace+"_"+"client_flows_ingress", "Number of ingress flows, created/openend by this client.", variableLabelsVpnClientDetail, nil),
@@ -335,5 +336,30 @@ var MetricDesc = map[string]Metrics{
 		"enabled":     prometheus.NewDesc(namespace+"_"+"cluster_link_enabled", "Clustter link is enabled.", variableLabelsCluserLink, nil),
 		"oper_up":     prometheus.NewDesc(namespace+"_"+"cluster_link_operational", "Clustter link is operational.", variableLabelsCluserLink, nil),
 		"oper_uptime": prometheus.NewDesc(namespace+"_"+"cluster_link_uptime", "Clustter link utime in seconds.", variableLabelsCluserLink, nil),
+	},
+	"ClientConnections": {
+		"connection_is_zip":           				   prometheus.NewDesc(namespace+"_"+"connection_is_zip", "Connection is zip compressed.", variableLabelsVpnClient, nil),
+		"connection_is_ssl":           				   prometheus.NewDesc(namespace+"_"+"connection_is_ssl", "Connection is ssl encrypted.", variableLabelsVpnClient, nil),
+		"connection_receive_queue_bytes":              prometheus.NewDesc(namespace+"_"+"connection_receive_queue_bytes", "The number of bytes currently in the event broker receive queue for the TCP connection.", variableLabelsVpnClient, nil),
+		"connection_send_queue_bytes":                 prometheus.NewDesc(namespace+"_"+"connection_send_queue_bytes", "The number of bytes currently in the event broker receive queue for the TCP connection.", variableLabelsVpnClient, nil),
+		"connection_receive_queue_segments":           prometheus.NewDesc(namespace+"_"+"connection_receive_queue_segments", "The number of bytes currently queued for the client in both the client’s egress queues and the TCP send queue.", variableLabelsVpnClient, nil),
+		"connection_send_queue_segments":              prometheus.NewDesc(namespace+"_"+"connection_send_queue_segments", "The number of messages currently queued for the client in its egress queues.", variableLabelsVpnClient, nil),
+		"connection_maximum_segment_size":             prometheus.NewDesc(namespace+"_"+"connection_maximum_segment_size", "The maximum segment size (MSS) configured for the client connection. The MSS is configured in the client profile. See RFC 879 for further details.", variableLabelsVpnClient, nil),
+		"connection_sent_bytes":                       prometheus.NewDesc(namespace+"_"+"connection_sent_bytes", "The number of bytes sent by the event broker on the TCP connection", variableLabelsVpnClient, nil),
+		"connection_received_bytes":                   prometheus.NewDesc(namespace+"_"+"connection_received_bytes", "The number of bytes received by the event broker on the TCP connection", variableLabelsVpnClient, nil),
+
+		"connection_retransmit_milliseconds":          prometheus.NewDesc(namespace+"_"+"connection_retransmit_milliseconds", "The retransmission timeout (RTO) in milliseconds for the TCP connection. See RFC 2988 for further details.", variableLabelsVpnClient, nil),
+		"connection_roundtrip_smth_microseconds":      prometheus.NewDesc(namespace+"_"+"connection_roundtrip_smth_microseconds", "The smoothed round-trip time (SRTT) in microseconds for the TCP connection. See RFC 2988 for further details.", variableLabelsVpnClient, nil),
+		"connection_roundtrip_min_microseconds":       prometheus.NewDesc(namespace+"_"+"connection_roundtrip_min_microseconds", "The minimum round-trip time in microseconds for the TCP connection. See RFC 2988 for further details.", variableLabelsVpnClient, nil),
+		"connection_roundtrip_var_microseconds":       prometheus.NewDesc(namespace+"_"+"connection_roundtrip_var_microseconds", "The round-trip time variation (RTTVAR) in microseconds for the TCP connection. See RFC 2988 for further details.", variableLabelsVpnClient, nil),
+		
+		"connection_advertised_window":       		   prometheus.NewDesc(namespace+"_"+"connection_advertised_window", "The receive window size in bytes advertised to the client on the remote end of the TCP connection. See RFC 793 for further details.", variableLabelsVpnClient, nil),
+		"connection_transmit_window":       		   prometheus.NewDesc(namespace+"_"+"connection_transmit_window", "The send window size in bytes. See RFC 793 for further details.", variableLabelsVpnClient, nil),
+		"connection_congestion_window":       		   prometheus.NewDesc(namespace+"_"+"connection_congestion_window", "The congestion window size in bytes (cwnd). See RFC 5681 for further details.", variableLabelsVpnClient, nil),
+		
+		"connection_slow_start_threshold":       	   prometheus.NewDesc(namespace+"_"+"connection_slow_start_threshold", "The slow start threshold in bytes (ssthresh). See RFC 5681 for further details.", variableLabelsVpnClient, nil),
+		"connection_received_outoforder":       	   prometheus.NewDesc(namespace+"_"+"connection_received_outoforder", "The number of TCP segments received out of order.", variableLabelsVpnClient, nil),
+		"connection_fast_retransmit":       	       prometheus.NewDesc(namespace+"_"+"connection_fast_retransmit", "The number of TCP segments retransmitted due to the receipt of duplicate acknowledgments (‘ACKs’). See RFC 5681 for further details.", variableLabelsVpnClient, nil),
+		"connection_timed_retransmit":       	       prometheus.NewDesc(namespace+"_"+"connection_timed_retransmit", "The number of TCP segments re-transmitted due to timeout awaiting an ACK. See RFC 793 for further details.", variableLabelsVpnClient, nil),
 	},
 }
