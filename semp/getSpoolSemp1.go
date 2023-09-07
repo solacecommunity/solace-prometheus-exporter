@@ -17,6 +17,7 @@ func (e *Semp) GetSpoolSemp1(ch chan<- prometheus.Metric) (ok float64, err error
 			Show struct {
 				Spool struct {
 					Info struct {
+						MessageCountUtilPercentage      string  `xml:"message-count-utilization-percentage"`
 						QuotaDiskUsage                  float64 `xml:"max-disk-usage"`
 						QuotaMsgCount                   string  `xml:"max-message-count"`
 						PersistUsage                    float64 `xml:"current-persist-usage"`
@@ -67,6 +68,10 @@ func (e *Semp) GetSpoolSemp1(ch chan<- prometheus.Metric) (ok float64, err error
 	if value, err := strconv.ParseFloat(target.RPC.Show.Spool.Info.SpoolFilesUtilizationPercentage, 64); err == nil {
 		ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_files_utilization_percent"], prometheus.GaugeValue, math.Round(value))
 	}
+
+        if value, err := strconv.ParseFloat(target.RPC.Show.Spool.Info.MessageCountUtilPercentage, 64); err == nil {
+                ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_message_count_utilization_percent"], prometheus.GaugeValue, math.Round(value))
+        }
 
 	ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.PersistUsage*1048576.0))
 	ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_usage_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount)
