@@ -190,6 +190,12 @@ var MetricDesc = map[string]Metrics{
 		"vpn_spool_quota_bytes": prometheus.NewDesc(namespace+"_"+"vpn_spool_quota_bytes", "Spool configured max disk usage.", variableLabelsVpn, nil),
 		"vpn_spool_usage_bytes": prometheus.NewDesc(namespace+"_"+"vpn_spool_usage_bytes", "Spool total persisted usage.", variableLabelsVpn, nil),
 		"vpn_spool_usage_msgs":  prometheus.NewDesc(namespace+"_"+"vpn_spool_usage_msgs", "Spool total number of persisted messages.", variableLabelsVpn, nil),
+		"vpn_spool_current_endpoints":  prometheus.NewDesc(namespace+"_"+"vpn_spool_current_endpoints", "Spool current number of endpoints.", variableLabelsVpn, nil),
+		"vpn_spool_maximum_endpoints":  prometheus.NewDesc(namespace+"_"+"vpn_spool_maximum_endpoints", "Spool maximum number of endpoints.", variableLabelsVpn, nil),
+		"vpn_spool_current_egress_flows":  prometheus.NewDesc(namespace+"_"+"vpn_spool_current_egress_flows", "Spool current number of egress flows.", variableLabelsVpn, nil),
+		"vpn_spool_maximum_egress_flows":  prometheus.NewDesc(namespace+"_"+"vpn_spool_maximum_egress_flows", "Spool maximum number of egress flows.", variableLabelsVpn, nil),
+		"vpn_spool_current_ingress_flows":  prometheus.NewDesc(namespace+"_"+"vpn_spool_current_ingress_flows", "Spool current number of ingress flows.", variableLabelsVpn, nil),
+		"vpn_spool_maximum_ingress_flows":  prometheus.NewDesc(namespace+"_"+"vpn_spool_maximum_ingress_flows", "Spool maximum number of ingress flows.", variableLabelsVpn, nil),
 	},
 	//SEMPv1: show client <client-name> message-vpn <vpn-name> connected
 	"Client": {
