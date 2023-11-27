@@ -3,9 +3,10 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
+	"strconv"
+
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"strconv"
 )
 
 // Get some statistics for each individual client of all vpn's
@@ -40,7 +41,7 @@ func (e *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- prometheus.Metric, item
 									DestinationGroupError          float64 `xml:"destination-group-error"`
 									SmfTtlExceeded                 float64 `xml:"smf-ttl-exceeded"`
 									PublishAclDenied               float64 `xml:"publish-acl-denied"`
-								} `xml:"ingress-flow-stats"`
+								} `xml:"ingress-flow-stats>ingress-flow-stat"`
 								EgressFlowStats []struct {
 									WindowSize                        float64 `xml:"window-size"`
 									UsedWindow                        float64 `xml:"used-window"`
@@ -51,7 +52,7 @@ func (e *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- prometheus.Metric, item
 									ConfirmedDeliveredStoreAndForward float64 `xml:"confirmed-delivered-store-and-forward"`
 									ConfirmedDeliveredCutThrough      float64 `xml:"confirmed-delivered-cut-through"`
 									UnackedMessages                   float64 `xml:"unacked-messages"`
-								} `xml:"egress-flow-stats"`
+								} `xml:"egress-flow-stats>egress-flow-stat"`
 							} `xml:"message-spool-stats"`
 						} `xml:"client"`
 					} `xml:",any"`
