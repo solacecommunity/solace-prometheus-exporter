@@ -41,6 +41,7 @@ func (e *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- prometheus.Metric, item
 									DestinationGroupError          float64 `xml:"destination-group-error"`
 									SmfTtlExceeded                 float64 `xml:"smf-ttl-exceeded"`
 									PublishAclDenied               float64 `xml:"publish-acl-denied"`
+									WindowSize                     float64 `xml:"window-size"`
 								} `xml:"ingress-flow-stats>ingress-flow-stat"`
 								EgressFlowStats []struct {
 									WindowSize                        float64 `xml:"window-size"`
@@ -107,9 +108,10 @@ func (e *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- prometheus.Metric, item
 				ch <- prometheus.MustNewConstMetric(MetricDesc["ClientMessageSpoolStats"]["destination_group_error"], prometheus.CounterValue, ingressFlow.DestinationGroupError, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
 				ch <- prometheus.MustNewConstMetric(MetricDesc["ClientMessageSpoolStats"]["smf_ttl_exceeded"], prometheus.CounterValue, ingressFlow.SmfTtlExceeded, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
 				ch <- prometheus.MustNewConstMetric(MetricDesc["ClientMessageSpoolStats"]["publish_acl_denied"], prometheus.CounterValue, ingressFlow.PublishAclDenied, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(MetricDesc["ClientMessageSpoolStats"]["ingress_window_size"], prometheus.CounterValue, ingressFlow.WindowSize, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
 			}
 			for flowId, egressFlow := range client.MessageSpoolStats.EgressFlowStats {
-				ch <- prometheus.MustNewConstMetric(MetricDesc["ClientMessageSpoolStats"]["window_size"], prometheus.CounterValue, egressFlow.WindowSize, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+				ch <- prometheus.MustNewConstMetric(MetricDesc["ClientMessageSpoolStats"]["egress_window_size"], prometheus.CounterValue, egressFlow.WindowSize, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
 				ch <- prometheus.MustNewConstMetric(MetricDesc["ClientMessageSpoolStats"]["used_window"], prometheus.CounterValue, egressFlow.UsedWindow, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
 				ch <- prometheus.MustNewConstMetric(MetricDesc["ClientMessageSpoolStats"]["window_closed"], prometheus.CounterValue, egressFlow.WindowClosed, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
 				ch <- prometheus.MustNewConstMetric(MetricDesc["ClientMessageSpoolStats"]["message_redelivered"], prometheus.CounterValue, egressFlow.MessageRedelivered, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
