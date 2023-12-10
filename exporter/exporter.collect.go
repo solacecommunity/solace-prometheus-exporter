@@ -1,9 +1,10 @@
 package exporter
 
 import (
-	"solace_exporter/semp"
-
+	"errors"
 	"github.com/prometheus/client_golang/prometheus"
+	"solace_exporter/semp"
+	"strings"
 )
 
 // Collect fetches the stats from configured Solace location and delivers them
@@ -11,6 +12,7 @@ import (
 func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	var up float64 = 1
 	var err error = nil
+	var vpnName = ""
 
 	for _, dataSource := range *e.dataSource {
 		if up < 1 {
@@ -76,6 +78,11 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up, err = e.semp.GetQueueRatesSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "QueueStats":
 			up, err = e.semp.GetQueueStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "QueueStatsV2":
+			vpnName, err = e.getVpnName(dataSource.VpnFilter)
+			if err == nil {
+				up, err = e.semp.GetQueueStatsSemp2(ch, vpnName, dataSource.ItemFilter, dataSource.MetricFilter)
+			}
 		case "QueueDetails":
 			up, err = e.semp.GetQueueDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "TopicEndpointRates":
@@ -87,4 +94,15 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 		}
 	}
 	ch <- prometheus.MustNewConstMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 1, "")
+}
+
+func (e *Exporter) getVpnName(vpnFilter string) (vpnName string, err error) {
+	if vpnFilter == "*" {
+		if len(strings.TrimSpace(e.config.DefaultVpn)) == 0 {
+			return "", errors.New("Can't scrape Semp2 As vpnFilter was an * given and the defaultVpn is not set in configuration")
+		}
+		return e.config.DefaultVpn, nil
+	}
+
+	return vpnFilter, nil
 }

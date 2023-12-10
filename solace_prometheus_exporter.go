@@ -129,13 +129,19 @@ func main() {
 			if strings.HasPrefix(key, "m.") {
 				for _, value := range values {
 					parts := strings.Split(value, "|")
-					if len(parts) != 2 {
-						level.Error(logger).Log("msg", "Exactly one | expected. Use VPN wildcard. |. Item wildcard.", "key", key, "value", value)
+					if len(parts) < 2 {
+						level.Error(logger).Log("msg", "One or two | expected. Use VPN wildcard. | Item wildcard. | Optional metric filter for v2 apis", "key", key, "value", value)
 					} else {
+						var metricFilter []string
+						if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {
+							metricFilter = strings.Split(parts[2], ",")
+						}
+
 						dataSource = append(dataSource, exporter.DataSource{
-							Name:       strings.TrimPrefix(key, "m."),
-							VpnFilter:  parts[0],
-							ItemFilter: parts[1],
+							Name:         strings.TrimPrefix(key, "m."),
+							VpnFilter:    parts[0],
+							ItemFilter:   parts[1],
+							MetricFilter: metricFilter,
 						})
 					}
 				}
@@ -194,6 +200,7 @@ func main() {
 					<tr><td>BridgeStats</td><td>yes</td><td>yes</td><td>has a very small performance down site</td></tr>
 					<tr><td>QueueRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many queues</td></tr>
 					<tr><td>QueueStats</td><td>yes</td><td>yes</td><td>may harm broker if many queues</td></tr>
+					<tr><td>QueueStatsV2</td><td>yes</td><td>yes</td><td>may harm broker if many queues</td></tr>
 					<tr><td>QueueDetails</td><td>yes</td><td>yes</td><td>may harm broker if many queues</td></tr>
 					<tr><td>TopicEndpointRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many topic-endpoints</td></tr>
 					<tr><td>TopicEndpointStats</td><td>yes</td><td>yes</td><td>may harm broker if many topic-endpoints</td></tr>

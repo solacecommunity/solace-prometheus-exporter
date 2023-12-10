@@ -23,6 +23,7 @@ type Config struct {
 	ScrapeURI      string
 	Username       string
 	Password       string
+	DefaultVpn     string
 	SslVerify      bool
 	useSystemProxy bool
 	Timeout        time.Duration
@@ -79,6 +80,10 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 		return nil, nil, err
 	}
 	conf.Password, err = parseConfigString(cfg, "solace", "password", "SOLACE_PASSWORD")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.DefaultVpn, err = parseConfigString(cfg, "solace", "defaultVpn", "SOLACE_DEFAULT_VPN")
 	if err != nil {
 		return nil, nil, err
 	}

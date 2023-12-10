@@ -29,6 +29,25 @@ var (
 
 type Metrics map[string]*prometheus.Desc
 
+var QueueStatsSempV2 = SempV2Descs{
+	"total_bytes_spooled":                 NewSempV2Desc(namespace+"_"+"queue_byte_spooled", "spooledByteCount", "Queue spool total of all spooled messages in bytes.", variableLabelsVpnQueue),
+	"total_messages_spooled":              NewSempV2Desc(namespace+"_"+"queue_msg_spooled", "spooledMsgCount", "Queue spool total of all spooled messages.", variableLabelsVpnQueue),
+	"messages_redelivered":                NewSempV2Desc(namespace+"_"+"queue_msg_redelivered", "redeliveredMsgCount", "Queue total msg redeliveries.", variableLabelsVpnQueue),
+	"messages_transport_retransmited":     NewSempV2Desc(namespace+"_"+"queue_msg_retransmited", "transportRetransmitMsgCount", "Queue total msg retransmitted on transport.", variableLabelsVpnQueue),
+	"spool_usage_exceeded":                NewSempV2Desc(namespace+"_"+"queue_msg_spool_usage_exceeded", "maxMsgSpoolUsageExceededDiscardedMsgCount", "Queue total number of messages exceeded the spool usage.", variableLabelsVpnQueue),
+	"max_message_size_exceeded":           NewSempV2Desc(namespace+"_"+"queue_msg_max_msg_size_exceeded", "maxMsgSizeExceededDiscardedMsgCount", "Queue total number of messages exceeded the max message size.", variableLabelsVpnQueue),
+	"total_deleted_messages":              NewSempV2Desc(namespace+"_"+"queue_msg_total_deleted", "deletedMsgCount", "Queue total number that was deleted.", variableLabelsVpnQueue),
+	"messages_shutdown_discarded":         NewSempV2Desc(namespace+"_"+"queue_msg_shutdown_discarded", "disabledDiscardedMsgCount", "Queue total number of messages discarded due to spool shutdown.", variableLabelsVpnQueue),
+	"messages_ttl_discarded":              NewSempV2Desc(namespace+"_"+"queue_msg_ttl_discarded", "maxTtlExpiredDiscardedMsgCount", "Queue total number of messages discarded due to ttl expiry.", variableLabelsVpnQueue),
+	"messages_ttl_dmq":                    NewSempV2Desc(namespace+"_"+"queue_msg_ttl_dmq", "maxTtlExpiredToDmqMsgCount", "Queue total number of messages delivered to dmq due to ttl expiry.", variableLabelsVpnQueue),
+	"messages_ttl_dmq_failed":             NewSempV2Desc(namespace+"_"+"queue_msg_ttl_dmq_failed", "maxTtlExpiredToDmqFailedMsgCount", "Queue total number of messages that failed delivery to dmq due to ttl expiry.", variableLabelsVpnQueue),
+	"messages_max_redelivered_discarded":  NewSempV2Desc(namespace+"_"+"queue_msg_max_redelivered_discarded", "maxRedeliveryExceededDiscardedMsgCount", "Queue total number of messages discarded due to exceeded max redelivery.", variableLabelsVpnQueue),
+	"messages_max_redelivered_dmq":        NewSempV2Desc(namespace+"_"+"queue_msg_max_redelivered_dmq", "maxRedeliveryExceededToDmqMsgCount", "Queue total number of messages delivered to dmq due to exceeded max redelivery.", variableLabelsVpnQueue),
+	"messages_max_redelivered_dmq_failed": NewSempV2Desc(namespace+"_"+"queue_msg_max_redelivered_dmq_failed", "maxRedeliveryExceededToDmqFailedMsgCount", "Queue total number of messages failed delivery to dmq due to exceeded max redelivery.", variableLabelsVpnQueue),
+}
+
+var QueueStats = toMetrics(QueueStatsSempV2)
+
 var MetricDesc = map[string]Metrics{
 	"Global": {
 		"up": prometheus.NewDesc(namespace+"_up", "Was the last scrape of Solace broker successful.", variableLabelsUp, nil),
@@ -301,22 +320,8 @@ var MetricDesc = map[string]Metrics{
 		"queue_spool_usage_msgs":  prometheus.NewDesc(namespace+"_"+"queue_spool_usage_msgs", "Queue spooled number of messages.", variableLabelsVpnQueue, nil),
 		"queue_binds":             prometheus.NewDesc(namespace+"_"+"queue_binds", "Number of clients bound to queue.", variableLabelsVpnQueue, nil),
 	},
-	"QueueStats": {
-		"total_bytes_spooled":                 prometheus.NewDesc(namespace+"_"+"queue_byte_spooled", "Queue spool total of all spooled messages in bytes.", variableLabelsVpnQueue, nil),
-		"total_messages_spooled":              prometheus.NewDesc(namespace+"_"+"queue_msg_spooled", "Queue spool total of all spooled messages.", variableLabelsVpnQueue, nil),
-		"messages_redelivered":                prometheus.NewDesc(namespace+"_"+"queue_msg_redelivered", "Queue total msg redeliveries.", variableLabelsVpnQueue, nil),
-		"messages_transport_retransmited":     prometheus.NewDesc(namespace+"_"+"queue_msg_retransmited", "Queue total msg retransmitted on transport.", variableLabelsVpnQueue, nil),
-		"spool_usage_exceeded":                prometheus.NewDesc(namespace+"_"+"queue_msg_spool_usage_exceeded", "Queue total number of messages exceeded the spool usage.", variableLabelsVpnQueue, nil),
-		"max_message_size_exceeded":           prometheus.NewDesc(namespace+"_"+"queue_msg_max_msg_size_exceeded", "Queue total number of messages exceeded the max message size.", variableLabelsVpnQueue, nil),
-		"total_deleted_messages":              prometheus.NewDesc(namespace+"_"+"queue_msg_total_deleted", "Queue total number that was deleted.", variableLabelsVpnQueue, nil),
-		"messages_shutdown_discarded":         prometheus.NewDesc(namespace+"_"+"queue_msg_shutdown_discarded", "Queue total number of messages discarded due to spool shutdown.", variableLabelsVpnQueue, nil),
-		"messages_ttl_discarded":              prometheus.NewDesc(namespace+"_"+"queue_msg_ttl_discarded", "Queue total number of messages discarded due to ttl expiry.", variableLabelsVpnQueue, nil),
-		"messages_ttl_dmq":                    prometheus.NewDesc(namespace+"_"+"queue_msg_ttl_dmq", "Queue total number of messages delivered to dmq due to ttl expiry.", variableLabelsVpnQueue, nil),
-		"messages_ttl_dmq_failed":             prometheus.NewDesc(namespace+"_"+"queue_msg_ttl_dmq_failed", "Queue total number of messages that failed delivery to dmq due to ttl expiry.", variableLabelsVpnQueue, nil),
-		"messages_max_redelivered_discarded":  prometheus.NewDesc(namespace+"_"+"queue_msg_max_redelivered_discarded", "Queue total number of messages discarded due to exceeded max redelivery.", variableLabelsVpnQueue, nil),
-		"messages_max_redelivered_dmq":        prometheus.NewDesc(namespace+"_"+"queue_msg_max_redelivered_dmq", "Queue total number of messages delivered to dmq due to exceeded max redelivery.", variableLabelsVpnQueue, nil),
-		"messages_max_redelivered_dmq_failed": prometheus.NewDesc(namespace+"_"+"queue_msg_max_redelivered_dmq_failed", "Queue total number of messages failed delivery to dmq due to exceeded max redelivery.", variableLabelsVpnQueue, nil),
-	},
+	"QueueStats":   QueueStats,
+	"QueueStatsV2": QueueStats,
 	"TopicEndpointRates": {
 		"rx_msg_rate":      prometheus.NewDesc(namespace+"_"+"topic_endpoint_rx_msg_rate", "Rate of received messages.", variableLabelsVpnTopicEndpoint, nil),
 		"tx_msg_rate":      prometheus.NewDesc(namespace+"_"+"topic_endpoint_tx_msg_rate", "Rate of transmitted messages.", variableLabelsVpnTopicEndpoint, nil),
@@ -372,4 +377,14 @@ var MetricDesc = map[string]Metrics{
 		"connection_fast_retransmit":      prometheus.NewDesc(namespace+"_"+"connection_fast_retransmit", "The number of TCP segments retransmitted due to the receipt of duplicate acknowledgments (‘ACKs’). See RFC 5681 for further details.", variableLabelsVpnClient, nil),
 		"connection_timed_retransmit":     prometheus.NewDesc(namespace+"_"+"connection_timed_retransmit", "The number of TCP segments re-transmitted due to timeout awaiting an ACK. See RFC 793 for further details.", variableLabelsVpnClient, nil),
 	},
+}
+
+func toMetrics(v2Desc SempV2Descs) Metrics {
+	metrics := make(map[string]*prometheus.Desc, len(v2Desc))
+
+	for key, v2Description := range v2Desc {
+		metrics[key] = v2Description.NewPrometheusDesc()
+	}
+
+	return metrics
 }
