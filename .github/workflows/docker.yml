@@ -22,7 +22,7 @@ jobs:
         images: solacecommunity/solace-prometheus-exporter
         tags: |
           type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
-          type=raw,value=testing,enable=${{ contains(GitHub.ref, 'feature') }}
+          type=raw,value=testing,enable=${{ contains(GitHub.head_ref, 'feature') }}
           type=ref,event=tag
         flavor: |
 
@@ -37,5 +37,5 @@ jobs:
       # uses: docker/build-push-action@1bc1040caef9e604eb543693ba89b5bf4fc80935
       uses: docker/build-push-action@v2.6.1
       with:
-        push: ${{ GitHub.event_name != 'pull_request' }}
+        push: ${{ GitHub.event_name != 'pull_request' || contains(GitHub.head_ref, 'feature') }}
         tags: ${{ steps.meta.outputs.tags }}
