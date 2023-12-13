@@ -109,7 +109,7 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 
 					parts := strings.Split(key.String(), "|")
 					if len(parts) < 2 {
-						return nil, nil, fmt.Errorf("one or two | expected at endpoint %q. Found key %q value %q. Expecected: VPN wildcard | item wildcard | Optional metric filter for v2 apis", endpointName, key.Name(), key.String())
+						return nil, nil, fmt.Errorf("one or two | expected at endpoint %q. Found key %q value %q. Expected: VPN wildcard | item wildcard | Optional metric filter for v2 apis", endpointName, key.Name(), key.String())
 					} else {
 						var metricFilter []string
 						if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {
