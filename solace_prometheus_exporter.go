@@ -130,7 +130,7 @@ func main() {
 				for _, value := range values {
 					parts := strings.Split(value, "|")
 					if len(parts) < 2 {
-						level.Error(logger).Log("msg", "One or two | expected. Use VPN wildcard. | Item wildcard. | Optional metric filter for v2 apis", "key", key, "value", value)
+						level.Error(logger).Log("msg", "One or two | expected. Use VPN wildcard | Item wildcard | Optional metric filter for v2 apis", "key", key, "value", value)
 					} else {
 						var metricFilter []string
 						if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {

@@ -108,13 +108,19 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 					scrapeTarget := scrapeTargetRe.ReplaceAllString(key.Name(), `$1`)
 
 					parts := strings.Split(key.String(), "|")
-					if len(parts) != 2 {
-						return nil, nil, fmt.Errorf("exactly one %q expected at endpoint %q. Found key %q value %q. Expecected: VPN wildcard | item wildcard", "|", endpointName, key.Name(), key.String())
+					if len(parts) < 2 {
+						return nil, nil, fmt.Errorf("one or two | expected at endpoint %q. Found key %q value %q. Expecected: VPN wildcard | item wildcard | Optional metric filter for v2 apis", endpointName, key.Name(), key.String())
 					} else {
+						var metricFilter []string
+						if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {
+							metricFilter = strings.Split(parts[2], ",")
+						}
+
 						dataSource = append(dataSource, DataSource{
-							Name:       scrapeTarget,
-							VpnFilter:  parts[0],
-							ItemFilter: parts[1],
+							Name:         scrapeTarget,
+							VpnFilter:    parts[0],
+							ItemFilter:   parts[1],
+							MetricFilter: metricFilter,
 						})
 					}
 				}
