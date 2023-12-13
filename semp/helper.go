@@ -2,6 +2,7 @@ package semp
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 )
 
@@ -42,4 +43,17 @@ func sliceContains(slice []string, lookUp string) bool {
 	}
 
 	return false
+}
+
+func queryEscape(raw string) string {
+	if len(strings.TrimSpace(raw)) == 0 {
+		return raw
+	}
+
+	if strings.Contains(raw, "%") {
+		// Seams already to be url encode
+		return raw
+	}
+
+	return url.QueryEscape(raw)
 }

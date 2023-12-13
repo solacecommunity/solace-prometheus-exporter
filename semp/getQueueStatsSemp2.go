@@ -52,9 +52,9 @@ func (e *Semp) GetQueueStatsSemp2(ch chan<- prometheus.Metric, vpnName string, i
 	var getParameter = "count=100"
 	if len(strings.TrimSpace(itemFilter)) > 0 && itemFilter != "*" {
 		if strings.Contains(itemFilter, "=") {
-			getParameter += "&where=" + itemFilter
+			getParameter += "&where=" + queryEscape(itemFilter)
 		} else {
-			getParameter += "&where=queueName==" + itemFilter
+			getParameter += "&where=" + queryEscape("queueName=="+itemFilter)
 		}
 	}
 

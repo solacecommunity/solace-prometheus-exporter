@@ -98,10 +98,6 @@ func main() {
 		"sslVerify", conf.SslVerify,
 		"timeout", conf.Timeout)
 
-	// Test scrape to check if broker can be accessed. If it fails it prints a warn to the log file.
-	// Note that failure is not fatal, as broker might not have started up yet.
-	conf.Timeout, _ = time.ParseDuration("2s") // Don't delay startup too much
-
 	// Configure endpoints
 	http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
 		doHandle(w, r, nil, *conf, logger)
