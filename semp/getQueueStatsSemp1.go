@@ -5,6 +5,8 @@ import (
 	"errors"
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"io"
+	"time"
 )
 
 // Get rates for each individual queue of all vpn's
@@ -53,9 +55,11 @@ func (e *Semp) GetQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string,
 		} `xml:"execute-result"`
 	}
 
+	var page = 1
 	var lastQueueName = ""
 	for nextRequest := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><stats/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest)
+		body, err := postHTTP(e, nextRequest, &page)
+
 		if err != nil {
 			_ = level.Error(e.logger).Log("msg", "Can't scrape QueueStatsSemp1", "err", err, "broker", e.brokerURI)
 			return 0, err
@@ -96,8 +100,24 @@ func (e *Semp) GetQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string,
 			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["messages_max_redelivered_dmq"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MaxRedeliveryDmq, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["messages_max_redelivered_dmq_failed"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MaxRedeliveryDmqFailed, queue.Info.MsgVpnName, queue.QueueName)
 		}
-		body.Close()
+		_ = body.Close()
 	}
 
 	return 1, nil
+}
+
+func postHTTP(e *Semp, nextRequest string, page *int) (io.ReadCloser, error) {
+	start := time.Now()
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest)
+
+	// 1sec
+	const longQuery time.Duration = 1 * 1000 * 1000 * 1000
+
+	var queryDuration = time.Since(start)
+	if queryDuration > longQuery {
+		_ = level.Warn(e.logger).Log("msg", "Scraped QueueStatsSemp1 but this took very long. Please add more cpu to your broker. Otherwise you are about to harm your broker.", "page", page, "duration", queryDuration)
+	}
+	_ = level.Debug(e.logger).Log("msg", "Scrape QueueStatsSemp1", "page", page, "duration", queryDuration)
+	(*page)++
+	return body, err
 }

@@ -16,17 +16,18 @@ import (
 
 // Collection of configs
 type Config struct {
-	ListenAddr     string
-	EnableTLS      bool
-	Certificate    string
-	PrivateKey     string
-	ScrapeURI      string
-	Username       string
-	Password       string
-	DefaultVpn     string
-	SslVerify      bool
-	useSystemProxy bool
-	Timeout        time.Duration
+	ListenAddr       string
+	EnableTLS        bool
+	Certificate      string
+	PrivateKey       string
+	ScrapeURI        string
+	Username         string
+	Password         string
+	DefaultVpn       string
+	SslVerify        bool
+	useSystemProxy   bool
+	Timeout          time.Duration
+	PrefetchInterval time.Duration
 }
 
 // getListenURI returns the `listenAddr` with proper protocol (http/https),
@@ -91,6 +92,10 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	conf.PrefetchInterval, err = parseConfigDurationOptional(cfg, "solace", "prefetchInterval", "PREFETCH_INTERVAL")
+	if err != nil {
+		return nil, nil, err
+	}
 	conf.SslVerify, err = parseConfigBool(cfg, "solace", "sslVerify", "SOLACE_SSL_VERIFY")
 	if err != nil {
 		return nil, nil, err
@@ -141,6 +146,20 @@ func parseConfigBool(cfg *ini.File, iniSection string, iniKey string, envKey str
 	val, err := strconv.ParseBool(s)
 	if err != nil {
 		return false, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+	}
+
+	return val, nil
+}
+
+func parseConfigDurationOptional(cfg *ini.File, iniSection string, iniKey string, envKey string) (time.Duration, error) {
+	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
+	if err != nil {
+		return time.Duration(0), nil
+	}
+
+	val, err := time.ParseDuration(s)
+	if err != nil {
+		return 0, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
 	}
 
 	return val, nil

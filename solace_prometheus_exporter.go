@@ -104,10 +104,18 @@ func main() {
 	})
 
 	declareHandlerFromConfig := func(urlPath string, dataSource []exporter.DataSource) {
-		level.Info(logger).Log("msg", "Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
-		http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
-			doHandle(w, r, dataSource, *conf, logger)
-		})
+		_ = level.Info(logger).Log("msg", "Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
+
+		if conf.PrefetchInterval.Seconds() > 0 {
+			var asyncFetcher = exporter.NewAsyncFetcher(urlPath, dataSource, *conf, logger, version)
+			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
+				doHandleAsync(w, r, asyncFetcher, *conf, logger)
+			})
+		} else {
+			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
+				doHandle(w, r, dataSource, *conf, logger)
+			})
+		}
 	}
 	for urlPath, dataSource := range endpoints {
 		declareHandlerFromConfig(urlPath, dataSource)
@@ -225,8 +233,16 @@ func main() {
 
 }
 
-func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf exporter.Config, logger log.Logger) (resultCode string) {
+func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporter.AsyncFetcher, conf exporter.Config, logger log.Logger) (resultCode string) {
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(asyncFetcher)
+	handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
+	handler.ServeHTTP(w, r)
 
+	return w.Header().Get("status")
+}
+
+func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf exporter.Config, logger log.Logger) (resultCode string) {
 	if dataSource == nil {
 		handler := promhttp.Handler()
 		handler.ServeHTTP(w, r)
