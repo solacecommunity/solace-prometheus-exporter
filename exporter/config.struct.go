@@ -16,18 +16,19 @@ import (
 
 // Collection of configs
 type Config struct {
-	ListenAddr       string
-	EnableTLS        bool
-	Certificate      string
-	PrivateKey       string
-	ScrapeURI        string
-	Username         string
-	Password         string
-	DefaultVpn       string
-	SslVerify        bool
-	useSystemProxy   bool
-	Timeout          time.Duration
-	PrefetchInterval time.Duration
+	ListenAddr              string
+	EnableTLS               bool
+	Certificate             string
+	PrivateKey              string
+	ScrapeURI               string
+	Username                string
+	Password                string
+	DefaultVpn              string
+	SslVerify               bool
+	useSystemProxy          bool
+	Timeout                 time.Duration
+	PrefetchInterval        time.Duration
+	ParallelSempConnections int64
 }
 
 // getListenURI returns the `listenAddr` with proper protocol (http/https),
@@ -100,6 +101,13 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	conf.ParallelSempConnections, err = parseConfigIntOptional(cfg, "solace", "parallelSempConnections", "SOLACE_PARALLEL_SEMP_CONNECTIONS")
+	if err != nil {
+		return nil, nil, err
+	}
+	if conf.ParallelSempConnections < 1 {
+		conf.ParallelSempConnections = 2
+	}
 
 	endpoints := make(map[string][]DataSource)
 	if cfg != nil {
@@ -158,6 +166,20 @@ func parseConfigDurationOptional(cfg *ini.File, iniSection string, iniKey string
 	}
 
 	val, err := time.ParseDuration(s)
+	if err != nil {
+		return 0, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+	}
+
+	return val, nil
+}
+
+func parseConfigIntOptional(cfg *ini.File, iniSection string, iniKey string, envKey string) (int64, error) {
+	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
+	if err != nil {
+		return 0, nil
+	}
+
+	val, err := strconv.ParseInt(s, 10, 0)
 	if err != nil {
 		return 0, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
 	}

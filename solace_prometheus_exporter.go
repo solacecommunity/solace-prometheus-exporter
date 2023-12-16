@@ -14,6 +14,7 @@ package main
 
 import (
 	"bytes"
+	"golang.org/x/sync/semaphore"
 	"net/http"
 	"os"
 	"solace_exporter/exporter"
@@ -103,11 +104,13 @@ func main() {
 		doHandle(w, r, nil, *conf, logger)
 	})
 
+	// A broker has only max 10 semp connections that can be served in parallel.
+	var sempConnections = semaphore.NewWeighted(conf.ParallelSempConnections)
 	declareHandlerFromConfig := func(urlPath string, dataSource []exporter.DataSource) {
 		_ = level.Info(logger).Log("msg", "Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
 
 		if conf.PrefetchInterval.Seconds() > 0 {
-			var asyncFetcher = exporter.NewAsyncFetcher(urlPath, dataSource, *conf, logger, version)
+			var asyncFetcher = exporter.NewAsyncFetcher(urlPath, dataSource, *conf, logger, sempConnections, version)
 			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
 				doHandleAsync(w, r, asyncFetcher, *conf, logger)
 			})

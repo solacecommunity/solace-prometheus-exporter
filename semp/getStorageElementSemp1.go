@@ -31,7 +31,7 @@ func (e *Semp) GetStorageElementSemp1(ch chan<- prometheus.Metric, storageElemen
 	}
 
 	command := "<rpc><show><storage-element><pattern>" + storageElementFilter + "</pattern></storage-element></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command)
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "StorageElementSemp1", 1)
 	if err != nil {
 		_ = level.Error(e.logger).Log("msg", "Can't scrape StorageElementSemp1", "err", err, "broker", e.brokerURI)
 		return 0, err

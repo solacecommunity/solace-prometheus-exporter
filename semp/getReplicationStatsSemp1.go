@@ -70,7 +70,7 @@ func (e *Semp) GetReplicationStatsSemp1(ch chan<- prometheus.Metric) (ok float64
 	}
 
 	command := "<rpc><show><replication><stats/></replication></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command)
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "ReplicationStatsSemp1", 1)
 	if err != nil {
 		_ = level.Error(e.logger).Log("msg", "Can't scrape ReplicationStatsSemp1", "err", err, "broker", e.brokerURI)
 		return 0, err

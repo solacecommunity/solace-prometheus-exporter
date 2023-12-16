@@ -73,9 +73,12 @@ func (e *Semp) GetQueueStatsSemp2(ch chan<- prometheus.Metric, vpnName string, i
 		getParameter += "&select=" + strings.Join(fieldsToSelect, ",")
 	}
 
+	var page = 1
 	var lastQueueName = ""
 	for nextUrl := e.brokerURI + "/SEMP/v2/monitor/msgVpns/" + vpnName + "/queues?" + getParameter; nextUrl != ""; {
-		body, err := e.getHTTPbytes(nextUrl, "application/json ")
+		body, err := e.getHTTPbytes(nextUrl, "application/json ", "QueueStatsSemp2", page)
+		page++
+
 		if err != nil {
 			_ = level.Error(e.logger).Log("msg", "Can't scrape QueueStatsSemp2", "command", nextUrl, "err", err, "broker", e.brokerURI)
 			return 0, err
@@ -91,6 +94,8 @@ func (e *Semp) GetQueueStatsSemp2(ch chan<- prometheus.Metric, vpnName string, i
 			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextUrl, "remoteError", response.Meta.Error.Description, "broker", e.brokerURI)
 			return 0, errors.New("unexpected result: see log")
 		}
+
+		_ = level.Debug(e.logger).Log("msg", "Result of QueueStatsSemp2", "results", len(response.Queue), "page", page)
 
 		//fmt.Printf("Next request: %v\n", response.Meta.Paging.NextPageUri)
 		nextUrl = response.Meta.Paging.NextPageUri

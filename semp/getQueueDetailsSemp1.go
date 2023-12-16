@@ -39,8 +39,11 @@ func (e *Semp) GetQueueDetailsSemp1(ch chan<- prometheus.Metric, vpnFilter strin
 	}
 
 	var lastQueueName = ""
+	var page = 1
 	for nextRequest := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest)
+		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest, "QueueDetailsSemp1", page)
+		page++
+
 		if err != nil {
 			_ = level.Error(e.logger).Log("msg", "Can't scrape QueueDetailsSemp1", "err", err, "broker", e.brokerURI)
 			return 0, err

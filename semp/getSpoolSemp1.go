@@ -35,7 +35,7 @@ func (e *Semp) GetSpoolSemp1(ch chan<- prometheus.Metric) (ok float64, err error
 	}
 
 	command := "<rpc><show><message-spool></message-spool></show ></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command)
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "SpoolSemp1", 1)
 	if err != nil {
 		_ = level.Error(e.logger).Log("msg", "Can't scrape Solace", "err", err, "broker", e.brokerURI)
 		return 0, err
@@ -69,9 +69,9 @@ func (e *Semp) GetSpoolSemp1(ch chan<- prometheus.Metric) (ok float64, err error
 		ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_files_utilization_percent"], prometheus.GaugeValue, math.Round(value))
 	}
 
-        if value, err := strconv.ParseFloat(target.RPC.Show.Spool.Info.MessageCountUtilPercentage, 64); err == nil {
-                ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_message_count_utilization_percent"], prometheus.GaugeValue, math.Round(value))
-        }
+	if value, err := strconv.ParseFloat(target.RPC.Show.Spool.Info.MessageCountUtilPercentage, 64); err == nil {
+		ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_message_count_utilization_percent"], prometheus.GaugeValue, math.Round(value))
+	}
 
 	ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.PersistUsage*1048576.0))
 	ch <- prometheus.MustNewConstMetric(MetricDesc["Spool"]["system_spool_usage_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount)

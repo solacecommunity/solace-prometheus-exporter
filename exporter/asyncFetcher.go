@@ -1,9 +1,11 @@
 package exporter
 
 import (
+	"context"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/sync/semaphore"
 	"sync"
 	"time"
 )
@@ -13,7 +15,7 @@ const (
 	capMetricChan = 1000
 )
 
-func NewAsyncFetcher(urlPath string, dataSource []DataSource, conf Config, logger log.Logger, version float64) *AsyncFetcher {
+func NewAsyncFetcher(urlPath string, dataSource []DataSource, conf Config, logger log.Logger, connections *semaphore.Weighted, version float64) *AsyncFetcher {
 
 	var fetcher = &AsyncFetcher{
 		dataSource: dataSource,
@@ -24,12 +26,21 @@ func NewAsyncFetcher(urlPath string, dataSource []DataSource, conf Config, logge
 	}
 
 	collectWorker := func() {
+		ctx := context.Background()
 		for {
+			if err := connections.Acquire(ctx, 1); err != nil {
+				_ = level.Error(logger).Log("msg", "Failed to acquire semaphore", "handler", "/"+urlPath, "err", err)
+				continue
+			}
+
 			_ = level.Debug(logger).Log("msg", "Fetching for handler", "handler", "/"+urlPath)
 
 			readMetrics(fetcher)
 
+			connections.Release(1)
+
 			// _ = level.Debug(logger).Log("msg", "Finished fetching for handler", "handler", "/"+urlPath)
+			// Be nice to the broker and wait between scrapes and let other threads fetch data.
 			time.Sleep(conf.PrefetchInterval)
 		}
 	}

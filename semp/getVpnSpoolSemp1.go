@@ -36,7 +36,7 @@ func (e *Semp) GetVpnSpoolSemp1(ch chan<- prometheus.Metric, vpnFilter string) (
 	}
 
 	command := "<rpc><show><message-spool><vpn-name>" + vpnFilter + "</vpn-name><detail/></message-spool></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command)
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "VpnSpoolSemp1", 1)
 	if err != nil {
 		_ = level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", e.brokerURI)
 		return 0, err
@@ -53,7 +53,6 @@ func (e *Semp) GetVpnSpoolSemp1(ch chan<- prometheus.Metric, vpnFilter string) (
 		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
 		return 0, errors.New("unexpected result: see log")
 	}
-
 
 	for _, vpn := range target.RPC.Show.MessageSpool.MessageVpn.Vpn {
 		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnSpool"]["vpn_spool_quota_bytes"], prometheus.GaugeValue, vpn.SpoolUsageMaxMb*1024*1024, vpn.Name)

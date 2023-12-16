@@ -36,7 +36,7 @@ func (e *Semp) GetHealthSemp1(ch chan<- prometheus.Metric) (ok float64, err erro
 	}
 
 	command := "<rpc><show><system><health/></system></show ></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command)
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "HealthSemp1", 1)
 	if err != nil {
 		_ = level.Error(e.logger).Log("msg", "Can't scrape HealthSemp1. Attention this is only supported by software broker not by appliances", "err", err, "broker", e.brokerURI)
 		return 0, err

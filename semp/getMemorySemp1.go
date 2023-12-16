@@ -30,7 +30,7 @@ func (e *Semp) GetMemorySemp1(ch chan<- prometheus.Metric) (ok float64, err erro
 	}
 
 	command := "<rpc><show><memory/></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command)
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "MemorySemp1", 1)
 	if err != nil {
 		_ = level.Error(e.logger).Log("msg", "Can't scrape MemorySemp1", "err", err, "broker", e.brokerURI)
 		return 0, err
