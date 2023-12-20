@@ -85,8 +85,8 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			up, err = e.semp.GetTopicEndpointDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		default:
 			up = 0
-			err = errors.New("Unexpected data source: \"" + dataSource.Name + "\"")
-			_ = level.Error(e.logger).Log("Unexpected data source: \"" + dataSource.Name + "\"")
+			err = errors.New("Unknown scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+			_ = level.Error(e.logger).Log("Unknown scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 		}
 
 		if up < 1 {
