@@ -95,7 +95,7 @@ func (e *Semp) GetQueueStatsSemp2(ch chan<- prometheus.Metric, vpnName string, i
 			return 0, errors.New("unexpected result: see log")
 		}
 
-		_ = level.Debug(e.logger).Log("msg", "Result of QueueStatsSemp2", "results", len(response.Queue), "page", page)
+		_ = level.Debug(e.logger).Log("msg", "Result of QueueStatsSemp2", "results", len(response.Queue), "page", page-1)
 
 		//fmt.Printf("Next request: %v\n", response.Meta.Paging.NextPageUri)
 		nextUrl = response.Meta.Paging.NextPageUri

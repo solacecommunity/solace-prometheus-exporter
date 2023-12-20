@@ -76,7 +76,7 @@ func (e *Semp) GetQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string,
 			return 0, errors.New("unexpected result: see log")
 		}
 
-		_ = level.Debug(e.logger).Log("msg", "Result of QueueStatsSemp1", "results", len(target.RPC.Show.Queue.Queues.Queue), "page", page)
+		_ = level.Debug(e.logger).Log("msg", "Result of QueueStatsSemp1", "results", len(target.RPC.Show.Queue.Queues.Queue), "page", page-1)
 
 		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC

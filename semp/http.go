@@ -33,7 +33,7 @@ func (s *Semp) postHTTP(uri string, _ string, body string, logName string, page 
 	if queryDuration > longQuery {
 		_ = level.Warn(s.logger).Log("msg", "Scraped "+logName+" but this took very long. Please add more cpu to your broker. Otherwise you are about to harm your broker.", "page", page, "duration", queryDuration)
 	}
-	_ = level.Debug(s.logger).Log("msg", "Scraped "+logName, "page", page, "duration", queryDuration)
+	_ = level.Debug(s.logger).Log("msg", "Scraped "+logName, "page", page, "duration", queryDuration, "request", body)
 
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
 		_ = resp.Body.Close()
