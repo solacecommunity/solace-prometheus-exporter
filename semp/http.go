@@ -61,7 +61,13 @@ func (s *Semp) getHTTPbytes(uri string, _ string, logName string, page int) ([]b
 	if (page > 1 && queryDuration > longQuery) || (page == 1 && queryDuration > longQueryFirstSempV2) {
 		_ = level.Warn(s.logger).Log("msg", "Scraped "+logName+" but this took very long. Please add more cpu to your broker. Otherwise you are about to harm your broker.", "page", page, "duration", queryDuration)
 	}
-	_ = level.Debug(s.logger).Log("msg", "Scraped "+logName, "page", page, "duration", queryDuration)
+
+	var requestQuery = ""
+	var urlParts = strings.Split(uri, "?")
+	if len(urlParts) > 1 {
+		requestQuery = urlParts[1]
+	}
+	_ = level.Debug(s.logger).Log("msg", "Scraped "+logName, "page", page, "duration", queryDuration, "request", requestQuery)
 
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 500) {
 		_ = resp.Body.Close()

@@ -2,6 +2,7 @@ package exporter
 
 import (
 	"errors"
+	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"solace_exporter/semp"
 	"strings"
@@ -15,6 +16,79 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	var vpnName = ""
 
 	for _, dataSource := range *e.dataSource {
+		switch dataSource.Name {
+		case "Version", "VersionV1":
+			up, err = e.semp.GetVersionSemp1(ch)
+		case "Health", "HealthV1":
+			up, err = e.semp.GetHealthSemp1(ch)
+		case "StorageElement", "StorageElementV1":
+			up, err = e.semp.GetStorageElementSemp1(ch, dataSource.ItemFilter)
+		case "Disk", "DiskV1":
+			up, err = e.semp.GetDiskSemp1(ch)
+		case "Memory", "MemoryV1":
+			up, err = e.semp.GetMemorySemp1(ch)
+		case "Interface", "InterfaceV1":
+			up, err = e.semp.GetInterfaceSemp1(ch, dataSource.ItemFilter)
+		case "GlobalStats", "GlobalStatsV1":
+			up, err = e.semp.GetGlobalStatsSemp1(ch)
+		case "Spool", "SpoolV1":
+			up, err = e.semp.GetSpoolSemp1(ch)
+		case "Redundancy", "RedundancyV1":
+			up, err = e.semp.GetRedundancySemp1(ch)
+		case "ReplicationStats", "ReplicationStatsV1":
+			up, err = e.semp.GetReplicationStatsSemp1(ch)
+		case "ConfigSyncRouter", "ConfigSyncRouterV1":
+			up, err = e.semp.GetConfigSyncRouterSemp1(ch)
+		case "Vpn", "VpnV1":
+			up, err = e.semp.GetVpnSemp1(ch, dataSource.VpnFilter)
+		case "VpnReplication", "VpnReplicationV1":
+			up, err = e.semp.GetVpnReplicationSemp1(ch, dataSource.VpnFilter)
+		case "ConfigSyncVpn", "ConfigSyncVpnV1":
+			up, err = e.semp.GetConfigSyncVpnSemp1(ch, dataSource.VpnFilter)
+		case "Bridge", "BridgeV1":
+			up, err = e.semp.GetBridgeSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "VpnSpool", "VpnSpoolV1":
+			up, err = e.semp.GetVpnSpoolSemp1(ch, dataSource.VpnFilter)
+		case "Client", "ClientV1":
+			up, err = e.semp.GetClientSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "ClientSlowSubscriber", "ClientSlowSubscriberV1":
+			up, err = e.semp.GetClientSlowSubscriberSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "ClientStats", "ClientStatsV1":
+			up, err = e.semp.GetClientStatsSemp1(ch, dataSource.ItemFilter)
+		case "ClientConnections", "ClientConnectionsV1":
+			up, err = e.semp.GetClientConnectionStatsSemp1(ch, dataSource.ItemFilter)
+		case "ClientMessageSpoolStats", "ClientMessageSpoolStatsV1":
+			up, err = e.semp.GetClientMessageSpoolStatsSemp1(ch, dataSource.VpnFilter)
+		case "ClusterLinks", "ClusterLinksV1":
+			up, err = e.semp.GetClusterLinksSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+
+		case "VpnStats", "VpnStatsV1":
+			up, err = e.semp.GetVpnStatsSemp1(ch, dataSource.VpnFilter)
+		case "BridgeStats", "BridgeStatsV1":
+			up, err = e.semp.GetBridgeStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "QueueRates", "QueueRatesV1":
+			up, err = e.semp.GetQueueRatesSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "QueueStats", "QueueStatsV1":
+			up, err = e.semp.GetQueueStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "QueueStatsV2":
+			vpnName, err = e.getVpnName(dataSource.VpnFilter)
+			if err == nil {
+				up, err = e.semp.GetQueueStatsSemp2(ch, vpnName, dataSource.ItemFilter, dataSource.MetricFilter)
+			}
+		case "QueueDetails", "QueueDetailsV1":
+			up, err = e.semp.GetQueueDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "TopicEndpointRates", "TopicEndpointRatesV1":
+			up, err = e.semp.GetTopicEndpointRatesSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "TopicEndpointStats", "TopicEndpointStatsV1":
+			up, err = e.semp.GetTopicEndpointStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "TopicEndpointDetails", "TopicEndpointDetailsV1":
+			up, err = e.semp.GetTopicEndpointDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		default:
+			up = 0
+			err = errors.New("Unexpected data source: \"" + dataSource.Name + "\"")
+			_ = level.Error(e.logger).Log("Unexpected data source: \"" + dataSource.Name + "\"")
+		}
+
 		if up < 1 {
 			if err != nil {
 				ch <- prometheus.MustNewConstMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, err.Error())
@@ -23,75 +97,6 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 			}
 			return
 		}
-
-		switch dataSource.Name {
-		case "Version":
-			up, err = e.semp.GetVersionSemp1(ch)
-		case "Health":
-			up, err = e.semp.GetHealthSemp1(ch)
-		case "StorageElement":
-			up, err = e.semp.GetStorageElementSemp1(ch, dataSource.ItemFilter)
-		case "Disk":
-			up, err = e.semp.GetDiskSemp1(ch)
-		case "Memory":
-			up, err = e.semp.GetMemorySemp1(ch)
-		case "Interface":
-			up, err = e.semp.GetInterfaceSemp1(ch, dataSource.ItemFilter)
-		case "GlobalStats":
-			up, err = e.semp.GetGlobalStatsSemp1(ch)
-		case "Spool":
-			up, err = e.semp.GetSpoolSemp1(ch)
-		case "Redundancy":
-			up, err = e.semp.GetRedundancySemp1(ch)
-		case "ReplicationStats":
-			up, err = e.semp.GetReplicationStatsSemp1(ch)
-		case "ConfigSyncRouter":
-			up, err = e.semp.GetConfigSyncRouterSemp1(ch)
-		case "Vpn":
-			up, err = e.semp.GetVpnSemp1(ch, dataSource.VpnFilter)
-		case "VpnReplication":
-			up, err = e.semp.GetVpnReplicationSemp1(ch, dataSource.VpnFilter)
-		case "ConfigSyncVpn":
-			up, err = e.semp.GetConfigSyncVpnSemp1(ch, dataSource.VpnFilter)
-		case "Bridge":
-			up, err = e.semp.GetBridgeSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "VpnSpool":
-			up, err = e.semp.GetVpnSpoolSemp1(ch, dataSource.VpnFilter)
-		case "Client":
-			up, err = e.semp.GetClientSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "ClientSlowSubscriber":
-			up, err = e.semp.GetClientSlowSubscriberSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "ClientStats":
-			up, err = e.semp.GetClientStatsSemp1(ch, dataSource.ItemFilter)
-		case "ClientConnections":
-			up, err = e.semp.GetClientConnectionStatsSemp1(ch, dataSource.ItemFilter)
-		case "ClientMessageSpoolStats":
-			up, err = e.semp.GetClientMessageSpoolStatsSemp1(ch, dataSource.VpnFilter)
-		case "ClusterLinks":
-			up, err = e.semp.GetClusterLinksSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-
-		case "VpnStats":
-			up, err = e.semp.GetVpnStatsSemp1(ch, dataSource.VpnFilter)
-		case "BridgeStats":
-			up, err = e.semp.GetBridgeStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "QueueRates":
-			up, err = e.semp.GetQueueRatesSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "QueueStats":
-			up, err = e.semp.GetQueueStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "QueueStatsV2":
-			vpnName, err = e.getVpnName(dataSource.VpnFilter)
-			if err == nil {
-				up, err = e.semp.GetQueueStatsSemp2(ch, vpnName, dataSource.ItemFilter, dataSource.MetricFilter)
-			}
-		case "QueueDetails":
-			up, err = e.semp.GetQueueDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "TopicEndpointRates":
-			up, err = e.semp.GetTopicEndpointRatesSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "TopicEndpointStats":
-			up, err = e.semp.GetTopicEndpointStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "TopicEndpointDetails":
-			up, err = e.semp.GetTopicEndpointDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		}
 	}
 	ch <- prometheus.MustNewConstMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 1, "")
 }
@@ -99,7 +104,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 func (e *Exporter) getVpnName(vpnFilter string) (vpnName string, err error) {
 	if vpnFilter == "*" {
 		if len(strings.TrimSpace(e.config.DefaultVpn)) == 0 {
-			return "", errors.New("Can't scrape Semp2 As vpnFilter was an * given and the defaultVpn is not set in configuration")
+			return "", errors.New("can't scrape Semp2 As vpnFilter was an * given and the defaultVpn is not set in configuration")
 		}
 		return e.config.DefaultVpn, nil
 	}
