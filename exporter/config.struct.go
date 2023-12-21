@@ -29,6 +29,7 @@ type Config struct {
 	Timeout                 time.Duration
 	PrefetchInterval        time.Duration
 	ParallelSempConnections int64
+	logBrokerToSlowWarnings bool
 }
 
 // getListenURI returns the `listenAddr` with proper protocol (http/https),
@@ -105,6 +106,11 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	conf.logBrokerToSlowWarnings, err = parseConfigBoolOptional(cfg, "solace", "logBrokerToSlowWarnings", "SOLACE_LOG_BROKER_IS_SLOW_WARNING", true)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	if conf.ParallelSempConnections < 1 {
 		conf.ParallelSempConnections = 2
 	}
@@ -151,6 +157,20 @@ func parseConfigBool(cfg *ini.File, iniSection string, iniKey string, envKey str
 	if err != nil {
 		return false, err
 	}
+	val, err := strconv.ParseBool(s)
+	if err != nil {
+		return false, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+	}
+
+	return val, nil
+}
+
+func parseConfigBoolOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue bool) (bool, error) {
+	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
+	if err != nil {
+		return defaultValue, nil
+	}
+
 	val, err := strconv.ParseBool(s)
 	if err != nil {
 		return false, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
