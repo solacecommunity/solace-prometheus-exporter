@@ -8,7 +8,7 @@ import (
 )
 
 // Get DR replication statistics
-func (e *Semp) GetReplicationStatsSemp1(ch chan<- prometheus.Metric) (ok float64, err error) {
+func (e *Semp) GetReplicationStatsSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -91,39 +91,39 @@ func (e *Semp) GetReplicationStatsSemp1(ch chan<- prometheus.Metric) (ok float64
 	replMateName := "" + target.RPC.Show.Repl.Mate.Name
 	if replMateName != "" {
 		replBridge := target.RPC.Show.Repl.ConfigSync.Bridge
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_bridge_admin_state"], prometheus.GaugeValue, encodeMetricMulti(replBridge.AdminState, []string{"Disabled", "Enabled", "-"}), replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_bridge_state"], prometheus.GaugeValue, encodeMetricMulti(replBridge.State, []string{"down", "up", "n/a"}), replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_bridge_admin_state"], prometheus.GaugeValue, encodeMetricMulti(replBridge.AdminState, []string{"Disabled", "Enabled", "-"}), replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_bridge_state"], prometheus.GaugeValue, encodeMetricMulti(replBridge.State, []string{"down", "up", "n/a"}), replMateName)
 		//Active stats
 		activeStats := target.RPC.Show.Repl.Stats.ActiveStats
 		//Message processing
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_sync_msgs_queued_to_standby"], prometheus.GaugeValue, activeStats.MsgProcessing.SyncQ2Standby, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_sync_msgs_queued_to_standby_as_async"], prometheus.GaugeValue, activeStats.MsgProcessing.SyncQ2StandbyAsync, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_async_msgs_queued_to_standby"], prometheus.GaugeValue, activeStats.MsgProcessing.AsyncQ2Standby, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_promoted_msgs_queued_to_standby"], prometheus.GaugeValue, activeStats.MsgProcessing.PromotedQ2Standby, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_pruned_locally_consumed_msgs"], prometheus.GaugeValue, activeStats.MsgProcessing.PrunedConsumed, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_sync_msgs_queued_to_standby"], prometheus.GaugeValue, activeStats.MsgProcessing.SyncQ2Standby, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_sync_msgs_queued_to_standby_as_async"], prometheus.GaugeValue, activeStats.MsgProcessing.SyncQ2StandbyAsync, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_async_msgs_queued_to_standby"], prometheus.GaugeValue, activeStats.MsgProcessing.AsyncQ2Standby, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_promoted_msgs_queued_to_standby"], prometheus.GaugeValue, activeStats.MsgProcessing.PromotedQ2Standby, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_pruned_locally_consumed_msgs"], prometheus.GaugeValue, activeStats.MsgProcessing.PrunedConsumed, replMateName)
 		//Sync replication
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_transitions_to_ineligible"], prometheus.GaugeValue, activeStats.SyncRepl.Trans2Ineligible, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_transitions_to_ineligible"], prometheus.GaugeValue, activeStats.SyncRepl.Trans2Ineligible, replMateName)
 		//Ack propagation
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_msgs_tx_to_standby"], prometheus.GaugeValue, activeStats.AckPropagation.TxMsgToStandby, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_rec_req_from_standby"], prometheus.GaugeValue, activeStats.AckPropagation.RxReqFromStandby, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_msgs_tx_to_standby"], prometheus.GaugeValue, activeStats.AckPropagation.TxMsgToStandby, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_rec_req_from_standby"], prometheus.GaugeValue, activeStats.AckPropagation.RxReqFromStandby, replMateName)
 		//Standby stats
 		standbyStats := target.RPC.Show.Repl.Stats.StandbyStats
 		//Message processing
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_msgs_rx_from_active"], prometheus.GaugeValue, standbyStats.MsgProcessing.RxMsgFromActive, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_msgs_rx_from_active"], prometheus.GaugeValue, standbyStats.MsgProcessing.RxMsgFromActive, replMateName)
 		//Ack propagation
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_ack_prop_msgs_rx"], prometheus.GaugeValue, standbyStats.AckPropagation.RxAckPropMsgs, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_recon_req_tx"], prometheus.GaugeValue, standbyStats.AckPropagation.TxReconReq, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_out_of_seq_rx"], prometheus.GaugeValue, standbyStats.AckPropagation.RxOutOfSeq, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_ack_prop_msgs_rx"], prometheus.GaugeValue, standbyStats.AckPropagation.RxAckPropMsgs, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_recon_req_tx"], prometheus.GaugeValue, standbyStats.AckPropagation.TxReconReq, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_out_of_seq_rx"], prometheus.GaugeValue, standbyStats.AckPropagation.RxOutOfSeq, replMateName)
 		//Transaction replication
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req"], prometheus.GaugeValue, standbyStats.XaRepl.XaReq, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_success"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccess, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_success_prepare"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccessPrepare, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_success_commit"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccessCommit, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_success_rollback"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccessRollback, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_fail"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFail, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_fail_prepare"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFailPrepare, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_fail_commit"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFailCommit, replMateName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_fail_rollback"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFailRollback, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req"], prometheus.GaugeValue, standbyStats.XaRepl.XaReq, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_success"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccess, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_success_prepare"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccessPrepare, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_success_commit"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccessCommit, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_success_rollback"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqSuccessRollback, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_fail"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFail, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_fail_prepare"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFailPrepare, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_fail_commit"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFailCommit, replMateName)
+		ch <- e.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_fail_rollback"], prometheus.GaugeValue, standbyStats.XaRepl.XaReqFailRollback, replMateName)
 	}
 
 	return 1, nil

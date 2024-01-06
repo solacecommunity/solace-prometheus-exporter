@@ -8,7 +8,7 @@ import (
 )
 
 // Config Sync Status for Broker and Vpn
-func (e *Semp) GetConfigSyncVpnSemp1(ch chan<- prometheus.Metric, vpnFilter string) (ok float64, err error) {
+func (e *Semp) GetConfigSyncVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -55,10 +55,10 @@ func (e *Semp) GetConfigSyncVpnSemp1(ch chan<- prometheus.Metric, vpnFilter stri
 	}
 
 	for _, table := range target.RPC.Show.ConfigSync.Database.Local.Tables.Table {
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ConfigSyncVpn"]["configsync_table_type"], prometheus.GaugeValue, encodeMetricMulti(table.Type, []string{"Router", "Vpn", "Unknown", "None", "All"}), table.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ConfigSyncVpn"]["configsync_table_timeinstateseconds"], prometheus.CounterValue, table.TimeInStateSeconds, table.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ConfigSyncVpn"]["configsync_table_ownership"], prometheus.GaugeValue, encodeMetricMulti(table.Ownership, []string{"Master", "Slave", "Unknown"}), table.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ConfigSyncVpn"]["configsync_table_syncstate"], prometheus.GaugeValue, encodeMetricMulti(table.SyncState, []string{"Down", "Up", "Unknown", "In-Sync", "Reconciling", "Blocked", "Out-Of-Sync"}), table.Name)
+		ch <- e.NewMetric(MetricDesc["ConfigSyncVpn"]["configsync_table_type"], prometheus.GaugeValue, encodeMetricMulti(table.Type, []string{"Router", "Vpn", "Unknown", "None", "All"}), table.Name)
+		ch <- e.NewMetric(MetricDesc["ConfigSyncVpn"]["configsync_table_timeinstateseconds"], prometheus.CounterValue, table.TimeInStateSeconds, table.Name)
+		ch <- e.NewMetric(MetricDesc["ConfigSyncVpn"]["configsync_table_ownership"], prometheus.GaugeValue, encodeMetricMulti(table.Ownership, []string{"Master", "Slave", "Unknown"}), table.Name)
+		ch <- e.NewMetric(MetricDesc["ConfigSyncVpn"]["configsync_table_syncstate"], prometheus.GaugeValue, encodeMetricMulti(table.SyncState, []string{"Down", "Up", "Unknown", "In-Sync", "Reconciling", "Blocked", "Out-Of-Sync"}), table.Name)
 	}
 
 	return 1, nil

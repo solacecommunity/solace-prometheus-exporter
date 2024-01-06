@@ -8,7 +8,7 @@ import (
 )
 
 // Get system memory information
-func (e *Semp) GetMemorySemp1(ch chan<- prometheus.Metric) (ok float64, err error) {
+func (e *Semp) GetMemorySemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -48,9 +48,9 @@ func (e *Semp) GetMemorySemp1(ch chan<- prometheus.Metric) (ok float64, err erro
 		return 0, errors.New("unexpected result: see log")
 	}
 
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Memory"]["system_memory_physical_usage_percent"], prometheus.GaugeValue, target.RPC.Show.Memory.PhysicalUsagePercent)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Memory"]["system_memory_subscription_usage_percent"], prometheus.GaugeValue, target.RPC.Show.Memory.SubscriptionUsagePercent)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Memory"]["system_nab_buffer_load_factor"], prometheus.GaugeValue, target.RPC.Show.Memory.SlotInfos.SlotInfo[0].NabBufLoadFactor)
+	ch <- e.NewMetric(MetricDesc["Memory"]["system_memory_physical_usage_percent"], prometheus.GaugeValue, target.RPC.Show.Memory.PhysicalUsagePercent)
+	ch <- e.NewMetric(MetricDesc["Memory"]["system_memory_subscription_usage_percent"], prometheus.GaugeValue, target.RPC.Show.Memory.SubscriptionUsagePercent)
+	ch <- e.NewMetric(MetricDesc["Memory"]["system_nab_buffer_load_factor"], prometheus.GaugeValue, target.RPC.Show.Memory.SlotInfos.SlotInfo[0].NabBufLoadFactor)
 
 	return 1, nil
 }

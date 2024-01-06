@@ -8,7 +8,7 @@ import (
 )
 
 // Get statistics of all vpn's
-func (e *Semp) GetVpnStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string) (ok float64, err error) {
+func (e *Semp) GetVpnStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -66,12 +66,12 @@ func (e *Semp) GetVpnStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string) (
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnStats"]["vpn_rx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataRxMsgCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnStats"]["vpn_tx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataTxMsgCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnStats"]["vpn_rx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataRxByteCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnStats"]["vpn_tx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataTxByteCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnStats"]["vpn_rx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.IngressDiscards.DiscardedRxMsgCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnStats"]["vpn_tx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.EgressDiscards.DiscardedTxMsgCount, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_rx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataRxMsgCount, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_tx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataTxMsgCount, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_rx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataRxByteCount, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_tx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataTxByteCount, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_rx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.IngressDiscards.DiscardedRxMsgCount, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_tx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.EgressDiscards.DiscardedTxMsgCount, vpn.Name)
 	}
 
 	return 1, nil

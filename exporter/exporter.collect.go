@@ -6,11 +6,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"solace_exporter/semp"
 	"strings"
+	"sync"
 )
 
 // Collect fetches the stats from configured Solace location and delivers them
 // as Prometheus metrics. It implements prometheus.Collector.
-func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
+func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 	var up float64 = 1
 	var err error = nil
 	var vpnName = ""
@@ -91,14 +92,54 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 
 		if up < 1 {
 			if err != nil {
-				ch <- prometheus.MustNewConstMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, err.Error())
+				ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, err.Error())
 			} else {
-				ch <- prometheus.MustNewConstMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, "Unknown")
+				ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, "Unknown")
+			}
+			break
+		}
+	}
+
+	ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 1, "")
+}
+
+func (e *Exporter) Collect(pch chan<- prometheus.Metric) {
+	var ch = make(chan semp.PrometheusMetric, capMetricChan)
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	collectWorker := func() {
+		e.CollectPrometheusMetric(ch)
+		wg.Done()
+	}
+	go collectWorker()
+
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	// Drain checkedMetricChan and uncheckedMetricChan in case of premature return.
+	defer func() {
+		if ch != nil {
+			for range ch {
+			}
+		}
+	}()
+
+	// read from chanel until the channel is closed
+	var distinctMetrics = make(map[string]semp.PrometheusMetric)
+	for {
+		metric, ok := <-ch
+		if !ok {
+			for _, metric := range distinctMetrics {
+				pch <- metric.AsPrometheusMetric()
 			}
 			return
 		}
+		// using a map to filter duplicates and use always most current received value
+		distinctMetrics[metric.Name()] = metric
 	}
-	ch <- prometheus.MustNewConstMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 1, "")
 }
 
 func (e *Exporter) getVpnName(vpnFilter string) (vpnName string, err error) {

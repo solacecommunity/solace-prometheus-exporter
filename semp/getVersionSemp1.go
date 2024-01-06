@@ -12,7 +12,7 @@ import (
 )
 
 // Get version of broker
-func (e *Semp) GetVersionSemp1(ch chan<- prometheus.Metric) (ok float64, err error) {
+func (e *Semp) GetVersionSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -63,9 +63,9 @@ func (e *Semp) GetVersionSemp1(ch chan<- prometheus.Metric) (ok float64, err err
 	var vmrVersionNr float64
 	vmrVersionNr, _ = strconv.ParseFloat(vmrVersionStrBuffer.String(), 64)
 
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Version"]["system_version_currentload"], prometheus.GaugeValue, vmrVersionNr)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Version"]["system_version_uptime_totalsecs"], prometheus.GaugeValue, target.RPC.Show.Version.Uptime.TotalSecs)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Version"]["exporter_version_current"], prometheus.GaugeValue, e.exporterVersion)
+	ch <- e.NewMetric(MetricDesc["Version"]["system_version_currentload"], prometheus.GaugeValue, vmrVersionNr)
+	ch <- e.NewMetric(MetricDesc["Version"]["system_version_uptime_totalsecs"], prometheus.GaugeValue, target.RPC.Show.Version.Uptime.TotalSecs)
+	ch <- e.NewMetric(MetricDesc["Version"]["exporter_version_current"], prometheus.GaugeValue, e.exporterVersion)
 
 	return 1, nil
 }

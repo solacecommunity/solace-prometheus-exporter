@@ -8,7 +8,7 @@ import (
 )
 
 // Get system-wide basic redundancy information for HA triples
-func (e *Semp) GetRedundancySemp1(ch chan<- prometheus.Metric) (ok float64, err error) {
+func (e *Semp) GetRedundancySemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	var f float64
 
 	type Data struct {
@@ -60,9 +60,9 @@ func (e *Semp) GetRedundancySemp1(ch chan<- prometheus.Metric) (ok float64, err 
 	}
 
 	mateRouterName := "" + target.RPC.Show.Red.MateRouterName
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Redundancy"]["system_redundancy_config"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ConfigStatus, []string{"Disabled", "Enabled", "Shutdown"}), mateRouterName)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Redundancy"]["system_redundancy_up"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.RedundancyStatus, []string{"Down", "Up"}), mateRouterName)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Redundancy"]["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Monitor", "Undefined"}), mateRouterName)
+	ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_config"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ConfigStatus, []string{"Disabled", "Enabled", "Shutdown"}), mateRouterName)
+	ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_up"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.RedundancyStatus, []string{"Down", "Up"}), mateRouterName)
+	ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Monitor", "Undefined"}), mateRouterName)
 
 	if target.RPC.Show.Red.ActiveStandbyRole == "Primary" && target.RPC.Show.Red.VirtualRouters.Primary.Status.Activity == "Local Active" ||
 		target.RPC.Show.Red.ActiveStandbyRole == "Backup" && target.RPC.Show.Red.VirtualRouters.Backup.Status.Activity == "Local Active" {
@@ -70,7 +70,7 @@ func (e *Semp) GetRedundancySemp1(ch chan<- prometheus.Metric) (ok float64, err 
 	} else {
 		f = 0
 	}
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Redundancy"]["system_redundancy_local_active"], prometheus.GaugeValue, f, mateRouterName)
+	ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_local_active"], prometheus.GaugeValue, f, mateRouterName)
 
 	return 1, nil
 }

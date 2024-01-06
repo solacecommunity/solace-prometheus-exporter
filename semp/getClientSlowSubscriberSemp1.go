@@ -11,7 +11,7 @@ import (
 
 // Get slow subscriber client of vpns
 // This can result in heavy system load when lots of clients are connected
-func (e *Semp) GetClientSlowSubscriberSemp1(ch chan<- prometheus.Metric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (e *Semp) GetClientSlowSubscriberSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -19,6 +19,7 @@ func (e *Semp) GetClientSlowSubscriberSemp1(ch chan<- prometheus.Metric, vpnFilt
 					PrimaryVirtualRouter struct {
 						Client []struct {
 							ClientAddress string `xml:"client-address"`
+							ClientProfile string `xml:"profile"`
 							ClientName    string `xml:"name"`
 							MsgVpnName    string `xml:"message-vpn"`
 						} `xml:"client"`
@@ -62,7 +63,7 @@ func (e *Semp) GetClientSlowSubscriberSemp1(ch chan<- prometheus.Metric, vpnFilt
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientIp := strings.Split(client.ClientAddress, ":")[0]
-			ch <- prometheus.MustNewConstMetric(MetricDesc["ClientSlowSubscriber"]["client_slow_subscriber"], prometheus.GaugeValue, slowSubscriber, client.MsgVpnName, client.ClientName, clientIp)
+			ch <- e.NewMetric(MetricDesc["ClientSlowSubscriber"]["client_slow_subscriber"], prometheus.GaugeValue, slowSubscriber, client.MsgVpnName, client.ClientName, clientIp)
 		}
 		body.Close()
 	}

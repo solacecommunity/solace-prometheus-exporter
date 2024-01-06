@@ -10,7 +10,7 @@ import (
 
 // Get rates for each individual queue of all vpn's
 // This can result in heavy system load for lots of queues
-func (e *Semp) GetQueueStatsSemp2(ch chan<- prometheus.Metric, vpnName string, itemFilter string, metricFilter []string) (ok float64, err error) {
+func (e *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string, itemFilter string, metricFilter []string) (ok float64, err error) {
 	type Response struct {
 		Queue []struct {
 			QueueName                           string  `json:"queueName"`
@@ -63,7 +63,7 @@ func (e *Semp) GetQueueStatsSemp2(ch chan<- prometheus.Metric, vpnName string, i
 		fieldsToSelect, err = getSempV2FieldsToSelect(
 			metricFilter,
 			[]string{"queueName", "msgVpnName"},
-			QueueStatsSempV2,
+			QueueStats,
 		)
 
 		if err != nil {
@@ -107,24 +107,24 @@ func (e *Semp) GetQueueStatsSemp2(ch chan<- prometheus.Metric, vpnName string, i
 			lastQueueName = queueKey
 
 			var values = []SempV2Result{
-				{v2Desc: QueueStatsSempV2["total_bytes_spooled"], value: queue.TotalByteSpooled},
-				{v2Desc: QueueStatsSempV2["messages_redelivered"], value: queue.MsgRedelivered},
-				{v2Desc: QueueStatsSempV2["messages_transport_retransmited"], value: queue.MsgRetransmit},
-				{v2Desc: QueueStatsSempV2["spool_usage_exceeded"], value: queue.SpoolUsageExceeded},
-				{v2Desc: QueueStatsSempV2["max_message_size_exceeded"], value: queue.MsgSizeExceeded},
-				{v2Desc: QueueStatsSempV2["total_deleted_messages"], value: queue.Deleted},
-				{v2Desc: QueueStatsSempV2["messages_shutdown_discarded"], value: queue.SpoolShutdownDiscard},
-				{v2Desc: QueueStatsSempV2["messages_ttl_discarded"], value: queue.TtlDiscarded},
-				{v2Desc: QueueStatsSempV2["messages_ttl_dmq"], value: queue.TtlDmq},
-				{v2Desc: QueueStatsSempV2["messages_ttl_dmq_failed"], value: queue.TtlDmqFailed},
-				{v2Desc: QueueStatsSempV2["messages_max_redelivered_discarded"], value: queue.MaxRedeliveryDiscarded},
-				{v2Desc: QueueStatsSempV2["messages_max_redelivered_dmq"], value: queue.MaxRedeliveryDmq},
-				{v2Desc: QueueStatsSempV2["messages_max_redelivered_dmq_failed"], value: queue.MaxRedeliveryDmqFailed},
+				{v2Desc: QueueStats["total_bytes_spooled"], value: queue.TotalByteSpooled},
+				{v2Desc: QueueStats["messages_redelivered"], value: queue.MsgRedelivered},
+				{v2Desc: QueueStats["messages_transport_retransmited"], value: queue.MsgRetransmit},
+				{v2Desc: QueueStats["spool_usage_exceeded"], value: queue.SpoolUsageExceeded},
+				{v2Desc: QueueStats["max_message_size_exceeded"], value: queue.MsgSizeExceeded},
+				{v2Desc: QueueStats["total_deleted_messages"], value: queue.Deleted},
+				{v2Desc: QueueStats["messages_shutdown_discarded"], value: queue.SpoolShutdownDiscard},
+				{v2Desc: QueueStats["messages_ttl_discarded"], value: queue.TtlDiscarded},
+				{v2Desc: QueueStats["messages_ttl_dmq"], value: queue.TtlDmq},
+				{v2Desc: QueueStats["messages_ttl_dmq_failed"], value: queue.TtlDmqFailed},
+				{v2Desc: QueueStats["messages_max_redelivered_discarded"], value: queue.MaxRedeliveryDiscarded},
+				{v2Desc: QueueStats["messages_max_redelivered_dmq"], value: queue.MaxRedeliveryDmq},
+				{v2Desc: QueueStats["messages_max_redelivered_dmq_failed"], value: queue.MaxRedeliveryDmqFailed},
 			}
 
 			for _, v := range values {
 				if v.v2Desc.isSelected(fieldsToSelect) {
-					ch <- prometheus.MustNewConstMetric(v.v2Desc.NewPrometheusDesc(), prometheus.GaugeValue, v.value, queue.MsgVpnName, queue.QueueName)
+					ch <- e.NewMetric(v.v2Desc, prometheus.GaugeValue, v.value, queue.MsgVpnName, queue.QueueName)
 				}
 			}
 		}

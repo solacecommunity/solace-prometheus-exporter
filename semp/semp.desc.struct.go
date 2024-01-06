@@ -4,7 +4,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-type SempV2Desc struct {
+const NoSempV2Ready = "NOT_SEMP_V2_READY"
+
+type Desc struct {
 	fqName         string
 	sempV2field    string
 	help           string
@@ -12,9 +14,9 @@ type SempV2Desc struct {
 	constLabels    prometheus.Labels
 }
 
-func NewSempV2Desc(fqName string, sempV2field string, help string, variableLabels []string) *SempV2Desc {
-	return &SempV2Desc{
-		fqName:         fqName,
+func NewSemDesc(fqName string, sempV2field string, help string, variableLabels []string) *Desc {
+	return &Desc{
+		fqName:         namespace + "_" + fqName,
 		sempV2field:    sempV2field,
 		help:           help,
 		variableLabels: variableLabels,
@@ -22,10 +24,10 @@ func NewSempV2Desc(fqName string, sempV2field string, help string, variableLabel
 	}
 }
 
-func (v2Desc *SempV2Desc) NewPrometheusDesc() *prometheus.Desc {
+func (v2Desc *Desc) AsPrometheusDesc() *prometheus.Desc {
 	return prometheus.NewDesc(v2Desc.fqName, v2Desc.help, v2Desc.variableLabels, v2Desc.constLabels)
 }
-func (v2Desc *SempV2Desc) isSelected(selectedFields []string) bool {
+func (v2Desc *Desc) isSelected(selectedFields []string) bool {
 	if len(selectedFields) < 1 {
 		return true
 	}
@@ -33,17 +35,17 @@ func (v2Desc *SempV2Desc) isSelected(selectedFields []string) bool {
 	return sliceContains(selectedFields, v2Desc.sempV2field)
 }
 
-func getSempV2FieldMapList(descs SempV2Descs) map[string]string {
-	mapList := make(map[string]string, len(descs))
+func getSempV2FieldMapList(descriptions Descriptions) map[string]string {
+	mapList := make(map[string]string, len(descriptions))
 
-	for _, desc := range descs {
+	for _, desc := range descriptions {
 		mapList[desc.fqName] = desc.sempV2field
 	}
 	return mapList
 }
 
-func getSempV2FieldsToSelect(metricFilter []string, mandatoryFields []string, descs SempV2Descs) ([]string, error) {
-	var fields, err = mapItems(metricFilter, getSempV2FieldMapList(descs))
+func getSempV2FieldsToSelect(metricFilter []string, mandatoryFields []string, descriptions Descriptions) ([]string, error) {
+	var fields, err = mapItems(metricFilter, getSempV2FieldMapList(descriptions))
 	if err != nil {
 		return []string{}, err
 	}
@@ -57,9 +59,9 @@ func getSempV2FieldsToSelect(metricFilter []string, mandatoryFields []string, de
 	return fields, nil
 }
 
-type SempV2Descs map[string]*SempV2Desc
+type Descriptions map[string]*Desc
 
 type SempV2Result struct {
-	v2Desc *SempV2Desc
+	v2Desc *Desc
 	value  float64
 }

@@ -8,7 +8,7 @@ import (
 )
 
 // Get system storage-element information (for Software Broker)
-func (e *Semp) GetStorageElementSemp1(ch chan<- prometheus.Metric, storageElementFilter string) (ok float64, err error) {
+func (e *Semp) GetStorageElementSemp1(ch chan<- PrometheusMetric, storageElementFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -52,9 +52,9 @@ func (e *Semp) GetStorageElementSemp1(ch chan<- prometheus.Metric, storageElemen
 	blockSize := 1024.0
 
 	for _, element := range target.RPC.Show.StorageElements.StorageElement {
-		ch <- prometheus.MustNewConstMetric(MetricDesc["StorageElement"]["system_storage_used_percent"], prometheus.GaugeValue, element.UsedPercent, element.Path, element.DeviceName, element.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["StorageElement"]["system_storage_used_bytes"], prometheus.GaugeValue, element.UsedBlocks*blockSize, element.Path, element.DeviceName, element.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["StorageElement"]["system_storage_avail_bytes"], prometheus.GaugeValue, element.AvailBlocks*blockSize, element.Path, element.DeviceName, element.Name)
+		ch <- e.NewMetric(MetricDesc["StorageElement"]["system_storage_used_percent"], prometheus.GaugeValue, element.UsedPercent, element.Path, element.DeviceName, element.Name)
+		ch <- e.NewMetric(MetricDesc["StorageElement"]["system_storage_used_bytes"], prometheus.GaugeValue, element.UsedBlocks*blockSize, element.Path, element.DeviceName, element.Name)
+		ch <- e.NewMetric(MetricDesc["StorageElement"]["system_storage_avail_bytes"], prometheus.GaugeValue, element.AvailBlocks*blockSize, element.Path, element.DeviceName, element.Name)
 	}
 
 	return 1, nil

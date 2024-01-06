@@ -8,7 +8,7 @@ import (
 )
 
 // Get system health information
-func (e *Semp) GetHealthSemp1(ch chan<- prometheus.Metric) (ok float64, err error) {
+func (e *Semp) GetHealthSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -54,18 +54,18 @@ func (e *Semp) GetHealthSemp1(ch chan<- prometheus.Metric) (ok float64, err erro
 		return 0, errors.New("unexpected result: see log")
 	}
 
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_disk_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMinimumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_disk_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMaximumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_disk_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyAverageValue/1e6)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_disk_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyCurrentValue/1e6)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_compute_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMinimumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_compute_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMaximumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_compute_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyAverageValue/1e6)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_compute_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyCurrentValue/1e6)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_mate_link_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMinimumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_mate_link_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMaximumValue/1e6)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_mate_link_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyAverageValue/1e6)
-	ch <- prometheus.MustNewConstMetric(MetricDesc["Health"]["system_mate_link_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyCurrentValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_disk_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMinimumValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_disk_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyMaximumValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_disk_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyAverageValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_disk_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.DiskLatencyCurrentValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_compute_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMinimumValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_compute_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyMaximumValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_compute_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyAverageValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_compute_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.ComputeLatencyCurrentValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_mate_link_latency_min_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMinimumValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_mate_link_latency_max_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyMaximumValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_mate_link_latency_avg_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyAverageValue/1e6)
+	ch <- e.NewMetric(MetricDesc["Health"]["system_mate_link_latency_cur_seconds"], prometheus.GaugeValue, target.RPC.Show.System.Health.MateLinkLatencyCurrentValue/1e6)
 
 	return 1, nil
 }

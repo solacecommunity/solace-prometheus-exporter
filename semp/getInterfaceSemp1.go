@@ -8,7 +8,7 @@ import (
 )
 
 // Get interface information
-func (e *Semp) GetInterfaceSemp1(ch chan<- prometheus.Metric, interfaceFilter string) (ok float64, err error) {
+func (e *Semp) GetInterfaceSemp1(ch chan<- PrometheusMetric, interfaceFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -52,9 +52,9 @@ func (e *Semp) GetInterfaceSemp1(ch chan<- prometheus.Metric, interfaceFilter st
 	}
 
 	for _, intf := range target.RPC.Show.Interface.Interfaces.Interface {
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Interface"]["network_if_rx_bytes"], prometheus.CounterValue, intf.Stats.RxBytes, intf.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Interface"]["network_if_tx_bytes"], prometheus.CounterValue, intf.Stats.TxBytes, intf.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Interface"]["network_if_state"], prometheus.GaugeValue, encodeMetricMulti(intf.State, []string{"Down", "Up"}), intf.Name)
+		ch <- e.NewMetric(MetricDesc["Interface"]["network_if_rx_bytes"], prometheus.CounterValue, intf.Stats.RxBytes, intf.Name)
+		ch <- e.NewMetric(MetricDesc["Interface"]["network_if_tx_bytes"], prometheus.CounterValue, intf.Stats.TxBytes, intf.Name)
+		ch <- e.NewMetric(MetricDesc["Interface"]["network_if_state"], prometheus.GaugeValue, encodeMetricMulti(intf.State, []string{"Down", "Up"}), intf.Name)
 	}
 
 	return 1, nil

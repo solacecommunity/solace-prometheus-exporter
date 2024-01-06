@@ -8,7 +8,7 @@ import (
 )
 
 // Replication Config and status
-func (e *Semp) GetVpnReplicationSemp1(ch chan<- prometheus.Metric, vpnFilter string) (ok float64, err error) {
+func (e *Semp) GetVpnReplicationSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -51,9 +51,9 @@ func (e *Semp) GetVpnReplicationSemp1(ch chan<- prometheus.Metric, vpnFilter str
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Replication.MessageVpns.MessageVpn {
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnReplication"]["vpn_replication_admin_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.AdminState, []string{"shutdown", "enabled", "n/a"}), vpn.VpnName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnReplication"]["vpn_replication_config_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.ConfigState, []string{"standby", "active", "n/a"}), vpn.VpnName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnReplication"]["vpn_replication_transaction_replication_mode"], prometheus.GaugeValue, encodeMetricMulti(vpn.TransactionReplicationMode, []string{"async", "sync", "n/a"}), vpn.VpnName)
+		ch <- e.NewMetric(MetricDesc["VpnReplication"]["vpn_replication_admin_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.AdminState, []string{"shutdown", "enabled", "n/a"}), vpn.VpnName)
+		ch <- e.NewMetric(MetricDesc["VpnReplication"]["vpn_replication_config_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.ConfigState, []string{"standby", "active", "n/a"}), vpn.VpnName)
+		ch <- e.NewMetric(MetricDesc["VpnReplication"]["vpn_replication_transaction_replication_mode"], prometheus.GaugeValue, encodeMetricMulti(vpn.TransactionReplicationMode, []string{"async", "sync", "n/a"}), vpn.VpnName)
 	}
 
 	return 1, nil

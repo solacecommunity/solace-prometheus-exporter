@@ -10,7 +10,7 @@ import (
 )
 
 // Get system disk information (for Appliance)
-func (e *Semp) GetDiskSemp1(ch chan<- prometheus.Metric) (ok float64, err error) {
+func (e *Semp) GetDiskSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -56,9 +56,9 @@ func (e *Semp) GetDiskSemp1(ch chan<- prometheus.Metric) (ok float64, err error)
 	for _, disk := range target.RPC.Show.Disk.DiskInfos.DiskInfo {
 		var usedPercent float64
 		usedPercent, _ = strconv.ParseFloat(strings.Trim(disk.UsedPercent, "%"), 64)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Disk"]["system_disk_used_percent"], prometheus.GaugeValue, usedPercent, disk.Path, disk.DeviceName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Disk"]["system_disk_used_bytes"], prometheus.GaugeValue, disk.UsedBlocks*blockSize, disk.Path, disk.DeviceName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Disk"]["system_disk_avail_bytes"], prometheus.GaugeValue, disk.AvailBlocks*blockSize, disk.Path, disk.DeviceName)
+		ch <- e.NewMetric(MetricDesc["Disk"]["system_disk_used_percent"], prometheus.GaugeValue, usedPercent, disk.Path, disk.DeviceName)
+		ch <- e.NewMetric(MetricDesc["Disk"]["system_disk_used_bytes"], prometheus.GaugeValue, disk.UsedBlocks*blockSize, disk.Path, disk.DeviceName)
+		ch <- e.NewMetric(MetricDesc["Disk"]["system_disk_avail_bytes"], prometheus.GaugeValue, disk.AvailBlocks*blockSize, disk.Path, disk.DeviceName)
 	}
 
 	return 1, nil

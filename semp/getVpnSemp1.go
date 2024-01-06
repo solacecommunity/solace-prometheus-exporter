@@ -8,7 +8,7 @@ import (
 )
 
 // Get info of all vpn's
-func (e *Semp) GetVpnSemp1(ch chan<- prometheus.Metric, vpnFilter string) (ok float64, err error) {
+func (e *Semp) GetVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -58,19 +58,19 @@ func (e *Semp) GetVpnSemp1(ch chan<- prometheus.Metric, vpnFilter string) (ok fl
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_is_management_vpn"], prometheus.GaugeValue, encodeMetricBool(vpn.IsManagementMessageVpn), vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_enabled"], prometheus.GaugeValue, encodeMetricBool(vpn.Enabled), vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_operational"], prometheus.GaugeValue, encodeMetricBool(vpn.Operational), vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_locally_configured"], prometheus.GaugeValue, encodeMetricBool(vpn.LocallyConfigured), vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_local_status"], prometheus.GaugeValue, encodeMetricMulti(vpn.LocalStatus, []string{"Down", "Up"}), vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_unique_subscriptions"], prometheus.GaugeValue, vpn.UniqueSubscriptions, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_total_local_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalLocalUniqueSubscriptions, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_total_remote_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalRemoteUniqueSubscriptions, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_total_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalUniqueSubscriptions, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_connections_service_amqp"], prometheus.GaugeValue, vpn.ConnectionsAmqService, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_connections_service_smf"], prometheus.GaugeValue, vpn.ConnectionsSmfService, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["Vpn"]["vpn_quota_connections"], prometheus.GaugeValue, vpn.QuotaConnections, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_is_management_vpn"], prometheus.GaugeValue, encodeMetricBool(vpn.IsManagementMessageVpn), vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_enabled"], prometheus.GaugeValue, encodeMetricBool(vpn.Enabled), vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_operational"], prometheus.GaugeValue, encodeMetricBool(vpn.Operational), vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_locally_configured"], prometheus.GaugeValue, encodeMetricBool(vpn.LocallyConfigured), vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_local_status"], prometheus.GaugeValue, encodeMetricMulti(vpn.LocalStatus, []string{"Down", "Up"}), vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_unique_subscriptions"], prometheus.GaugeValue, vpn.UniqueSubscriptions, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_total_local_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalLocalUniqueSubscriptions, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_total_remote_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalRemoteUniqueSubscriptions, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_total_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalUniqueSubscriptions, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_connections_service_amqp"], prometheus.GaugeValue, vpn.ConnectionsAmqService, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_connections_service_smf"], prometheus.GaugeValue, vpn.ConnectionsSmfService, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_quota_connections"], prometheus.GaugeValue, vpn.QuotaConnections, vpn.Name)
 	}
 
 	return 1, nil

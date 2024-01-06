@@ -8,7 +8,7 @@ import (
 )
 
 // Cluster link states of broker
-func (e *Semp) GetClusterLinksSemp1(ch chan<- prometheus.Metric, clusterFilter string, linkFilter string) (ok float64, err error) {
+func (e *Semp) GetClusterLinksSemp1(ch chan<- PrometheusMetric, clusterFilter string, linkFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -57,9 +57,9 @@ func (e *Semp) GetClusterLinksSemp1(ch chan<- prometheus.Metric, clusterFilter s
 
 	for _, cluster := range target.RPC.Show.Cluster.Clusters.Cluster {
 		for _, link := range cluster.Links.Link {
-			ch <- prometheus.MustNewConstMetric(MetricDesc["ClusterLinks"]["enabled"], prometheus.GaugeValue, encodeMetricMulti(link.Enabled, []string{"false", "true", "n/a"}), cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
-			ch <- prometheus.MustNewConstMetric(MetricDesc["ClusterLinks"]["oper_up"], prometheus.GaugeValue, encodeMetricMulti(link.Operational, []string{"false", "true", "n/a"}), cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
-			ch <- prometheus.MustNewConstMetric(MetricDesc["ClusterLinks"]["oper_uptime"], prometheus.GaugeValue, link.UptimeInSeconds, cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
+			ch <- e.NewMetric(MetricDesc["ClusterLinks"]["enabled"], prometheus.GaugeValue, encodeMetricMulti(link.Enabled, []string{"false", "true", "n/a"}), cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
+			ch <- e.NewMetric(MetricDesc["ClusterLinks"]["oper_up"], prometheus.GaugeValue, encodeMetricMulti(link.Operational, []string{"false", "true", "n/a"}), cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
+			ch <- e.NewMetric(MetricDesc["ClusterLinks"]["oper_uptime"], prometheus.GaugeValue, link.UptimeInSeconds, cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
 		}
 	}
 

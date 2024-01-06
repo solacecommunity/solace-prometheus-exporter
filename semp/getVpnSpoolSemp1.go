@@ -8,7 +8,7 @@ import (
 )
 
 // Replication Config and status
-func (e *Semp) GetVpnSpoolSemp1(ch chan<- prometheus.Metric, vpnFilter string) (ok float64, err error) {
+func (e *Semp) GetVpnSpoolSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -55,15 +55,15 @@ func (e *Semp) GetVpnSpoolSemp1(ch chan<- prometheus.Metric, vpnFilter string) (
 	}
 
 	for _, vpn := range target.RPC.Show.MessageSpool.MessageVpn.Vpn {
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnSpool"]["vpn_spool_quota_bytes"], prometheus.GaugeValue, vpn.SpoolUsageMaxMb*1024*1024, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_bytes"], prometheus.GaugeValue, vpn.SpoolUsageCurrentMb*1024*1024, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_msgs"], prometheus.GaugeValue, vpn.SpooledMsgCount, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnSpool"]["vpn_spool_current_endpoints"], prometheus.GaugeValue, vpn.CurrentEndpoints, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_endpoints"], prometheus.GaugeValue, vpn.MaximumEndpoints, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnSpool"]["vpn_spool_current_egress_flows"], prometheus.GaugeValue, vpn.CurrentEgressFlows, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_egress_flows"], prometheus.GaugeValue, vpn.MaximumEgressFlows, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnSpool"]["vpn_spool_current_ingress_flows"], prometheus.GaugeValue, vpn.CurrentIngressFlows, vpn.Name)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_ingress_flows"], prometheus.GaugeValue, vpn.MaximumIngressFlows, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_quota_bytes"], prometheus.GaugeValue, vpn.SpoolUsageMaxMb*1024*1024, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_bytes"], prometheus.GaugeValue, vpn.SpoolUsageCurrentMb*1024*1024, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_msgs"], prometheus.GaugeValue, vpn.SpooledMsgCount, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_endpoints"], prometheus.GaugeValue, vpn.CurrentEndpoints, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_endpoints"], prometheus.GaugeValue, vpn.MaximumEndpoints, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_egress_flows"], prometheus.GaugeValue, vpn.CurrentEgressFlows, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_egress_flows"], prometheus.GaugeValue, vpn.MaximumEgressFlows, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_ingress_flows"], prometheus.GaugeValue, vpn.CurrentIngressFlows, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_ingress_flows"], prometheus.GaugeValue, vpn.MaximumIngressFlows, vpn.Name)
 	}
 
 	return 1, nil

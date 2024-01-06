@@ -10,7 +10,7 @@ import (
 
 // Get some statistics for each individual client of all vpn's
 // This can result in heavy system load for lots of clients
-func (e *Semp) GetClientStatsSemp1(ch chan<- prometheus.Metric, itemFilter string) (ok float64, err error) {
+func (e *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -80,13 +80,13 @@ func (e *Semp) GetClientStatsSemp1(ch chan<- prometheus.Metric, itemFilter strin
 		nextRequest = target.MoreCookie.RPC
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
-			ch <- prometheus.MustNewConstMetric(MetricDesc["ClientStats"]["client_rx_msgs_total"], prometheus.CounterValue, client.Stats.DataRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(MetricDesc["ClientStats"]["client_tx_msgs_total"], prometheus.CounterValue, client.Stats.DataTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(MetricDesc["ClientStats"]["client_rx_bytes_total"], prometheus.CounterValue, client.Stats.DataRxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(MetricDesc["ClientStats"]["client_tx_bytes_total"], prometheus.CounterValue, client.Stats.DataTxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(MetricDesc["ClientStats"]["client_rx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.IngressDiscards.DiscardedRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(MetricDesc["ClientStats"]["client_tx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.EgressDiscards.DiscardedTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
-			ch <- prometheus.MustNewConstMetric(MetricDesc["ClientStats"]["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- e.NewMetric(MetricDesc["ClientStats"]["client_rx_msgs_total"], prometheus.CounterValue, client.Stats.DataRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- e.NewMetric(MetricDesc["ClientStats"]["client_tx_msgs_total"], prometheus.CounterValue, client.Stats.DataTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- e.NewMetric(MetricDesc["ClientStats"]["client_rx_bytes_total"], prometheus.CounterValue, client.Stats.DataRxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- e.NewMetric(MetricDesc["ClientStats"]["client_tx_bytes_total"], prometheus.CounterValue, client.Stats.DataTxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- e.NewMetric(MetricDesc["ClientStats"]["client_rx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.IngressDiscards.DiscardedRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- e.NewMetric(MetricDesc["ClientStats"]["client_tx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.EgressDiscards.DiscardedTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
+			ch <- e.NewMetric(MetricDesc["ClientStats"]["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, client.ClientUsername)
 		}
 		body.Close()
 	}
@@ -96,7 +96,7 @@ func (e *Semp) GetClientStatsSemp1(ch chan<- prometheus.Metric, itemFilter strin
 
 // Get some statistics for each individual client connections of all vpn's
 // This can result in heavy system load for lots of clients
-func (e *Semp) GetClientConnectionStatsSemp1(ch chan<- prometheus.Metric, itemFilter string) (ok float64, err error) {
+func (e *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, itemFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -174,31 +174,31 @@ func (e *Semp) GetClientConnectionStatsSemp1(ch chan<- prometheus.Metric, itemFi
 			continue
 		}
 
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_is_zip"], prometheus.GaugeValue, encodeMetricBool(client.Stats.IsZip), client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_is_ssl"], prometheus.GaugeValue, encodeMetricBool(client.Stats.IsSsl), client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_is_zip"], prometheus.GaugeValue, encodeMetricBool(client.Stats.IsZip), client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_is_ssl"], prometheus.GaugeValue, encodeMetricBool(client.Stats.IsSsl), client.MsgVpnName, client.ClientName)
 
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_receive_queue_bytes"], prometheus.GaugeValue, client.Stats.ReceiveQueueBytes, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_send_queue_bytes"], prometheus.GaugeValue, client.Stats.ReceiveQueueSegments, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_receive_queue_segments"], prometheus.GaugeValue, client.Stats.SendQueueBytes, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_send_queue_segments"], prometheus.GaugeValue, client.Stats.SendQueueSegments, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_receive_queue_bytes"], prometheus.GaugeValue, client.Stats.ReceiveQueueBytes, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_send_queue_bytes"], prometheus.GaugeValue, client.Stats.ReceiveQueueSegments, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_receive_queue_segments"], prometheus.GaugeValue, client.Stats.SendQueueBytes, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_send_queue_segments"], prometheus.GaugeValue, client.Stats.SendQueueSegments, client.MsgVpnName, client.ClientName)
 
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_maximum_segment_size"], prometheus.GaugeValue, client.Stats.MaximumSegmentSize, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_sent_bytes"], prometheus.CounterValue, client.Stats.BytesSent, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_received_bytes"], prometheus.CounterValue, client.Stats.BytesReceived, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_maximum_segment_size"], prometheus.GaugeValue, client.Stats.MaximumSegmentSize, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_sent_bytes"], prometheus.CounterValue, client.Stats.BytesSent, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_received_bytes"], prometheus.CounterValue, client.Stats.BytesReceived, client.MsgVpnName, client.ClientName)
 
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_retransmit_milliseconds"], prometheus.CounterValue, client.Stats.RetransmitTimeMs, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_roundtrip_smth_microseconds"], prometheus.CounterValue, client.Stats.RoundTripTimeSmoothUs, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_roundtrip_min_microseconds"], prometheus.CounterValue, client.Stats.RoundTripTimeMinimumUs, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_roundtrip_var_microseconds"], prometheus.CounterValue, client.Stats.RoundTripTimeVarianceUs, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_retransmit_milliseconds"], prometheus.CounterValue, client.Stats.RetransmitTimeMs, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_roundtrip_smth_microseconds"], prometheus.CounterValue, client.Stats.RoundTripTimeSmoothUs, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_roundtrip_min_microseconds"], prometheus.CounterValue, client.Stats.RoundTripTimeMinimumUs, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_roundtrip_var_microseconds"], prometheus.CounterValue, client.Stats.RoundTripTimeVarianceUs, client.MsgVpnName, client.ClientName)
 
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_advertised_window"], prometheus.CounterValue, client.Stats.AdvertisedWindowSize, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_transmit_window"], prometheus.CounterValue, client.Stats.TransmitWindowSize, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_congestion_window"], prometheus.CounterValue, client.Stats.CongestionWindowSize, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_advertised_window"], prometheus.CounterValue, client.Stats.AdvertisedWindowSize, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_transmit_window"], prometheus.CounterValue, client.Stats.TransmitWindowSize, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_congestion_window"], prometheus.CounterValue, client.Stats.CongestionWindowSize, client.MsgVpnName, client.ClientName)
 
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_slow_start_threshold"], prometheus.CounterValue, client.Stats.SlowStartThresholdSize, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_received_outoforder"], prometheus.CounterValue, client.Stats.SegmentsReceivedOutOfOrder, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_fast_retransmit"], prometheus.CounterValue, client.Stats.FastRetransmits, client.MsgVpnName, client.ClientName)
-		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_timed_retransmit"], prometheus.CounterValue, client.Stats.TimedRetransmits, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_slow_start_threshold"], prometheus.CounterValue, client.Stats.SlowStartThresholdSize, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_received_outoforder"], prometheus.CounterValue, client.Stats.SegmentsReceivedOutOfOrder, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_fast_retransmit"], prometheus.CounterValue, client.Stats.FastRetransmits, client.MsgVpnName, client.ClientName)
+		ch <- e.NewMetric(MetricDesc["ClientConnections"]["connection_timed_retransmit"], prometheus.CounterValue, client.Stats.TimedRetransmits, client.MsgVpnName, client.ClientName)
 	}
 	body.Close()
 

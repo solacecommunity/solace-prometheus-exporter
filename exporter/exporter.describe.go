@@ -14,7 +14,7 @@ func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	for _, dataSource := range *e.dataSource {
 		if metricDescItems, ok := semp.MetricDesc[dataSource.Name]; ok {
 			for _, m := range metricDescItems {
-				ch <- m
+				ch <- m.AsPrometheusDesc()
 			}
 		} else {
 			permittedNames := make([]string, 0, len(semp.MetricDesc))

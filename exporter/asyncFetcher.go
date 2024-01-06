@@ -6,6 +6,7 @@ import (
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/sync/semaphore"
+	"solace_exporter/semp"
 	"sync"
 	"time"
 )
@@ -21,7 +22,7 @@ func NewAsyncFetcher(urlPath string, dataSource []DataSource, conf Config, logge
 		dataSource: dataSource,
 		conf:       conf,
 		logger:     logger,
-		metrics:    make([]prometheus.Metric, 0, capMetricChan),
+		metrics:    make(map[string]semp.PrometheusMetric),
 		exporter:   NewExporter(logger, &conf, &dataSource, version),
 	}
 
@@ -65,17 +66,19 @@ type AsyncFetcher struct {
 	dataSource []DataSource
 	conf       Config
 	logger     log.Logger
-	metrics    []prometheus.Metric
+	metrics    map[string]semp.PrometheusMetric
 	exporter   *Exporter
 }
 
 func readMetrics(f *AsyncFetcher) {
-	var metricsChan = make(chan prometheus.Metric, capMetricChan)
+	var metricsChan = make(chan semp.PrometheusMetric, capMetricChan)
 	var wg sync.WaitGroup
 	wg.Add(1)
 
+	f.DeprecateAll()
+
 	collectWorker := func() {
-		f.exporter.Collect(metricsChan)
+		f.exporter.CollectPrometheusMetric(metricsChan)
 		wg.Done()
 	}
 	go collectWorker()
@@ -94,18 +97,22 @@ func readMetrics(f *AsyncFetcher) {
 	}()
 
 	// read from chanel until the channel is closed
-	metrics := make([]prometheus.Metric, 0, capMetricChan)
+	cache := make([]semp.PrometheusMetric, 0, 100)
 	for {
 		metric, ok := <-metricsChan
 		if !ok {
 			break
 		}
-		metrics = append(metrics, metric)
+		cache = append(cache, metric)
+		if len(cache) >= 100 {
+			// Update cache by chunks of 100 to provide updated metrics as early as possible
+			f.Merge(cache)
+			cache = make([]semp.PrometheusMetric, 0, 100)
+		}
 	}
 
-	f.mutex.Lock()
-	f.metrics = metrics
-	f.mutex.Unlock()
+	f.Merge(cache)
+	f.DeleteDeprecated(cache)
 }
 
 func (f *AsyncFetcher) Describe(descs chan<- *prometheus.Desc) {
@@ -115,7 +122,33 @@ func (f *AsyncFetcher) Describe(descs chan<- *prometheus.Desc) {
 func (f *AsyncFetcher) Collect(metrics chan<- prometheus.Metric) {
 	f.mutex.Lock()
 	for _, metric := range f.metrics {
-		metrics <- metric
+		metrics <- metric.AsPrometheusMetric()
+	}
+	f.mutex.Unlock()
+}
+
+func (f *AsyncFetcher) DeprecateAll() {
+	f.mutex.Lock()
+	for _, metric := range f.metrics {
+		metric.Deprecate()
+	}
+	f.mutex.Unlock()
+}
+
+func (f *AsyncFetcher) Merge(cache []semp.PrometheusMetric) {
+	f.mutex.Lock()
+	for _, metric := range cache {
+		f.metrics[metric.Name()] = metric
+	}
+	f.mutex.Unlock()
+}
+
+func (f *AsyncFetcher) DeleteDeprecated(cache []semp.PrometheusMetric) {
+	f.mutex.Lock()
+	for key, metric := range f.metrics {
+		if metric.IsDeprecated() {
+			delete(f.metrics, key)
+		}
 	}
 	f.mutex.Unlock()
 }

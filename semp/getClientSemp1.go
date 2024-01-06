@@ -10,7 +10,7 @@ import (
 
 // Get summary for each client of vpns
 // This can result in heavy system load when lots of clients are connected
-func (e *Semp) GetClientSemp1(ch chan<- prometheus.Metric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (e *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -61,7 +61,7 @@ func (e *Semp) GetClientSemp1(ch chan<- prometheus.Metric, vpnFilter string, ite
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientIp := strings.Split(client.ClientAddress, ":")[0]
-			ch <- prometheus.MustNewConstMetric(MetricDesc["Client"]["client_num_subscriptions"], prometheus.GaugeValue, client.NumSubscriptions, client.MsgVpnName, client.ClientName, clientIp)
+			ch <- e.NewMetric(MetricDesc["Client"]["client_num_subscriptions"], prometheus.GaugeValue, client.NumSubscriptions, client.MsgVpnName, client.ClientName, clientIp)
 		}
 		body.Close()
 	}
