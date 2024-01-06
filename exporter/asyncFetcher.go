@@ -35,19 +35,29 @@ func NewAsyncFetcher(urlPath string, dataSource []DataSource, conf Config, logge
 
 			_ = level.Debug(logger).Log("msg", "Fetching for handler", "handler", "/"+urlPath)
 
+			var startTime = time.Now()
 			readMetrics(fetcher)
 
 			connections.Release(1)
 
 			// _ = level.Debug(logger).Log("msg", "Finished fetching for handler", "handler", "/"+urlPath)
 			// Be nice to the broker and wait between scrapes and let other threads fetch data.
-			time.Sleep(conf.PrefetchInterval)
+			sleepUntilNextIteration(startTime, conf.PrefetchInterval)
 		}
 	}
 
 	go collectWorker()
 
 	return fetcher
+}
+
+func sleepUntilNextIteration(startTime time.Time, interval time.Duration) {
+	now := time.Now()
+	nextInterval := startTime.Add(interval)
+	if nextInterval.After(now) {
+		timeToSleep := nextInterval.Sub(now)
+		time.Sleep(timeToSleep)
+	}
 }
 
 type AsyncFetcher struct {

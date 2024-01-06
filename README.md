@@ -144,6 +144,16 @@ Get the metrics `solace_queue_msg_shutdown_discarded` and `solace_queue_msg_max_
 | TopicEndpointDetails                  | yes                 | yes                   | no                       | may harm broker if many topic-endpoints             | show topic-endpoint itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
 | ClusterLinks                          | yes                 | yes                   | no                       | dont harm broker                                    | show the state of the cluster links. Filters are for clusterName and linkName | software, appliance |
 
+
+##### V2 endpoints
+
+Those are semp V2 endpoints. Please avoid those. 
+These are still experimental caused by the terrible performance of semp V2. 
+For example, getting queue stats with a filter that match 4500 out of 10`000 queues. 
+Using a 10.5.1 software broker. 
+- With SempV1, it took 37.1 sec to fetch all pages/results.
+- With SempV2, it took 136.2 sec to fetch all pages/results.
+
 #### Broker Connectivity Metric
 
 No matter which combination of targets and filters you're using, there is always one metric available that will show the success (or failure) when trying to connect to the Solace broker. 
@@ -256,6 +266,14 @@ sslVerify=false
 # Flag that enables Usage of the operating system proxy configuration.
 # false=No proxy will be used at all.
 useSystemProxy=false
+
+# 0s means disabled. When set an interval, all well configured endpoints will fetched async.
+# This may help you to deal with slower broker or extreme amount of results.
+prefetchInterval=30s
+
+# Maximum connections to the configured broker. Keep in mind solace advices us to use max 10 semp connects per seconds.
+# Dont increase this value if your broker may have more thant 100 clients, queues, ...
+parallelSempConnections=1
 ```
 
 ### Environment Variables
