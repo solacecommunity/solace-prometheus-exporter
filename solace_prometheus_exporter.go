@@ -14,6 +14,7 @@ package main
 
 import (
 	"bytes"
+	"golang.org/x/sync/semaphore"
 	"net/http"
 	"os"
 	"solace_exporter/exporter"
@@ -98,20 +99,26 @@ func main() {
 		"sslVerify", conf.SslVerify,
 		"timeout", conf.Timeout)
 
-	// Test scrape to check if broker can be accessed. If it fails it prints a warn to the log file.
-	// Note that failure is not fatal, as broker might not have started up yet.
-	conf.Timeout, _ = time.ParseDuration("2s") // Don't delay startup too much
-
 	// Configure endpoints
 	http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
 		doHandle(w, r, nil, *conf, logger)
 	})
 
+	// A broker has only max 10 semp connections that can be served in parallel.
+	var sempConnections = semaphore.NewWeighted(conf.ParallelSempConnections)
 	declareHandlerFromConfig := func(urlPath string, dataSource []exporter.DataSource) {
-		level.Info(logger).Log("msg", "Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
-		http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
-			doHandle(w, r, dataSource, *conf, logger)
-		})
+		_ = level.Info(logger).Log("msg", "Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
+
+		if conf.PrefetchInterval.Seconds() > 0 {
+			var asyncFetcher = exporter.NewAsyncFetcher(urlPath, dataSource, *conf, logger, sempConnections, version)
+			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
+				doHandleAsync(w, r, asyncFetcher, *conf, logger)
+			})
+		} else {
+			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
+				doHandle(w, r, dataSource, *conf, logger)
+			})
+		}
 	}
 	for urlPath, dataSource := range endpoints {
 		declareHandlerFromConfig(urlPath, dataSource)
@@ -129,13 +136,19 @@ func main() {
 			if strings.HasPrefix(key, "m.") {
 				for _, value := range values {
 					parts := strings.Split(value, "|")
-					if len(parts) != 2 {
-						level.Error(logger).Log("msg", "Exactly one | expected. Use VPN wildcard. |. Item wildcard.", "key", key, "value", value)
+					if len(parts) < 2 {
+						level.Error(logger).Log("msg", "One or two | expected. Use VPN wildcard | Item wildcard | Optional metric filter for v2 apis", "key", key, "value", value)
 					} else {
+						var metricFilter []string
+						if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {
+							metricFilter = strings.Split(parts[2], ",")
+						}
+
 						dataSource = append(dataSource, exporter.DataSource{
-							Name:       strings.TrimPrefix(key, "m."),
-							VpnFilter:  parts[0],
-							ItemFilter: parts[1],
+							Name:         strings.TrimPrefix(key, "m."),
+							VpnFilter:    parts[0],
+							ItemFilter:   parts[1],
+							MetricFilter: metricFilter,
 						})
 					}
 				}
@@ -194,6 +207,7 @@ func main() {
 					<tr><td>BridgeStats</td><td>yes</td><td>yes</td><td>has a very small performance down site</td></tr>
 					<tr><td>QueueRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many queues</td></tr>
 					<tr><td>QueueStats</td><td>yes</td><td>yes</td><td>may harm broker if many queues</td></tr>
+					<tr><td>QueueStatsV2</td><td>yes</td><td>yes</td><td>may harm broker if many queues</td></tr>
 					<tr><td>QueueDetails</td><td>yes</td><td>yes</td><td>may harm broker if many queues</td></tr>
 					<tr><td>TopicEndpointRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many topic-endpoints</td></tr>
 					<tr><td>TopicEndpointStats</td><td>yes</td><td>yes</td><td>may harm broker if many topic-endpoints</td></tr>
@@ -222,8 +236,16 @@ func main() {
 
 }
 
-func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf exporter.Config, logger log.Logger) (resultCode string) {
+func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporter.AsyncFetcher, conf exporter.Config, logger log.Logger) (resultCode string) {
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(asyncFetcher)
+	handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
+	handler.ServeHTTP(w, r)
 
+	return w.Header().Get("status")
+}
+
+func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf exporter.Config, logger log.Logger) (resultCode string) {
 	if dataSource == nil {
 		handler := promhttp.Handler()
 		handler.ServeHTTP(w, r)

@@ -3,10 +3,11 @@ module solace_exporter
 go 1.20
 
 require (
-	github.com/alecthomas/kingpin/v2 v2.3.2
+	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/go-kit/kit v0.13.0
 	github.com/prometheus/client_golang v1.17.0
 	github.com/prometheus/common v0.45.0
+	golang.org/x/sync v0.5.0
 	gopkg.in/ini.v1 v1.67.0
 )
 

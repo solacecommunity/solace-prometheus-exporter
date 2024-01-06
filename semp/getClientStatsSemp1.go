@@ -54,8 +54,11 @@ func (e *Semp) GetClientStatsSemp1(ch chan<- prometheus.Metric, itemFilter strin
 		} `xml:"execute-result"`
 	}
 
+	var page = 1
 	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><stats/></client></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest)
+		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest, "ClientStatsSemp1", page)
+		page++
+
 		if err != nil {
 			_ = level.Error(e.logger).Log("msg", "Can't scrape ClientStatSemp1", "err", err, "broker", e.brokerURI)
 			return 0, err
@@ -100,38 +103,38 @@ func (e *Semp) GetClientConnectionStatsSemp1(ch chan<- prometheus.Metric, itemFi
 				Client struct {
 					PrimaryVirtualRouter struct {
 						Client []struct {
-							ClientName     string `xml:"name"`
-							MsgVpnName     string `xml:"message-vpn"`
-							Stats          struct {
-								Protocol  		  	         string `xml:"protocol"`
-								IsZip    			         bool  `xml:"is-zip"`
-								IsSsl   			         bool  `xml:"is-ssl"`
-								ReceiveQueueBytes            float64 `xml:"receive-queue-bytes"`
-								ReceiveQueueSegments         float64 `xml:"receive-queue-segments"`
-								SendQueueBytes  	         float64 `xml:"send-queue-bytes"`
-								SendQueueSegments 	         float64 `xml:"send-queue-segments"`
-								LocalAddress  		         string `xml:"local-address"`
-								ForeignAddress               string `xml:"foreign-address"`
-								State         		         string `xml:"state"`
-								MaximumSegmentSize           float64 `xml:"maximum-segment-size"`
-								BytesSent         	         float64 `xml:"bytes-sent-32bits"`
-								BytesReceived                float64 `xml:"bytes-received-32bits"`
-								RetransmitTimeMs             float64 `xml:"retransmit-time-ms"`
-								RoundTripTimeSmoothUs        float64 `xml:"round-trip-time-smooth-us"`
-								RoundTripTimeSmoothNs        float64 `xml:"round-trip-time-smooth-ns"`
-								RoundTripTimeMinimumUs       float64 `xml:"round-trip-time-minimum-us"`
-								RoundTripTimeVarianceUs      float64 `xml:"round-trip-time-variance-us"`
-								AdvertisedWindowSize         float64 `xml:"advertised-window-size"`
-								TransmitWindowSize           float64 `xml:"transmit-window-size"`
-								BandwidthWindowSize          float64 `xml:"bandwidth-window-size"`
-								CongestionWindowSize         float64 `xml:"congestion-window-size"`
-								SlowStartThresholdSize       float64 `xml:"slow-start-threshold-size"`
-								SegmentsReceivedOutOfOrder   float64 `xml:"segments-received-out-of-order"`
-								FastRetransmits              float64 `xml:"fast-retransmits"`
-								TimedRetransmits             float64 `xml:"timed-retransmits"`
-								ConnectionUptime             float64 `xml:"connection-uptime-s"`
-								BlockedCyclesPercent         float64 `xml:"blocked-cycles-percent"`
-								Interface                    string `xml:"interface"`
+							ClientName string `xml:"name"`
+							MsgVpnName string `xml:"message-vpn"`
+							Stats      struct {
+								Protocol                   string  `xml:"protocol"`
+								IsZip                      bool    `xml:"is-zip"`
+								IsSsl                      bool    `xml:"is-ssl"`
+								ReceiveQueueBytes          float64 `xml:"receive-queue-bytes"`
+								ReceiveQueueSegments       float64 `xml:"receive-queue-segments"`
+								SendQueueBytes             float64 `xml:"send-queue-bytes"`
+								SendQueueSegments          float64 `xml:"send-queue-segments"`
+								LocalAddress               string  `xml:"local-address"`
+								ForeignAddress             string  `xml:"foreign-address"`
+								State                      string  `xml:"state"`
+								MaximumSegmentSize         float64 `xml:"maximum-segment-size"`
+								BytesSent                  float64 `xml:"bytes-sent-32bits"`
+								BytesReceived              float64 `xml:"bytes-received-32bits"`
+								RetransmitTimeMs           float64 `xml:"retransmit-time-ms"`
+								RoundTripTimeSmoothUs      float64 `xml:"round-trip-time-smooth-us"`
+								RoundTripTimeSmoothNs      float64 `xml:"round-trip-time-smooth-ns"`
+								RoundTripTimeMinimumUs     float64 `xml:"round-trip-time-minimum-us"`
+								RoundTripTimeVarianceUs    float64 `xml:"round-trip-time-variance-us"`
+								AdvertisedWindowSize       float64 `xml:"advertised-window-size"`
+								TransmitWindowSize         float64 `xml:"transmit-window-size"`
+								BandwidthWindowSize        float64 `xml:"bandwidth-window-size"`
+								CongestionWindowSize       float64 `xml:"congestion-window-size"`
+								SlowStartThresholdSize     float64 `xml:"slow-start-threshold-size"`
+								SegmentsReceivedOutOfOrder float64 `xml:"segments-received-out-of-order"`
+								FastRetransmits            float64 `xml:"fast-retransmits"`
+								TimedRetransmits           float64 `xml:"timed-retransmits"`
+								ConnectionUptime           float64 `xml:"connection-uptime-s"`
+								BlockedCyclesPercent       float64 `xml:"blocked-cycles-percent"`
+								Interface                  string  `xml:"interface"`
 							} `xml:"connection"`
 						} `xml:"client"`
 					} `xml:",any"`
@@ -143,9 +146,9 @@ func (e *Semp) GetClientConnectionStatsSemp1(ch chan<- prometheus.Metric, itemFi
 		} `xml:"execute-result"`
 	}
 
-	command := "<rpc><show><client><name>" + itemFilter + "</name><connections/></client></show></rpc>";
+	command := "<rpc><show><client><name>" + itemFilter + "</name><connections/></client></show></rpc>"
 
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command)
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "ClientConnectionStatsSemp1", 1)
 	if err != nil {
 		_ = level.Error(e.logger).Log("msg", "Can't scrape GetClientConnectionStatsSemp1", "err", err, "broker", e.brokerURI)
 		return 0, err
@@ -166,9 +169,9 @@ func (e *Semp) GetClientConnectionStatsSemp1(ch chan<- prometheus.Metric, itemFi
 	//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 
 	for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
-		if (len(client.MsgVpnName) < 1) {
+		if len(client.MsgVpnName) < 1 {
 			// Filter empty items
-			continue;
+			continue
 		}
 
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_is_zip"], prometheus.GaugeValue, encodeMetricBool(client.Stats.IsZip), client.MsgVpnName, client.ClientName)
@@ -178,11 +181,11 @@ func (e *Semp) GetClientConnectionStatsSemp1(ch chan<- prometheus.Metric, itemFi
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_send_queue_bytes"], prometheus.GaugeValue, client.Stats.ReceiveQueueSegments, client.MsgVpnName, client.ClientName)
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_receive_queue_segments"], prometheus.GaugeValue, client.Stats.SendQueueBytes, client.MsgVpnName, client.ClientName)
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_send_queue_segments"], prometheus.GaugeValue, client.Stats.SendQueueSegments, client.MsgVpnName, client.ClientName)
-		
+
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_maximum_segment_size"], prometheus.GaugeValue, client.Stats.MaximumSegmentSize, client.MsgVpnName, client.ClientName)
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_sent_bytes"], prometheus.CounterValue, client.Stats.BytesSent, client.MsgVpnName, client.ClientName)
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_received_bytes"], prometheus.CounterValue, client.Stats.BytesReceived, client.MsgVpnName, client.ClientName)
-		
+
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_retransmit_milliseconds"], prometheus.CounterValue, client.Stats.RetransmitTimeMs, client.MsgVpnName, client.ClientName)
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_roundtrip_smth_microseconds"], prometheus.CounterValue, client.Stats.RoundTripTimeSmoothUs, client.MsgVpnName, client.ClientName)
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_roundtrip_min_microseconds"], prometheus.CounterValue, client.Stats.RoundTripTimeMinimumUs, client.MsgVpnName, client.ClientName)
@@ -191,14 +194,13 @@ func (e *Semp) GetClientConnectionStatsSemp1(ch chan<- prometheus.Metric, itemFi
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_advertised_window"], prometheus.CounterValue, client.Stats.AdvertisedWindowSize, client.MsgVpnName, client.ClientName)
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_transmit_window"], prometheus.CounterValue, client.Stats.TransmitWindowSize, client.MsgVpnName, client.ClientName)
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_congestion_window"], prometheus.CounterValue, client.Stats.CongestionWindowSize, client.MsgVpnName, client.ClientName)
-		
+
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_slow_start_threshold"], prometheus.CounterValue, client.Stats.SlowStartThresholdSize, client.MsgVpnName, client.ClientName)
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_received_outoforder"], prometheus.CounterValue, client.Stats.SegmentsReceivedOutOfOrder, client.MsgVpnName, client.ClientName)
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_fast_retransmit"], prometheus.CounterValue, client.Stats.FastRetransmits, client.MsgVpnName, client.ClientName)
 		ch <- prometheus.MustNewConstMetric(MetricDesc["ClientConnections"]["connection_timed_retransmit"], prometheus.CounterValue, client.Stats.TimedRetransmits, client.MsgVpnName, client.ClientName)
 	}
 	body.Close()
-
 
 	return 1, nil
 }

@@ -16,16 +16,20 @@ import (
 
 // Collection of configs
 type Config struct {
-	ListenAddr     string
-	EnableTLS      bool
-	Certificate    string
-	PrivateKey     string
-	ScrapeURI      string
-	Username       string
-	Password       string
-	SslVerify      bool
-	useSystemProxy bool
-	Timeout        time.Duration
+	ListenAddr              string
+	EnableTLS               bool
+	Certificate             string
+	PrivateKey              string
+	ScrapeURI               string
+	Username                string
+	Password                string
+	DefaultVpn              string
+	SslVerify               bool
+	useSystemProxy          bool
+	Timeout                 time.Duration
+	PrefetchInterval        time.Duration
+	ParallelSempConnections int64
+	logBrokerToSlowWarnings bool
 }
 
 // getListenURI returns the `listenAddr` with proper protocol (http/https),
@@ -82,13 +86,33 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	conf.DefaultVpn, err = parseConfigString(cfg, "solace", "defaultVpn", "SOLACE_DEFAULT_VPN")
+	if err != nil {
+		return nil, nil, err
+	}
 	conf.Timeout, err = parseConfigDuration(cfg, "solace", "timeout", "SOLACE_TIMEOUT")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.PrefetchInterval, err = parseConfigDurationOptional(cfg, "solace", "prefetchInterval", "PREFETCH_INTERVAL")
 	if err != nil {
 		return nil, nil, err
 	}
 	conf.SslVerify, err = parseConfigBool(cfg, "solace", "sslVerify", "SOLACE_SSL_VERIFY")
 	if err != nil {
 		return nil, nil, err
+	}
+	conf.ParallelSempConnections, err = parseConfigIntOptional(cfg, "solace", "parallelSempConnections", "SOLACE_PARALLEL_SEMP_CONNECTIONS")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.logBrokerToSlowWarnings, err = parseConfigBoolOptional(cfg, "solace", "logBrokerToSlowWarnings", "SOLACE_LOG_BROKER_IS_SLOW_WARNING", true)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if conf.ParallelSempConnections < 1 {
+		conf.ParallelSempConnections = 2
 	}
 
 	endpoints := make(map[string][]DataSource)
@@ -103,13 +127,19 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 					scrapeTarget := scrapeTargetRe.ReplaceAllString(key.Name(), `$1`)
 
 					parts := strings.Split(key.String(), "|")
-					if len(parts) != 2 {
-						return nil, nil, fmt.Errorf("exactly one %q expected at endpoint %q. Found key %q value %q. Expecected: VPN wildcard | item wildcard", "|", endpointName, key.Name(), key.String())
+					if len(parts) < 2 {
+						return nil, nil, fmt.Errorf("one or two | expected at endpoint %q. Found key %q value %q. Expected: VPN wildcard | item wildcard | Optional metric filter for v2 apis", endpointName, key.Name(), key.String())
 					} else {
+						var metricFilter []string
+						if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {
+							metricFilter = strings.Split(parts[2], ",")
+						}
+
 						dataSource = append(dataSource, DataSource{
-							Name:       scrapeTarget,
-							VpnFilter:  parts[0],
-							ItemFilter: parts[1],
+							Name:         scrapeTarget,
+							VpnFilter:    parts[0],
+							ItemFilter:   parts[1],
+							MetricFilter: metricFilter,
 						})
 					}
 				}
@@ -130,6 +160,48 @@ func parseConfigBool(cfg *ini.File, iniSection string, iniKey string, envKey str
 	val, err := strconv.ParseBool(s)
 	if err != nil {
 		return false, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+	}
+
+	return val, nil
+}
+
+func parseConfigBoolOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue bool) (bool, error) {
+	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
+	if err != nil {
+		return defaultValue, nil
+	}
+
+	val, err := strconv.ParseBool(s)
+	if err != nil {
+		return false, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+	}
+
+	return val, nil
+}
+
+func parseConfigDurationOptional(cfg *ini.File, iniSection string, iniKey string, envKey string) (time.Duration, error) {
+	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
+	if err != nil {
+		return time.Duration(0), nil
+	}
+
+	val, err := time.ParseDuration(s)
+	if err != nil {
+		return 0, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+	}
+
+	return val, nil
+}
+
+func parseConfigIntOptional(cfg *ini.File, iniSection string, iniKey string, envKey string) (int64, error) {
+	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
+	if err != nil {
+		return 0, nil
+	}
+
+	val, err := strconv.ParseInt(s, 10, 0)
+	if err != nil {
+		return 0, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
 	}
 
 	return val, nil

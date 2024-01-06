@@ -53,9 +53,12 @@ func (e *Semp) GetQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string,
 		} `xml:"execute-result"`
 	}
 
+	var page = 1
 	var lastQueueName = ""
 	for nextRequest := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><stats/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest)
+		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest, "QueueStatsSemp1", page)
+		page++
+
 		if err != nil {
 			_ = level.Error(e.logger).Log("msg", "Can't scrape QueueStatsSemp1", "err", err, "broker", e.brokerURI)
 			return 0, err
@@ -72,6 +75,8 @@ func (e *Semp) GetQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string,
 			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
 			return 0, errors.New("unexpected result: see log")
 		}
+
+		_ = level.Debug(e.logger).Log("msg", "Result of QueueStatsSemp1", "results", len(target.RPC.Show.Queue.Queues.Queue), "page", page-1)
 
 		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC
@@ -96,7 +101,7 @@ func (e *Semp) GetQueueStatsSemp1(ch chan<- prometheus.Metric, vpnFilter string,
 			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["messages_max_redelivered_dmq"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MaxRedeliveryDmq, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- prometheus.MustNewConstMetric(MetricDesc["QueueStats"]["messages_max_redelivered_dmq_failed"], prometheus.GaugeValue, queue.Stats.MessageSpoolStats.MaxRedeliveryDmqFailed, queue.Info.MsgVpnName, queue.QueueName)
 		}
-		body.Close()
+		_ = body.Close()
 	}
 
 	return 1, nil

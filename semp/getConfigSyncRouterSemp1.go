@@ -36,7 +36,7 @@ func (e *Semp) GetConfigSyncRouterSemp1(ch chan<- prometheus.Metric) (ok float64
 	}
 
 	command := "<rpc><show><config-sync><database/><router/></config-sync></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command)
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "ConfigSyncRouterSemp1", 1)
 	if err != nil {
 		_ = level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", e.brokerURI)
 		return 0, err

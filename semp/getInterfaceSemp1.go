@@ -33,7 +33,7 @@ func (e *Semp) GetInterfaceSemp1(ch chan<- prometheus.Metric, interfaceFilter st
 	}
 
 	command := "<rpc><show><interface><phy-interface>" + interfaceFilter + "</phy-interface></interface></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command)
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "InterfaceSemp1", 1)
 	if err != nil {
 		_ = level.Error(e.logger).Log("msg", "Can't scrape InterfaceSemp1", "err", err, "broker", e.brokerURI)
 		return 0, err

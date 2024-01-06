@@ -46,7 +46,7 @@ func (e *Semp) GetBridgeSemp1(ch chan<- prometheus.Metric, vpnFilter string, ite
 	}
 
 	command := "<rpc><show><bridge><bridge-name-pattern>" + itemFilter + "</bridge-name-pattern><vpn-name-pattern>" + vpnFilter + "</vpn-name-pattern></bridge></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command)
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "BridgeSemp1", 1)
 	if err != nil {
 		_ = level.Error(e.logger).Log("msg", "Can't scrape BridgeSemp1", "err", err, "broker", e.brokerURI)
 		return 0, err

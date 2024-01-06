@@ -34,8 +34,11 @@ func (e *Semp) GetClientSlowSubscriberSemp1(ch chan<- prometheus.Metric, vpnFilt
 		} `xml:"execute-result"`
 	}
 
+	var page = 1
 	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><slow-subscriber/></client></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest)
+		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest, "ClientSlowSubscriberSemp1", page)
+		page++
+
 		if err != nil {
 			_ = level.Error(e.logger).Log("msg", "Can't scrape ClientSlowSubscriberSemp1", "err", err, "broker", e.brokerURI)
 			return 0, err

@@ -68,8 +68,11 @@ func (e *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- prometheus.Metric, item
 		} `xml:"execute-result"`
 	}
 
+	var page = 1
 	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><message-spool-stats/></client></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest)
+		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest, "ClientMessageSpoolStatsSemp1", page)
+		page++
+
 		if err != nil {
 			_ = level.Error(e.logger).Log("msg", "Can't scrape ClientMessageSpoolStatsSemp1", "err", err, "broker", e.brokerURI)
 			return 0, err

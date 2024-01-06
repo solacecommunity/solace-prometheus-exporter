@@ -46,9 +46,12 @@ func (e *Semp) GetTopicEndpointRatesSemp1(ch chan<- prometheus.Metric, vpnFilter
 		} `xml:"execute-result"`
 	}
 
+	var page = 1
 	var lastTopicEndpointName = ""
 	for nextRequest := "<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><rates/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest)
+		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest, "TopicEndpointRatesSemp1", page)
+		page++
+
 		if err != nil {
 			_ = level.Error(e.logger).Log("msg", "Can't scrape TopicEndpointRatesSemp1", "err", err, "broker", e.brokerURI)
 			return 0, err
