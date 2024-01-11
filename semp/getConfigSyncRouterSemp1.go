@@ -46,7 +46,7 @@ func (e *Semp) GetConfigSyncRouterSemp1(ch chan<- PrometheusMetric) (ok float64,
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't decode Xml ConfigSyncSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(e.logger).Log("msg", "Can't decode Xml ConfigSyncRouterSemp1", "err", err, "broker", e.brokerURI)
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {

@@ -190,6 +190,7 @@ func main() {
 					<tr><td>GlobalStats</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Spool</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Redundancy (only for HA broker)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>ConfigSync (only for HA broker)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>ConfigSyncRouter (only for HA broker)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>ReplicationStats (only for DR replication broker)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Vpn</td><td>yes</td><td>no</td><td>dont harm broker</td></tr>

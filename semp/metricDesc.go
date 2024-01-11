@@ -169,6 +169,10 @@ var MetricDesc = map[string]Descriptions{
 		"vpn_replication_config_state":                 NewSemDesc("vpn_replication_config_state", NoSempV2Ready, "Replication Config Status (0-standby, 1-active, 2-n/a)", variableLabelsVpn),
 		"vpn_replication_transaction_replication_mode": NewSemDesc("vpn_replication_transaction_replication_mode", NoSempV2Ready, "Replication Transaction Replication Mode (0-async, 1-sync)", variableLabelsVpn),
 	},
+	"ConfigSync": {
+		"configsync_admin_state": NewSemDesc("configsync_admin_state", NoSempV2Ready, "Config Sync Admin Status (0-Shutdown, 1-Enabled)", nil),
+		"configsync_oper_state":  NewSemDesc("configsync_operational_state", NoSempV2Ready, "Config Sync Current Status (0-Down, 1-Up, 2-Shutting Down)", nil),
+	},
 	"ConfigSyncVpn": {
 		"configsync_table_type":               NewSemDesc("configsync_table_type", NoSempV2Ready, "Config Sync Resource Type (0-Router, 1-Vpn, 2-Unknown, 3-None, 4-All)", variableLabelsConfigSyncTable),
 		"configsync_table_timeinstateseconds": NewSemDesc("configsync_table_timeinstateseconds", NoSempV2Ready, "Config Sync Time in State", variableLabelsConfigSyncTable),

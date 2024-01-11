@@ -40,6 +40,8 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			up, err = e.semp.GetReplicationStatsSemp1(ch)
 		case "ConfigSyncRouter", "ConfigSyncRouterV1":
 			up, err = e.semp.GetConfigSyncRouterSemp1(ch)
+		case "ConfigSync", "ConfigSyncV1":
+			up, err = e.semp.GetConfigSyncSemp1(ch)
 		case "Vpn", "VpnV1":
 			up, err = e.semp.GetVpnSemp1(ch, dataSource.VpnFilter)
 		case "VpnReplication", "VpnReplicationV1":
