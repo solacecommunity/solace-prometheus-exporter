@@ -4,19 +4,28 @@
       {
         "$$hashKey": "object:3179",
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "iteration": 1596025193157,
+  "id": 4,
   "links": [
     {
       "$$hashKey": "object:393",
@@ -38,6 +47,7 @@
       "url": ""
     }
   ],
+  "liveNow": false,
   "panels": [
     {
       "collapsed": false,
@@ -57,7 +67,6 @@
       "cards": {
         "cardHSpacing": 2,
         "cardMinWidth": 5,
-        "cardRound": null,
         "cardVSpacing": 2
       },
       "color": {
@@ -82,11 +91,6 @@
           }
         ]
       },
-      "data": {
-        "decimals": null,
-        "unitFormat": "short"
-      },
-      "datasource": "Thanos",
       "description": "",
       "gridPos": {
         "h": 3,
@@ -102,11 +106,15 @@
       "links": [
         {
           "title": "Bridges Overview",
-          "url": "/d/0zeRtZmGk/solace-bridges?orgId=1&var-instance=${instance}"
+          "url": "/d/0zeRtZmGk/solace-bridges?orgId=1&var-instance=tms-ssp"
         }
       ],
       "nullPointMode": "as empty",
+      "pageSize": 15,
       "seriesFilterIndex": -1,
+      "statusmap": {
+        "ConfigVersion": "v1"
+      },
       "targets": [
         {
           "expr": "label_replace(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")",
@@ -115,63 +123,68 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Admin State",
       "tooltip": {
-        "show": true
+        "extraInfo": "",
+        "freezeOnClick": false,
+        "items": [],
+        "show": true,
+        "showExtraInfo": false,
+        "showItems": false
       },
       "transparent": true,
       "type": "flant-statusmap-panel",
-      "urls": [
-        {
-          "base_url": "",
-          "extraSeries": {
-            "index": -1
-          },
-          "forcelowercase": true,
-          "icon_fa": "external-link",
-          "label": "",
-          "tooltip": "",
-          "useExtraSeries": false,
-          "useseriesname": true
-        }
-      ],
       "useMax": true,
-      "usingUrl": false,
+      "usingPagination": false,
       "xAxis": {
-        "labelFormat": "%a %m/%d",
-        "minBucketWidthToShowWeekends": 4,
-        "show": true,
-        "showCrosshair": true,
-        "showWeekends": true
+        "show": true
       },
       "yAxis": {
         "maxWidth": -1,
         "minWidth": -1,
-        "show": true,
-        "showCrosshair": false
+        "show": true
       },
-      "yAxisSort": "metrics"
+      "yAxisSort": "metrics",
+      "yLabel": {
+        "delimiter": "",
+        "labelTemplate": "",
+        "usingSplitLabel": false
+      }
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "Thanos",
-      "decimals": 2,
-      "format": "s",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 3,
@@ -180,45 +193,24 @@
         "y": 4
       },
       "id": 8,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "$$hashKey": "object:7865",
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "$$hashKey": "object:7866",
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "pluginVersion": "6.7.2",
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "tableColumn": "",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
           "expr": "label_replace(solace_bridge_connection_uptime_in_seconds{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")",
@@ -228,40 +220,63 @@
           "refId": "A"
         }
       ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Connection up time",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "$$hashKey": "object:7868",
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "Thanos",
       "description": "which side is initiating the bridge connection",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "Not Applicable"
+                },
+                "1": {
+                  "text": "Local"
+                },
+                "2": {
+                  "text": "Remote"
+                },
+                "3": {
+                  "text": "Invalid"
+                },
+                "-1": {
+                  "text": "Not Available"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Not Available"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 3,
@@ -270,44 +285,24 @@
         "y": 4
       },
       "id": 10,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "$$hashKey": "object:8069",
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "$$hashKey": "object:8070",
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "tableColumn": "",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
           "expr": "label_replace(solace_bridge_connection_establisher{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")",
@@ -317,70 +312,69 @@
           "refId": "A"
         }
       ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Connection Establisher",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "$$hashKey": "object:8072",
-          "op": "=",
-          "text": "Not Available",
-          "value": "null"
-        },
-        {
-          "$$hashKey": "object:8108",
-          "op": "=",
-          "text": "Not Available",
-          "value": "-1"
-        },
-        {
-          "$$hashKey": "object:8110",
-          "op": "=",
-          "text": "Not Applicable",
-          "value": "0"
-        },
-        {
-          "$$hashKey": "object:8114",
-          "op": "=",
-          "text": "Local",
-          "value": "1"
-        },
-        {
-          "$$hashKey": "object:8116",
-          "op": "=",
-          "text": "Remote",
-          "value": "2"
-        },
-        {
-          "$$hashKey": "object:256",
-          "op": "=",
-          "text": "Invalid",
-          "value": "3"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "Thanos",
       "description": "connection setup when connecting to redundancy pair",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "Not Applicable"
+                },
+                "1": {
+                  "text": "auto"
+                },
+                "2": {
+                  "text": "primary"
+                },
+                "3": {
+                  "text": "backup"
+                },
+                "4": {
+                  "text": "static"
+                },
+                "5": {
+                  "text": "none"
+                },
+                "-1": {
+                  "text": "Not Available"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Not Available"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 3,
@@ -389,44 +383,24 @@
         "y": 4
       },
       "id": 11,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "$$hashKey": "object:8069",
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "$$hashKey": "object:8070",
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "tableColumn": "",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
           "expr": "label_replace(solace_bridge_redundancy{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")",
@@ -436,81 +410,102 @@
           "refId": "A"
         }
       ],
-      "thresholds": "",
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Redundancy Connection",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "$$hashKey": "object:8072",
-          "op": "=",
-          "text": "Not Available",
-          "value": "null"
-        },
-        {
-          "$$hashKey": "object:8108",
-          "op": "=",
-          "text": "Not Available",
-          "value": "-1"
-        },
-        {
-          "$$hashKey": "object:8110",
-          "op": "=",
-          "text": "Not Applicable",
-          "value": "0"
-        },
-        {
-          "$$hashKey": "object:8112",
-          "op": "=",
-          "text": "auto",
-          "value": "1"
-        },
-        {
-          "$$hashKey": "object:8114",
-          "op": "=",
-          "text": "primary",
-          "value": "2"
-        },
-        {
-          "$$hashKey": "object:8116",
-          "op": "=",
-          "text": "backup",
-          "value": "3"
-        },
-        {
-          "$$hashKey": "object:1405",
-          "op": "=",
-          "text": "static",
-          "value": "4"
-        },
-        {
-          "$$hashKey": "object:1407",
-          "op": "=",
-          "text": "none",
-          "value": "5"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": true,
-      "colors": [
-        "#d44a3a",
-        "rgba(237, 129, 40, 0.89)",
-        "#299c46"
-      ],
-      "datasource": "Thanos",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "Bridge disabled"
+                },
+                "1": {
+                  "text": "No remote message-vpns configured"
+                },
+                "2": {
+                  "text": "SMF service is disabled"
+                },
+                "3": {
+                  "text": "Msg Backbone is disabled"
+                },
+                "4": {
+                  "text": "Local message-vpn is disabled"
+                },
+                "5": {
+                  "text": "Active-Standby Role Mismatch"
+                },
+                "6": {
+                  "text": "Invalid Active-Standby Role"
+                },
+                "7": {
+                  "text": "Redundancy Disabled"
+                },
+                "8": {
+                  "text": "Not active"
+                },
+                "9": {
+                  "text": "Replication standby"
+                },
+                "10": {
+                  "text": "Remote message-vpns disabled"
+                },
+                "11": {
+                  "text": "Enforce-trusted-common-name but empty trust-common-name list"
+                },
+                "12": {
+                  "text": "SSL transport used but cipher-suite list is empty"
+                },
+                "13": {
+                  "text": "Authentication Scheme is Client-Certificate but no certificate is configured"
+                },
+                "14": {
+                  "text": "Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL"
+                },
+                "15": {
+                  "text": "Basic Authentication Scheme used but Basic Client Username not configured"
+                },
+                "16": {
+                  "text": "Cluster Down"
+                },
+                "17": {
+                  "text": "Cluster Link Down"
+                },
+                "18": {
+                  "text": "(no failure)"
+                },
+                "-1": {
+                  "text": "unknown"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#d44a3a",
+                "value": null
+              },
+              {
+                "color": "rgba(237, 129, 40, 0.89)",
+                "value": 18
+              },
+              {
+                "color": "#299c46",
+                "value": 18
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 3,
@@ -519,44 +514,24 @@
         "y": 4
       },
       "id": 19,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "$$hashKey": "object:8069",
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "$$hashKey": "object:8070",
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false,
-        "ymax": null,
-        "ymin": null
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "tableColumn": "",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
           "expr": "label_replace(solace_bridge_inbound_operational_failure_reason{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")",
@@ -566,141 +541,13 @@
           "refId": "A"
         }
       ],
-      "thresholds": "18,18",
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Inbound Operational Failure Reason",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "$$hashKey": "object:8072",
-          "op": "=",
-          "text": "Bridge disabled",
-          "value": "0"
-        },
-        {
-          "$$hashKey": "object:8108",
-          "op": "=",
-          "text": "No remote message-vpns configured",
-          "value": "1"
-        },
-        {
-          "$$hashKey": "object:8110",
-          "op": "=",
-          "text": "SMF service is disabled",
-          "value": "2"
-        },
-        {
-          "$$hashKey": "object:8112",
-          "op": "=",
-          "text": "Msg Backbone is disabled",
-          "value": "3"
-        },
-        {
-          "$$hashKey": "object:8114",
-          "op": "=",
-          "text": "Local message-vpn is disabled",
-          "value": "4"
-        },
-        {
-          "$$hashKey": "object:8116",
-          "op": "=",
-          "text": "Active-Standby Role Mismatch",
-          "value": "5"
-        },
-        {
-          "$$hashKey": "object:1235",
-          "op": "=",
-          "text": "Invalid Active-Standby Role",
-          "value": "6"
-        },
-        {
-          "$$hashKey": "object:1237",
-          "op": "=",
-          "text": "Redundancy Disabled",
-          "value": "7"
-        },
-        {
-          "$$hashKey": "object:1239",
-          "op": "=",
-          "text": "Not active",
-          "value": "8"
-        },
-        {
-          "$$hashKey": "object:1241",
-          "op": "=",
-          "text": "Replication standby",
-          "value": "9"
-        },
-        {
-          "$$hashKey": "object:1243",
-          "op": "=",
-          "text": "Remote message-vpns disabled",
-          "value": "10"
-        },
-        {
-          "$$hashKey": "object:1245",
-          "op": "=",
-          "text": "Enforce-trusted-common-name but empty trust-common-name list",
-          "value": "11"
-        },
-        {
-          "$$hashKey": "object:1247",
-          "op": "=",
-          "text": "SSL transport used but cipher-suite list is empty",
-          "value": "12"
-        },
-        {
-          "$$hashKey": "object:1249",
-          "op": "=",
-          "text": "Authentication Scheme is Client-Certificate but no certificate is configured",
-          "value": "13"
-        },
-        {
-          "$$hashKey": "object:1251",
-          "op": "=",
-          "text": "Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL",
-          "value": "14"
-        },
-        {
-          "$$hashKey": "object:1253",
-          "op": "=",
-          "text": "Basic Authentication Scheme used but Basic Client Username not configured",
-          "value": "15"
-        },
-        {
-          "$$hashKey": "object:1255",
-          "op": "=",
-          "text": "Cluster Down",
-          "value": "16"
-        },
-        {
-          "$$hashKey": "object:1257",
-          "op": "=",
-          "text": "Cluster Link Down",
-          "value": "17"
-        },
-        {
-          "$$hashKey": "object:1259",
-          "op": "=",
-          "text": "(no failure)",
-          "value": "18"
-        },
-        {
-          "$$hashKey": "object:1261",
-          "op": "=",
-          "text": "unknown",
-          "value": "-1"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
       "cards": {
         "cardHSpacing": 2,
         "cardMinWidth": 5,
-        "cardRound": null,
         "cardVSpacing": 2
       },
       "color": {
@@ -827,11 +674,6 @@
           }
         ]
       },
-      "data": {
-        "decimals": null,
-        "unitFormat": "short"
-      },
-      "datasource": "Thanos",
       "gridPos": {
         "h": 4,
         "w": 24,
@@ -844,7 +686,11 @@
         "show": true
       },
       "nullPointMode": "as empty",
+      "pageSize": 15,
       "seriesFilterIndex": -1,
+      "statusmap": {
+        "ConfigVersion": "v1"
+      },
       "targets": [
         {
           "expr": "label_replace(solace_bridge_inbound_operational_state{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r\n",
@@ -859,50 +705,37 @@
           "refId": "B"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "",
       "tooltip": {
-        "show": true
+        "extraInfo": "",
+        "freezeOnClick": false,
+        "items": [],
+        "show": true,
+        "showExtraInfo": false,
+        "showItems": false
       },
       "transparent": true,
       "type": "flant-statusmap-panel",
-      "urls": [
-        {
-          "base_url": "",
-          "extraSeries": {
-            "index": -1
-          },
-          "forcelowercase": true,
-          "icon_fa": "external-link",
-          "label": "",
-          "tooltip": "",
-          "useExtraSeries": false,
-          "useseriesname": true
-        }
-      ],
       "useMax": true,
-      "usingUrl": false,
+      "usingPagination": false,
       "xAxis": {
-        "labelFormat": "%a %m/%d",
-        "minBucketWidthToShowWeekends": 4,
-        "show": true,
-        "showCrosshair": true,
-        "showWeekends": true
+        "show": true
       },
       "yAxis": {
         "maxWidth": -1,
         "minWidth": -1,
-        "show": true,
-        "showCrosshair": false
+        "show": true
       },
-      "yAxisSort": "metrics"
+      "yAxisSort": "metrics",
+      "yLabel": {
+        "delimiter": "",
+        "labelTemplate": "",
+        "usingSplitLabel": false
+      }
     },
     {
       "cards": {
         "cardHSpacing": 2,
         "cardMinWidth": 5,
-        "cardRound": null,
         "cardVSpacing": 2
       },
       "color": {
@@ -939,11 +772,6 @@
           }
         ]
       },
-      "data": {
-        "decimals": null,
-        "unitFormat": "short"
-      },
-      "datasource": "Thanos",
       "gridPos": {
         "h": 3,
         "w": 24,
@@ -956,7 +784,11 @@
         "show": true
       },
       "nullPointMode": "as empty",
+      "pageSize": 15,
       "seriesFilterIndex": -1,
+      "statusmap": {
+        "ConfigVersion": "v1"
+      },
       "targets": [
         {
           "expr": "label_replace(solace_bridge_queue_operational_state{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r\n",
@@ -965,47 +797,34 @@
           "refId": "C"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "",
       "tooltip": {
-        "show": true
+        "extraInfo": "",
+        "freezeOnClick": false,
+        "items": [],
+        "show": true,
+        "showExtraInfo": false,
+        "showItems": false
       },
       "type": "flant-statusmap-panel",
-      "urls": [
-        {
-          "base_url": "",
-          "extraSeries": {
-            "index": -1
-          },
-          "forcelowercase": true,
-          "icon_fa": "external-link",
-          "label": "",
-          "tooltip": "",
-          "useExtraSeries": false,
-          "useseriesname": true
-        }
-      ],
       "useMax": true,
-      "usingUrl": false,
+      "usingPagination": false,
       "xAxis": {
-        "labelFormat": "%a %m/%d",
-        "minBucketWidthToShowWeekends": 4,
-        "show": true,
-        "showCrosshair": true,
-        "showWeekends": true
+        "show": true
       },
       "yAxis": {
         "maxWidth": -1,
         "minWidth": -1,
-        "show": true,
-        "showCrosshair": false
+        "show": true
       },
-      "yAxisSort": "metrics"
+      "yAxisSort": "metrics",
+      "yLabel": {
+        "delimiter": "",
+        "labelTemplate": "",
+        "usingSplitLabel": false
+      }
     },
     {
       "collapsed": false,
-      "datasource": null,
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1018,55 +837,93 @@
       "type": "row"
     },
     {
-      "aliasColors": {},
-      "bars": true,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
-      "decimals": null,
       "description": "Number of subscribers and percentage slow subscribers",
-      "fill": 1,
-      "fillGradient": 0,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Clients",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 7,
         "w": 24,
         "x": 0,
         "y": 15
       },
-      "hiddenSeries": false,
       "id": 15,
       "interval": "",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": false,
-        "min": false,
-        "rightSide": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "9.2.3",
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_client_num_subscriptions{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
+          "editorMode": "code",
+          "expr": "label_replace(solace_bridge_client_num_subscriptions{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r\n",
           "interval": "",
           "legendFormat": "Subscriber",
+          "range": true,
           "refId": "A"
         },
         {
@@ -1076,92 +933,90 @@
           "refId": "B"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Subscribers: Count / Slow",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
       "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:8295",
-          "decimals": 0,
-          "format": "short",
-          "label": "Clients",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "$$hashKey": "object:8296",
-          "decimals": 0,
-          "format": "short",
-          "label": "Slow",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
-      "fill": 1,
-      "fillGradient": 0,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Msg",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 9,
         "w": 24,
         "x": 0,
         "y": 22
       },
-      "hiddenSeries": false,
       "id": 16,
       "interval": "",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "9.2.3",
       "targets": [
         {
           "expr": "label_replace(irate(solace_bridge_total_client_messages_received{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}[5m]), \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
@@ -1176,91 +1031,85 @@
           "refId": "B"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Transfer Messages / sec",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:8295",
-          "decimals": 0,
-          "format": "short",
-          "label": "Msg",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "$$hashKey": "object:8296",
-          "decimals": 0,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
-      "fill": 1,
-      "fillGradient": 0,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "byte / sec",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 9,
         "w": 24,
         "x": 0,
         "y": 31
       },
-      "hiddenSeries": false,
       "id": 17,
       "interval": "",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "9.2.3",
       "targets": [
         {
           "expr": "label_replace(solace_bridge_current_ingress_rate_per_second{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}, \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
@@ -1289,92 +1138,86 @@
           "refId": "D"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Transfer Volume / sec",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:8295",
-          "decimals": null,
-          "format": "short",
-          "label": "byte / sec",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "$$hashKey": "object:8296",
-          "decimals": null,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
       "description": "Discarded messages on ingress and egress",
-      "fill": 1,
-      "fillGradient": 0,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "msg/ sec",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 9,
         "w": 24,
         "x": 0,
         "y": 40
       },
-      "hiddenSeries": false,
       "id": 20,
       "interval": "",
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "9.2.3",
       "targets": [
         {
           "expr": "label_replace(irate(solace_bridge_total_ingress_discards{instance=\"$instance\",vpn_name=\"$vpn_name\",bridge_name=\"$bridge_name\"}[5m]), \"bridge_short\", \"$1\", \"bridge_name\", \"([\\\\w\\\\-]+).*\")\r",
@@ -1390,55 +1233,12 @@
           "refId": "D"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Discards",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:8295",
-          "decimals": null,
-          "format": "short",
-          "label": "msg/ sec",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "$$hashKey": "object:8296",
-          "decimals": null,
-          "format": "short",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     }
   ],
   "refresh": "10s",
-  "schemaVersion": 22,
-  "style": "dark",
+  "schemaVersion": 38,
   "tags": [
     "solace",
     "bridge"
@@ -1446,70 +1246,79 @@
   "templating": {
     "list": [
       {
-        "allValue": null,
-        "current": {},
-        "datasource": "Thanos",
+        "current": {
+          "selected": false,
+          "text": "tms/monitoring/monalesy/p",
+          "value": "tms/monitoring/monalesy/p"
+        },
         "definition": "label_values(solace_up{group=\"Solace\"}, instance)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Instance",
         "multi": false,
         "name": "instance",
         "options": [],
-        "query": "label_values(solace_up{group=\"Solace\"}, instance)",
+        "query": {
+          "query": "label_values(solace_up{group=\"Solace\"}, instance)",
+          "refId": "Thanos-instance-Variable-Query"
+        },
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
-        "current": {},
-        "datasource": "Thanos",
+        "current": {
+          "selected": false,
+          "text": "TmsMonitoringMonalesy",
+          "value": "TmsMonitoringMonalesy"
+        },
         "definition": "label_values(solace_bridge_admin_state{instance=\"$instance\"}, vpn_name)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "VPN",
         "multi": false,
         "name": "vpn_name",
         "options": [],
-        "query": "label_values(solace_bridge_admin_state{instance=\"$instance\"}, vpn_name)",
+        "query": {
+          "query": "label_values(solace_bridge_admin_state{instance=\"$instance\"}, vpn_name)",
+          "refId": "Thanos-vpn_name-Variable-Query"
+        },
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
-        "current": {},
-        "datasource": "Thanos",
+        "current": {
+          "selected": false,
+          "text": "tms-monitoring-monalesy-P_concentrator",
+          "value": "tms-monitoring-monalesy-P_concentrator"
+        },
         "definition": "label_values(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpn_name\"}, bridge_name)",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": "Bridge",
         "multi": false,
         "name": "bridge_name",
         "options": [],
-        "query": "label_values(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpn_name\"}, bridge_name)",
+        "query": {
+          "query": "label_values(solace_bridge_admin_state{instance=\"$instance\",vpn_name=\"$vpn_name\"}, bridge_name)",
+          "refId": "Thanos-bridge_name-Variable-Query"
+        },
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
@@ -1537,8 +1346,6 @@
   "timezone": "",
   "title": "Solace bridge",
   "uid": "y3WWrMiMk",
-  "variables": {
-    "list": []
-  },
-  "version": 31
+  "version": 1,
+  "weekStart": ""
 }

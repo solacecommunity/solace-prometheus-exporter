@@ -3,21 +3,29 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "description": "Analyse solace PubSub+ VPNs",
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 2,
-  "id": 4,
-  "iteration": 1618988081246,
+  "id": 19,
   "links": [
     {
       "icon": "external link",
@@ -34,15 +42,15 @@
       "title": "Help: Broker",
       "tooltip": "Help: Broker Monitoring Dashboard",
       "type": "link",
-      "url": "https://mydocupage.org"
+      "url": null
     }
   ],
+  "liveNow": false,
   "panels": [
     {
       "cards": {
         "cardHSpacing": 0,
         "cardMinWidth": 5,
-        "cardRound": null,
         "cardVSpacing": 0
       },
       "color": {
@@ -64,13 +72,6 @@
             "value": "1"
           }
         ]
-      },
-      "datasource": "Thanos",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
       },
       "gridPos": {
         "h": 4,
@@ -97,7 +98,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(solace_up{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_up{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -106,13 +107,13 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Broker status",
       "tooltip": {
+        "extraInfo": "",
         "freezeOnClick": false,
         "items": [],
         "show": true,
+        "showExtraInfo": false,
         "showItems": false
       },
       "transparent": true,
@@ -127,41 +128,37 @@
         "minWidth": -1,
         "show": true
       },
-      "yAxisSort": "metrics"
+      "yAxisSort": "metrics",
+      "yLabel": {
+        "delimiter": "",
+        "labelTemplate": "",
+        "usingSplitLabel": false
+      }
     },
     {
-      "datasource": "Thanos",
       "description": "Redundancy status for High Availability support on this broker",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": "Remote Active",
-              "to": "",
-              "type": 1,
-              "value": "0"
+              "options": {
+                "0": {
+                  "text": "Remote Active"
+                },
+                "1": {
+                  "text": "Local Active"
+                }
+              },
+              "type": "value"
             },
             {
-              "from": "",
-              "id": 2,
-              "operator": "",
-              "text": "Local Active",
-              "to": "",
-              "type": 1,
-              "value": "1"
-            },
-            {
-              "from": "",
-              "id": 3,
-              "operator": "",
-              "text": "Not HA",
-              "to": "",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Not HA"
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -203,42 +200,40 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
-          "expr": "label_replace(solace_system_redundancy_local_active{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_system_redundancy_local_active{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Redundancy Status",
       "transparent": true,
       "type": "stat"
     },
     {
-      "datasource": "Thanos",
       "description": "Network latency to HA mate, empty in case of no HA configured",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [
             {
-              "from": "-1",
-              "id": 1,
-              "operator": "",
-              "text": " ",
-              "to": "0",
-              "type": 2,
-              "value": "NaN"
+              "options": {
+                "from": -1,
+                "result": {
+                  "text": " "
+                },
+                "to": 0
+              },
+              "type": "range"
             }
           ],
           "max": 0.01,
@@ -277,6 +272,8 @@
       "id": 20,
       "links": [],
       "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -288,10 +285,10 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
-          "expr": "label_replace(solace_system_mate_link_latency_avg_seconds{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_system_mate_link_latency_avg_seconds{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -300,20 +297,16 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "mate link latency",
       "type": "gauge"
     },
     {
-      "datasource": "Thanos",
       "description": "latency for disk read/write operations",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
           "max": 0.1,
           "min": 0,
@@ -350,6 +343,8 @@
       "id": 21,
       "links": [],
       "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -361,10 +356,10 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
-          "expr": "label_replace(solace_system_disk_latency_avg_seconds{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_system_disk_latency_avg_seconds{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -373,20 +368,16 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "disk latency",
       "type": "gauge"
     },
     {
-      "datasource": "Thanos",
       "description": "latency for CPU instructions  on the broker",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
           "max": 0.1,
           "min": 0,
@@ -423,6 +414,8 @@
       "id": 22,
       "links": [],
       "options": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
@@ -434,10 +427,10 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
-          "expr": "label_replace(solace_system_compute_latency_avg_seconds{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_system_compute_latency_avg_seconds{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -446,113 +439,22 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "compute latency",
       "type": "gauge"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 1,
-        "x": 0,
-        "y": 4
-      },
-      "id": 41,
-      "options": {
-        "content": "Sol Ver\nsion",
-        "mode": "markdown"
-      },
-      "pluginVersion": "7.3.4",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "",
-      "transparent": true,
-      "type": "text"
-    },
-    {
-      "datasource": "Thanos",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "decimals": 0,
-          "mappings": [],
-          "noValue": "Only for OnPrem",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 1
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 2,
-        "x": 1,
-        "y": 4
-      },
-      "id": 35,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "7.3.4",
-      "targets": [
-        {
-          "expr": "solace_system_version_currentload{instance=\"$instance\"}/1000000000",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": "Thanos",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
           "decimals": 0,
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": " ",
-              "to": "",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": " "
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -586,9 +488,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
           "expr": "(solace_system_version_currentload{instance=\"$instance\"} % 1000000000)/ 1000000",
@@ -598,27 +501,22 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "",
       "transparent": true,
       "type": "stat"
     },
     {
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "decimals": 0,
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": " ",
-              "to": "",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": " "
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -652,9 +550,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
           "expr": "(solace_system_version_currentload{instance=\"$instance\"} % 1000000)/ 100",
@@ -664,27 +563,22 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "",
       "transparent": true,
       "type": "stat"
     },
     {
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "decimals": 0,
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": " ",
-              "to": "",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": " "
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -718,9 +612,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
           "expr": "(solace_system_version_currentload{instance=\"$instance\"} % 1000)",
@@ -730,219 +625,131 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "",
       "transparent": true,
       "type": "stat"
     },
     {
-      "datasource": "Thanos",
+      "description": "Client Connections Count, per Vpn. Drill down into Vpn available",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
-          "decimals": 2,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [
+            {
+              "title": "VPN $\"vpn_name\"",
+              "url": "d/FXk5NbPWz/solace-vpn?orgId=1&var-instance=tms-ssp&var-vpn_name=$\"vpn_name\""
+            }
+          ],
           "mappings": [],
-          "noValue": "Only for OnPrem",
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "green",
                 "value": null
               },
               {
-                "color": "green",
-                "value": 1
+                "color": "red",
+                "value": 80
               }
             ]
           },
-          "unit": "s"
+          "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": {
-        "h": 2,
-        "w": 3,
-        "x": 9,
-        "y": 4
-      },
-      "id": 36,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "7.3.4",
-      "targets": [
-        {
-          "expr": "label_replace(solace_system_version_uptime_totalsecs{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Uptime",
-      "type": "stat"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
-      "description": "Client Connections Count, per Vpn. Drill down into Vpn available",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "links": [
-            {
-              "title": "VPN $\"vpn_name\"",
-              "url": "d/FXk5NbPWz/solace-vpn?orgId=1&var-instance=${instance}&var-vpn_name=$\"vpn_name\""
-            }
-          ]
-        },
-        "overrides": []
-      },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 6
       },
-      "hiddenSeries": false,
       "id": 43,
-      "legend": {
-        "alignAsTable": false,
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "rightSide": true,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pluginVersion": "7.3.4",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "9.2.3",
       "targets": [
         {
-          "expr": "label_replace(solace_vpn_connections{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_vpn_connections{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "interval": "",
           "legendFormat": "{{vpn_name}}",
           "refId": "A"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Connections Count",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
       "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     },
     {
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": "Disabled",
-              "to": "",
-              "type": 1,
-              "value": "0"
+              "options": {
+                "0": {
+                  "text": "Disabled"
+                },
+                "1": {
+                  "text": "Enabled"
+                },
+                "2": {
+                  "text": "Shutdown"
+                }
+              },
+              "type": "value"
             },
             {
-              "from": "",
-              "id": 2,
-              "operator": "",
-              "text": "Enabled",
-              "to": "",
-              "type": 1,
-              "value": "1"
-            },
-            {
-              "from": "",
-              "id": 3,
-              "operator": "",
-              "text": "Shutdown",
-              "to": "",
-              "type": 1,
-              "value": "2"
-            },
-            {
-              "from": "",
-              "id": 4,
-              "operator": "",
-              "text": "Not HA",
-              "to": "",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Not HA"
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -973,7 +780,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 15
+        "y": 14
       },
       "id": 31,
       "options": {
@@ -988,55 +795,45 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
-          "expr": "label_replace(solace_system_redundancy_config{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_system_redundancy_config{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "System Redundancy Config",
       "type": "stat"
     },
     {
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": "Down",
-              "to": "",
-              "type": 1,
-              "value": "0"
+              "options": {
+                "0": {
+                  "text": "Down"
+                },
+                "1": {
+                  "text": "Up"
+                }
+              },
+              "type": "value"
             },
             {
-              "from": "",
-              "id": 2,
-              "operator": "",
-              "text": "Up",
-              "to": "",
-              "type": 1,
-              "value": "1"
-            },
-            {
-              "from": "",
-              "id": 3,
-              "operator": "",
-              "text": " ",
-              "to": "",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": " "
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -1063,7 +860,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 15
+        "y": 14
       },
       "id": 32,
       "options": {
@@ -1078,73 +875,51 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
-          "expr": "label_replace(solace_redundancy_up{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_redundancy_up{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "System Redundancy Status",
       "type": "stat"
     },
     {
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": "Backup",
-              "to": "",
-              "type": 1,
-              "value": "0"
+              "options": {
+                "0": {
+                  "text": "Backup"
+                },
+                "1": {
+                  "text": "Primary"
+                },
+                "2": {
+                  "text": "Monitor"
+                },
+                "3": {
+                  "text": " Undefined"
+                }
+              },
+              "type": "value"
             },
             {
-              "from": "",
-              "id": 2,
-              "operator": "",
-              "text": "Primary",
-              "to": "",
-              "type": 1,
-              "value": "1"
-            },
-            {
-              "from": "",
-              "id": 3,
-              "operator": "",
-              "text": "Monitor",
-              "to": "",
-              "type": 1,
-              "value": "2"
-            },
-            {
-              "from": "",
-              "id": 4,
-              "operator": "",
-              "text": " Undefined",
-              "to": "",
-              "type": 1,
-              "value": "3"
-            },
-            {
-              "from": "",
-              "id": 5,
-              "operator": "",
-              "text": " ",
-              "to": "",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": " "
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -1175,7 +950,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 15
+        "y": 14
       },
       "id": 33,
       "options": {
@@ -1190,48 +965,39 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
-          "expr": "label_replace(solace_system_redundancy_role{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_system_redundancy_role{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "System Redundancy Role",
       "type": "stat"
     },
     {
       "columns": [],
-      "datasource": "Thanos",
       "description": "Bridges Administrative Status, drill down into Bridge available",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
       "fontSize": "100%",
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 15
+        "y": 14
       },
       "id": 24,
       "links": [
         {
           "title": "Bridges for this Broker",
-          "url": "https://mydocupage.org"
+          "url": "/d/0zeRtZmGk/solace-bridges?orgId=1&var-instance=$instance"
         }
       ],
-      "pageSize": null,
       "showHeader": true,
       "sort": {
         "col": 2,
@@ -1244,7 +1010,7 @@
           "dateFormat": "YYYY-MM-DD HH:mm:ss",
           "link": false,
           "linkTooltip": "Instance",
-          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=$instance&var-vpn_name=$\"vpn_name\"",
+          "linkUrl": "",
           "mappingType": 1,
           "pattern": "Time",
           "type": "hidden"
@@ -1252,7 +1018,6 @@
         {
           "alias": "",
           "align": "auto",
-          "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
@@ -1279,7 +1044,7 @@
           "link": true,
           "linkTargetBlank": false,
           "linkTooltip": "Bridge",
-          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=${instance}&var-vpn_name=$\"vpn_name\"&&var-bridge_name=\"$bridge_name\"",
+          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=$instance&var-vpn_name=$__cell_1&var-bridge_name=$__cell_0",
           "mappingType": 1,
           "pattern": "bridge_name",
           "thresholds": [
@@ -1291,7 +1056,6 @@
         {
           "alias": "",
           "align": "auto",
-          "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
@@ -1308,7 +1072,6 @@
         {
           "alias": "",
           "align": "auto",
-          "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
@@ -1325,7 +1088,6 @@
         {
           "alias": "",
           "align": "auto",
-          "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
@@ -1342,7 +1104,6 @@
         {
           "alias": "",
           "align": "auto",
-          "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
@@ -1369,8 +1130,8 @@
           "decimals": 2,
           "link": true,
           "linkTargetBlank": false,
-          "linkTooltip": "Bridge",
-          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=${instance}&var-vpn_name=$\"vpn_name\"&&var-bridge_name=\"$bridge_name\"",
+          "linkTooltip": "VPN",
+          "linkUrl": "/d/FXk5NbPWz/solace-vpn?orgId=1&var-instance=$instance&var-vpn_name=$__cell_1",
           "mappingType": 1,
           "pattern": "vpn_name",
           "thresholds": [
@@ -1393,7 +1154,7 @@
           "link": true,
           "linkTargetBlank": false,
           "linkTooltip": "Bridge",
-          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=${instance}&var-vpn_name=$\"vpn_name\"&&var-bridge_name=\"$bridge_name\"",
+          "linkUrl": "/d/y3WWrMiMk/solace-bridge?orgId=1&var-instance=$instance&var-vpn_name=$__cell_1&var-bridge_name=$__cell_0",
           "mappingType": 1,
           "pattern": "Value",
           "thresholds": [
@@ -1415,7 +1176,6 @@
         {
           "alias": "",
           "align": "auto",
-          "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
             "rgba(237, 129, 40, 0.89)",
@@ -1432,7 +1192,7 @@
       ],
       "targets": [
         {
-          "expr": "label_replace(solace_bridge_admin_state{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_bridge_admin_state{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -1440,53 +1200,55 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Bridges Admin Status",
       "transform": "table",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "app": true,
+              "prometheus": true
+            },
+            "indexByName": {
+              "bridge_name": 0,
+              "exporter_url": 2,
+              "solace_type": 3,
+              "stage": 4,
+              "vpn_name": 1
+            },
+            "renameByName": {}
+          }
+        }
+      ],
       "type": "table-old"
     },
     {
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": "Down",
-              "to": "",
-              "type": 1,
-              "value": "0"
+              "options": {
+                "0": {
+                  "text": "Down / Not HA"
+                },
+                "1": {
+                  "text": "Up"
+                },
+                "-1": {
+                  "text": "Unknown"
+                }
+              },
+              "type": "value"
             },
             {
-              "from": "",
-              "id": 2,
-              "operator": "",
-              "text": "Up",
-              "to": "",
-              "type": 1,
-              "value": "1"
-            },
-            {
-              "from": "",
-              "id": 3,
-              "operator": "",
-              "text": "Not HA",
-              "to": "",
-              "type": 1,
-              "value": "null"
-            },
-            {
-              "from": "",
-              "id": 4,
-              "operator": "",
-              "text": "Unknown",
-              "to": "",
-              "type": 1,
-              "value": "-1"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "Not HA"
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -1513,7 +1275,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 19
+        "y": 18
       },
       "id": 26,
       "options": {
@@ -1528,38 +1290,35 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
-          "expr": "label_replace(solace_configsync_table_syncstate{instance=\"$instance\",table_name=\"site\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_configsync_table_syncstate{instance=\"$instance\",table_name=\"site\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Config Sync State",
       "type": "stat"
     },
     {
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "decimals": 2,
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": " ",
-              "to": "",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": " "
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -1583,7 +1342,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 19
+        "y": 18
       },
       "id": 28,
       "options": {
@@ -1598,64 +1357,48 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
-          "expr": "label_replace(solace_configsync_table_timeinstateseconds{instance=\"$instance\",table_name=\"site\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_configsync_table_timeinstateseconds{instance=\"$instance\",table_name=\"site\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Time in this state",
       "type": "stat"
     },
     {
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": "Master",
-              "to": "",
-              "type": 1,
-              "value": "0"
+              "options": {
+                "0": {
+                  "text": "Master"
+                },
+                "1": {
+                  "text": "Slave"
+                },
+                "2": {
+                  "text": " Unknown"
+                }
+              },
+              "type": "value"
             },
             {
-              "from": "",
-              "id": 2,
-              "operator": "",
-              "text": "Slave",
-              "to": "",
-              "type": 1,
-              "value": "1"
-            },
-            {
-              "from": "",
-              "id": 4,
-              "operator": "",
-              "text": " Unknown",
-              "to": "",
-              "type": 1,
-              "value": "2"
-            },
-            {
-              "from": "",
-              "id": 5,
-              "operator": "",
-              "text": " ",
-              "to": "",
-              "type": 1,
-              "value": "null"
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": " "
+                }
+              },
+              "type": "special"
             }
           ],
           "thresholds": {
@@ -1682,7 +1425,7 @@
         "h": 4,
         "w": 4,
         "x": 8,
-        "y": 19
+        "y": 18
       },
       "id": 30,
       "options": {
@@ -1697,271 +1440,283 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "7.3.4",
+      "pluginVersion": "10.2.1",
       "targets": [
         {
-          "expr": "label_replace(solace_configsync_table_ownership{instance=\"$instance\",table_name=\"site\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_configsync_table_ownership{instance=\"$instance\",table_name=\"site\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "instant": true,
           "interval": "",
           "legendFormat": "",
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Config Sync Role",
       "type": "stat"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "Bps"
         },
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 23
+        "y": 22
       },
-      "hiddenSeries": false,
       "id": 4,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
       "links": [],
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pluginVersion": "7.3.4",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "9.2.3",
       "targets": [
         {
-          "expr": "label_replace(irate(solace_vpn_rx_bytes_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(irate(solace_vpn_rx_bytes_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{vpn_name}}@{{instance_short}} IN",
           "refId": "A"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Transfer volume IN",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "Bps",
-          "label": "",
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "Bps"
         },
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 23
+        "y": 22
       },
-      "hiddenSeries": false,
       "id": 7,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
       "links": [],
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pluginVersion": "7.3.4",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "9.2.3",
       "targets": [
         {
-          "expr": "label_replace(irate(solace_vpn_tx_bytes_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(irate(solace_vpn_tx_bytes_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{vpn_name}}@{{instance_short}} OUT",
           "refId": "B"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Transfer volume OUT",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": null,
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "Bps",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 10,
         "w": 12,
         "x": 0,
-        "y": 33
+        "y": 32
       },
-      "hiddenSeries": false,
       "id": 5,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
       "links": [],
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pluginVersion": "7.3.4",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "9.2.3",
       "targets": [
         {
-          "expr": "label_replace(irate(solace_vpn_rx_msgs_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(irate(solace_vpn_rx_msgs_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -1969,204 +1724,197 @@
           "refId": "A"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Transfer msgs IN",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 33
+        "y": 32
       },
-      "hiddenSeries": false,
       "id": 8,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
       "links": [],
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
-      "pluginVersion": "7.3.4",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "pluginVersion": "9.2.3",
       "targets": [
         {
-          "expr": "label_replace(irate(solace_vpn_tx_msgs_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(irate(solace_vpn_tx_msgs_total{instance=\"$instance\",vpn_name!~\"^#.+\"}[5m]), \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "{{vpn_name}}@{{instance_short}} OUT",
           "refId": "B"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Transfer msgs OUT",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": "0",
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
-      "decimals": 2,
       "description": "Number of spooled messages on the broker, against max. quota of spool available",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/quota .*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F2495C",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              }
+            ]
+          }
+        ]
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 6,
         "w": 12,
         "x": 0,
-        "y": 43
+        "y": 42
       },
-      "hiddenSeries": false,
       "id": 45,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
       "links": [],
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "7.3.4",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "/quota .*/",
-          "color": "#F2495C",
-          "fill": 0
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
         }
-      ],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      },
+      "pluginVersion": "9.2.3",
       "targets": [
         {
-          "expr": "label_replace(solace_system_spool_usage_msgs{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_system_spool_usage_msgs{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2175,7 +1923,7 @@
           "refId": "A"
         },
         {
-          "expr": "label_replace(solace_system_spool_quota_msgs{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_system_spool_quota_msgs{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2184,533 +1932,151 @@
           "refId": "B"
         },
         {
-          "expr": "label_replace(solace_vpn_spool_usage_msgs{instance=\"$instance\", vpn_name!~\"default\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_vpn_spool_usage_msgs{instance=\"$instance\", vpn_name!~\"default\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "spooled msgs {{instance_short}} {{vpn_name}}",
           "refId": "C"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Spooled msgs",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
       "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": 0,
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
-      "decimals": 2,
       "description": "Amount of spooled data on the broker, against max. quota of spool available",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 0,
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "decbytes"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/quota .*/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F2495C",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              }
+            ]
+          }
+        ]
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 6,
         "w": 12,
         "x": 12,
-        "y": 43
+        "y": 42
       },
-      "hiddenSeries": false,
       "id": 47,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
       "links": [],
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "7.3.4",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [
-        {
-          "alias": "/quota .*/",
-          "color": "#F2495C",
-          "fill": 0
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
         }
-      ],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      },
+      "pluginVersion": "9.2.3",
       "targets": [
         {
-          "expr": "label_replace(solace_system_spool_usage_bytes{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_system_spool_usage_bytes{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "spooled msgs {{instance_short}}",
           "refId": "A"
         },
         {
-          "expr": "label_replace(solace_system_spool_quota_bytes{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_system_spool_quota_bytes{instance=\"$instance\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "quota {{instance_short}}",
           "refId": "B"
         },
         {
-          "expr": "label_replace(solace_vpn_spool_usage_bytes{instance=\"$instance\", vpn_name!~\"default\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_vpn_spool_usage_bytes{instance=\"$instance\", vpn_name!~\"default\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "spooled msgs {{instance_short}} {{vpn_name}}",
           "refId": "C"
         },
         {
-          "expr": "label_replace(solace_vpn_spool_quota_bytes{instance=\"$instance\", vpn_name!~\"default\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.mydomain.org){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
+          "expr": "label_replace(solace_vpn_spool_quota_bytes{instance=\"$instance\", vpn_name!~\"default\"}, \"instance_short\", \"$1$3\", \"instance\", \"(^.+)(?:.sbb.ch){1}(:\\\\d+)|(^[^:]+)(:\\\\d+)?\")",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "quota {{instance_short}} {{vpn_name}}",
           "refId": "D"
         }
       ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
       "title": "Spooled bytes",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
       "transparent": true,
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "decimals": 0,
-          "format": "decbytes",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 49
-      },
-      "id": 56,
-      "options": {
-        "content": "",
-        "mode": "markdown"
-      },
-      "pluginVersion": "7.3.4",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "OnPrem specific: The following content applies only for OnPrem broker.",
-      "type": "text"
-    },
-    {
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 3,
-        "x": 0,
-        "y": 50
-      },
-      "id": 52,
-      "options": {
-        "content": "Exporter Version",
-        "mode": "markdown"
-      },
-      "pluginVersion": "7.3.4",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "",
-      "transparent": true,
-      "type": "text"
-    },
-    {
-      "datasource": "Thanos",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "decimals": 0,
-          "mappings": [
-            {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": " ",
-              "to": "",
-              "type": 1,
-              "value": "null"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 1,
-        "x": 3,
-        "y": 50
-      },
-      "id": 49,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "7.3.4",
-      "targets": [
-        {
-          "expr": "(solace_exporter_version_current{instance=\"$instance\"} % 1000000000)/ 1000000",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": "Thanos",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "decimals": 0,
-          "mappings": [
-            {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": " ",
-              "to": "",
-              "type": 1,
-              "value": "null"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 1,
-        "x": 4,
-        "y": 50
-      },
-      "id": 50,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "7.3.4",
-      "targets": [
-        {
-          "expr": "(solace_exporter_version_current{instance=\"$instance\"} % 1000000)/ 1000",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "datasource": "Thanos",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "decimals": 0,
-          "mappings": [
-            {
-              "from": "",
-              "id": 1,
-              "operator": "",
-              "text": " ",
-              "to": "",
-              "type": 1,
-              "value": "null"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 1,
-        "w": 1,
-        "x": 5,
-        "y": 50
-      },
-      "id": 51,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "last"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "7.3.4",
-      "targets": [
-        {
-          "expr": "(solace_exporter_version_current{instance=\"$instance\"} % 1000)",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "",
-      "transparent": true,
-      "type": "stat"
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": "Thanos",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {}
-        },
-        "overrides": []
-      },
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 50
-      },
-      "hiddenSeries": false,
-      "id": 54,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "7.3.4",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "solace_system_spool_disk_partition_usage_active_percent{instance=\"$instance\"}",
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Hardware spool",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "type": "timeseries"
     }
   ],
   "refresh": "10s",
-  "schemaVersion": 26,
-  "style": "dark",
+  "schemaVersion": 38,
   "tags": [
     "solace",
     "broker"
@@ -2718,24 +2084,27 @@
   "templating": {
     "list": [
       {
-        "allValue": null,
-        "current": {},
-        "datasource": "Thanos",
+        "current": {
+          "selected": false,
+          "text": "aaa/bbb/ccc/d-public",
+          "value": "aaa/bbb/ccc/d-public"
+        },
         "definition": "label_values(up{group=\"Solace\"}, instance)",
-        "error": null,
         "hide": 0,
         "includeAll": false,
         "label": "",
         "multi": false,
         "name": "instance",
         "options": [],
-        "query": "label_values(up{group=\"Solace\"}, instance)",
+        "query": {
+          "query": "label_values(up{group=\"Solace\"}, instance)",
+          "refId": "Thanos-instance-Variable-Query"
+        },
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
@@ -2773,8 +2142,6 @@
   "timezone": "",
   "title": "Solace broker",
   "uid": "HUkhHbPWz",
-  "variables": {
-    "list": []
-  },
-  "version": 31
+  "version": 32,
+  "weekStart": ""
 }
