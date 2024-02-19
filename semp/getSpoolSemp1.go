@@ -25,6 +25,28 @@ func (e *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error)
 						ActiveDiskPartitionUsage        string  `xml:"active-disk-partition-usage"`        // May be "-"
 						MateDiskPartitionUsage          string  `xml:"mate-disk-partition-usage"`          // May be "-"
 						SpoolFilesUtilizationPercentage string  `xml:"spool-files-utilization-percentage"` // May be "-"
+						SpoolSyncStatus                 string  `xml:"spool-sync-status"`
+
+						IngressFlowsQuota   float64 `xml:"ingress-flows-allowed"`
+						IngressFlowsCount   float64 `xml:"ingress-flow-count"`
+						EgressFlowsQuota    float64 `xml:"flows-allowed"`
+						EgressFlowsActive   float64 `xml:"active-flow-count"`
+						EgressFlowsInactive float64 `xml:"inactive-flow-count"`
+						EgressFlowsBrowser  float64 `xml:"browser-flow-count"`
+
+						EntitiesByQendptQuota float64 `xml:"message-spool-entities-allowed-by-qendpt"`
+						EntitiesByQendptQueue float64 `xml:"message-spool-entities-used-by-queue"`
+						EntitiesByQendptDte   float64 `xml:"message-spool-entities-used-by-dte"`
+
+						TransactedSessionsQuota float64 `xml:"max-transacted-sessions"`
+						TransactedSessionsUsed  float64 `xml:"transacted-sessions-used"`
+
+						TransactionsQuota float64 `xml:"max-transactions"`
+						TransactionsUsed  float64 `xml:"transactions-used"`
+
+						CurrentPersistentStoreUsageADB float64 `xml:"current-rfad-usage"`
+						MessagesCurrentlySpooledADB    float64 `xml:"rfad-messages-currently-spooled"`
+						MessagesCurrentlySpooledDisk   float64 `xml:"disk-messages-currently-spooled"`
 					} `xml:"message-spool-info"`
 				} `xml:"message-spool"`
 			} `xml:"show"`
@@ -34,7 +56,7 @@ func (e *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error)
 		} `xml:"execute-result"`
 	}
 
-	command := "<rpc><show><message-spool></message-spool></show ></rpc>"
+	command := "<rpc><show><message-spool><detail/></message-spool></show ></rpc>"
 	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "SpoolSemp1", 1)
 	if err != nil {
 		_ = level.Error(e.logger).Log("msg", "Can't scrape Solace", "err", err, "broker", e.brokerURI)
@@ -74,7 +96,29 @@ func (e *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error)
 	}
 
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.PersistUsage*1048576.0))
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_usage_adb_bytes"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.CurrentPersistentStoreUsageADB*1048576.0)
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_usage_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount)
+
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_ingress_flows_quota"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.IngressFlowsQuota)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_ingress_flows_count"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.IngressFlowsCount)
+
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_egress_flows_quota"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.EgressFlowsQuota)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_egress_flows_count"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.EgressFlowsActive+target.RPC.Show.Spool.Info.EgressFlowsInactive+target.RPC.Show.Spool.Info.EgressFlowsBrowser)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_egress_flows_active"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.EgressFlowsActive)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_egress_flows_inactive"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.EgressFlowsInactive)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_egress_flows_browser"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.EgressFlowsBrowser)
+
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_endpoints_quota"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.EntitiesByQendptQuota)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_endpoints_queue"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.EntitiesByQendptQueue)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_endpoints_dte"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.EntitiesByQendptDte)
+
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_transacted_sessions_quota"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.TransactedSessionsQuota)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_transacted_sessions_used"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.TransactedSessionsUsed)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_transactions_quota"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.TransactionsQuota)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_transactions_used"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.TransactionsUsed)
+
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_messages_currently_spooled_adb"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.MessagesCurrentlySpooledADB)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_messages_currently_spooled_disk"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.MessagesCurrentlySpooledDisk)
 
 	return 1, nil
 }

@@ -92,6 +92,11 @@ var MetricDesc = map[string]Descriptions{
 	//SEMPv1: show stats client
 	"GlobalStats": {
 		"system_total_clients_connected": NewSemDesc("system_total_clients_connected", NoSempV2Ready, "Total clients connected.", nil),
+		"system_total_clients_quota":     NewSemDesc("system_total_clients_quota", NoSempV2Ready, "Number of maximal possible clients to be connected.", nil),
+		"system_message_spool_quota":     NewSemDesc("system_message_spool_quota", NoSempV2Ready, "Number of maximal possible messages to be queue.", nil),
+		"system_uptime_seconds":          NewSemDesc("system_uptime_seconds", NoSempV2Ready, "Uptime in seconds.", nil),
+		"system_cpu_cores":               NewSemDesc("system_cpu_cores", NoSempV2Ready, "Available cpu cores.", nil),
+		"system_memory_bytes":            NewSemDesc("system_memory_bytes", NoSempV2Ready, "Available ram in bytes.", nil),
 		"system_rx_msgs_total":           NewSemDesc("system_rx_msgs_total", NoSempV2Ready, "Total client messages received.", nil),
 		"system_tx_msgs_total":           NewSemDesc("system_tx_msgs_total", NoSempV2Ready, "Total client messages sent.", nil),
 		"system_rx_bytes_total":          NewSemDesc("system_rx_bytes_total", NoSempV2Ready, "Total client bytes received.", nil),
@@ -108,6 +113,25 @@ var MetricDesc = map[string]Descriptions{
 		"system_spool_usage_msgs":                          NewSemDesc("system_spool_usage_msgs", NoSempV2Ready, "Spool total number of persisted messages.", nil),
 		"system_spool_files_utilization_percent":           NewSemDesc("system_spool_files_utilization_percent", NoSempV2Ready, "Utilization of spool files in percent.", nil),
 		"system_spool_message_count_utilization_percent":   NewSemDesc("system_spool_message_count_utilization_percent", NoSempV2Ready, "Utilization of queue message resource in percent.", nil),
+
+		"system_spool_ingress_flows_quota":       NewSemDesc("system_spool_ingress_flows_quota", NoSempV2Ready, "Number of maximal possible ingress flows.", nil),
+		"system_spool_ingress_flows_count":       NewSemDesc("system_spool_ingress_flows_count", NoSempV2Ready, "Number of used ingress flows.", nil),
+		"system_spool_egress_flows_quota":        NewSemDesc("system_spool_egress_flows_quota", NoSempV2Ready, "Number of maximal possible egress flows.", nil),
+		"system_spool_egress_flows_count":        NewSemDesc("system_spool_egress_flows_count", NoSempV2Ready, "Number of used egress flows.", nil),
+		"system_spool_egress_flows_active":       NewSemDesc("system_spool_egress_flows_active", NoSempV2Ready, "Number of used egress flows in state active.", nil),
+		"system_spool_egress_flows_inactive":     NewSemDesc("system_spool_egress_flows_inactive", NoSempV2Ready, "Number of used egress flows in state inactive.", nil),
+		"system_spool_egress_flows_browser":      NewSemDesc("system_spool_egress_flows_browser", NoSempV2Ready, "Number of used egress flows in queue browser mode.", nil),
+		"system_spool_endpoints_quota":           NewSemDesc("system_spool_endpoints_quota", NoSempV2Ready, "Number of maximal possible queue or topic endpoints.", nil),
+		"system_spool_endpoints_queue":           NewSemDesc("system_spool_endpoints_queue", NoSempV2Ready, "Number of existing queue endpoints.", nil),
+		"system_spool_endpoints_dte":             NewSemDesc("system_spool_endpoints_dte", NoSempV2Ready, "Number of existing topic endpoints.", nil),
+		"system_spool_transacted_sessions_quota": NewSemDesc("system_spool_transacted_sessions_quota", NoSempV2Ready, "Number of maximal possible transacted sessions.", nil),
+		"system_spool_transacted_sessions_used":  NewSemDesc("system_spool_transacted_sessions_used", NoSempV2Ready, "Number of used transacted sessions.", nil),
+		"system_spool_transactions_quota":        NewSemDesc("system_spool_transactions_quota", NoSempV2Ready, "Number of maximal possible transactions.", nil),
+		"system_spool_transactions_used":         NewSemDesc("system_spool_transactions_used", NoSempV2Ready, "Number of used transactions.", nil),
+
+		"system_spool_usage_adb_bytes":                 NewSemDesc("system_spool_usage_adb_bytes", NoSempV2Ready, "Spool total persisted usage in adb.", nil),
+		"system_spool_messages_currently_spooled_adb":  NewSemDesc("system_spool_messages_currently_spooled_adb", NoSempV2Ready, "Messages stored in adb.", nil),
+		"system_spool_messages_currently_spooled_disk": NewSemDesc("system_spool_messages_currently_spooled_disk", NoSempV2Ready, "Messages stored on disk.", nil),
 	},
 	"Redundancy": {
 		"system_redundancy_up":           NewSemDesc("system_redundancy_up", NoSempV2Ready, "Is redundancy up? (0=Down, 1=Up).", variableLabelsRedundancy),

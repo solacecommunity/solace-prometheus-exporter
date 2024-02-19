@@ -8,6 +8,52 @@ import (
 )
 
 // Get global stats information
+func (e *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+	type Data struct {
+		RPC struct {
+			Show struct {
+				System struct {
+					UptimeSeconds      float64 `xml:"system-uptime-seconds"`
+					ConnectionsQuota   float64 `xml:"max-connections"`
+					MessagesQueueQuota float64 `xml:"max-queue-messages"`
+					CpuCores           float64 `xml:"cpu-cores"`
+					SystemMemory       float64 `xml:"system-memory"`
+				} `xml:"system"`
+			} `xml:"show"`
+		} `xml:"rpc"`
+		ExecuteResult struct {
+			Result string `xml:"code,attr"`
+		} `xml:"execute-result"`
+	}
+
+	command := "<rpc><show><system/></show></rpc>"
+	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "GetGlobalSystemInfoSemp1", 1)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't scrape GetGlobalSystemInfoSemp1", "err", err, "broker", e.brokerURI)
+		return 0, err
+	}
+	defer body.Close()
+	decoder := xml.NewDecoder(body)
+	var target Data
+	err = decoder.Decode(&target)
+	if err != nil {
+		_ = level.Error(e.logger).Log("msg", "Can't decode Xml GetGlobalSystemInfoSemp1", "err", err, "broker", e.brokerURI)
+		return 0, err
+	}
+	if target.ExecuteResult.Result != "ok" {
+		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+		return 0, errors.New("unexpected result: see log")
+	}
+
+	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_uptime_seconds"], prometheus.GaugeValue, target.RPC.Show.System.UptimeSeconds)
+	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_total_clients_quota"], prometheus.GaugeValue, target.RPC.Show.System.ConnectionsQuota)
+	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_message_spool_quota"], prometheus.GaugeValue, target.RPC.Show.System.MessagesQueueQuota*1000000)
+	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_cpu_cores"], prometheus.GaugeValue, target.RPC.Show.System.CpuCores)
+	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_memory_bytes"], prometheus.GaugeValue, target.RPC.Show.System.SystemMemory*1073741824.0)
+
+	return 1, nil
+}
+
 func (e *Semp) GetGlobalStatsSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	type Data struct {
 		RPC struct {

@@ -32,6 +32,8 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			up, err = e.semp.GetInterfaceSemp1(ch, dataSource.ItemFilter)
 		case "GlobalStats", "GlobalStatsV1":
 			up, err = e.semp.GetGlobalStatsSemp1(ch)
+		case "GlobalSystemInfo", "GlobalSystemInfoV1":
+			up, err = e.semp.GetGlobalSystemInfoSemp1(ch)
 		case "Spool", "SpoolV1":
 			up, err = e.semp.GetSpoolSemp1(ch)
 		case "Redundancy", "RedundancyV1":
