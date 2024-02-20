@@ -44,7 +44,7 @@ var QueueStats = Descriptions{
 
 var MetricDesc = map[string]Descriptions{
 	"Global": {
-		"up": NewSemDesc(namespace+"_up", NoSempV2Ready, "Was the last scrape of Solace broker successful.", variableLabelsUp),
+		"up": NewSemDesc("up", NoSempV2Ready, "Was the last scrape of Solace broker successful.", variableLabelsUp),
 	},
 	"Version": {
 		"system_version_currentload":      NewSemDesc("system_version_currentload", NoSempV2Ready, "Solace Version as WWWXXXYYYZZZ", nil),
