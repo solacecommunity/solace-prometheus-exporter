@@ -14,7 +14,7 @@ package main
 
 import (
 	"bytes"
-	"golang.org/x/sync/semaphore"
+	"crypto/tls"
 	"net/http"
 	"os"
 	"solace_exporter/exporter"
@@ -22,13 +22,15 @@ import (
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
 	promVersion "github.com/prometheus/common/version"
+	"golang.org/x/sync/semaphore"
+	"software.sslmate.com/src/go-pkcs12"
 )
 
 const version = float64(1004005)
@@ -68,7 +70,18 @@ func main() {
 		"private-key",
 		"If using TLS, you must provide a valid private key in PEM format. Can be set via config file, cli parameter or env variable.",
 	).ExistingFile()
-
+	certType := kingpin.Flag(
+		"cert-type",
+		" Set the certificate type PEM | PKCS12.",
+	).String()
+	pkcs12File := kingpin.Flag(
+		"pkcs12File",
+		"If using TLS, you must provide a valid pkcs12 file.",
+	).ExistingFile()
+	pkcs12Pass := kingpin.Flag(
+		"pkcs12Pass",
+		"If using TLS, you must provide a valid pkcs12 password.",
+	).String()
 	kingpin.Parse()
 
 	logger := promlog.New(&promlogConfig)
@@ -91,7 +104,15 @@ func main() {
 	if len(*privateKey) > 0 {
 		conf.PrivateKey = *privateKey
 	}
-
+	if len(*certType) > 0 {
+		conf.CertType = *certType
+	}
+	if len(*pkcs12File) > 0 {
+		conf.Pkcs12File = *pkcs12File
+	}
+	if len(*pkcs12Pass) > 0 {
+		conf.Pkcs12Pass = *pkcs12Pass
+	}
 	level.Info(logger).Log("msg", "Scraping",
 		"listenAddr", conf.GetListenURI(),
 		"scrapeURI", conf.ScrapeURI,
@@ -224,10 +245,62 @@ func main() {
 
 	// start server
 	if conf.EnableTLS {
-		if err := http.ListenAndServeTLS(conf.ListenAddr, conf.Certificate, conf.PrivateKey, nil); err != nil {
+		var tlsCert tls.Certificate
+		if strings.ToUpper(conf.CertType) == exporter.CERTTYPE_PKCS12 {
+
+			// Read byte data from pkcs12 keystore
+			p12_data, err := os.ReadFile(conf.Pkcs12File)
+			if err != nil {
+				level.Error(logger).Log("Error reading PKCS12 file", err)
+				return
+			}
+
+			// Extract cert and key from pkcs12 keystore
+			privateKey, leafCert, caCerts, err := pkcs12.DecodeChain(p12_data, conf.Pkcs12Pass)
+			if err != nil {
+				level.Error(logger).Log("PKCS12 - Error decoding chain", err)
+				return
+			}
+
+			certBytes := [][]byte{leafCert.Raw}
+			for _, ca := range caCerts {
+				certBytes = append(certBytes, ca.Raw)
+			}
+			tlsCert = tls.Certificate{
+				Certificate: certBytes,
+				PrivateKey:  privateKey,
+			}
+		} else {
+			tlsCert, err = tls.LoadX509KeyPair(conf.Certificate, conf.PrivateKey)
+			if err != nil {
+				level.Error(logger).Log("PEM - Error loading keypair", err)
+				return
+			}
+		}
+
+		cfg := &tls.Config{
+			MinVersion:               tls.VersionTLS12,
+			CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+			PreferServerCipherSuites: true,
+			CipherSuites: []uint16{
+				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+				tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+				tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+			},
+			Certificates: []tls.Certificate{tlsCert},
+		}
+		http := &http.Server{
+			Addr:         conf.ListenAddr,
+			TLSConfig:    cfg,
+			TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
+		}
+
+		if err := http.ListenAndServeTLS("", ""); err != nil {
 			level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
 			os.Exit(2)
 		}
+
 	} else {
 		if err := http.ListenAndServe(conf.ListenAddr, nil); err != nil {
 			level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
