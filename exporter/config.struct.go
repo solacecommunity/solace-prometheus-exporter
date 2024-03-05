@@ -20,6 +20,9 @@ type Config struct {
 	EnableTLS               bool
 	Certificate             string
 	PrivateKey              string
+	CertType                string
+	Pkcs12File              string
+	Pkcs12Pass              string
 	ScrapeURI               string
 	Username                string
 	Password                string
@@ -31,6 +34,11 @@ type Config struct {
 	ParallelSempConnections int64
 	logBrokerToSlowWarnings bool
 }
+
+const (
+	CERTTYPE_PEM    = "PEM"
+	CERTTYPE_PKCS12 = "PKCS12"
+)
 
 // getListenURI returns the `listenAddr` with proper protocol (http/https),
 // based on the `enableTLS` configuration parameter
@@ -66,12 +74,25 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	conf.Certificate, err = parseConfigString(cfg, "solace", "certificate", "SOLACE_SERVER_CERT")
+	conf.CertType, err = parseConfigString(cfg, "solace", "certType", "SOLACE_LISTEN_CERTTYPE")
 	if conf.EnableTLS && err != nil {
+		fmt.Println("CertType not set. Using default PEM")
+		conf.CertType = CERTTYPE_PEM
+	}
+	conf.Certificate, err = parseConfigString(cfg, "solace", "certificate", "SOLACE_SERVER_CERT")
+	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CERTTYPE_PEM && err != nil {
 		return nil, nil, err
 	}
 	conf.PrivateKey, err = parseConfigString(cfg, "solace", "privateKey", "SOLACE_PRIVATE_KEY")
-	if conf.EnableTLS && err != nil {
+	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CERTTYPE_PEM && err != nil {
+		return nil, nil, err
+	}
+	conf.Pkcs12File, err = parseConfigString(cfg, "solace", "pkcs12File", "SOLACE_PKCS12_FILE")
+	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CERTTYPE_PKCS12 && err != nil {
+		return nil, nil, err
+	}
+	conf.Pkcs12Pass, err = parseConfigString(cfg, "solace", "pkcs12Pass", "SOLACE_PKCS12_PASS")
+	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CERTTYPE_PKCS12 && err != nil {
 		return nil, nil, err
 	}
 	conf.ScrapeURI, err = parseConfigString(cfg, "solace", "scrapeUri", "SOLACE_SCRAPE_URI")
