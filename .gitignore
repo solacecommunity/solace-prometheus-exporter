@@ -5,3 +5,4 @@ solace_prometheus_exporter
 .idea
 *.iml
 *.pem
+*.p12
