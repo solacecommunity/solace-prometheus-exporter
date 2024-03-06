@@ -14,7 +14,6 @@ package main
 
 import (
 	"bytes"
-	"crypto/tls"
 	"net/http"
 	"os"
 	"solace_exporter/exporter"
@@ -30,7 +29,6 @@ import (
 	"github.com/prometheus/common/promlog/flag"
 	promVersion "github.com/prometheus/common/version"
 	"golang.org/x/sync/semaphore"
-	"software.sslmate.com/src/go-pkcs12"
 )
 
 const version = float64(1004005)
@@ -245,62 +243,7 @@ func main() {
 
 	// start server
 	if conf.EnableTLS {
-		var tlsCert tls.Certificate
-		if strings.ToUpper(conf.CertType) == exporter.CERTTYPE_PKCS12 {
-
-			// Read byte data from pkcs12 keystore
-			p12_data, err := os.ReadFile(conf.Pkcs12File)
-			if err != nil {
-				level.Error(logger).Log("Error reading PKCS12 file", err)
-				return
-			}
-
-			// Extract cert and key from pkcs12 keystore
-			privateKey, leafCert, caCerts, err := pkcs12.DecodeChain(p12_data, conf.Pkcs12Pass)
-			if err != nil {
-				level.Error(logger).Log("PKCS12 - Error decoding chain", err)
-				return
-			}
-
-			certBytes := [][]byte{leafCert.Raw}
-			for _, ca := range caCerts {
-				certBytes = append(certBytes, ca.Raw)
-			}
-			tlsCert = tls.Certificate{
-				Certificate: certBytes,
-				PrivateKey:  privateKey,
-			}
-		} else {
-			tlsCert, err = tls.LoadX509KeyPair(conf.Certificate, conf.PrivateKey)
-			if err != nil {
-				level.Error(logger).Log("PEM - Error loading keypair", err)
-				return
-			}
-		}
-
-		cfg := &tls.Config{
-			MinVersion:               tls.VersionTLS12,
-			CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
-			PreferServerCipherSuites: true,
-			CipherSuites: []uint16{
-				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-				tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
-				tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
-				tls.TLS_RSA_WITH_AES_256_CBC_SHA,
-			},
-			Certificates: []tls.Certificate{tlsCert},
-		}
-		http := &http.Server{
-			Addr:         conf.ListenAddr,
-			TLSConfig:    cfg,
-			TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
-		}
-
-		if err := http.ListenAndServeTLS("", ""); err != nil {
-			level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
-			os.Exit(2)
-		}
-
+		exporter.ListenAndServeTLS(*conf)
 	} else {
 		if err := http.ListenAndServe(conf.ListenAddr, nil); err != nil {
 			level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
