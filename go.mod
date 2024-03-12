@@ -11,6 +11,8 @@ require (
 	gopkg.in/ini.v1 v1.67.0
 )
 
+require golang.org/x/crypto v0.11.0 // indirect
+
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20231202071711-9a357b53e9c9 // indirect
@@ -24,4 +26,5 @@ require (
 	github.com/xhit/go-str2duration/v2 v2.1.0 // indirect
 	golang.org/x/sys v0.15.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
+	software.sslmate.com/src/go-pkcs12 v0.4.0
 )
