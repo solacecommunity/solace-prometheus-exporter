@@ -243,6 +243,9 @@ Flags:
       --enable-tls               Set to true, to start listenAddr as TLS port. Make sure to provide valid server certificate and private key files.
       --certificate=CERTIFICATE  If using TLS, you must provide a valid server certificate in PEM format. Can be set via config file, cli parameter or env variable.
       --private-key=PRIVATE-KEY  If using TLS, you must provide a valid private key in PEM format. Can be set via config file, cli parameter or env variable.
+      --cert-type=CERT-TYPE      Set the certificate type PEM | PKCS12.
+      --pkcs12File=PKCS12FILE    If using TLS, you must provide a valid pkcs12 file.
+      --pkcs12Pass=PKCS12PASS    If using TLS, you must provide a valid pkcs12 password.    
 ```
 
 The configuration parameters can be placed into a config file or into a set of environment variables or can be given via
@@ -264,17 +267,29 @@ Sample config file:
 # Address to listen on for web interface and telemetry.
 listenAddr = 0.0.0.0:9628
 
-# Enable TLS on listenAddr endpoint. Make sure to provide certificate and private key files. 
-# can be overridden via env variable SOLACE_LISTEN_TLS
-enableTLS = true
+# Enable TLS on listenAddr endpoint. Make sure to provide certificate and private key files when using certType=PEM or or PKCS12 file and password when using PKCS12.
+# can be overridden via env variable SOLACE_LISTEN_TLS or via cli parameter --enable-tls
+enableTLS=false
 
 # Path to the server certificate (including intermediates and CA's certificate)
-# can be overridden via env variable SOLACE_SERVER_CERT
-certificate = cert.pem
+# can be overridden via env variable SOLACE_SERVER_CERT or via cli parameter --certificate=cert.pem
+certificate=cert.pem
 
 # Path to the private key pem file
-# can be overridden via env variable SOLACE_PRIVATE_KEY
-privateKey = key.pem
+# can be overridden via env variable SOLACE_PRIVATE_KEY or via cli parameter --private-key=key.pem
+privateKey=key.pem
+
+# Set the certificate type PEM | PKCS12. Make sure to provide certificate and private key files for PEM or PKCS12 file and password.
+# can be overridden via env variable SOLACE_LISTEN_CERTTYPE or via cli parameter --cert-type
+certType=PEM
+
+# Path to the server certificate (including intermediates and CA's certificate)
+# can be overridden via env variable SOLACE_PKCS12_FILE or via cli parameter --pkcs12File=keystore.p12
+pkcs12File=keystore.p12
+
+# Password to decrypt PKCS12 file.
+# can be overridden via env variable SOLACE_PKCS12_PASS or via cli parameter --pkcs12Pass=passwordHere
+pkcs12Pass=123456
 
 # Base URI on which to scrape Solace broker.
 scrapeUri = http://your-exporter:8080
@@ -314,6 +329,9 @@ SOLACE_LISTEN_ADDR=0.0.0.0:9628
 SOLACE_LISTEN_TLS=true
 SOLACE_SERVER_CERT=/path/to/your/cert.pem
 SOLACE_PRIVATE_KEY=/path/to/your/key.pem
+SOLACE_LISTEN_CERTTYPE=PEM
+SOLACE_PKCS12_FILE=/path/to/your/keystore.p12
+SOLACE_PKCS12_PASS=123456
 SOLACE_SCRAPE_URI=http://your-broker:8080
 SOLACE_USERNAME=admin
 SOLACE_PASSWORD=admin
@@ -420,6 +438,10 @@ or cli flag `--enable-tls` respectively.
 TLS encryption requires you to provide two files in PEM (base64) format. You can define the path to those files in
 different ways:
 
+- Certificate Type (If not defined, it'll defaut to PEM)
+    - __cli parameter__: `--cert-type=PEM`
+    - __environment variable__: `SOLACE_LISTEN_CERTTYPE=PEM`
+    - __config file__: `certType=PEM`
 - Server certificate (including intermediates and CA's certificate)
     - __cli parameter__: `--certificate=cert.pem`
     - __environment variable__: `SOLACE_SERVER_CERT`
@@ -449,6 +471,45 @@ SOLACE_LISTEN_TLS=true
 SOLACE_SERVER_CERT=/etc/solace/cert.pem
 SOLACE_PRIVATE_KEY=/etc/solace/key.pem
 ```
+
+### Alternatively you can also use a P12 Keystore (PKCS12).
+You can define the path and the password in different ways:
+
+- Certificate Type  (If not defined, it'll defaut to PEM)
+    - __cli parameter__: `--cert-type=PKCS12`
+    - __environment variable__: `SOLACE_LISTEN_CERTTYPE=PKCS12`
+    - __config file__: `certType=PKCS12`
+- Path to PKCS12 Keystore File
+    - __cli parameter__: `--pkcs12File=keystore.p12`
+    - __environment variable__: `SOLACE_PKCS12_FILE=/path/to/your/keystore.p12`
+    - __config file__: `pkcs12File=keystore.p12`
+- Password for PCS12 Keystore
+    - __cli parameter__: `--pkcs12Pass=123456`
+    - __environment variable__: `SOLACE_PKCS12_PASS=123456`
+    - __config file__: `pkcs12Pass=123456`
+
+If you're running the exporter via Docker container, you can map the keystore file during your `docker run` command
+from the host to the container.
+
+```bash
+docker run -d \
+ -p 9628:9628 \
+ --env-file env.txt \
+ -v ${PWD}/keystore.p12:/etc/solace/keystore.p12 \
+ [...]
+ solacecommunity/solace-prometheus-exporter
+```
+
+Of course, make sure to set the right local path and the pssword in the `env.txt` provided.
+
+```.env
+SOLACE_LISTEN_TLS=true
+SOLACE_LISTEN_CERTTYPE=PKCS12
+SOLACE_PKCS12_FILE=/etc/solace/keystore.p12
+SOLACE_PKCS12_PASS=123456
+```
+
+
 
 ## Resources
 
