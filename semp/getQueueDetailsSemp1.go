@@ -71,7 +71,7 @@ func (e *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter string
 			}
 			lastQueueName = queueKey
 			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_spool_quota_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Quota*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_spool_usage_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Usage*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
+			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_spool_usage_bytes"], prometheus.CounterValue, math.Round(queue.Info.Usage*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
 			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_spool_usage_msgs"], prometheus.GaugeValue, queue.Info.SpooledMsgCount, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_binds"], prometheus.GaugeValue, queue.Info.BindCount, queue.Info.MsgVpnName, queue.QueueName)
 		}

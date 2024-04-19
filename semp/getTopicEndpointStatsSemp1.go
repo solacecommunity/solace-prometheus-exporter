@@ -85,13 +85,13 @@ func (e *Semp) GetTopicEndpointStatsSemp1(ch chan<- PrometheusMetric, vpnFilter 
 				continue
 			}
 			lastTopicEndpointName = topicEndpointKey
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["total_bytes_spooled"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.TotalByteSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["total_messages_spooled"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.TotalMsgSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["messages_redelivered"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.MsgRedelivered, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["messages_transport_retransmited"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.MsgRetransmit, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["spool_usage_exceeded"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.SpoolUsageExceeded, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["max_message_size_exceeded"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.MsgSizeExceeded, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["total_deleted_messages"], prometheus.GaugeValue, topicEndpoint.Stats.MessageSpoolStats.Deleted, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["total_bytes_spooled"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.TotalByteSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["total_messages_spooled"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.TotalMsgSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["messages_redelivered"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.MsgRedelivered, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["messages_transport_retransmited"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.MsgRetransmit, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["spool_usage_exceeded"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.SpoolUsageExceeded, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["max_message_size_exceeded"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.MsgSizeExceeded, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["total_deleted_messages"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.Deleted, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
 		}
 		body.Close()
 	}

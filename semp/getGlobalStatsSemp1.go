@@ -45,8 +45,8 @@ func (e *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (ok float64,
 		return 0, errors.New("unexpected result: see log")
 	}
 
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_uptime_seconds"], prometheus.GaugeValue, target.RPC.Show.System.UptimeSeconds)
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_total_clients_quota"], prometheus.GaugeValue, target.RPC.Show.System.ConnectionsQuota)
+	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_uptime_seconds"], prometheus.CounterValue, target.RPC.Show.System.UptimeSeconds)
+	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_total_clients_quota"], prometheus.CounterValue, target.RPC.Show.System.ConnectionsQuota)
 	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_message_spool_quota"], prometheus.GaugeValue, target.RPC.Show.System.MessagesQueueQuota*1000000)
 	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_cpu_cores"], prometheus.GaugeValue, target.RPC.Show.System.CpuCores)
 	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_memory_bytes"], prometheus.GaugeValue, target.RPC.Show.System.SystemMemory*1073741824.0)
