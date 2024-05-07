@@ -47,6 +47,10 @@ func (e *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error)
 						CurrentPersistentStoreUsageADB float64 `xml:"current-rfad-usage"`
 						MessagesCurrentlySpooledADB    float64 `xml:"rfad-messages-currently-spooled"`
 						MessagesCurrentlySpooledDisk   float64 `xml:"disk-messages-currently-spooled"`
+
+
+						QueueTopicSubscriptionsQuota   float64 `xml:"max-queue-topic-subscriptions"`
+						QueueTopicSubscriptionsUsed    float64 `xml:"queue-topic-subscriptions-used"`
 					} `xml:"message-spool-info"`
 				} `xml:"message-spool"`
 			} `xml:"show"`
@@ -114,6 +118,9 @@ func (e *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error)
 
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_transacted_sessions_quota"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.TransactedSessionsQuota)
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_transacted_sessions_used"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.TransactedSessionsUsed)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_queue_topic_subscriptions_quota"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.QueueTopicSubscriptionsQuota)
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_queue_topic_subscriptions_used"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.QueueTopicSubscriptionsUsed)
+
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_transactions_quota"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.TransactionsQuota)
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_transactions_used"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.TransactionsUsed)
 

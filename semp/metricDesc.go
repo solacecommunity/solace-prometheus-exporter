@@ -26,7 +26,7 @@ var (
 )
 
 var QueueStats = Descriptions{
-	"total_bytes_spooled":                 NewSemDesc("queue_byte_spooled", "spooledByteCount", "Queue spool total of all spooled messages in bytes.", variableLabelsVpnQueue),
+	"total_bytes_spooled":                 NewSemDesc("queue_byte_spooled", "spooledByteCount", "The total amount of all messages ever spooled in the queue, in bytes.", variableLabelsVpnQueue),
 	"total_messages_spooled":              NewSemDesc("queue_msg_spooled", "spooledMsgCount", "Queue spool total of all spooled messages.", variableLabelsVpnQueue),
 	"messages_redelivered":                NewSemDesc("queue_msg_redelivered", "redeliveredMsgCount", "Queue total msg redeliveries.", variableLabelsVpnQueue),
 	"messages_transport_retransmited":     NewSemDesc("queue_msg_retransmited", "transportRetransmitMsgCount", "Queue total msg retransmitted on transport.", variableLabelsVpnQueue),
@@ -126,6 +126,8 @@ var MetricDesc = map[string]Descriptions{
 		"system_spool_endpoints_dte":             NewSemDesc("system_spool_endpoints_dte", NoSempV2Ready, "Number of existing topic endpoints.", nil),
 		"system_spool_transacted_sessions_quota": NewSemDesc("system_spool_transacted_sessions_quota", NoSempV2Ready, "Number of maximal possible transacted sessions.", nil),
 		"system_spool_transacted_sessions_used":  NewSemDesc("system_spool_transacted_sessions_used", NoSempV2Ready, "Number of used transacted sessions.", nil),
+		"system_spool_queue_topic_subscriptions_quota": NewSemDesc("system_spool_queue_topic_subscriptions_quota", NoSempV2Ready, "Number of maximal possible topic subscriptions of all queues.", nil),
+		"system_spool_queue_topic_subscriptions_used":  NewSemDesc("ssystem_spool_queue_topic_subscriptions_used", NoSempV2Ready, "Number of used topic subscriptions of all queues.", nil),
 		"system_spool_transactions_quota":        NewSemDesc("system_spool_transactions_quota", NoSempV2Ready, "Number of maximal possible transactions.", nil),
 		"system_spool_transactions_used":         NewSemDesc("system_spool_transactions_used", NoSempV2Ready, "Number of used transactions.", nil),
 
@@ -337,8 +339,8 @@ var MetricDesc = map[string]Descriptions{
 	},
 	"QueueDetails": {
 		"queue_spool_quota_bytes": NewSemDesc("queue_spool_quota_bytes", NoSempV2Ready, "Queue spool configured max disk usage in bytes.", variableLabelsVpnQueue),
-		"queue_spool_usage_bytes": NewSemDesc("queue_spool_usage_bytes", NoSempV2Ready, "Queue spool usage in bytes.", variableLabelsVpnQueue),
-		"queue_spool_usage_msgs":  NewSemDesc("queue_spool_usage_msgs", NoSempV2Ready, "Queue spooled number of messages.", variableLabelsVpnQueue),
+		"queue_spool_usage_bytes": NewSemDesc("queue_spool_usage_bytes", NoSempV2Ready, "The size in bytes of all messages currently in the Queue.", variableLabelsVpnQueue),
+		"queue_spool_usage_msgs":  NewSemDesc("queue_spool_usage_msgs", NoSempV2Ready, "The count of all messages currently in the Queue.", variableLabelsVpnQueue),
 		"queue_binds":             NewSemDesc("queue_binds", NoSempV2Ready, "Number of clients bound to queue.", variableLabelsVpnQueue),
 	},
 	"QueueStats":   QueueStats,
