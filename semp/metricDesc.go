@@ -127,7 +127,7 @@ var MetricDesc = map[string]Descriptions{
 		"system_spool_transacted_sessions_quota": NewSemDesc("system_spool_transacted_sessions_quota", NoSempV2Ready, "Number of maximal possible transacted sessions.", nil),
 		"system_spool_transacted_sessions_used":  NewSemDesc("system_spool_transacted_sessions_used", NoSempV2Ready, "Number of used transacted sessions.", nil),
 		"system_spool_queue_topic_subscriptions_quota": NewSemDesc("system_spool_queue_topic_subscriptions_quota", NoSempV2Ready, "Number of maximal possible topic subscriptions of all queues.", nil),
-		"system_spool_queue_topic_subscriptions_used":  NewSemDesc("ssystem_spool_queue_topic_subscriptions_used", NoSempV2Ready, "Number of used topic subscriptions of all queues.", nil),
+		"system_spool_queue_topic_subscriptions_used":  NewSemDesc("system_spool_queue_topic_subscriptions_used", NoSempV2Ready, "Number of used topic subscriptions of all queues.", nil),
 		"system_spool_transactions_quota":        NewSemDesc("system_spool_transactions_quota", NoSempV2Ready, "Number of maximal possible transactions.", nil),
 		"system_spool_transactions_used":         NewSemDesc("system_spool_transactions_used", NoSempV2Ready, "Number of used transactions.", nil),
 
