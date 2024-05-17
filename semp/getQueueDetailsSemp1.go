@@ -19,11 +19,12 @@ func (e *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter string
 						Queue []struct {
 							QueueName string `xml:"name"`
 							Info      struct {
-								MsgVpnName      string  `xml:"message-vpn"`
-								Quota           float64 `xml:"quota"`
-								Usage           float64 `xml:"current-spool-usage-in-mb"`
-								SpooledMsgCount float64 `xml:"num-messages-spooled"`
-								BindCount       float64 `xml:"bind-count"`
+								MsgVpnName              string  `xml:"message-vpn"`
+								Quota                   float64 `xml:"quota"`
+								Usage                   float64 `xml:"current-spool-usage-in-mb"`
+								SpooledMsgCount         float64 `xml:"num-messages-spooled"`
+								BindCount               float64 `xml:"bind-count"`
+								TopicSubscriptionCount  float64 `xml:"topic-subscription-count"`
 							} `xml:"info"`
 						} `xml:"queue"`
 					} `xml:"queues"`
@@ -74,6 +75,7 @@ func (e *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter string
 			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_spool_usage_bytes"], prometheus.CounterValue, math.Round(queue.Info.Usage*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
 			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_spool_usage_msgs"], prometheus.GaugeValue, queue.Info.SpooledMsgCount, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_binds"], prometheus.GaugeValue, queue.Info.BindCount, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_subscriptions"], prometheus.GaugeValue, queue.Info.TopicSubscriptionCount, queue.Info.MsgVpnName, queue.QueueName)
 		}
 		body.Close()
 	}

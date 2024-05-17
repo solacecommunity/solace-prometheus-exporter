@@ -342,6 +342,7 @@ var MetricDesc = map[string]Descriptions{
 		"queue_spool_usage_bytes": NewSemDesc("queue_spool_usage_bytes", NoSempV2Ready, "The size in bytes of all messages currently in the Queue.", variableLabelsVpnQueue),
 		"queue_spool_usage_msgs":  NewSemDesc("queue_spool_usage_msgs", NoSempV2Ready, "The count of all messages currently in the Queue.", variableLabelsVpnQueue),
 		"queue_binds":             NewSemDesc("queue_binds", NoSempV2Ready, "Number of clients bound to queue.", variableLabelsVpnQueue),
+		"queue_subscriptions":     NewSemDesc("queue_subscriptions", NoSempV2Ready, "Number of subscriptions of the queue.", variableLabelsVpnQueue),
 	},
 	"QueueStats":   QueueStats,
 	"QueueStatsV2": QueueStats,
