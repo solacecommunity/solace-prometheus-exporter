@@ -25,10 +25,7 @@ func (e *Semp) GetVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok flo
 						TotalLocalUniqueSubscriptions  float64 `xml:"total-local-unique-subscriptions"`
 						TotalRemoteUniqueSubscriptions float64 `xml:"total-remote-unique-subscriptions"`
 						TotalUniqueSubscriptions       float64 `xml:"total-unique-subscriptions"`
-						ConnectionsAmqService          float64 `xml:"connections-service-amqp"`
-						ConnectionsSmfService          float64 `xml:"connections-service-smf"`
 						Connections                    float64 `xml:"connections"`
-						QuotaConnections               float64 `xml:"max-connections"`
 					} `xml:"vpn"`
 				} `xml:"message-vpn"`
 			} `xml:"show"`
@@ -67,10 +64,6 @@ func (e *Semp) GetVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok flo
 		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_total_local_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalLocalUniqueSubscriptions, vpn.Name)
 		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_total_remote_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalRemoteUniqueSubscriptions, vpn.Name)
 		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_total_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalUniqueSubscriptions, vpn.Name)
-		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_connections_service_amqp"], prometheus.GaugeValue, vpn.ConnectionsAmqService, vpn.Name)
-		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_connections_service_smf"], prometheus.GaugeValue, vpn.ConnectionsSmfService, vpn.Name)
-		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
-		ch <- e.NewMetric(MetricDesc["Vpn"]["vpn_quota_connections"], prometheus.GaugeValue, vpn.QuotaConnections, vpn.Name)
 	}
 
 	return 1, nil

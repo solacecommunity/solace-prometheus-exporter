@@ -14,10 +14,23 @@ func (e *Semp) GetVpnStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string) (o
 			Show struct {
 				MessageVpn struct {
 					Vpn []struct {
-						Name        string  `xml:"name"`
-						LocalStatus string  `xml:"local-status"`
-						Connections float64 `xml:"connections"`
-						Stats       struct {
+						Name                      string  `xml:"name"`
+						LocalStatus               string  `xml:"local-status"`
+						Connections               float64 `xml:"connections"`
+						QuotaConnections          float64 `xml:"max-connections"`
+						QuotaConnectionsSmf       float64 `xml:"max-connections-service-smf"`
+						QuotaConnectionsWeb       float64 `xml:"max-connections-service-web"`
+						QuotaConnectionsMqtt      float64 `xml:"max-connections-service-mqtt"`
+						QuotaConnectionsAmqp      float64 `xml:"max-connections-service-amqp"`
+						QuotaConnectionsRestIn    float64 `xml:"max-connections-service-rest-incoming"`
+						QuotaConnectionsRestOut   float64 `xml:"max-connections-service-rest-outgoing"`
+						ConnectionsAmqService     float64 `xml:"connections-service-amqp"`
+						ConnectionsSmfService     float64 `xml:"connections-service-smf"`
+						ConnectionsWebService     float64 `xml:"connections-service-web"`
+						ConnectionsMqttService    float64 `xml:"connections-service-mqtt"`
+						ConnectionsRestInService  float64 `xml:"connections-service-rest-incoming"`
+						ConnectionsRestOutService float64 `xml:"connections-service-rest-outgoing"`
+						Stats                     struct {
 							DataRxByteCount   float64 `xml:"client-data-bytes-received"`
 							DataRxMsgCount    float64 `xml:"client-data-messages-received"`
 							DataTxByteCount   float64 `xml:"client-data-bytes-sent"`
@@ -72,6 +85,20 @@ func (e *Semp) GetVpnStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string) (o
 		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_tx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataTxByteCount, vpn.Name)
 		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_rx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.IngressDiscards.DiscardedRxMsgCount, vpn.Name)
 		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_tx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.EgressDiscards.DiscardedTxMsgCount, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_amqp"], prometheus.GaugeValue, vpn.ConnectionsAmqService, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_mqtt"], prometheus.GaugeValue, vpn.ConnectionsMqttService, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_smf"], prometheus.GaugeValue, vpn.ConnectionsSmfService, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_web"], prometheus.GaugeValue, vpn.ConnectionsWebService, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_rest_in"], prometheus.GaugeValue, vpn.ConnectionsRestInService, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_rest_out"], prometheus.GaugeValue, vpn.ConnectionsRestOutService, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections"], prometheus.GaugeValue, vpn.QuotaConnections, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_smf"], prometheus.GaugeValue, vpn.QuotaConnectionsSmf, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_web"], prometheus.GaugeValue, vpn.QuotaConnectionsWeb, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_amqp"], prometheus.GaugeValue, vpn.QuotaConnectionsAmqp, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_mqtt"], prometheus.GaugeValue, vpn.QuotaConnectionsMqtt, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_rest_in"], prometheus.GaugeValue, vpn.QuotaConnectionsRestIn, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_rest_out"], prometheus.GaugeValue, vpn.QuotaConnectionsRestOut, vpn.Name)
 	}
 
 	return 1, nil
