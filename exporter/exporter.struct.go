@@ -23,6 +23,6 @@ func NewExporter(logger log.Logger, conf *Config, dataSource *[]DataSource, vers
 		config:     conf,
 		dataSource: dataSource,
 		lastError:  nil,
-		semp:       semp.NewSemp(logger, conf.ScrapeURI, conf.newHttpClient(), conf.httpVisitor(), version, conf.logBrokerToSlowWarnings),
+		semp:       semp.NewSemp(logger, conf.ScrapeURI, conf.newHttpClient(), conf.httpVisitor(), version, conf.logBrokerToSlowWarnings, conf.IsHWBroker),
 	}
 }

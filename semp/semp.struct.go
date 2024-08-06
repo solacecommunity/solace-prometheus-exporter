@@ -13,10 +13,11 @@ type Semp struct {
 	brokerURI               string
 	exporterVersion         float64
 	logBrokerToSlowWarnings bool
+	isHWBroker              bool
 }
 
 // NewSemp returns an initialized Semp.
-func NewSemp(logger log.Logger, brokerURI string, httpClient http.Client, httpRequestVisitor func(*http.Request), exporterVersion float64, logBrokerToSlowWarnings bool) *Semp {
+func NewSemp(logger log.Logger, brokerURI string, httpClient http.Client, httpRequestVisitor func(*http.Request), exporterVersion float64, logBrokerToSlowWarnings bool, isHWBroker bool) *Semp {
 	return &Semp{
 		logger:                  logger,
 		brokerURI:               brokerURI,
@@ -24,5 +25,6 @@ func NewSemp(logger log.Logger, brokerURI string, httpClient http.Client, httpRe
 		httpRequestVisitor:      httpRequestVisitor,
 		exporterVersion:         exporterVersion,
 		logBrokerToSlowWarnings: logBrokerToSlowWarnings,
+		isHWBroker:              isHWBroker,
 	}
 }

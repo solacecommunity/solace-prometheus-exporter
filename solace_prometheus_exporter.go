@@ -200,18 +200,23 @@ func main() {
 				Not all scrape targets support filter.
 				<br>Scrape targets:<br>
 				<table><tr><th>scape target</th><th>vpn filter supports</th><th>item filter supported</th><th>performance</th><tr>
-					<tr><td>Version</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>Version</td><td>no</td><td>no</td><td>dont harm broker</td></tr>`))
+		if !conf.IsHWBroker {
+			w.Write([]byte(`					
 					<tr><td>Health</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>StorageElement</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+`))
+		}
+		w.Write([]byte(`					
 					<tr><td>Disk</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>
 					<tr><td>Memory</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Interface</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>
 					<tr><td>GlobalStats</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Spool</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
-					<tr><td>Redundancy (only for HA broker)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
-					<tr><td>ConfigSync (only for HA broker)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
-					<tr><td>ConfigSyncRouter (only for HA broker)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
-					<tr><td>ReplicationStats (only for DR replication broker)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>Redundancy (only for HA brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>ConfigSync (only for HA brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>ConfigSyncRouter (only for HA brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>ReplicationStats (only for DR replication brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Vpn</td><td>yes</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>VpnReplication</td><td>yes</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>ConfigSyncVpn (only for HA broker)</td><td>yes</td><td>no</td><td>dont harm broker</td></tr>
@@ -232,6 +237,18 @@ func main() {
 					<tr><td>TopicEndpointRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many topic-endpoints</td></tr>
 					<tr><td>TopicEndpointStats</td><td>yes</td><td>yes</td><td>may harm broker if many topic-endpoints</td></tr>
 					<tr><td>TopicEndpointDetails</td><td>yes</td><td>yes</td><td>may harm broker if many topic-endpoints</td></tr>
+					<tr><td>BridgeRemote</td><td>yes</td><td>yes</td><td>dont harm broker</td></tr>`))
+
+		if conf.IsHWBroker == true {
+			w.Write([]byte(`					
+					<tr><td>Alarm (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>Environment (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>Hardware (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>InterfaceHW (only for Hardware brokers)</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>
+					<tr><td>Raid (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
+					<tr><td>RedundancyHW (only for Hardware HA brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>`))
+		}
+		w.Write([]byte(`				
 				</table>
 				<br>
 				</p>
@@ -239,6 +256,7 @@ func main() {
             <ul>
             </body>
             </html>`))
+
 	})
 
 	// start server
