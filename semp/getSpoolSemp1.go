@@ -21,11 +21,12 @@ func (e *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error)
 						QuotaDiskUsage                  float64 `xml:"max-disk-usage"`
 						QuotaMsgCount                   string  `xml:"max-message-count"`
 						PersistUsage                    float64 `xml:"current-persist-usage"`
-						PersistMsgCount                 float64 `xml:"total-messages-currently-spooled"`
+						TotalMsgCount                   float64 `xml:"total-messages-currently-spooled"`
 						ActiveDiskPartitionUsage        string  `xml:"active-disk-partition-usage"`        // May be "-"
 						MateDiskPartitionUsage          string  `xml:"mate-disk-partition-usage"`          // May be "-"
 						SpoolFilesUtilizationPercentage string  `xml:"spool-files-utilization-percentage"` // May be "-"
-						SpoolSyncStatus                 string  `xml:"spool-sync-status"`
+						SpoolSyncStatus                 string  `xml:"synchronization-status"`
+						TransactedSessionUtilisation    string  `xml:"transacted-session-count-utilization-percentage"`
 
 						IngressFlowsQuota   float64 `xml:"ingress-flows-allowed"`
 						IngressFlowsCount   float64 `xml:"ingress-flow-count"`
@@ -45,6 +46,7 @@ func (e *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error)
 						TransactionsUsed  float64 `xml:"transactions-used"`
 
 						CurrentPersistentStoreUsageADB float64 `xml:"current-rfad-usage"`
+						CurrentDiskUsage               float64 `xml:"current-disk-usage"`
 						MessagesCurrentlySpooledADB    float64 `xml:"rfad-messages-currently-spooled"`
 						MessagesCurrentlySpooledDisk   float64 `xml:"disk-messages-currently-spooled"`
 
@@ -99,10 +101,13 @@ func (e *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error)
 		ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_message_count_utilization_percent"], prometheus.GaugeValue, math.Round(value))
 	}
 
+	if value, err := strconv.ParseFloat(target.RPC.Show.Spool.Info.TransactedSessionUtilisation, 64); err == nil {
+		ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_transacted_session_utilisation_pct"], prometheus.GaugeValue, math.Round(value))
+	}
+
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.PersistUsage*1048576.0))
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_usage_adb_bytes"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.CurrentPersistentStoreUsageADB*1048576.0)
-	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_usage_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.PersistMsgCount)
-
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_usage_msgs"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.TotalMsgCount)
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_ingress_flows_quota"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.IngressFlowsQuota)
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_ingress_flows_count"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.IngressFlowsCount)
 
@@ -126,6 +131,11 @@ func (e *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error)
 
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_messages_currently_spooled_adb"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.MessagesCurrentlySpooledADB)
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_messages_currently_spooled_disk"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.MessagesCurrentlySpooledDisk)
+
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_messages_total_disk_usage"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.CurrentDiskUsage)
+
+	// don't know what acceptable values are
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_sync_status"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Spool.Info.SpoolSyncStatus, []string{"Enabled", "Synced", "-", "N/A"}))
 
 	return 1, nil
 }

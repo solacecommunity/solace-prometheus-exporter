@@ -33,6 +33,7 @@ type Config struct {
 	PrefetchInterval        time.Duration
 	ParallelSempConnections int64
 	logBrokerToSlowWarnings bool
+	IsHWBroker              bool
 }
 
 const (
@@ -128,6 +129,10 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 		return nil, nil, err
 	}
 	conf.logBrokerToSlowWarnings, err = parseConfigBoolOptional(cfg, "solace", "logBrokerToSlowWarnings", "SOLACE_LOG_BROKER_IS_SLOW_WARNING", true)
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.IsHWBroker, err = parseConfigBoolOptional(cfg, "solace", "isHWBroker", "SOLACE_IS_HW_BROKER", false)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -6,6 +6,9 @@ const (
 
 var (
 	variableLabelsUp               = []string{"error"}
+	variableLabelsEnvironment      = []string{"sensor_name"}
+	variableLabelsHardwareFC       = []string{"channel_number"}
+	variableLabelsHardwareLUN      = []string{"lun_number"}
 	variableLabelsRedundancy       = []string{"mate_name"}
 	variableLabelsReplication      = []string{"mate_name"}
 	variableLabelsVpn              = []string{"vpn_name"}
@@ -18,11 +21,13 @@ var (
 	variableLabelsVpnTopicEndpoint = []string{"vpn_name", "topic_endpoint_name"}
 	variableLabelsCluserLink       = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
 	variableLabelsBridge           = []string{"vpn_name", "bridge_name"}
+	variableLabelsBridgeRemote     = []string{"vpn_name", "bridge_name", "remote_vpn_name", "remote_router"}
 	variableLabelsBridgeStats      = []string{"vpn_name", "bridge_name", "remote_router_name", "remote_vpn_name"}
 	variableLabelsConfigSyncTable  = []string{"table_name"}
 	variableLabelsStorageElement   = []string{"path", "device_name", "element_name"}
 	variableLabelsDisk             = []string{"path", "device_name"}
 	variableLabelsInterface        = []string{"interface_name"}
+	variableLabelsRaid             = []string{"disk_number", "device_model"}
 )
 
 var QueueStats = Descriptions{
@@ -45,6 +50,9 @@ var QueueStats = Descriptions{
 var MetricDesc = map[string]Descriptions{
 	"Global": {
 		"up": NewSemDesc("up", NoSempV2Ready, "Was the last scrape of Solace broker successful.", variableLabelsUp),
+	},
+	"Alarm": {
+		"system_alarm": NewSemDesc("system_alarm", NoSempV2Ready, "A system alarm has been triggered 0 = false, 1 = true", nil),
 	},
 	"Version": {
 		"system_version_currentload":      NewSemDesc("system_version_currentload", NoSempV2Ready, "Solace Version as WWWXXXYYYZZZ", nil),
@@ -89,6 +97,15 @@ var MetricDesc = map[string]Descriptions{
 		"network_if_tx_bytes": NewSemDesc("network_if_tx_bytes", NoSempV2Ready, "Network Interface Transmitted Bytes.", variableLabelsInterface),
 		"network_if_state":    NewSemDesc("network_if_state", NoSempV2Ready, "Network Interface State.", variableLabelsInterface),
 	},
+	"InterfaceHW": {
+		"network_if_rx_packets":           NewSemDesc("network_if_rx_packets", NoSempV2Ready, "Network Interface Received Packets.", variableLabelsInterface),
+		"network_if_tx_packets":           NewSemDesc("network_if_tx_packets", NoSempV2Ready, "Network Interface Transmitted Packets.", variableLabelsInterface),
+		"network_lag_configured_members":  NewSemDesc("network_lag_configured_members", NoSempV2Ready, "Network LAG Configured Members.", variableLabelsInterface),
+		"network_lag_available_members":   NewSemDesc("network_lag_available_members", NoSempV2Ready, "Network LAG Available Members.", variableLabelsInterface),
+		"network_lag_operational_members": NewSemDesc("network_lag_operational_members", NoSempV2Ready, "Network LAG Operational Members.", variableLabelsInterface),
+		"network_if_link_detected":        NewSemDesc("network_if_link_detected", NoSempV2Ready, "Network Interface Link Detected. 0-No, 1-Yes", variableLabelsInterface),
+		"network_if_enabled":              NewSemDesc("network_if_enabled", NoSempV2Ready, "Network Interface Enabled. 0-No, 1-Yes", variableLabelsInterface),
+	},
 	//SEMPv1: show stats client
 	"GlobalStats": {
 		"system_total_clients_connected": NewSemDesc("system_total_clients_connected", NoSempV2Ready, "Total clients connected.", nil),
@@ -103,6 +120,13 @@ var MetricDesc = map[string]Descriptions{
 		"system_tx_bytes_total":          NewSemDesc("system_tx_bytes_total", NoSempV2Ready, "Total client bytes sent.", nil),
 		"system_total_rx_discards":       NewSemDesc("system_total_rx_discards", NoSempV2Ready, "Total ingress discards.", nil),
 		"system_total_tx_discards":       NewSemDesc("system_total_tx_discards", NoSempV2Ready, "Total egress discards.", nil),
+	},
+	"Raid": {
+		"system_disk_capacity":                   NewSemDesc("system_disk_capacity", NoSempV2Ready, "Available Capacity of the physical disk.", variableLabelsRaid),
+		"system_disk_state":                      NewSemDesc("system_disk_state", NoSempV2Ready, "Disk state. 0 = down, 1 = up.", variableLabelsRaid),
+		"system_disk_AdministrativeStateEnabled": NewSemDesc("system_disk_AdministrativeStateEnabled", NoSempV2Ready, "Disk enablement 0 = disabled, 1 = enabled.", variableLabelsRaid),
+		"system_raid_state":                      NewSemDesc("system_raid_state", NoSempV2Ready, "Current RAID state of the internal disks, 1 if fully redundant.", nil),
+		"system_reload_required":                 NewSemDesc("system_reload_required", NoSempV2Ready, "1 if a system reload is required.", nil),
 	},
 	"Spool": {
 		"system_spool_quota_bytes":                         NewSemDesc("system_spool_quota_bytes", NoSempV2Ready, "Spool configured max disk usage.", nil),
@@ -131,15 +155,40 @@ var MetricDesc = map[string]Descriptions{
 		"system_spool_transactions_quota":              NewSemDesc("system_spool_transactions_quota", NoSempV2Ready, "Number of maximal possible transactions.", nil),
 		"system_spool_transactions_used":               NewSemDesc("system_spool_transactions_used", NoSempV2Ready, "Number of used transactions.", nil),
 
-		"system_spool_usage_adb_bytes":                 NewSemDesc("system_spool_usage_adb_bytes", NoSempV2Ready, "Spool total persisted usage in adb.", nil),
-		"system_spool_messages_currently_spooled_adb":  NewSemDesc("system_spool_messages_currently_spooled_adb", NoSempV2Ready, "Messages stored in adb.", nil),
-		"system_spool_messages_currently_spooled_disk": NewSemDesc("system_spool_messages_currently_spooled_disk", NoSempV2Ready, "Messages stored on disk.", nil),
+		"system_spool_usage_adb_bytes":                    NewSemDesc("system_spool_usage_adb_bytes", NoSempV2Ready, "Spool total persisted usage in adb.", nil),
+		"system_spool_messages_currently_spooled_adb":     NewSemDesc("system_spool_messages_currently_spooled_adb", NoSempV2Ready, "Messages stored in adb.", nil),
+		"system_spool_messages_currently_spooled_disk":    NewSemDesc("system_spool_messages_currently_spooled_disk", NoSempV2Ready, "Messages stored on disk.", nil),
+		"system_spool_transacted_session_utilisation_pct": NewSemDesc("system_spool_transacted_session_utilisation_pct", NoSempV2Ready, "Percentage of transacted sessions used.", nil),
+		"system_spool_messages_total_disk_usage":          NewSemDesc("system_spool_messages_total_disk_usage", NoSempV2Ready, "Total disk usage, MB.", nil),
+		"system_spool_sync_status":                        NewSemDesc("system_spool_sync_status", NoSempV2Ready, "Spool sync status: 1-Synced.", nil),
 	},
 	"Redundancy": {
 		"system_redundancy_up":           NewSemDesc("system_redundancy_up", NoSempV2Ready, "Is redundancy up? (0=Down, 1=Up).", variableLabelsRedundancy),
 		"system_redundancy_config":       NewSemDesc("system_redundancy_config", NoSempV2Ready, "Redundancy configuration (0-Disabled, 1-Enabled, 2-Shutdown)", variableLabelsRedundancy),
 		"system_redundancy_role":         NewSemDesc("system_redundancy_role", NoSempV2Ready, "Redundancy role (0=Backup, 1=Primary, 2=Monitor, 3-Undefined).", variableLabelsRedundancy),
 		"system_redundancy_local_active": NewSemDesc("system_redundancy_local_active", NoSempV2Ready, "Is local node the active messaging node? (0-not active, 1-active).", variableLabelsRedundancy),
+	},
+	"RedundancyHW": {
+		"system_redundancy_role":      NewSemDesc("system_redundancy_role", NoSempV2Ready, "Redundancy role (0=Backup, 1=Primary, 2-Undefined).", variableLabelsRedundancy),
+		"system_redundancy_mode":      NewSemDesc("system_redundancy_mode", NoSempV2Ready, "Redundancy mode (0=Active/Active, 1=Active/Standby).", variableLabelsRedundancy),
+		"system_redundancy_adb_link":  NewSemDesc("system_redundancy_adb_link", NoSempV2Ready, "Is adb link up? (0-no, 1-yes).", variableLabelsRedundancy),
+		"system_redundancy_adb_hello": NewSemDesc("system_redundancy_adb_hello", NoSempV2Ready, "Is adb link connected? (0-no, 1-yes).", variableLabelsRedundancy),
+	},
+	"Environment": {
+		"system_chassis_fan_speed":    NewSemDesc("system_chassis_fan_speed", NoSempV2Ready, "Chassis Fan Speed (RPM)", variableLabelsEnvironment),
+		"system_cpu_thermal_margin":   NewSemDesc("system_cpu_thermal_margin", NoSempV2Ready, "CPU thermal headroom (Degrees C, larger negative values are better.)", variableLabelsEnvironment),
+		"system_nab_core_temperature": NewSemDesc("system_nab_core_temperature", NoSempV2Ready, "NAB core temperature (Degrees C).", variableLabelsEnvironment),
+	},
+	"Hardware": {
+		"operational_power_supplies":      NewSemDesc("operational_power_supplies", NoSempV2Ready, "Number of operational power supplies", nil),
+		"fibre_channel_operational_state": NewSemDesc("fibre_channel_operational_state", NoSempV2Ready, "Fibre channel operational state 0-Link Down 1-Online", variableLabelsHardwareFC),
+		"fibre_channel_state":             NewSemDesc("fibre_channel_state", NoSempV2Ready, "Fibre channel state 0-Link Down 1-Link Up, 2-Link Up Loop", variableLabelsHardwareFC),
+		"external_disk_lun_state":         NewSemDesc("external_disk_lun_state", NoSempV2Ready, "External Disk LUN state 0-Offline 1-Ready", variableLabelsHardwareLUN),
+		"adb_operational_state":           NewSemDesc("adb_operational_state", NoSempV2Ready, "ADB Operational State, -1,0-Not OK 1-OK", nil),
+		"adb_flash_card_state":            NewSemDesc("adb_flash_card_state", NoSempV2Ready, "ADB Flash Card State, -1,0-Not OK 1-OK", nil),
+		"adb_power_module_state":          NewSemDesc("adb_power_module_state", NoSempV2Ready, "ADB Power Module State, -1,0-Not OK 1-OK", nil),
+		"adb_mate_link_port1_state":       NewSemDesc("adb_mate_link_port1_state", NoSempV2Ready, "ADB Matelink Port 1 State, 0-Loss of Sync 1-OK, 2-No SFP Module, 3-No Data", nil),
+		"adb_mate_link_port2_state":       NewSemDesc("adb_mate_link_port2_state", NoSempV2Ready, "ADB Matelink Port 2 State, 0-Loss of Sync 1-OK, 2-No SFP Module, 3-No Data", nil),
 	},
 	//SEMPv1: show replication stats
 	"ReplicationStats": {
@@ -225,16 +274,29 @@ var MetricDesc = map[string]Descriptions{
 		"bridge_redundancy":                                 NewSemDesc("bridge_redundancy", NoSempV2Ready, "Bridge Redundancy (0-NotApplicable, 1-auto, 2-primary, 3-backup, 4-static, 5-none)", variableLabelsBridge),
 		"bridge_connection_uptime_in_seconds":               NewSemDesc("bridge_connection_uptime_in_seconds", NoSempV2Ready, "Connection Uptime (s)", variableLabelsBridge),
 	},
+	"BridgeRemote": {
+		"bridge_admin_state":                        NewSemDesc("bridge_admin_state", NoSempV2Ready, "Bridge Administrative State (0-Enabled 1-Disabled, 2--, 3-N/A)", variableLabelsBridgeRemote),
+		"bridge_connection_establisher":             NewSemDesc("bridge_connection_establisher", NoSempV2Ready, "Connection Establisher (0-NotApplicable, 1-Local, 2-Remote, 3-Invalid)", variableLabelsBridgeRemote),
+		"bridge_inbound_operational_state":          NewSemDesc("bridge_inbound_operational_state", NoSempV2Ready, "Inbound Ops State (0-Init, 1-Shutdown, 2-NoShutdown, 3-Prepare, 4-Prepare-WaitToConnect, 5-Prepare-FetchingDNS, 6-NotReady, 7-NotReady-Connecting, 8-NotReady-Handshaking, 9-NotReady-WaitNext, 10-NotReady-WaitReuse, 11-NotRead-WaitBridgeVersionMismatch, 12-NotReady-WaitCleanup, 13-Ready, 14-Ready-Subscribing, 15-Ready-InSync, 16-NotApplicable, 17-Invalid)", variableLabelsBridgeRemote),
+		"bridge_inbound_operational_failure_reason": NewSemDesc("bridge_inbound_operational_failure_reason", NoSempV2Ready, "Inbound Ops Failure Reason (0-Bridge disabled ,1-No remote message-vpns configured, 2-SMF service is disabled, 3-Msg Backbone is disabled, 4-Local message-vpn is disabled, 5-Active-Standby Role Mismatch, 6-Invalid Active-Standby Role, 7-Redundancy Disabled, 8-Not active, 9-Replication standby, 10-Remote message-vpns disabled, 11-Enforce-trusted-common-name but empty trust-common-name list, 12-SSL transport used but cipher-suite list is empty, 13-Authentication Scheme is Client-Certificate but no certificate is configured, 14-Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL, 15-Basic Authentication Scheme used but Basic Client Username not configured, 16-Cluster Down, 17-Cluster Link Down, 18-N/A)", variableLabelsBridgeRemote),
+		"bridge_outbound_operational_state":         NewSemDesc("bridge_outbound_operational_state", NoSempV2Ready, "Outbound Ops State (0-Init, 1-Shutdown, 2-NoShutdown, 3-Prepare, 4-Prepare-WaitToConnect, 5-Prepare-FetchingDNS, 6-NotReady, 7-NotReady-Connecting, 8-NotReady-Handshaking, 9-NotReady-WaitNext, 10-NotReady-WaitReuse, 11-NotRead-WaitBridgeVersionMismatch, 12-NotReady-WaitCleanup, 13-Ready, 14-Ready-Subscribing, 15-Ready-InSync, 16-NotApplicable, 17-Invalid)", variableLabelsBridgeRemote),
+		"bridge_queue_operational_state":            NewSemDesc("bridge_queue_operational_state", NoSempV2Ready, "Queue Ops State (0-NotApplicable, 1-Bound, 2-Unbound)", variableLabelsBridgeRemote),
+		"bridge_redundancy":                         NewSemDesc("bridge_redundancy", NoSempV2Ready, "Bridge Redundancy (0-NotApplicable, 1-auto, 2-primary, 3-backup, 4-static, 5-none)", variableLabelsBridgeRemote),
+		"bridge_connection_uptime_in_seconds":       NewSemDesc("bridge_connection_uptime_in_seconds", NoSempV2Ready, "Connection Uptime (s)", variableLabelsBridgeRemote),
+	},
 	"VpnSpool": {
-		"vpn_spool_quota_bytes":           NewSemDesc("vpn_spool_quota_bytes", NoSempV2Ready, "Spool configured max disk usage.", variableLabelsVpn),
-		"vpn_spool_usage_bytes":           NewSemDesc("vpn_spool_usage_bytes", NoSempV2Ready, "Spool total persisted usage.", variableLabelsVpn),
-		"vpn_spool_usage_msgs":            NewSemDesc("vpn_spool_usage_msgs", NoSempV2Ready, "Spool total number of persisted messages.", variableLabelsVpn),
-		"vpn_spool_current_endpoints":     NewSemDesc("vpn_spool_current_endpoints", NoSempV2Ready, "Spool current number of endpoints.", variableLabelsVpn),
-		"vpn_spool_maximum_endpoints":     NewSemDesc("vpn_spool_maximum_endpoints", NoSempV2Ready, "Spool maximum number of endpoints.", variableLabelsVpn),
-		"vpn_spool_current_egress_flows":  NewSemDesc("vpn_spool_current_egress_flows", NoSempV2Ready, "Spool current number of egress flows.", variableLabelsVpn),
-		"vpn_spool_maximum_egress_flows":  NewSemDesc("vpn_spool_maximum_egress_flows", NoSempV2Ready, "Spool maximum number of egress flows.", variableLabelsVpn),
-		"vpn_spool_current_ingress_flows": NewSemDesc("vpn_spool_current_ingress_flows", NoSempV2Ready, "Spool current number of ingress flows.", variableLabelsVpn),
-		"vpn_spool_maximum_ingress_flows": NewSemDesc("vpn_spool_maximum_ingress_flows", NoSempV2Ready, "Spool maximum number of ingress flows.", variableLabelsVpn),
+		"vpn_spool_quota_bytes":                 NewSemDesc("vpn_spool_quota_bytes", NoSempV2Ready, "Spool configured max disk usage.", variableLabelsVpn),
+		"vpn_spool_usage_bytes":                 NewSemDesc("vpn_spool_usage_bytes", NoSempV2Ready, "Spool total persisted usage.", variableLabelsVpn),
+		"vpn_spool_usage_pct":                   NewSemDesc("vpn_spool_usage_pct", NoSempV2Ready, "Spool percentage persisted usage. (-1 means no spool has been allocated.)", variableLabelsVpn),
+		"vpn_spool_usage_msgs":                  NewSemDesc("vpn_spool_usage_msgs", NoSempV2Ready, "Spool total number of persisted messages.", variableLabelsVpn),
+		"vpn_spool_current_endpoints":           NewSemDesc("vpn_spool_current_endpoints", NoSempV2Ready, "Spool current number of endpoints.", variableLabelsVpn),
+		"vpn_spool_maximum_endpoints":           NewSemDesc("vpn_spool_maximum_endpoints", NoSempV2Ready, "Spool maximum number of endpoints.", variableLabelsVpn),
+		"vpn_spool_current_egress_flows":        NewSemDesc("vpn_spool_current_egress_flows", NoSempV2Ready, "Spool current number of egress flows.", variableLabelsVpn),
+		"vpn_spool_maximum_egress_flows":        NewSemDesc("vpn_spool_maximum_egress_flows", NoSempV2Ready, "Spool maximum number of egress flows.", variableLabelsVpn),
+		"vpn_spool_current_ingress_flows":       NewSemDesc("vpn_spool_current_ingress_flows", NoSempV2Ready, "Spool current number of ingress flows.", variableLabelsVpn),
+		"vpn_spool_maximum_ingress_flows":       NewSemDesc("vpn_spool_maximum_ingress_flows", NoSempV2Ready, "Spool maximum number of ingress flows.", variableLabelsVpn),
+		"vpn_spool_current_transacted_sessions": NewSemDesc("vpn_spool_current_transacted_sessions", NoSempV2Ready, "Spool current number of transacted sessions.", variableLabelsVpn),
+		"vpn_spool_current_transacted_msgs":     NewSemDesc("vpn_spool_current_transacted_msgs", NoSempV2Ready, "Spool current number of transacted messages.", variableLabelsVpn),
 	},
 	//SEMPv1: show client <client-name> message-vpn <vpn-name> connected
 	"Client": {
