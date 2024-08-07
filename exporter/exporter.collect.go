@@ -37,7 +37,13 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
 		case "Disk", "DiskV1":
-			up, err = e.semp.GetDiskSemp1(ch)
+			if e.config.IsHWBroker {
+				up, err = e.semp.GetDiskSemp1(ch)
+			} else {
+				up = 0
+				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+			}
 		case "Raid", "RaidV1":
 			if e.config.IsHWBroker {
 				up, err = e.semp.GetRaidSemp1(ch)

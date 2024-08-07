@@ -205,10 +205,9 @@ func main() {
 			w.Write([]byte(`					
 					<tr><td>Health</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>StorageElement</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
-`))
+					<tr><td>Disk</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>`))
 		}
 		w.Write([]byte(`					
-					<tr><td>Disk</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>
 					<tr><td>Memory</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Interface</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>
 					<tr><td>GlobalStats</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
