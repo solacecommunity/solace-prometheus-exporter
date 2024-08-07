@@ -6,3 +6,4 @@ solace_prometheus_exporter
 *.iml
 *.pem
 *.p12
+.DS_Store
