@@ -149,7 +149,6 @@ not starting with the word "internal"
 | Hardware                              | no                  | no                    | no                       | dont harm broker                                                      | show hardware                                                                 | appliance           |
 | InterfaceHW                           | no                  | yes                   | no                       | dont harm broker                                                      | show interface interfaceFilter                                                | appliance           |
 | Raid                                  | no                  | no                    | no                       | dont harm broker                                                      | show disk                                                                     | appliance           |
-| RedundancyHW                          | no                  | no                    | no                       | dont harm broker                                                      | show redundancy                                                               | appliance           |
 
 ##### V2 endpoints
 

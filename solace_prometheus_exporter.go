@@ -245,8 +245,7 @@ func main() {
 					<tr><td>Environment (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Hardware (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>InterfaceHW (only for Hardware brokers)</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>
-					<tr><td>Raid (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
-					<tr><td>RedundancyHW (only for Hardware HA brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>`))
+					<tr><td>Raid (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>`))
 		}
 		w.Write([]byte(`				
 				</table>
