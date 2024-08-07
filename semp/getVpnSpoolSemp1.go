@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
+	"math"
 )
 
 // Replication Config and status
@@ -25,6 +26,8 @@ func (e *Semp) GetVpnSpoolSemp1(ch chan<- PrometheusMetric, vpnFilter string) (o
 							MaximumEgressFlows  float64 `xml:"maximum-egress-flows"`
 							CurrentIngressFlows float64 `xml:"current-ingress-flows"`
 							MaximumIngressFlows float64 `xml:"maximum-ingress-flows"`
+							TransactedSessions  float64 `xml:"current-transacted-sessions"`
+							TransactiedMsgs     float64 `xml:"current-number-of-transacted-messages"`
 						} `xml:"vpn"`
 					} `xml:"message-vpn"`
 				} `xml:"message-spool"`
@@ -57,6 +60,12 @@ func (e *Semp) GetVpnSpoolSemp1(ch chan<- PrometheusMetric, vpnFilter string) (o
 	for _, vpn := range target.RPC.Show.MessageSpool.MessageVpn.Vpn {
 		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_quota_bytes"], prometheus.GaugeValue, vpn.SpoolUsageMaxMb*1024*1024, vpn.Name)
 		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_bytes"], prometheus.GaugeValue, vpn.SpoolUsageCurrentMb*1024*1024, vpn.Name)
+		// it is possible to configure a VPN with zero spool, so we need to make sure we're not trying to divide by zero
+		if vpn.SpoolUsageMaxMb > 0 {
+			ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_pct"], prometheus.GaugeValue, math.Round((vpn.SpoolUsageCurrentMb/vpn.SpoolUsageMaxMb)*100), vpn.Name)
+		} else {
+			ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_pct"], prometheus.GaugeValue, -1, vpn.Name)
+		}
 		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_msgs"], prometheus.GaugeValue, vpn.SpooledMsgCount, vpn.Name)
 		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_endpoints"], prometheus.GaugeValue, vpn.CurrentEndpoints, vpn.Name)
 		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_endpoints"], prometheus.GaugeValue, vpn.MaximumEndpoints, vpn.Name)
@@ -64,6 +73,8 @@ func (e *Semp) GetVpnSpoolSemp1(ch chan<- PrometheusMetric, vpnFilter string) (o
 		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_egress_flows"], prometheus.GaugeValue, vpn.MaximumEgressFlows, vpn.Name)
 		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_ingress_flows"], prometheus.GaugeValue, vpn.CurrentIngressFlows, vpn.Name)
 		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_ingress_flows"], prometheus.GaugeValue, vpn.MaximumIngressFlows, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_transacted_sessions"], prometheus.GaugeValue, vpn.TransactedSessions, vpn.Name)
+		ch <- e.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_transacted_msgs"], prometheus.GaugeValue, vpn.TransactiedMsgs, vpn.Name)
 	}
 
 	return 1, nil

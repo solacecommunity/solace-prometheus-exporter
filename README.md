@@ -143,6 +143,12 @@ not starting with the word "internal"
 | TopicEndpointStats                    | yes                 | yes                   | no                       | may harm broker if many topic-endpoint                                | show topic-endpoint itemFilter message-vpn vpnFilter rates count 100 (paged)  | software, appliance |
 | TopicEndpointDetails                  | yes                 | yes                   | no                       | may harm broker if many topic-endpoints                               | show topic-endpoint itemFilter message-vpn vpnFilter detail count 100 (paged) | software, appliance |
 | ClusterLinks                          | yes                 | yes                   | no                       | dont harm broker                                                      | show the state of the cluster links. Filters are for clusterName and linkName | software, appliance |
+| Alarm                                 | no                  | no                    | no                       | dont harm broker                                                      | show alarm                                                                    | appliance           |
+| BridgeRemote                          | yes                 | yes                   | no                       | dont harm broker                                                      | show bridge itemFilter message-vpn vpnFilter                                  | software, appliance |
+| Environment                           | yes                 | no                    | no                       | dont harm broker                                                      | show environment                                                              | appliance           |
+| Hardware                              | no                  | no                    | no                       | dont harm broker                                                      | show hardware                                                                 | appliance           |
+| InterfaceHW                           | no                  | yes                   | no                       | dont harm broker                                                      | show interface interfaceFilter                                                | appliance           |
+| Raid                                  | no                  | no                    | no                       | dont harm broker                                                      | show disk                                                                     | appliance           |
 
 ##### V2 endpoints
 
@@ -307,6 +313,9 @@ timeout = 5s
 # Flag that enables SSL certificate verification for the scrape URI.
 sslVerify = false
 
+# Flag that enables HW Broker specific targets and disables SW specific ones.
+isHWBroker=false
+
 # Flag that enables Usage of the operating system proxy configuration.
 # false=No proxy will be used at all.
 useSystemProxy = false
@@ -327,6 +336,7 @@ Sample environment variables:
 ```bash
 SOLACE_LISTEN_ADDR=0.0.0.0:9628
 SOLACE_LISTEN_TLS=true
+SOLACE_IS_HW_BROKER=false
 SOLACE_SERVER_CERT=/path/to/your/cert.pem
 SOLACE_PRIVATE_KEY=/path/to/your/key.pem
 SOLACE_LISTEN_CERTTYPE=PEM
