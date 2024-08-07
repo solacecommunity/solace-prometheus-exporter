@@ -90,14 +90,6 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
-		case "RedundancyHW", "RedundancyHWV1":
-			if e.config.IsHWBroker {
-				up, err = e.semp.GetRedundancyHWSemp1(ch)
-			} else {
-				up = 0
-				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			}
 		case "ReplicationStats", "ReplicationStatsV1":
 			up, err = e.semp.GetReplicationStatsSemp1(ch)
 		case "ConfigSyncRouter", "ConfigSyncRouterV1":

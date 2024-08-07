@@ -18,9 +18,14 @@ func (e *Semp) GetRedundancySemp1(ch chan<- PrometheusMetric) (ok float64, err e
 					ConfigStatus      string `xml:"config-status"`
 					RedundancyStatus  string `xml:"redundancy-status"`
 					OperatingMode     string `xml:"operating-mode"`
+					RedundancyMode    string `xml:"redundancy-mode"`
 					ActiveStandbyRole string `xml:"active-standby-role"`
 					MateRouterName    string `xml:"mate-router-name"`
-					VirtualRouters    struct {
+					OperationalStatus struct {
+						ADBLink  bool `xml:"adb-link-up"`
+						ADBHello bool `xml:"adb-hello-up"`
+					} `xml:"oper-status"`
+					VirtualRouters struct {
 						Primary struct {
 							Status struct {
 								Activity string `xml:"activity"`
@@ -62,7 +67,14 @@ func (e *Semp) GetRedundancySemp1(ch chan<- PrometheusMetric) (ok float64, err e
 	mateRouterName := "" + target.RPC.Show.Red.MateRouterName
 	ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_config"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ConfigStatus, []string{"Disabled", "Enabled", "Shutdown"}), mateRouterName)
 	ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_up"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.RedundancyStatus, []string{"Down", "Up"}), mateRouterName)
-	ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Monitor", "Undefined"}), mateRouterName)
+	if !e.isHWBroker {
+		ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Monitor", "Undefined"}), mateRouterName)
+	} else {
+		ch <- e.NewMetric(MetricDesc["RedundancyHW"]["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Undefined"}), mateRouterName)
+		ch <- e.NewMetric(MetricDesc["RedundancyHW"]["system_redundancy_mode"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.RedundancyMode, []string{"Active/Active", "Active/Standby"}), mateRouterName)
+		ch <- e.NewMetric(MetricDesc["RedundancyHW"]["system_redundancy_adb_link"], prometheus.GaugeValue, encodeMetricBool(target.RPC.Show.Red.OperationalStatus.ADBLink), mateRouterName)
+		ch <- e.NewMetric(MetricDesc["RedundancyHW"]["system_redundancy_adb_hello"], prometheus.GaugeValue, encodeMetricBool(target.RPC.Show.Red.OperationalStatus.ADBHello), mateRouterName)
+	}
 
 	if target.RPC.Show.Red.ActiveStandbyRole == "Primary" && target.RPC.Show.Red.VirtualRouters.Primary.Status.Activity == "Local Active" ||
 		target.RPC.Show.Red.ActiveStandbyRole == "Backup" && target.RPC.Show.Red.VirtualRouters.Backup.Status.Activity == "Local Active" {
