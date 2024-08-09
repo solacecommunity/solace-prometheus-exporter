@@ -54,7 +54,6 @@ func (e *Semp) GetRaidSemp1(ch chan<- PrometheusMetric) (ok float64, err error) 
 	}
 
 	for _, disk := range target.RPC.Show.Disk.DiskInfos.InternalDisks.DiskInfo {
-		ch <- e.NewMetric(MetricDesc["Raid"]["system_disk_capacity"], prometheus.GaugeValue, disk.Capacity, disk.Number, disk.DeviceModel)
 		ch <- e.NewMetric(MetricDesc["Raid"]["system_disk_state"], prometheus.GaugeValue, encodeMetricMulti(disk.State, []string{"Down", "Up", "-"}), disk.Number, disk.DeviceModel)
 		ch <- e.NewMetric(MetricDesc["Raid"]["system_disk_AdministrativeStateEnabled"], prometheus.GaugeValue, encodeMetricBool(disk.AdministrativeStateEnabled), disk.Number, disk.DeviceModel)
 	}

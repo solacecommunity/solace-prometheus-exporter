@@ -122,7 +122,6 @@ var MetricDesc = map[string]Descriptions{
 		"system_total_tx_discards":       NewSemDesc("system_total_tx_discards", NoSempV2Ready, "Total egress discards.", nil),
 	},
 	"Raid": {
-		"system_disk_capacity":                   NewSemDesc("system_disk_capacity", NoSempV2Ready, "Available Capacity of the physical disk.", variableLabelsRaid),
 		"system_disk_state":                      NewSemDesc("system_disk_state", NoSempV2Ready, "Disk state. 0 = down, 1 = up.", variableLabelsRaid),
 		"system_disk_AdministrativeStateEnabled": NewSemDesc("system_disk_AdministrativeStateEnabled", NoSempV2Ready, "Disk enablement 0 = disabled, 1 = enabled.", variableLabelsRaid),
 		"system_raid_state":                      NewSemDesc("system_raid_state", NoSempV2Ready, "Current RAID state of the internal disks, 1 if fully redundant.", nil),
@@ -159,8 +158,8 @@ var MetricDesc = map[string]Descriptions{
 		"system_spool_messages_currently_spooled_adb":     NewSemDesc("system_spool_messages_currently_spooled_adb", NoSempV2Ready, "Messages stored in adb.", nil),
 		"system_spool_messages_currently_spooled_disk":    NewSemDesc("system_spool_messages_currently_spooled_disk", NoSempV2Ready, "Messages stored on disk.", nil),
 		"system_spool_transacted_session_utilisation_pct": NewSemDesc("system_spool_transacted_session_utilisation_pct", NoSempV2Ready, "Percentage of transacted sessions used.", nil),
-		"system_spool_messages_total_disk_usage":          NewSemDesc("system_spool_messages_total_disk_usage", NoSempV2Ready, "Total disk usage, MB.", nil),
-		"system_spool_sync_status":                        NewSemDesc("system_spool_sync_status", NoSempV2Ready, "Spool sync status: 1-Synced.", nil),
+		"system_spool_messages_total_disk_usage_bytes":    NewSemDesc("system_spool_messages_total_disk_usage_bytes", NoSempV2Ready, "Total disk usage.", nil),
+		"system_spool_sync_status":                        NewSemDesc("system_spool_sync_status", NoSempV2Ready, "Spool sync status: 0-Synced.", nil),
 	},
 	"Redundancy": {
 		"system_redundancy_up":           NewSemDesc("system_redundancy_up", NoSempV2Ready, "Is redundancy up? (0=Down, 1=Up).", variableLabelsRedundancy),
@@ -175,9 +174,9 @@ var MetricDesc = map[string]Descriptions{
 		"system_redundancy_adb_hello": NewSemDesc("system_redundancy_adb_hello", NoSempV2Ready, "Is adb link connected? (0-no, 1-yes).", variableLabelsRedundancy),
 	},
 	"Environment": {
-		"system_chassis_fan_speed":    NewSemDesc("system_chassis_fan_speed", NoSempV2Ready, "Chassis Fan Speed (RPM)", variableLabelsEnvironment),
-		"system_cpu_thermal_margin":   NewSemDesc("system_cpu_thermal_margin", NoSempV2Ready, "CPU thermal headroom (Degrees C, larger negative values are better.)", variableLabelsEnvironment),
-		"system_nab_core_temperature": NewSemDesc("system_nab_core_temperature", NoSempV2Ready, "NAB core temperature (Degrees C).", variableLabelsEnvironment),
+		"system_chassis_fan_speed_rpm": NewSemDesc("system_chassis_fan_speed_rpm", NoSempV2Ready, "Chassis Fan Speed (RPM)", variableLabelsEnvironment),
+		"system_cpu_thermal_margin":    NewSemDesc("system_cpu_thermal_margin", NoSempV2Ready, "CPU thermal headroom (Degrees C, larger negative values are better.)", variableLabelsEnvironment),
+		"system_nab_core_temperature":  NewSemDesc("system_nab_core_temperature", NoSempV2Ready, "NAB core temperature (Degrees C).", variableLabelsEnvironment),
 	},
 	"Hardware": {
 		"operational_power_supplies":      NewSemDesc("operational_power_supplies", NoSempV2Ready, "Number of operational power supplies", nil),

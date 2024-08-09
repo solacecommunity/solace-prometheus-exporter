@@ -50,9 +50,8 @@ func (e *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error)
 						MessagesCurrentlySpooledADB    float64 `xml:"rfad-messages-currently-spooled"`
 						MessagesCurrentlySpooledDisk   float64 `xml:"disk-messages-currently-spooled"`
 
-
-						QueueTopicSubscriptionsQuota   float64 `xml:"max-queue-topic-subscriptions"`
-						QueueTopicSubscriptionsUsed    float64 `xml:"queue-topic-subscriptions-used"`
+						QueueTopicSubscriptionsQuota float64 `xml:"max-queue-topic-subscriptions"`
+						QueueTopicSubscriptionsUsed  float64 `xml:"queue-topic-subscriptions-used"`
 					} `xml:"message-spool-info"`
 				} `xml:"message-spool"`
 			} `xml:"show"`
@@ -132,10 +131,10 @@ func (e *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error)
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_messages_currently_spooled_adb"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.MessagesCurrentlySpooledADB)
 	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_messages_currently_spooled_disk"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.MessagesCurrentlySpooledDisk)
 
-	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_messages_total_disk_usage"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.CurrentDiskUsage)
-
-	// don't know what acceptable values are
-	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_sync_status"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Spool.Info.SpoolSyncStatus, []string{"Enabled", "Synced", "-", "N/A"}))
+	// this is probably more useful for appliances where ADB storage is independent of disk utilisation
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_messages_total_disk_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.CurrentDiskUsage*1048576.0))
+	// I have been unable to ascertain what the error values for this metric are
+	ch <- e.NewMetric(MetricDesc["Spool"]["system_spool_sync_status"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Spool.Info.SpoolSyncStatus, []string{"Synced"}))
 
 	return 1, nil
 }
