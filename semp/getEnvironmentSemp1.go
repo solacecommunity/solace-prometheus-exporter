@@ -72,7 +72,7 @@ func (e *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (ok float64, err 
 	for _, sensor := range target.RPC.Show.Environment.Mainboard.Sensors.Sensor {
 		if sensor.Type == "Fan speed" && strings.Contains(sensor.Name, "Chassis") {
 			if value, err := strconv.ParseFloat(sensor.Value, 64); err == nil {
-				ch <- e.NewMetric(MetricDesc["Environment"]["system_chassis_fan_speed"], prometheus.GaugeValue, math.Round(value), sensor.Name)
+				ch <- e.NewMetric(MetricDesc["Environment"]["system_chassis_fan_speed_rpm"], prometheus.GaugeValue, math.Round(value), sensor.Name)
 			}
 		} else if sensor.Type == "Temperature" && strings.Contains(sensor.Name, "Therm Margin") {
 			if value, err := strconv.ParseFloat(sensor.Value, 64); err == nil {
