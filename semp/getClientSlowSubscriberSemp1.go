@@ -63,7 +63,7 @@ func (e *Semp) GetClientSlowSubscriberSemp1(ch chan<- PrometheusMetric, vpnFilte
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientIp := strings.Split(client.ClientAddress, ":")[0]
-			ch <- e.NewMetric(MetricDesc["ClientSlowSubscriber"]["client_slow_subscriber"], prometheus.GaugeValue, slowSubscriber, client.MsgVpnName, client.ClientName, clientIp)
+			ch <- e.NewMetric(MetricDesc["ClientSlowSubscriber"]["client_slow_subscriber"], prometheus.GaugeValue, slowSubscriber, client.MsgVpnName, client.ClientName, clientIp, "")
 		}
 		body.Close()
 	}

@@ -13,6 +13,7 @@ var (
 	variableLabelsReplication      = []string{"mate_name"}
 	variableLabelsVpn              = []string{"vpn_name"}
 	variableLabelsClientInfo       = []string{"vpn_name", "client_name", "client_address"}
+	variableLabelsClientSlowSub    = []string{"vpn_name", "client_name", "client_address", "client_username"}
 	variableLabelsVpnClient        = []string{"vpn_name", "client_name"}
 	variableLabelsVpnClientUser    = []string{"vpn_name", "client_name", "client_username"}
 	variableLabelsVpnClientDetail  = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile"}
@@ -303,7 +304,7 @@ var MetricDesc = map[string]Descriptions{
 	},
 	//SEMPv1: show client <client-name> message-vpn <vpn-name> connected
 	"ClientSlowSubscriber": {
-		"client_slow_subscriber": NewSemDesc("client_slow_subscriber", NoSempV2Ready, "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsClientInfo),
+		"client_slow_subscriber": NewSemDesc("client_slow_subscriber", NoSempV2Ready, "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsClientSlowSub),
 	},
 	"ClientStats": {
 		"client_rx_msgs_total":           NewSemDesc("client_rx_msgs_total", NoSempV2Ready, "Number of received messages.", variableLabelsVpnClientUser),
@@ -312,7 +313,7 @@ var MetricDesc = map[string]Descriptions{
 		"client_tx_bytes_total":          NewSemDesc("client_tx_bytes_total", NoSempV2Ready, "Number of transmitted bytes.", variableLabelsVpnClientUser),
 		"client_rx_discarded_msgs_total": NewSemDesc("client_rx_discarded_msgs_total", NoSempV2Ready, "Number of discarded received messages.", variableLabelsVpnClientUser),
 		"client_tx_discarded_msgs_total": NewSemDesc("client_tx_discarded_msgs_total", NoSempV2Ready, "Number of discarded transmitted messages.", variableLabelsVpnClientUser),
-		"client_slow_subscriber":         NewSemDesc("client_slow_subscriber", NoSempV2Ready, "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsVpnClientUser),
+		"client_slow_subscriber":         NewSemDesc("client_slow_subscriber", NoSempV2Ready, "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsClientSlowSub),
 	},
 	"ClientMessageSpoolStats": {
 		"client_flows_ingress": NewSemDesc("client_flows_ingress", NoSempV2Ready, "Number of ingress flows, created/openend by this client.", variableLabelsVpnClientDetail),
