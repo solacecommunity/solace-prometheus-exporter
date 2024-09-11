@@ -67,10 +67,8 @@ func (e *Semp) GetRedundancySemp1(ch chan<- PrometheusMetric) (ok float64, err e
 	mateRouterName := "" + target.RPC.Show.Red.MateRouterName
 	ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_config"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ConfigStatus, []string{"Disabled", "Enabled", "Shutdown"}), mateRouterName)
 	ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_up"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.RedundancyStatus, []string{"Down", "Up"}), mateRouterName)
-	if !e.isHWBroker {
-		ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Monitor", "Undefined"}), mateRouterName)
-	} else {
-		ch <- e.NewMetric(MetricDesc["RedundancyHW"]["system_redundancy_hw_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Undefined"}), mateRouterName)
+	ch <- e.NewMetric(MetricDesc["Redundancy"]["system_redundancy_role"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.ActiveStandbyRole, []string{"Backup", "Primary", "Monitor", "Undefined"}), mateRouterName)
+	if e.isHWBroker {
 		ch <- e.NewMetric(MetricDesc["RedundancyHW"]["system_redundancy_hw_mode"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Red.RedundancyMode, []string{"Active/Active", "Active/Standby"}), mateRouterName)
 		ch <- e.NewMetric(MetricDesc["RedundancyHW"]["system_redundancy_hw_adb_link"], prometheus.GaugeValue, encodeMetricBool(target.RPC.Show.Red.OperationalStatus.ADBLink), mateRouterName)
 		ch <- e.NewMetric(MetricDesc["RedundancyHW"]["system_redundancy_hw_adb_hello"], prometheus.GaugeValue, encodeMetricBool(target.RPC.Show.Red.OperationalStatus.ADBHello), mateRouterName)
