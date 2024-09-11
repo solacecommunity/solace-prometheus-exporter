@@ -85,14 +85,14 @@ func (e *Semp) GetBridgeRemoteSemp1(ch chan<- PrometheusMetric, vpnFilter string
 		vpnName := bridge.LocalVpnName
 		remoteVpnName := bridge.ConnectedRemoteVpnName
 		remoteRouter := bridge.ConnectedRemoteRouterName
-		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_admin_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.AdminState, []string{"Enabled", "Disabled", "-", "N/A"}), vpnName, bridgeName, remoteVpnName, remoteRouter)
-		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_connection_establisher"], prometheus.GaugeValue, encodeMetricMulti(bridge.ConnectionEstablisher, []string{"NotApplicable", "Local", "Remote", "Invalid"}), vpnName, bridgeName, remoteVpnName, remoteRouter)
-		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_inbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalState, opStates), vpnName, bridgeName, remoteVpnName, remoteRouter)
-		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_inbound_operational_failure_reason"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalFailureReason, failReasons), vpnName, bridgeName, remoteVpnName, remoteRouter)
-		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_outbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.OutboundOperationalState, opStates), vpnName, bridgeName, remoteVpnName, remoteRouter)
-		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_queue_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.QueueOperationalState, []string{"NotApplicable", "Bound", "Unbound"}), vpnName, bridgeName, remoteVpnName, remoteRouter)
-		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup", "static", "none"}), vpnName, bridgeName, remoteVpnName, remoteRouter)
-		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, vpnName, bridgeName, remoteVpnName, remoteRouter)
+		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_r_admin_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.AdminState, []string{"Enabled", "Disabled", "-", "N/A"}), vpnName, bridgeName, remoteVpnName, remoteRouter)
+		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_r_connection_establisher"], prometheus.GaugeValue, encodeMetricMulti(bridge.ConnectionEstablisher, []string{"NotApplicable", "Local", "Remote", "Invalid"}), vpnName, bridgeName, remoteVpnName, remoteRouter)
+		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_r_inbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalState, opStates), vpnName, bridgeName, remoteVpnName, remoteRouter)
+		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_r_inbound_operational_failure_reason"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalFailureReason, failReasons), vpnName, bridgeName, remoteVpnName, remoteRouter)
+		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_r_outbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.OutboundOperationalState, opStates), vpnName, bridgeName, remoteVpnName, remoteRouter)
+		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_r_queue_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.QueueOperationalState, []string{"NotApplicable", "Bound", "Unbound"}), vpnName, bridgeName, remoteVpnName, remoteRouter)
+		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_r_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup", "static", "none"}), vpnName, bridgeName, remoteVpnName, remoteRouter)
+		ch <- e.NewMetric(MetricDesc["BridgeRemote"]["bridge_r_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, vpnName, bridgeName, remoteVpnName, remoteRouter)
 	}
 	return 1, nil
 }

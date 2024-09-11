@@ -26,7 +26,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			} else {
 				up = 0
 				err = errors.New("Software only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				_ = level.Error(e.logger).Log("Software only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
 		case "StorageElement", "StorageElementV1":
 			if !e.config.IsHWBroker {
@@ -34,7 +34,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			} else {
 				up = 0
 				err = errors.New("Software only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				_ = level.Error(e.logger).Log("Software only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
 		case "Disk", "DiskV1":
 			if e.config.IsHWBroker {

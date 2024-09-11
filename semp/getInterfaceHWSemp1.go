@@ -77,18 +77,18 @@ func (e *Semp) GetInterfaceHWSemp1(ch chan<- PrometheusMetric, interfaceFilter s
 	}
 
 	for _, intf := range target.RPC.Show.Interface.Interfaces.Interface {
-		ch <- e.NewMetric(MetricDesc["Interface"]["network_if_rx_bytes"], prometheus.CounterValue, intf.Stats.RxBytes, intf.Name)
-		ch <- e.NewMetric(MetricDesc["Interface"]["network_if_tx_bytes"], prometheus.CounterValue, intf.Stats.TxBytes, intf.Name)
-		ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_if_rx_packets"], prometheus.CounterValue, intf.Stats.RxPackets, intf.Name)
-		ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_if_tx_packets"], prometheus.CounterValue, intf.Stats.TxPackets, intf.Name)
-		ch <- e.NewMetric(MetricDesc["Interface"]["network_if_state"], prometheus.GaugeValue, encodeMetricMulti(intf.State, []string{"Down", "Up"}), intf.Name)
-		ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_if_enabled"], prometheus.GaugeValue, encodeMetricMulti(intf.Enabled, []string{"No", "Yes"}), intf.Name)
+		ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_ifhw_rx_bytes"], prometheus.CounterValue, intf.Stats.RxBytes, intf.Name)
+		ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_ifhw_tx_bytes"], prometheus.CounterValue, intf.Stats.TxBytes, intf.Name)
+		ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_ifhw_rx_packets"], prometheus.CounterValue, intf.Stats.RxPackets, intf.Name)
+		ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_ifhw_tx_packets"], prometheus.CounterValue, intf.Stats.TxPackets, intf.Name)
+		ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_ifhw_state"], prometheus.GaugeValue, encodeMetricMulti(intf.State, []string{"Down", "Up"}), intf.Name)
+		ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_ifhw_enabled"], prometheus.GaugeValue, encodeMetricMulti(intf.Enabled, []string{"No", "Yes"}), intf.Name)
 		if intf.LAG.ConfiguredMembers.Member != nil {
 			ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_lag_configured_members"], prometheus.GaugeValue, float64(len(intf.LAG.ConfiguredMembers.Member)), intf.Name)
 			ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_lag_available_members"], prometheus.GaugeValue, float64(len(intf.LAG.AvailableMembers.Member)), intf.Name)
 			ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_lag_operational_members"], prometheus.GaugeValue, float64(len(intf.LAG.OperationalMembers.Member)), intf.Name)
 		} else if len(intf.ETH.LinkDetected) > 0 {
-			ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_if_link_detected"], prometheus.GaugeValue, encodeMetricMulti(intf.ETH.LinkDetected, []string{"No", "Yes"}), intf.Name)
+			ch <- e.NewMetric(MetricDesc["InterfaceHW"]["network_ifhw_link_detected"], prometheus.GaugeValue, encodeMetricMulti(intf.ETH.LinkDetected, []string{"No", "Yes"}), intf.Name)
 		}
 	}
 
