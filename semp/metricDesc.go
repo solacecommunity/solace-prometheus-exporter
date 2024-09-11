@@ -10,6 +10,7 @@ var (
 	variableLabelsHardwareFC       = []string{"channel_number"}
 	variableLabelsHardwareLUN      = []string{"lun_number"}
 	variableLabelsRedundancy       = []string{"mate_name"}
+	variableLabelsRedundancyHW     = []string{"mate_name"}
 	variableLabelsReplication      = []string{"mate_name"}
 	variableLabelsVpn              = []string{"vpn_name"}
 	variableLabelsClientInfo       = []string{"vpn_name", "client_name", "client_address"}
@@ -28,6 +29,7 @@ var (
 	variableLabelsStorageElement   = []string{"path", "device_name", "element_name"}
 	variableLabelsDisk             = []string{"path", "device_name"}
 	variableLabelsInterface        = []string{"interface_name"}
+	variableLabelsInterfaceHW      = []string{"interface_name"}
 	variableLabelsRaid             = []string{"disk_number", "device_model"}
 )
 
@@ -99,13 +101,16 @@ var MetricDesc = map[string]Descriptions{
 		"network_if_state":    NewSemDesc("network_if_state", NoSempV2Ready, "Network Interface State.", variableLabelsInterface),
 	},
 	"InterfaceHW": {
-		"network_if_rx_packets":           NewSemDesc("network_if_rx_packets", NoSempV2Ready, "Network Interface Received Packets.", variableLabelsInterface),
-		"network_if_tx_packets":           NewSemDesc("network_if_tx_packets", NoSempV2Ready, "Network Interface Transmitted Packets.", variableLabelsInterface),
-		"network_lag_configured_members":  NewSemDesc("network_lag_configured_members", NoSempV2Ready, "Network LAG Configured Members.", variableLabelsInterface),
-		"network_lag_available_members":   NewSemDesc("network_lag_available_members", NoSempV2Ready, "Network LAG Available Members.", variableLabelsInterface),
-		"network_lag_operational_members": NewSemDesc("network_lag_operational_members", NoSempV2Ready, "Network LAG Operational Members.", variableLabelsInterface),
-		"network_if_link_detected":        NewSemDesc("network_if_link_detected", NoSempV2Ready, "Network Interface Link Detected. 0-No, 1-Yes", variableLabelsInterface),
-		"network_if_enabled":              NewSemDesc("network_if_enabled", NoSempV2Ready, "Network Interface Enabled. 0-No, 1-Yes", variableLabelsInterface),
+		"network_ifhw_rx_bytes":           NewSemDesc("network_ifhw_rx_bytes", NoSempV2Ready, "Network Interface Received Bytes.", variableLabelsInterface),
+		"network_ifhw_tx_bytes":           NewSemDesc("network_ifhw_tx_bytes", NoSempV2Ready, "Network Interface Transmitted Bytes.", variableLabelsInterface),
+		"network_ifhw_state":              NewSemDesc("network_ifhw_state", NoSempV2Ready, "Network Interface State.", variableLabelsInterface),
+		"network_ifhw_rx_packets":         NewSemDesc("network_ifhw_rx_packets", NoSempV2Ready, "Network Interface Received Packets.", variableLabelsInterfaceHW),
+		"network_ifhw_tx_packets":         NewSemDesc("network_ifhw_tx_packets", NoSempV2Ready, "Network Interface Transmitted Packets.", variableLabelsInterfaceHW),
+		"network_lag_configured_members":  NewSemDesc("network_lag_configured_members", NoSempV2Ready, "Network LAG Configured Members.", variableLabelsInterfaceHW),
+		"network_lag_available_members":   NewSemDesc("network_lag_available_members", NoSempV2Ready, "Network LAG Available Members.", variableLabelsInterfaceHW),
+		"network_lag_operational_members": NewSemDesc("network_lag_operational_members", NoSempV2Ready, "Network LAG Operational Members.", variableLabelsInterfaceHW),
+		"network_ifhw_link_detected":      NewSemDesc("network_ifhw_link_detected", NoSempV2Ready, "Network Interface Link Detected. 0-No, 1-Yes", variableLabelsInterfaceHW),
+		"network_ifhw_enabled":            NewSemDesc("network_ifhw_enabled", NoSempV2Ready, "Network Interface Enabled. 0-No, 1-Yes", variableLabelsInterfaceHW),
 	},
 	//SEMPv1: show stats client
 	"GlobalStats": {
@@ -169,10 +174,10 @@ var MetricDesc = map[string]Descriptions{
 		"system_redundancy_local_active": NewSemDesc("system_redundancy_local_active", NoSempV2Ready, "Is local node the active messaging node? (0-not active, 1-active).", variableLabelsRedundancy),
 	},
 	"RedundancyHW": {
-		"system_redundancy_role":      NewSemDesc("system_redundancy_role", NoSempV2Ready, "Redundancy role (0=Backup, 1=Primary, 2-Undefined).", variableLabelsRedundancy),
-		"system_redundancy_mode":      NewSemDesc("system_redundancy_mode", NoSempV2Ready, "Redundancy mode (0=Active/Active, 1=Active/Standby).", variableLabelsRedundancy),
-		"system_redundancy_adb_link":  NewSemDesc("system_redundancy_adb_link", NoSempV2Ready, "Is adb link up? (0-no, 1-yes).", variableLabelsRedundancy),
-		"system_redundancy_adb_hello": NewSemDesc("system_redundancy_adb_hello", NoSempV2Ready, "Is adb link connected? (0-no, 1-yes).", variableLabelsRedundancy),
+		"system_redundancy_hw_role":      NewSemDesc("system_redundancy_hw_role", NoSempV2Ready, "Redundancy role (0=Backup, 1=Primary, 2-Undefined).", variableLabelsRedundancyHW),
+		"system_redundancy_hw_mode":      NewSemDesc("system_redundancy_hw_mode", NoSempV2Ready, "Redundancy mode (0=Active/Active, 1=Active/Standby).", variableLabelsRedundancyHW),
+		"system_redundancy_hw_adb_link":  NewSemDesc("system_redundancy_hw_adb_link", NoSempV2Ready, "Is adb link up? (0-no, 1-yes).", variableLabelsRedundancyHW),
+		"system_redundancy_hw_adb_hello": NewSemDesc("system_redundancy_hw_adb_hello", NoSempV2Ready, "Is adb link connected? (0-no, 1-yes).", variableLabelsRedundancyHW),
 	},
 	"Environment": {
 		"system_chassis_fan_speed_rpm": NewSemDesc("system_chassis_fan_speed_rpm", NoSempV2Ready, "Chassis Fan Speed (RPM)", variableLabelsEnvironment),
@@ -275,14 +280,14 @@ var MetricDesc = map[string]Descriptions{
 		"bridge_connection_uptime_in_seconds":               NewSemDesc("bridge_connection_uptime_in_seconds", NoSempV2Ready, "Connection Uptime (s)", variableLabelsBridge),
 	},
 	"BridgeRemote": {
-		"bridge_admin_state":                        NewSemDesc("bridge_admin_state", NoSempV2Ready, "Bridge Administrative State (0-Enabled 1-Disabled, 2--, 3-N/A)", variableLabelsBridgeRemote),
-		"bridge_connection_establisher":             NewSemDesc("bridge_connection_establisher", NoSempV2Ready, "Connection Establisher (0-NotApplicable, 1-Local, 2-Remote, 3-Invalid)", variableLabelsBridgeRemote),
-		"bridge_inbound_operational_state":          NewSemDesc("bridge_inbound_operational_state", NoSempV2Ready, "Inbound Ops State (0-Init, 1-Shutdown, 2-NoShutdown, 3-Prepare, 4-Prepare-WaitToConnect, 5-Prepare-FetchingDNS, 6-NotReady, 7-NotReady-Connecting, 8-NotReady-Handshaking, 9-NotReady-WaitNext, 10-NotReady-WaitReuse, 11-NotRead-WaitBridgeVersionMismatch, 12-NotReady-WaitCleanup, 13-Ready, 14-Ready-Subscribing, 15-Ready-InSync, 16-NotApplicable, 17-Invalid)", variableLabelsBridgeRemote),
-		"bridge_inbound_operational_failure_reason": NewSemDesc("bridge_inbound_operational_failure_reason", NoSempV2Ready, "Inbound Ops Failure Reason (0-Bridge disabled ,1-No remote message-vpns configured, 2-SMF service is disabled, 3-Msg Backbone is disabled, 4-Local message-vpn is disabled, 5-Active-Standby Role Mismatch, 6-Invalid Active-Standby Role, 7-Redundancy Disabled, 8-Not active, 9-Replication standby, 10-Remote message-vpns disabled, 11-Enforce-trusted-common-name but empty trust-common-name list, 12-SSL transport used but cipher-suite list is empty, 13-Authentication Scheme is Client-Certificate but no certificate is configured, 14-Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL, 15-Basic Authentication Scheme used but Basic Client Username not configured, 16-Cluster Down, 17-Cluster Link Down, 18-N/A)", variableLabelsBridgeRemote),
-		"bridge_outbound_operational_state":         NewSemDesc("bridge_outbound_operational_state", NoSempV2Ready, "Outbound Ops State (0-Init, 1-Shutdown, 2-NoShutdown, 3-Prepare, 4-Prepare-WaitToConnect, 5-Prepare-FetchingDNS, 6-NotReady, 7-NotReady-Connecting, 8-NotReady-Handshaking, 9-NotReady-WaitNext, 10-NotReady-WaitReuse, 11-NotRead-WaitBridgeVersionMismatch, 12-NotReady-WaitCleanup, 13-Ready, 14-Ready-Subscribing, 15-Ready-InSync, 16-NotApplicable, 17-Invalid)", variableLabelsBridgeRemote),
-		"bridge_queue_operational_state":            NewSemDesc("bridge_queue_operational_state", NoSempV2Ready, "Queue Ops State (0-NotApplicable, 1-Bound, 2-Unbound)", variableLabelsBridgeRemote),
-		"bridge_redundancy":                         NewSemDesc("bridge_redundancy", NoSempV2Ready, "Bridge Redundancy (0-NotApplicable, 1-auto, 2-primary, 3-backup, 4-static, 5-none)", variableLabelsBridgeRemote),
-		"bridge_connection_uptime_in_seconds":       NewSemDesc("bridge_connection_uptime_in_seconds", NoSempV2Ready, "Connection Uptime (s)", variableLabelsBridgeRemote),
+		"bridge_r_admin_state":                        NewSemDesc("bridge_r_admin_state", NoSempV2Ready, "Bridge Administrative State (0-Enabled 1-Disabled, 2--, 3-N/A)", variableLabelsBridgeRemote),
+		"bridge_r_connection_establisher":             NewSemDesc("bridge_r_connection_establisher", NoSempV2Ready, "Connection Establisher (0-NotApplicable, 1-Local, 2-Remote, 3-Invalid)", variableLabelsBridgeRemote),
+		"bridge_r_inbound_operational_state":          NewSemDesc("bridge_r_inbound_operational_state", NoSempV2Ready, "Inbound Ops State (0-Init, 1-Shutdown, 2-NoShutdown, 3-Prepare, 4-Prepare-WaitToConnect, 5-Prepare-FetchingDNS, 6-NotReady, 7-NotReady-Connecting, 8-NotReady-Handshaking, 9-NotReady-WaitNext, 10-NotReady-WaitReuse, 11-NotRead-WaitBridgeVersionMismatch, 12-NotReady-WaitCleanup, 13-Ready, 14-Ready-Subscribing, 15-Ready-InSync, 16-NotApplicable, 17-Invalid)", variableLabelsBridgeRemote),
+		"bridge_r_inbound_operational_failure_reason": NewSemDesc("bridge_r_inbound_operational_failure_reason", NoSempV2Ready, "Inbound Ops Failure Reason (0-Bridge disabled ,1-No remote message-vpns configured, 2-SMF service is disabled, 3-Msg Backbone is disabled, 4-Local message-vpn is disabled, 5-Active-Standby Role Mismatch, 6-Invalid Active-Standby Role, 7-Redundancy Disabled, 8-Not active, 9-Replication standby, 10-Remote message-vpns disabled, 11-Enforce-trusted-common-name but empty trust-common-name list, 12-SSL transport used but cipher-suite list is empty, 13-Authentication Scheme is Client-Certificate but no certificate is configured, 14-Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL, 15-Basic Authentication Scheme used but Basic Client Username not configured, 16-Cluster Down, 17-Cluster Link Down, 18-N/A)", variableLabelsBridgeRemote),
+		"bridge_r_outbound_operational_state":         NewSemDesc("bridge_r_outbound_operational_state", NoSempV2Ready, "Outbound Ops State (0-Init, 1-Shutdown, 2-NoShutdown, 3-Prepare, 4-Prepare-WaitToConnect, 5-Prepare-FetchingDNS, 6-NotReady, 7-NotReady-Connecting, 8-NotReady-Handshaking, 9-NotReady-WaitNext, 10-NotReady-WaitReuse, 11-NotRead-WaitBridgeVersionMismatch, 12-NotReady-WaitCleanup, 13-Ready, 14-Ready-Subscribing, 15-Ready-InSync, 16-NotApplicable, 17-Invalid)", variableLabelsBridgeRemote),
+		"bridge_r_queue_operational_state":            NewSemDesc("bridge_r_queue_operational_state", NoSempV2Ready, "Queue Ops State (0-NotApplicable, 1-Bound, 2-Unbound)", variableLabelsBridgeRemote),
+		"bridge_r_redundancy":                         NewSemDesc("bridge_r_redundancy", NoSempV2Ready, "Bridge Redundancy (0-NotApplicable, 1-auto, 2-primary, 3-backup, 4-static, 5-none)", variableLabelsBridgeRemote),
+		"bridge_r_connection_uptime_in_seconds":       NewSemDesc("bridge_r_connection_uptime_in_seconds", NoSempV2Ready, "Connection Uptime (s)", variableLabelsBridgeRemote),
 	},
 	"VpnSpool": {
 		"vpn_spool_quota_bytes":                 NewSemDesc("vpn_spool_quota_bytes", NoSempV2Ready, "Spool configured max disk usage.", variableLabelsVpn),
