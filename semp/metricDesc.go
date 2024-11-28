@@ -31,6 +31,7 @@ var (
 	variableLabelsInterface        = []string{"interface_name"}
 	variableLabelsInterfaceHW      = []string{"interface_name"}
 	variableLabelsRaid             = []string{"disk_number", "device_model"}
+	variableLabelsRestConsumer     = []string{"vpn_name", "rdp_name", "rest_consumer_name"}
 )
 
 var QueueStats = Descriptions{
@@ -476,5 +477,16 @@ var MetricDesc = map[string]Descriptions{
 		"connection_received_outoforder":  NewSemDesc("connection_received_outoforder", NoSempV2Ready, "The number of TCP segments received out of order.", variableLabelsVpnClient),
 		"connection_fast_retransmit":      NewSemDesc("connection_fast_retransmit", NoSempV2Ready, "The number of TCP segments retransmitted due to the receipt of duplicate acknowledgments (‘ACKs’). See RFC 5681 for further details.", variableLabelsVpnClient),
 		"connection_timed_retransmit":     NewSemDesc("connection_timed_retransmit", NoSempV2Ready, "The number of TCP segments re-transmitted due to timeout awaiting an ACK. See RFC 793 for further details.", variableLabelsVpnClient),
+	},
+	"RestConsumerStats": {
+		"http_post_request_messages_sent":                   NewSemDesc("rdp_http_post_request_messages_sent", NoSempV2Ready, "The numer of request messages sent.", variableLabelsRestConsumer),
+		"http_post_request_messages_sent_outstanding":       NewSemDesc("rdp_http_post_request_messages_sent_outstanding", NoSempV2Ready, "The numer of outstandning request messages to be sent.", variableLabelsRestConsumer),
+		"http_post_request_messages_sent_connection_closed": NewSemDesc("rdp_http_post_request_messages_sent_connection_closed", NoSempV2Ready, "The numer of connection closed while sending a message.", variableLabelsRestConsumer),
+		"http_post_request_messages_sent_timed_out":         NewSemDesc("rdp_http_post_request_messages_sent_timed_out", NoSempV2Ready, "The numer of time-out encounted while sending a message.", variableLabelsRestConsumer),
+		"http_post_response_messages_received":              NewSemDesc("rdp_http_post_response_messages_received", NoSempV2Ready, "The numer of response messages received.", variableLabelsRestConsumer),
+		"http_post_response_messages_received_successful":   NewSemDesc("rdp_http_post_response_messages_received_successful", NoSempV2Ready, "The numer of response messages received successfully.", variableLabelsRestConsumer),
+		"http_post_response_messages_received_error":        NewSemDesc("rdp_http_post_response_messages_received_error", NoSempV2Ready, "The numer of response messages received with errors", variableLabelsRestConsumer),
+		"http_post_request_bytes_sent":                      NewSemDesc("rdp_http_post_request_bytes_sent", NoSempV2Ready, "The request bytes sent.", variableLabelsRestConsumer),
+		"http_post_response_bytes_received":                 NewSemDesc("rdp_http_post_response_bytes_received", NoSempV2Ready, "The response bytes received.", variableLabelsRestConsumer),
 	},
 }

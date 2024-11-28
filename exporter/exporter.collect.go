@@ -2,11 +2,12 @@ package exporter
 
 import (
 	"errors"
-	"github.com/go-kit/kit/log/level"
-	"github.com/prometheus/client_golang/prometheus"
 	"solace_exporter/semp"
 	"strings"
 	"sync"
+
+	"github.com/go-kit/kit/log/level"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // Collect fetches the stats from configured Solace location and delivers them
@@ -147,6 +148,8 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			up, err = e.semp.GetTopicEndpointStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "TopicEndpointDetails", "TopicEndpointDetailsV1":
 			up, err = e.semp.GetTopicEndpointDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "RestConsumerStats", "RestConsumerStatsV1":
+			up, err = e.semp.GetRestConsumerStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		default:
 			up = 0
 			err = errors.New("Unknown scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
