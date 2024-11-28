@@ -149,6 +149,7 @@ not starting with the word "internal"
 | Hardware                              | no                  | no                    | no                       | dont harm broker                                                      | show hardware                                                                 | appliance           |
 | InterfaceHW                           | no                  | yes                   | no                       | dont harm broker                                                      | show interface interfaceFilter                                                | appliance           |
 | Raid                                  | no                  | no                    | no                       | dont harm broker                                                      | show disk                                                                     | appliance           |
+| RDP/ Rest Consumers                   | yes                 | yes                   | no                       | may harm broker if many REST consumers                                      | show message-vpn <vpnFiler> rest rest-consumer <itemFiler> stats count 100 (paged) | software, appliance |
 
 ##### V2 endpoints
 
