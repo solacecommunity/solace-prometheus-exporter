@@ -10,7 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// Collect fetches the stats from configured Solace location and delivers them
+// CollectPrometheusMetric fetches the stats from configured Solace location and delivers them
 // as Prometheus metrics. It implements prometheus.Collector.
 func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 	var up float64 = 1

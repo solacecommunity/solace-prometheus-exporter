@@ -7,10 +7,10 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// Get rates for each individual queue of all vpn's
+// GetQueueRatesSemp1 Get rates for each individual queue of all VPNs
 // This can result in heavy system load for lots of queues
 // Deprecated: in facor of: getQueueStatsSemp1
-func (e *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -49,11 +49,11 @@ func (e *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter string, 
 	var page = 1
 	var lastQueueName = ""
 	for nextRequest := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><rates/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest, "QueueRatesSemp1", page)
+		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", nextRequest, "QueueRatesSemp1", page)
 		page++
 
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't scrape QueueRatesSemp1", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't scrape QueueRatesSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		defer body.Close()
@@ -61,11 +61,11 @@ func (e *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter string, 
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't decode QueueRatesSemp1", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't decode QueueRatesSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if target.ExecuteResult.Result != "ok" {
-			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 			return 0, errors.New("unexpected result: see log")
 		}
 
@@ -78,14 +78,14 @@ func (e *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter string, 
 				continue
 			}
 			lastQueueName = queueKey
-			ch <- e.NewMetric(MetricDesc["QueueRates"]["queue_rx_msg_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.RxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueRates"]["queue_tx_msg_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.TxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueRates"]["queue_rx_byte_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.RxByteRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueRates"]["queue_tx_byte_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.TxByteRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueRates"]["queue_rx_msg_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueRates"]["queue_tx_msg_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueRates"]["queue_rx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxByteRate, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueRates"]["queue_tx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxByteRate, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_rx_msg_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.RxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_tx_msg_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.TxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_rx_byte_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.RxByteRate, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_tx_byte_rate"], prometheus.GaugeValue, queue.Rates.Qendpt.TxByteRate, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_rx_msg_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_tx_msg_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxMsgRate, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_rx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxByteRate, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_tx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxByteRate, queue.Info.MsgVpnName, queue.QueueName)
 		}
 		body.Close()
 	}

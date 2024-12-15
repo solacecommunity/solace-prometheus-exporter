@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-// Get summary for each client of vpns
+// GetClientSemp1 Get summary for each client of VPNs
 // This can result in heavy system load when lots of clients are connected
-func (e *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -36,11 +36,11 @@ func (e *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, item
 
 	var page = 1
 	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><connected/></client></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest, "ClientSemp1", page)
+		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", nextRequest, "ClientSemp1", page)
 		page++
 
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't scrape ClientSemp1", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't scrape ClientSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		defer body.Close()
@@ -48,11 +48,11 @@ func (e *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, item
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't decode ClientSemp1", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't decode ClientSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if target.ExecuteResult.Result != "ok" {
-			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 			return 0, errors.New("unexpected result: see log")
 		}
 
@@ -61,7 +61,7 @@ func (e *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, item
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientIp := strings.Split(client.ClientAddress, ":")[0]
-			ch <- e.NewMetric(MetricDesc["Client"]["client_num_subscriptions"], prometheus.GaugeValue, client.NumSubscriptions, client.MsgVpnName, client.ClientName, clientIp)
+			ch <- semp.NewMetric(MetricDesc["Client"]["client_num_subscriptions"], prometheus.GaugeValue, client.NumSubscriptions, client.MsgVpnName, client.ClientName, clientIp)
 		}
 		body.Close()
 	}
