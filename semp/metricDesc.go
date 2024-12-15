@@ -21,7 +21,7 @@ var (
 	variableLabelsVpnClientFlow    = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
 	variableLabelsVpnQueue         = []string{"vpn_name", "queue_name"}
 	variableLabelsVpnTopicEndpoint = []string{"vpn_name", "topic_endpoint_name"}
-	variableLabelsCluserLink       = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
+	variableLabelsClusterLink      = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
 	variableLabelsBridge           = []string{"vpn_name", "bridge_name"}
 	variableLabelsBridgeRemote     = []string{"vpn_name", "bridge_name", "remote_vpn_name", "remote_router"}
 	variableLabelsBridgeStats      = []string{"vpn_name", "bridge_name", "remote_router_name", "remote_vpn_name"}
@@ -449,9 +449,9 @@ var MetricDesc = map[string]Descriptions{
 		"total_deleted_messages":          NewSemDesc("topic_endpoint_msg_total_deleted", NoSempV2Ready, "Topic Endpoint total number that was deleted.", variableLabelsVpnTopicEndpoint),
 	},
 	"ClusterLinks": {
-		"enabled":     NewSemDesc("cluster_link_enabled", NoSempV2Ready, "Cluster link is enabled.", variableLabelsCluserLink),
-		"oper_up":     NewSemDesc("cluster_link_operational", NoSempV2Ready, "Cluster link is operational.", variableLabelsCluserLink),
-		"oper_uptime": NewSemDesc("cluster_link_uptime", NoSempV2Ready, "Cluster link uptime in seconds.", variableLabelsCluserLink),
+		"enabled":     NewSemDesc("cluster_link_enabled", NoSempV2Ready, "Cluster link is enabled.", variableLabelsClusterLink),
+		"oper_up":     NewSemDesc("cluster_link_operational", NoSempV2Ready, "Cluster link is operational.", variableLabelsClusterLink),
+		"oper_uptime": NewSemDesc("cluster_link_uptime", NoSempV2Ready, "Cluster link uptime in seconds.", variableLabelsClusterLink),
 	},
 	"ClientConnections": {
 		"connection_is_zip":                 NewSemDesc("connection_is_zip", NoSempV2Ready, "Connection is zip compressed.", variableLabelsVpnClient),

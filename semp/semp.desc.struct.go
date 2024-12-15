@@ -61,7 +61,7 @@ func getSempV2FieldsToSelect(metricFilter []string, mandatoryFields []string, de
 
 type Descriptions map[string]*Desc
 
-type SempV2Result struct {
+type V2Result struct {
 	v2Desc    *Desc
 	valueType prometheus.ValueType
 	value     float64

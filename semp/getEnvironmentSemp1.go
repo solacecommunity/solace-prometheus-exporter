@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-// Get system Alarm information
-func (e *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+// GetEnvironmentSemp1 Get system Alarm information
+func (semp *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -51,9 +51,9 @@ func (e *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (ok float64, err 
 	}
 
 	command := "<rpc><show><environment/></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "EnvironmentSemp1", 1)
+	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "EnvironmentSemp1", 1)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't scrape EnvironmentSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't scrape EnvironmentSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	defer body.Close()
@@ -61,22 +61,22 @@ func (e *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (ok float64, err 
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't decode Xml EnvironmentSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml EnvironmentSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 		return 0, errors.New("unexpected result: see log")
 	}
 
 	for _, sensor := range target.RPC.Show.Environment.Mainboard.Sensors.Sensor {
 		if sensor.Type == "Fan speed" && strings.Contains(sensor.Name, "Chassis") {
 			if value, err := strconv.ParseFloat(sensor.Value, 64); err == nil {
-				ch <- e.NewMetric(MetricDesc["Environment"]["system_chassis_fan_speed_rpm"], prometheus.GaugeValue, math.Round(value), sensor.Name)
+				ch <- semp.NewMetric(MetricDesc["Environment"]["system_chassis_fan_speed_rpm"], prometheus.GaugeValue, math.Round(value), sensor.Name)
 			}
 		} else if sensor.Type == "Temperature" && strings.Contains(sensor.Name, "Therm Margin") {
 			if value, err := strconv.ParseFloat(sensor.Value, 64); err == nil {
-				ch <- e.NewMetric(MetricDesc["Environment"]["system_cpu_thermal_margin"], prometheus.GaugeValue, math.Round(value), sensor.Name)
+				ch <- semp.NewMetric(MetricDesc["Environment"]["system_cpu_thermal_margin"], prometheus.GaugeValue, math.Round(value), sensor.Name)
 			}
 		}
 	}
@@ -85,7 +85,7 @@ func (e *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (ok float64, err 
 			for _, sensor := range slot.Sensors.Sensor {
 				if sensor.Type == "Temperature" && sensor.Name == "NPU Core Temp" {
 					if value, err := strconv.ParseFloat(sensor.Value, 64); err == nil {
-						ch <- e.NewMetric(MetricDesc["Environment"]["system_nab_core_temperature"], prometheus.GaugeValue, math.Round(value), sensor.Name)
+						ch <- semp.NewMetric(MetricDesc["Environment"]["system_nab_core_temperature"], prometheus.GaugeValue, math.Round(value), sensor.Name)
 					}
 				}
 			}
