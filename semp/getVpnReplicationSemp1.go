@@ -8,7 +8,7 @@ import (
 )
 
 // Replication Config and status
-func (e *Semp) GetVpnReplicationSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok float64, err error) {
+func (semp *Semp) GetVpnReplicationSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -32,9 +32,9 @@ func (e *Semp) GetVpnReplicationSemp1(ch chan<- PrometheusMetric, vpnFilter stri
 	}
 
 	command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><replication/></message-vpn></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "VpnReplicationSemp1", 1)
+	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "VpnReplicationSemp1", 1)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	defer body.Close()
@@ -42,18 +42,18 @@ func (e *Semp) GetVpnReplicationSemp1(ch chan<- PrometheusMetric, vpnFilter stri
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 		return 0, errors.New("unexpected result: see log")
 	}
 
 	for _, vpn := range target.RPC.Show.MessageVpn.Replication.MessageVpns.MessageVpn {
-		ch <- e.NewMetric(MetricDesc["VpnReplication"]["vpn_replication_admin_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.AdminState, []string{"shutdown", "enabled", "n/a"}), vpn.VpnName)
-		ch <- e.NewMetric(MetricDesc["VpnReplication"]["vpn_replication_config_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.ConfigState, []string{"standby", "active", "n/a"}), vpn.VpnName)
-		ch <- e.NewMetric(MetricDesc["VpnReplication"]["vpn_replication_transaction_replication_mode"], prometheus.GaugeValue, encodeMetricMulti(vpn.TransactionReplicationMode, []string{"async", "sync", "n/a"}), vpn.VpnName)
+		ch <- semp.NewMetric(MetricDesc["VpnReplication"]["vpn_replication_admin_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.AdminState, []string{"shutdown", "enabled", "n/a"}), vpn.VpnName)
+		ch <- semp.NewMetric(MetricDesc["VpnReplication"]["vpn_replication_config_state"], prometheus.GaugeValue, encodeMetricMulti(vpn.ConfigState, []string{"standby", "active", "n/a"}), vpn.VpnName)
+		ch <- semp.NewMetric(MetricDesc["VpnReplication"]["vpn_replication_transaction_replication_mode"], prometheus.GaugeValue, encodeMetricMulti(vpn.TransactionReplicationMode, []string{"async", "sync", "n/a"}), vpn.VpnName)
 	}
 
 	return 1, nil

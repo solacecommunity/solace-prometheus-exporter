@@ -14,7 +14,7 @@ import (
 	"gopkg.in/ini.v1"
 )
 
-// Collection of configs
+// Config Collection of configs
 type Config struct {
 	ListenAddr              string
 	EnableTLS               bool
@@ -41,13 +41,13 @@ const (
 	CERTTYPE_PKCS12 = "PKCS12"
 )
 
-// getListenURI returns the `listenAddr` with proper protocol (http/https),
+// GetListenURI returns the `listenAddr` with proper protocol (http/https),
 // based on the `enableTLS` configuration parameter
-func (c *Config) GetListenURI() string {
-	if c.EnableTLS {
-		return "https://" + c.ListenAddr
+func (conf *Config) GetListenURI() string {
+	if conf.EnableTLS {
+		return "https://" + conf.ListenAddr
 	} else {
-		return "http://" + c.ListenAddr
+		return "http://" + conf.ListenAddr
 	}
 }
 

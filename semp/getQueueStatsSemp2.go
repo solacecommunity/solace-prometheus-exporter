@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-// Get rates for each individual queue of all vpn's
+// GetQueueStatsSemp2 Get rates for each individual queue of all VPNs
 // This can result in heavy system load for lots of queues
-func (e *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string, itemFilter string, metricFilter []string) (ok float64, err error) {
+func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string, itemFilter string, metricFilter []string) (ok float64, err error) {
 	type Response struct {
 		Queue []struct {
 			QueueName                           string  `json:"queueName"`
@@ -67,7 +67,7 @@ func (e *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string, it
 		)
 
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Unable to map metric filter", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Unable to map metric filter", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		getParameter += "&select=" + strings.Join(fieldsToSelect, ",")
@@ -75,29 +75,28 @@ func (e *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string, it
 
 	var page = 1
 	var lastQueueName = ""
-	for nextUrl := e.brokerURI + "/SEMP/v2/monitor/msgVpns/" + vpnName + "/queues?" + getParameter; nextUrl != ""; {
-		body, err := e.getHTTPbytes(nextUrl, "application/json ", "QueueStatsSemp2", page)
+	for nextUrl := semp.brokerURI + "/SEMP/v2/monitor/msgVpns/" + vpnName + "/queues?" + getParameter; nextUrl != ""; {
+		body, err := semp.getHTTPbytes(nextUrl, "application/json ", "QueueStatsSemp2", page)
 		page++
 
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't scrape QueueStatsSemp2", "command", nextUrl, "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't scrape QueueStatsSemp2", "command", nextUrl, "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 
 		var response Response
 		err = json.Unmarshal(body, &response)
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't decode QueueStatsSemp2", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't decode QueueStatsSemp2", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if response.Meta.ResponseCode != 200 {
-			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextUrl, "remoteError", response.Meta.Error.Description, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextUrl, "remoteError", response.Meta.Error.Description, "broker", semp.brokerURI)
 			return 0, errors.New("unexpected result: see log")
 		}
 
-		_ = level.Debug(e.logger).Log("msg", "Result of QueueStatsSemp2", "results", len(response.Queue), "page", page-1)
+		_ = level.Debug(semp.logger).Log("msg", "Result of QueueStatsSemp2", "results", len(response.Queue), "page", page-1)
 
-		//fmt.Printf("Next request: %v\n", response.Meta.Paging.NextPageUri)
 		nextUrl = response.Meta.Paging.NextPageUri
 		for _, queue := range response.Queue {
 			queueKey := queue.MsgVpnName + "___" + queue.QueueName
@@ -106,7 +105,7 @@ func (e *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string, it
 			}
 			lastQueueName = queueKey
 
-			var values = []SempV2Result{
+			var values = []V2Result{
 				{v2Desc: QueueStats["total_bytes_spooled"], valueType: prometheus.CounterValue, value: queue.TotalByteSpooled},
 				{v2Desc: QueueStats["messages_redelivered"], valueType: prometheus.CounterValue, value: queue.MsgRedelivered},
 				{v2Desc: QueueStats["messages_transport_retransmited"], valueType: prometheus.CounterValue, value: queue.MsgRetransmit},
@@ -124,7 +123,7 @@ func (e *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string, it
 
 			for _, v := range values {
 				if v.v2Desc.isSelected(fieldsToSelect) {
-					ch <- e.NewMetric(v.v2Desc, v.valueType, v.value, queue.MsgVpnName, queue.QueueName)
+					ch <- semp.NewMetric(v.v2Desc, v.valueType, v.value, queue.MsgVpnName, queue.QueueName)
 				}
 			}
 		}
