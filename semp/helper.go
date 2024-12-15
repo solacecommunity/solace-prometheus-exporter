@@ -25,7 +25,7 @@ func mapItems(items []string, translateMap map[string]string) ([]string, error) 
 			translated = append(translated, item)
 		} else {
 			return nil, fmt.Errorf(
-				"Item \"%s\" is not valid. Pleaee choose from: %s",
+				"item \"%s\" is not valid. Pleaee choose from: %s",
 				item,
 				strings.Join(validItems, ","),
 			)

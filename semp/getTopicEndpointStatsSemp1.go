@@ -7,17 +7,17 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// Get rates for each individual topic-endpoint of all vpn's
+// GetTopicEndpointStatsSemp1 Get rates for each individual topic-endpoint of all VPNs
 // This can result in heavy system load for lots of topc-endpoints
-func (e *Semp) GetTopicEndpointStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetTopicEndpointStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
 				TopicEndpoint struct {
 					TopicEndpoints struct {
 						TopicEndpoint []struct {
-							TopicEndointName string `xml:"name"`
-							Info             struct {
+							TopicEndpointName string `xml:"name"`
+							Info              struct {
 								MsgVpnName string `xml:"message-vpn"`
 							} `xml:"info"`
 							Stats struct {
@@ -56,11 +56,11 @@ func (e *Semp) GetTopicEndpointStatsSemp1(ch chan<- PrometheusMetric, vpnFilter 
 	var page = 1
 	var lastTopicEndpointName = ""
 	for nextRequest := "<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><stats/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest, "TopicEndpointStatsSemp1", page)
+		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", nextRequest, "TopicEndpointStatsSemp1", page)
 		page++
 
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't scrape TopicEndpointStatsSemp1", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't scrape TopicEndpointStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		defer body.Close()
@@ -68,11 +68,11 @@ func (e *Semp) GetTopicEndpointStatsSemp1(ch chan<- PrometheusMetric, vpnFilter 
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't decode TopicEndpointStatsSemp1", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't decode TopicEndpointStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if target.ExecuteResult.Result != "ok" {
-			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 			return 0, errors.New("unexpected result: see log")
 		}
 
@@ -80,18 +80,18 @@ func (e *Semp) GetTopicEndpointStatsSemp1(ch chan<- PrometheusMetric, vpnFilter 
 		nextRequest = target.MoreCookie.RPC
 
 		for _, topicEndpoint := range target.RPC.Show.TopicEndpoint.TopicEndpoints.TopicEndpoint {
-			topicEndpointKey := topicEndpoint.Info.MsgVpnName + "___" + topicEndpoint.TopicEndointName
+			topicEndpointKey := topicEndpoint.Info.MsgVpnName + "___" + topicEndpoint.TopicEndpointName
 			if topicEndpointKey == lastTopicEndpointName {
 				continue
 			}
 			lastTopicEndpointName = topicEndpointKey
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["total_bytes_spooled"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.TotalByteSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["total_messages_spooled"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.TotalMsgSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["messages_redelivered"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.MsgRedelivered, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["messages_transport_retransmited"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.MsgRetransmit, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["spool_usage_exceeded"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.SpoolUsageExceeded, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["max_message_size_exceeded"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.MsgSizeExceeded, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
-			ch <- e.NewMetric(MetricDesc["TopicEndpointStats"]["total_deleted_messages"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.Deleted, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndointName)
+			ch <- semp.NewMetric(MetricDesc["TopicEndpointStats"]["total_bytes_spooled"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.TotalByteSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndpointName)
+			ch <- semp.NewMetric(MetricDesc["TopicEndpointStats"]["total_messages_spooled"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.TotalMsgSpooled, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndpointName)
+			ch <- semp.NewMetric(MetricDesc["TopicEndpointStats"]["messages_redelivered"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.MsgRedelivered, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndpointName)
+			ch <- semp.NewMetric(MetricDesc["TopicEndpointStats"]["messages_transport_retransmited"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.MsgRetransmit, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndpointName)
+			ch <- semp.NewMetric(MetricDesc["TopicEndpointStats"]["spool_usage_exceeded"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.SpoolUsageExceeded, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndpointName)
+			ch <- semp.NewMetric(MetricDesc["TopicEndpointStats"]["max_message_size_exceeded"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.MsgSizeExceeded, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndpointName)
+			ch <- semp.NewMetric(MetricDesc["TopicEndpointStats"]["total_deleted_messages"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.Deleted, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndpointName)
 		}
 		body.Close()
 	}
