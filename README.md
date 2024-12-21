@@ -1,13 +1,14 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 
-# solace-prometheus-exporter, a Prometheus Exporter for Solace Message Brokers
+# solace-prometheus-exporter
+A Prometheus exporter for Solace Message Brokers.
 
 ## Overview
 
 ![Architecture overview](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/doc/architecture_001.png)
 
-The exporter is written in go, based on the Solace Legacy SEMP protocol.
-It grabs metrics via SEMP v1 and provides those as prometheus friendly http endpoints.
+The exporter is written in Go, based on the Solace Legacy SEMP protocol.
+It grabs metrics via SEMP v1 and provides those as prometheus friendly HTTP endpoints.
 
 Video Intro available on
 YouTube: [Integrating Prometheus and Grafana with Solace PubSub+ | Solace Community Lightning Talk
@@ -31,7 +32,7 @@ http://<host>:<port>/solace              The modular endpoint
 
 ### Modular endpoint explained
 
-Configure the data you want ot to receive via [HTTP GET parameters](https://www.seobility.net/en/wiki/GET_Parameters).
+Configure the data you want to receive via [HTTP GET parameters](https://www.seobility.net/en/wiki/GET_Parameters).
 
 The key is always the [scrape target](#scrape-targets) prefixed by a `m.`.
 
@@ -47,12 +48,12 @@ The first both filters can contain multiple asterisk `*` as wildcard for N chars
 
 Each scrape target can be used multiple times, to implement or condition filters.
 
-#### Endpoints using semp v1
+#### Endpoints using SEMP v1
 
-Here are only the first two filters are supported.
+Only the first two filters are supported.
 
 The VPN filter can be an asterix.
-The ITME filter is using the semp v1 semantic (* is a wildcard for one or more chars).
+The ITEM filter is using the SEMP v1 semantic (* is a wildcard for one or more chars).
 
 #### Examples
 
@@ -76,19 +77,19 @@ a `my` and ends with and `prod`.
 Get the same result as the legacy `solace-det` endpoint, but from a specific broker.  
 `http://your-exporter:9628/solace?m.ClientStats=*|*&m.VpnStats=*|*&m.BridgeStats=*|*&m.QueueRates=*|*&m.QueueDetails=*|*&scrapeURI=http://your-broker-url:8080`
 
-#### Endpoints using semp v2
+#### Endpoints using SEMP v2
 
-Here are only the first two filters are supported.
+Only the first two filters are supported.
 
 The VPN filter may NOT be asterix.
 You are advised to always provide a valid vpn name.
 Wildcards are not supported.
 In case you provide an asterix, the "DefaultVpn" from configuration will be used.
 
-The ITME filter is using the semp v2 semantic (* is a wildcard for one or more chars).
+The ITEM filter is using the SEMP v2 semantic (* is a wildcard for one or more chars).
 You can either provide only the filter string, in this case main field and == will be prepended.
 
-Or you provide full qualified solace sep [v2 filter](https://docs.solace.com/Admin/SEMP/SEMP-Features.htm#Filtering)
+Or you provide full qualified solace SEMP [v2 filter](https://docs.solace.com/Admin/SEMP/SEMP-Features.htm#Filtering)
 like:
 
 `queueName!=internal*` All queues that are NOT internal.  
@@ -97,8 +98,8 @@ like:
 The METRIC filter limits the metrics that are returned.
 Please use the feature to save resources of the broker and your prometheus.
 Some fields are more costly than others.
-By only returning required metrics, you can speed up semp v2 query dramatically.
-Provide a comma separated list of either semp v2 field names or metrics names.
+By only returning required metrics, you can speed up SEMP v2 query dramatically.
+Provide a comma separated list of either SEMP v2 field names or metrics names.
 
 #### Examples
 
@@ -153,8 +154,8 @@ not starting with the word "internal"
 
 ##### V2 endpoints
 
-Those are semp V2 endpoints. Please avoid those.
-These are still experimental caused by the terrible performance of semp V2.
+Those are SEMP V2 endpoints. Please avoid those.
+These are still experimental caused by the terrible performance of SEMP V2.
 For example, getting queue stats with a filter that match 4500 out of 10`000 queues.
 Using a 10.5.1 software broker.
 
@@ -276,46 +277,46 @@ listenAddr = 0.0.0.0:9628
 
 # Enable TLS on listenAddr endpoint. Make sure to provide certificate and private key files when using certType=PEM or or PKCS12 file and password when using PKCS12.
 # can be overridden via env variable SOLACE_LISTEN_TLS or via cli parameter --enable-tls
-enableTLS=false
+enableTLS = false
 
 # Path to the server certificate (including intermediates and CA's certificate)
 # can be overridden via env variable SOLACE_SERVER_CERT or via cli parameter --certificate=cert.pem
-certificate=cert.pem
+certificate = cert.pem
 
 # Path to the private key pem file
 # can be overridden via env variable SOLACE_PRIVATE_KEY or via cli parameter --private-key=key.pem
-privateKey=key.pem
+privateKey = key.pem
 
 # Set the certificate type PEM | PKCS12. Make sure to provide certificate and private key files for PEM or PKCS12 file and password.
 # can be overridden via env variable SOLACE_LISTEN_CERTTYPE or via cli parameter --cert-type
-certType=PEM
+certType = PEM
 
 # Path to the server certificate (including intermediates and CA's certificate)
 # can be overridden via env variable SOLACE_PKCS12_FILE or via cli parameter --pkcs12File=keystore.p12
-pkcs12File=keystore.p12
+pkcs12File = keystore.p12
 
 # Password to decrypt PKCS12 file.
 # can be overridden via env variable SOLACE_PKCS12_PASS or via cli parameter --pkcs12Pass=passwordHere
-pkcs12Pass=123456
+pkcs12Pass = 123456
 
 # Base URI on which to scrape Solace broker.
 scrapeUri = http://your-exporter:8080
 
 # Note: try with your browser, you should see the broker login page, where you can test the username and password below as well.
-# Basic Auth username for http scrape requests to Solace broker.
+# Basic Auth username for HTTP scrape requests to Solace broker.
 username = admin
 
-# Basic Auth password for http scrape requests to Solace broker.
+# Basic Auth password for HTTP scrape requests to Solace broker.
 password = admin
 
-# Timeout for http scrape requests to Solace broker.
+# Timeout for HTTP scrape requests to Solace broker.
 timeout = 5s
 
 # Flag that enables SSL certificate verification for the scrape URI.
 sslVerify = false
 
 # Flag that enables HW Broker specific targets and disables SW specific ones.
-isHWBroker=false
+isHWBroker = false
 
 # Flag that enables Usage of the operating system proxy configuration.
 # false=No proxy will be used at all.
@@ -325,7 +326,7 @@ useSystemProxy = false
 # This may help you to deal with slower broker or extreme amount of results.
 prefetchInterval = 30s
 
-# Maximum connections to the configured broker. Keep in mind solace advices us to use max 10 semp connects per seconds.
+# Maximum connections to the configured broker. Keep in mind solace advices us to use max 10 SEMP connects per seconds.
 # Dont increase this value if your broker may have more thant 100 clients, queues, ...
 parallelSempConnections = 1
 ```
@@ -355,7 +356,7 @@ SOLACE_SSL_VERIFY=false
 You can call:
 `https://your-exporter:9628/solace?m.ClientStats=*|*&m.VpnStats=*|*&scrapeURI=https%3A%2F%2Fyour-broker%3A943&username=monitoring&password=monitoring&timeout=10s`
 
-This service grabs metrics via SEMP v1 and provides those as prometheus friendly http endpoints.
+This service grabs metrics via SEMP v1 and provides those as prometheus friendly HTTP endpoints.
 This allows you to overwrite the parameters, which are in the ini-config file / environment variables:
 
 - scrapeURI
@@ -436,7 +437,7 @@ for building.
 ## Security
 
 Please ensure to run this application only in a secured network or protected by a reverse proxy.
-It may reveal insights of your application you don`t want.  
+It may reveal insights of your application you don't want.  
 If you use the feature to pass broker credentials via HTTP body/header, you are forced to enable TLS on the listening
 port or to run this application within kubernetes/openshift or similar to add an HTTPS layer.
 
