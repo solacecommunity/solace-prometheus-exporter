@@ -9,9 +9,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// Get rates for each individual queue of all vpn's
+// GetRestConsumerStatsSemp1 Get rates for each individual queue of all VPNs
 // This can result in heavy system load for lots of queues
-func (e *Semp) GetRestConsumerStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetRestConsumerStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -47,11 +47,11 @@ func (e *Semp) GetRestConsumerStatsSemp1(ch chan<- PrometheusMetric, vpnFilter s
 	var lastConsumerName = ""
 	numOfElementsPerRequest := int64(100)
 	for nextRequest := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>" + itemFilter + "</rest-consumer-name><stats></stats><count/><num-elements>" + strconv.FormatInt(numOfElementsPerRequest, 10) + "</num-elements></message-vpn></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest, "RestConsumerStatsSemp1", page)
+		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", nextRequest, "RestConsumerStatsSemp1", page)
 		page++
 
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't scrape RestConsumerStatsSemp1", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't scrape RestConsumerStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		defer body.Close()
@@ -59,15 +59,15 @@ func (e *Semp) GetRestConsumerStatsSemp1(ch chan<- PrometheusMetric, vpnFilter s
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't decode Xml RestConsumerStatsSemp1", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't decode Xml RestConsumerStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if target.ExecuteResult.Result != "ok" {
-			_ = level.Error(e.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 			return 0, errors.New("unexpected result: see log")
 		}
 
-		_ = level.Debug(e.logger).Log("msg", "Result of RestConsumerStatsSemp1", "results", len(target.RPC.Show.MessageVpn.RestConsumerInfo.StatsInfo), "page", page-1)
+		_ = level.Debug(semp.logger).Log("msg", "Result of RestConsumerStatsSemp1", "results", len(target.RPC.Show.MessageVpn.RestConsumerInfo.StatsInfo), "page", page-1)
 
 		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC
@@ -78,15 +78,15 @@ func (e *Semp) GetRestConsumerStatsSemp1(ch chan<- PrometheusMetric, vpnFilter s
 				continue
 			}
 			lastConsumerName = consumerKey
-			ch <- e.NewMetric(MetricDesc["RestConsumerStats"]["http_post_request_bytes_sent"], prometheus.CounterValue, consumerStats.ReqBytesSent, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
-			ch <- e.NewMetric(MetricDesc["RestConsumerStats"]["http_post_request_messages_sent"], prometheus.CounterValue, consumerStats.ReqMsgSent, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
-			ch <- e.NewMetric(MetricDesc["RestConsumerStats"]["http_post_request_messages_sent_connection_closed"], prometheus.CounterValue, consumerStats.ReqMsgSentConnectionClosed, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
-			ch <- e.NewMetric(MetricDesc["RestConsumerStats"]["http_post_request_messages_sent_outstanding"], prometheus.GaugeValue, consumerStats.ReqMsgSentOutstanding, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
-			ch <- e.NewMetric(MetricDesc["RestConsumerStats"]["http_post_request_messages_sent_timed_out"], prometheus.CounterValue, consumerStats.ReqMsgSentTimedOut, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
-			ch <- e.NewMetric(MetricDesc["RestConsumerStats"]["http_post_response_bytes_received"], prometheus.CounterValue, consumerStats.RespByesReceived, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
-			ch <- e.NewMetric(MetricDesc["RestConsumerStats"]["http_post_response_messages_received"], prometheus.CounterValue, consumerStats.RespMsgReceived, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
-			ch <- e.NewMetric(MetricDesc["RestConsumerStats"]["http_post_response_messages_received_error"], prometheus.CounterValue, consumerStats.RespMsgReceivedError, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
-			ch <- e.NewMetric(MetricDesc["RestConsumerStats"]["http_post_response_messages_received_successful"], prometheus.CounterValue, consumerStats.RespMsgReceivedSuccessful, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
+			ch <- semp.NewMetric(MetricDesc["RestConsumerStats"]["http_post_request_bytes_sent"], prometheus.CounterValue, consumerStats.ReqBytesSent, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
+			ch <- semp.NewMetric(MetricDesc["RestConsumerStats"]["http_post_request_messages_sent"], prometheus.CounterValue, consumerStats.ReqMsgSent, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
+			ch <- semp.NewMetric(MetricDesc["RestConsumerStats"]["http_post_request_messages_sent_connection_closed"], prometheus.CounterValue, consumerStats.ReqMsgSentConnectionClosed, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
+			ch <- semp.NewMetric(MetricDesc["RestConsumerStats"]["http_post_request_messages_sent_outstanding"], prometheus.GaugeValue, consumerStats.ReqMsgSentOutstanding, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
+			ch <- semp.NewMetric(MetricDesc["RestConsumerStats"]["http_post_request_messages_sent_timed_out"], prometheus.CounterValue, consumerStats.ReqMsgSentTimedOut, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
+			ch <- semp.NewMetric(MetricDesc["RestConsumerStats"]["http_post_response_bytes_received"], prometheus.CounterValue, consumerStats.RespByesReceived, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
+			ch <- semp.NewMetric(MetricDesc["RestConsumerStats"]["http_post_response_messages_received"], prometheus.CounterValue, consumerStats.RespMsgReceived, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
+			ch <- semp.NewMetric(MetricDesc["RestConsumerStats"]["http_post_response_messages_received_error"], prometheus.CounterValue, consumerStats.RespMsgReceivedError, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
+			ch <- semp.NewMetric(MetricDesc["RestConsumerStats"]["http_post_response_messages_received_successful"], prometheus.CounterValue, consumerStats.RespMsgReceivedSuccessful, consumerStats.MsgVpnName, consumerStats.RdpName, consumerStats.RestConsumerName)
 		}
 		_ = body.Close()
 	}

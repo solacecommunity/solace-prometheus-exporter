@@ -8,7 +8,7 @@ import (
 )
 
 // Cluster link states of broker
-func (e *Semp) GetClusterLinksSemp1(ch chan<- PrometheusMetric, clusterFilter string, linkFilter string) (ok float64, err error) {
+func (semp *Semp) GetClusterLinksSemp1(ch chan<- PrometheusMetric, clusterFilter string, linkFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -37,9 +37,9 @@ func (e *Semp) GetClusterLinksSemp1(ch chan<- PrometheusMetric, clusterFilter st
 	}
 
 	command := "<rpc><show><cluster><cluster-name-pattern>" + clusterFilter + "</cluster-name-pattern><link-name-pattern>" + linkFilter + "</link-name-pattern></cluster></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "ClusterLinksSemp1", 1)
+	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClusterLinksSemp1", 1)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't scrape ClusterLinksSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't scrape ClusterLinksSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	defer body.Close()
@@ -47,19 +47,19 @@ func (e *Semp) GetClusterLinksSemp1(ch chan<- PrometheusMetric, clusterFilter st
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't decode Xml ClusterLinksSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml ClusterLinksSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 		return 0, errors.New("unexpected result: see log")
 	}
 
 	for _, cluster := range target.RPC.Show.Cluster.Clusters.Cluster {
 		for _, link := range cluster.Links.Link {
-			ch <- e.NewMetric(MetricDesc["ClusterLinks"]["enabled"], prometheus.GaugeValue, encodeMetricMulti(link.Enabled, []string{"false", "true", "n/a"}), cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
-			ch <- e.NewMetric(MetricDesc["ClusterLinks"]["oper_up"], prometheus.GaugeValue, encodeMetricMulti(link.Operational, []string{"false", "true", "n/a"}), cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
-			ch <- e.NewMetric(MetricDesc["ClusterLinks"]["oper_uptime"], prometheus.GaugeValue, link.UptimeInSeconds, cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
+			ch <- semp.NewMetric(MetricDesc["ClusterLinks"]["enabled"], prometheus.GaugeValue, encodeMetricMulti(link.Enabled, []string{"false", "true", "n/a"}), cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
+			ch <- semp.NewMetric(MetricDesc["ClusterLinks"]["oper_up"], prometheus.GaugeValue, encodeMetricMulti(link.Operational, []string{"false", "true", "n/a"}), cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
+			ch <- semp.NewMetric(MetricDesc["ClusterLinks"]["oper_uptime"], prometheus.GaugeValue, link.UptimeInSeconds, cluster.ClusterName, cluster.NodeName, link.RemoteClusterName, link.RemoteNodeName)
 		}
 	}
 

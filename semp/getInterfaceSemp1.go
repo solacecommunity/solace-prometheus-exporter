@@ -7,8 +7,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// Get interface information
-func (e *Semp) GetInterfaceSemp1(ch chan<- PrometheusMetric, interfaceFilter string) (ok float64, err error) {
+// GetInterfaceSemp1 Get interface information
+func (semp *Semp) GetInterfaceSemp1(ch chan<- PrometheusMetric, interfaceFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -33,9 +33,9 @@ func (e *Semp) GetInterfaceSemp1(ch chan<- PrometheusMetric, interfaceFilter str
 	}
 
 	command := "<rpc><show><interface><phy-interface>" + interfaceFilter + "</phy-interface></interface></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "InterfaceSemp1", 1)
+	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "InterfaceSemp1", 1)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't scrape InterfaceSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't scrape InterfaceSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	defer body.Close()
@@ -43,18 +43,18 @@ func (e *Semp) GetInterfaceSemp1(ch chan<- PrometheusMetric, interfaceFilter str
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't decode Xml InterfaceSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml InterfaceSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 		return 0, errors.New("unexpected result: see log")
 	}
 
 	for _, intf := range target.RPC.Show.Interface.Interfaces.Interface {
-		ch <- e.NewMetric(MetricDesc["Interface"]["network_if_rx_bytes"], prometheus.CounterValue, intf.Stats.RxBytes, intf.Name)
-		ch <- e.NewMetric(MetricDesc["Interface"]["network_if_tx_bytes"], prometheus.CounterValue, intf.Stats.TxBytes, intf.Name)
-		ch <- e.NewMetric(MetricDesc["Interface"]["network_if_state"], prometheus.GaugeValue, encodeMetricMulti(intf.State, []string{"Down", "Up"}), intf.Name)
+		ch <- semp.NewMetric(MetricDesc["Interface"]["network_if_rx_bytes"], prometheus.CounterValue, intf.Stats.RxBytes, intf.Name)
+		ch <- semp.NewMetric(MetricDesc["Interface"]["network_if_tx_bytes"], prometheus.CounterValue, intf.Stats.TxBytes, intf.Name)
+		ch <- semp.NewMetric(MetricDesc["Interface"]["network_if_state"], prometheus.GaugeValue, encodeMetricMulti(intf.State, []string{"Down", "Up"}), intf.Name)
 	}
 
 	return 1, nil

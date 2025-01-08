@@ -21,7 +21,7 @@ var (
 	variableLabelsVpnClientFlow    = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
 	variableLabelsVpnQueue         = []string{"vpn_name", "queue_name"}
 	variableLabelsVpnTopicEndpoint = []string{"vpn_name", "topic_endpoint_name"}
-	variableLabelsCluserLink       = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
+	variableLabelsClusterLink      = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
 	variableLabelsBridge           = []string{"vpn_name", "bridge_name"}
 	variableLabelsBridgeRemote     = []string{"vpn_name", "bridge_name", "remote_vpn_name", "remote_router"}
 	variableLabelsBridgeStats      = []string{"vpn_name", "bridge_name", "remote_router_name", "remote_vpn_name"}
@@ -38,7 +38,7 @@ var QueueStats = Descriptions{
 	"total_bytes_spooled":                 NewSemDesc("queue_byte_spooled", "spooledByteCount", "The total amount of all messages ever spooled in the queue, in bytes.", variableLabelsVpnQueue),
 	"total_messages_spooled":              NewSemDesc("queue_msg_spooled", "spooledMsgCount", "Queue spool total of all spooled messages.", variableLabelsVpnQueue),
 	"messages_redelivered":                NewSemDesc("queue_msg_redelivered", "redeliveredMsgCount", "Queue total msg redeliveries.", variableLabelsVpnQueue),
-	"messages_transport_retransmited":     NewSemDesc("queue_msg_retransmited", "transportRetransmitMsgCount", "Queue total msg retransmitted on transport.", variableLabelsVpnQueue),
+	"messages_transport_retransmitted":    NewSemDesc("queue_msg_retransmitted", "transportRetransmitMsgCount", "Queue total msg retransmitted on transport.", variableLabelsVpnQueue),
 	"spool_usage_exceeded":                NewSemDesc("queue_msg_spool_usage_exceeded", "maxMsgSpoolUsageExceededDiscardedMsgCount", "Queue total number of messages exceeded the spool usage.", variableLabelsVpnQueue),
 	"max_message_size_exceeded":           NewSemDesc("queue_msg_max_msg_size_exceeded", "maxMsgSizeExceededDiscardedMsgCount", "Queue total number of messages exceeded the max message size.", variableLabelsVpnQueue),
 	"total_deleted_messages":              NewSemDesc("queue_msg_total_deleted", "deletedMsgCount", "Queue total number that was deleted.", variableLabelsVpnQueue),
@@ -440,18 +440,18 @@ var MetricDesc = map[string]Descriptions{
 		"binds":             NewSemDesc("topic_endpoint_binds", NoSempV2Ready, "Number of clients bound to topic-endpoint.", variableLabelsVpnTopicEndpoint),
 	},
 	"TopicEndpointStats": {
-		"total_bytes_spooled":             NewSemDesc("topic_endpoint_byte_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages in bytes.", variableLabelsVpnTopicEndpoint),
-		"total_messages_spooled":          NewSemDesc("topic_endpoint_msg_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages.", variableLabelsVpnTopicEndpoint),
-		"messages_redelivered":            NewSemDesc("topic_endpoint_msg_redelivered", NoSempV2Ready, "Topic Endpoint total msg redeliveries.", variableLabelsVpnTopicEndpoint),
-		"messages_transport_retransmited": NewSemDesc("topic_endpoint_msg_retransmited", NoSempV2Ready, "Topic Endpoint total msg retransmitted on transport.", variableLabelsVpnTopicEndpoint),
-		"spool_usage_exceeded":            NewSemDesc("topic_endpoint_msg_spool_usage_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the spool usage.", variableLabelsVpnTopicEndpoint),
-		"max_message_size_exceeded":       NewSemDesc("topic_endpoint_msg_max_msg_size_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the max message size.", variableLabelsVpnTopicEndpoint),
-		"total_deleted_messages":          NewSemDesc("topic_endpoint_msg_total_deleted", NoSempV2Ready, "Topic Endpoint total number that was deleted.", variableLabelsVpnTopicEndpoint),
+		"total_bytes_spooled":              NewSemDesc("topic_endpoint_byte_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages in bytes.", variableLabelsVpnTopicEndpoint),
+		"total_messages_spooled":           NewSemDesc("topic_endpoint_msg_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages.", variableLabelsVpnTopicEndpoint),
+		"messages_redelivered":             NewSemDesc("topic_endpoint_msg_redelivered", NoSempV2Ready, "Topic Endpoint total msg redeliveries.", variableLabelsVpnTopicEndpoint),
+		"messages_transport_retransmitted": NewSemDesc("topic_endpoint_msg_retransmitted", NoSempV2Ready, "Topic Endpoint total msg retransmitted on transport.", variableLabelsVpnTopicEndpoint),
+		"spool_usage_exceeded":             NewSemDesc("topic_endpoint_msg_spool_usage_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the spool usage.", variableLabelsVpnTopicEndpoint),
+		"max_message_size_exceeded":        NewSemDesc("topic_endpoint_msg_max_msg_size_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the max message size.", variableLabelsVpnTopicEndpoint),
+		"total_deleted_messages":           NewSemDesc("topic_endpoint_msg_total_deleted", NoSempV2Ready, "Topic Endpoint total number that was deleted.", variableLabelsVpnTopicEndpoint),
 	},
 	"ClusterLinks": {
-		"enabled":     NewSemDesc("cluster_link_enabled", NoSempV2Ready, "Cluster link is enabled.", variableLabelsCluserLink),
-		"oper_up":     NewSemDesc("cluster_link_operational", NoSempV2Ready, "Cluster link is operational.", variableLabelsCluserLink),
-		"oper_uptime": NewSemDesc("cluster_link_uptime", NoSempV2Ready, "Cluster link uptime in seconds.", variableLabelsCluserLink),
+		"enabled":     NewSemDesc("cluster_link_enabled", NoSempV2Ready, "Cluster link is enabled.", variableLabelsClusterLink),
+		"oper_up":     NewSemDesc("cluster_link_operational", NoSempV2Ready, "Cluster link is operational.", variableLabelsClusterLink),
+		"oper_uptime": NewSemDesc("cluster_link_uptime", NoSempV2Ready, "Cluster link uptime in seconds.", variableLabelsClusterLink),
 	},
 	"ClientConnections": {
 		"connection_is_zip":                 NewSemDesc("connection_is_zip", NoSempV2Ready, "Connection is zip compressed.", variableLabelsVpnClient),

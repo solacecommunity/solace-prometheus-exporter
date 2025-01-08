@@ -96,7 +96,7 @@ func readMetrics(f *AsyncFetcher) {
 		}
 	}()
 
-	// read from chanel until the channel is closed
+	// read from channel until the channel is closed
 	cache := make([]semp.PrometheusMetric, 0, 100)
 	for {
 		metric, ok := <-metricsChan
@@ -112,11 +112,11 @@ func readMetrics(f *AsyncFetcher) {
 	}
 
 	f.Merge(cache)
-	f.DeleteDeprecated(cache)
+	f.DeleteDeprecated()
 }
 
-func (f *AsyncFetcher) Describe(descs chan<- *prometheus.Desc) {
-	f.exporter.Describe(descs)
+func (f *AsyncFetcher) Describe(desc chan<- *prometheus.Desc) {
+	f.exporter.Describe(desc)
 }
 
 func (f *AsyncFetcher) Collect(metrics chan<- prometheus.Metric) {
@@ -143,7 +143,7 @@ func (f *AsyncFetcher) Merge(cache []semp.PrometheusMetric) {
 	f.mutex.Unlock()
 }
 
-func (f *AsyncFetcher) DeleteDeprecated(cache []semp.PrometheusMetric) {
+func (f *AsyncFetcher) DeleteDeprecated() {
 	f.mutex.Lock()
 	for key, metric := range f.metrics {
 		if metric.IsDeprecated() {

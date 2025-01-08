@@ -7,8 +7,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// Get global stats information
-func (e *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+// GetGlobalSystemInfoSemp1 Get global stats information
+func (semp *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -27,9 +27,9 @@ func (e *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (ok float64,
 	}
 
 	command := "<rpc><show><system/></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "GetGlobalSystemInfoSemp1", 1)
+	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "GetGlobalSystemInfoSemp1", 1)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't scrape GetGlobalSystemInfoSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't scrape GetGlobalSystemInfoSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	defer body.Close()
@@ -37,24 +37,24 @@ func (e *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (ok float64,
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't decode Xml GetGlobalSystemInfoSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml GetGlobalSystemInfoSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 		return 0, errors.New("unexpected result: see log")
 	}
 
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_uptime_seconds"], prometheus.CounterValue, target.RPC.Show.System.UptimeSeconds)
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_total_clients_quota"], prometheus.CounterValue, target.RPC.Show.System.ConnectionsQuota)
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_message_spool_quota"], prometheus.GaugeValue, target.RPC.Show.System.MessagesQueueQuota*1000000)
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_cpu_cores"], prometheus.GaugeValue, target.RPC.Show.System.CpuCores)
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_memory_bytes"], prometheus.GaugeValue, target.RPC.Show.System.SystemMemory*1073741824.0)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_uptime_seconds"], prometheus.CounterValue, target.RPC.Show.System.UptimeSeconds)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_total_clients_quota"], prometheus.CounterValue, target.RPC.Show.System.ConnectionsQuota)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_message_spool_quota"], prometheus.GaugeValue, target.RPC.Show.System.MessagesQueueQuota*1000000)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_cpu_cores"], prometheus.GaugeValue, target.RPC.Show.System.CpuCores)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_memory_bytes"], prometheus.GaugeValue, target.RPC.Show.System.SystemMemory*1073741824.0)
 
 	return 1, nil
 }
 
-func (e *Semp) GetGlobalStatsSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+func (semp *Semp) GetGlobalStatsSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -89,9 +89,9 @@ func (e *Semp) GetGlobalStatsSemp1(ch chan<- PrometheusMetric) (ok float64, err 
 	}
 
 	command := "<rpc><show><stats><client/></stats></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "GlobalStatsSemp1", 1)
+	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "GlobalStatsSemp1", 1)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't scrape GlobalStatsSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't scrape GlobalStatsSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	defer body.Close()
@@ -99,21 +99,21 @@ func (e *Semp) GetGlobalStatsSemp1(ch chan<- PrometheusMetric) (ok float64, err 
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't decode Xml GlobalStatsSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml GlobalStatsSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 		return 0, errors.New("unexpected result: see log")
 	}
 
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_total_clients_connected"], prometheus.GaugeValue, target.RPC.Show.Stats.Client.Global.Stats.ClientsConnected)
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_rx_msgs_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataRxMsgCount)
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_tx_msgs_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataTxMsgCount)
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_rx_bytes_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataRxByteCount)
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_tx_bytes_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataTxByteCount)
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_total_rx_discards"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.IngressDiscards.DiscardedRxMsgCount)
-	ch <- e.NewMetric(MetricDesc["GlobalStats"]["system_total_tx_discards"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.EgressDiscards.DiscardedTxMsgCount)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_total_clients_connected"], prometheus.GaugeValue, target.RPC.Show.Stats.Client.Global.Stats.ClientsConnected)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_rx_msgs_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataRxMsgCount)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_tx_msgs_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataTxMsgCount)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_rx_bytes_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataRxByteCount)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_tx_bytes_total"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.DataTxByteCount)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_total_rx_discards"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.IngressDiscards.DiscardedRxMsgCount)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_total_tx_discards"], prometheus.CounterValue, target.RPC.Show.Stats.Client.Global.Stats.EgressDiscards.DiscardedTxMsgCount)
 
 	return 1, nil
 }

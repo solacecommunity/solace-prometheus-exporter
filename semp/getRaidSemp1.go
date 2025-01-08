@@ -7,8 +7,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// Get system disk information (for Appliance)
-func (e *Semp) GetRaidSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+// GetRaidSemp1 Get system disk information (for Appliance)
+func (semp *Semp) GetRaidSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -35,9 +35,9 @@ func (e *Semp) GetRaidSemp1(ch chan<- PrometheusMetric) (ok float64, err error) 
 	}
 
 	command := "<rpc><show><disk></disk></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "RaidSemp1", 1)
+	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "RaidSemp1", 1)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't scrape GetRaidSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't scrape GetRaidSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	defer body.Close()
@@ -45,21 +45,21 @@ func (e *Semp) GetRaidSemp1(ch chan<- PrometheusMetric) (ok float64, err error) 
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't decode Xml GetRaidSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml GetRaidSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 		return 0, errors.New("unexpected result: see log")
 	}
 
 	for _, disk := range target.RPC.Show.Disk.DiskInfos.InternalDisks.DiskInfo {
-		ch <- e.NewMetric(MetricDesc["Raid"]["system_disk_state"], prometheus.GaugeValue, encodeMetricMulti(disk.State, []string{"Down", "Up", "-"}), disk.Number, disk.DeviceModel)
-		ch <- e.NewMetric(MetricDesc["Raid"]["system_disk_AdministrativeStateEnabled"], prometheus.GaugeValue, encodeMetricBool(disk.AdministrativeStateEnabled), disk.Number, disk.DeviceModel)
+		ch <- semp.NewMetric(MetricDesc["Raid"]["system_disk_state"], prometheus.GaugeValue, encodeMetricMulti(disk.State, []string{"Down", "Up", "-"}), disk.Number, disk.DeviceModel)
+		ch <- semp.NewMetric(MetricDesc["Raid"]["system_disk_AdministrativeStateEnabled"], prometheus.GaugeValue, encodeMetricBool(disk.AdministrativeStateEnabled), disk.Number, disk.DeviceModel)
 	}
 
-	ch <- e.NewMetric(MetricDesc["Raid"]["system_raid_state"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Disk.DiskInfos.InternalDisks.RaidState, []string{"Disabled", "in fully redundant state", "-"}))
-	ch <- e.NewMetric(MetricDesc["Raid"]["system_reload_required"], prometheus.GaugeValue, encodeMetricBool(target.RPC.Show.Disk.DiskInfos.InternalDisks.ReloadRequired))
+	ch <- semp.NewMetric(MetricDesc["Raid"]["system_raid_state"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Disk.DiskInfos.InternalDisks.RaidState, []string{"Disabled", "in fully redundant state", "-"}))
+	ch <- semp.NewMetric(MetricDesc["Raid"]["system_reload_required"], prometheus.GaugeValue, encodeMetricBool(target.RPC.Show.Disk.DiskInfos.InternalDisks.ReloadRequired))
 
 	return 1, nil
 }

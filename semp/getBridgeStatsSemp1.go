@@ -8,8 +8,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// Get statistics of bridges for all vpns
-func (e *Semp) GetBridgeStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+// GetBridgeStatsSemp1 statistics of bridges for all VPNs
+func (semp *Semp) GetBridgeStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -105,9 +105,9 @@ func (e *Semp) GetBridgeStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 	}
 
 	command := "<rpc><show><bridge><bridge-name-pattern>" + itemFilter + "</bridge-name-pattern><vpn-name-pattern>" + vpnFilter + "</vpn-name-pattern><stats/></bridge></show></rpc>"
-	body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", command, "BridgeStatsSemp1", 1)
+	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "BridgeStatsSemp1", 1)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't scrape BridgeSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't scrape BridgeSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	defer body.Close()
@@ -115,11 +115,11 @@ func (e *Semp) GetBridgeStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(e.logger).Log("msg", "Can't decode Xml BridgeSemp1", "err", err, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml BridgeSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(e.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", e.brokerURI)
+		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
 		return 0, errors.New("unexpected result: see log")
 	}
 	for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
@@ -127,42 +127,42 @@ func (e *Semp) GetBridgeStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 		vpnName := bridge.LocalVpnName
 		remoteRouterName := bridge.ConnectedRemoteRouterName
 		remoteVpnName := bridge.ConnectedRemoteVpnName
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_num_subscriptions"], prometheus.GaugeValue, bridge.Client.NumSubscriptions, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(bridge.Client.SlowSubscriber), vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_num_subscriptions"], prometheus.GaugeValue, bridge.Client.NumSubscriptions, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(bridge.Client.SlowSubscriber), vpnName, bridgeName, remoteRouterName, remoteVpnName)
 
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_total_client_messages_received"], prometheus.CounterValue, bridge.Client.Stats.TotalClientMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_total_client_messages_sent"], prometheus.CounterValue, bridge.Client.Stats.TotalClientMessagesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_data_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_data_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataMessagesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_persistent_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_persistent_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentMessagesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_nonpersistent_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_nonpersistent_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentMessagesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_direct_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_direct_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectMessagesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_total_client_messages_received"], prometheus.CounterValue, bridge.Client.Stats.TotalClientMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_total_client_messages_sent"], prometheus.CounterValue, bridge.Client.Stats.TotalClientMessagesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_data_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_data_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataMessagesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_persistent_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_persistent_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentMessagesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_nonpersistent_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_nonpersistent_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentMessagesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_direct_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_direct_messages_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectMessagesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
 
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_total_client_bytes_received"], prometheus.CounterValue, bridge.Client.Stats.TotalClientBytesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_total_client_bytes_sent"], prometheus.CounterValue, bridge.Client.Stats.TotalClientBytesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_data_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataBytesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_data_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataBytesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_persistent_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentBytesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_persistent_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentBytesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_nonpersistent_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentBytesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_nonpersistent_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentBytesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_direct_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectBytesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_direct_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectBytesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_total_client_bytes_received"], prometheus.CounterValue, bridge.Client.Stats.TotalClientBytesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_total_client_bytes_sent"], prometheus.CounterValue, bridge.Client.Stats.TotalClientBytesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_data_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataBytesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_data_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDataBytesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_persistent_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentBytesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_persistent_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientPersistentBytesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_nonpersistent_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentBytesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_nonpersistent_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientNonPersistentBytesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_direct_bytes_received"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectBytesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_direct_bytes_sent"], prometheus.GaugeValue, bridge.Client.Stats.ClientDirectBytesSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
 
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_client_large_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.LargeMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_denied_duplicate_clients"], prometheus.GaugeValue, bridge.Client.Stats.DeniedDuplicateClients, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_not_enough_space_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotEnoughSpaceMsgsSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_max_exceeded_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.MaxExceededMsgsSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_subscribe_client_not_found"], prometheus.GaugeValue, bridge.Client.Stats.SubscribeClientNotFound, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_not_found_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotFoundMsgsSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_current_ingress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentIngressRatePerSecond, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_current_egress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentEgressRatePerSecond, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_client_large_messages_received"], prometheus.GaugeValue, bridge.Client.Stats.LargeMessagesReceived, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_denied_duplicate_clients"], prometheus.GaugeValue, bridge.Client.Stats.DeniedDuplicateClients, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_not_enough_space_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotEnoughSpaceMsgsSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_max_exceeded_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.MaxExceededMsgsSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_subscribe_client_not_found"], prometheus.GaugeValue, bridge.Client.Stats.SubscribeClientNotFound, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_not_found_msgs_sent"], prometheus.GaugeValue, bridge.Client.Stats.NotFoundMsgsSent, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_current_ingress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentIngressRatePerSecond, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_current_egress_rate_per_second"], prometheus.GaugeValue, bridge.Client.Stats.CurrentEgressRatePerSecond, vpnName, bridgeName, remoteRouterName, remoteVpnName)
 
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_total_ingress_discards"], prometheus.CounterValue, bridge.Client.Stats.IngressDiscards.TotalIngressDiscards, vpnName, bridgeName, remoteRouterName, remoteVpnName)
-		ch <- e.NewMetric(MetricDesc["BridgeStats"]["bridge_total_egress_discards"], prometheus.CounterValue, bridge.Client.Stats.EgressDiscards.TotalEgressDiscards, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_total_ingress_discards"], prometheus.CounterValue, bridge.Client.Stats.IngressDiscards.TotalIngressDiscards, vpnName, bridgeName, remoteRouterName, remoteVpnName)
+		ch <- semp.NewMetric(MetricDesc["BridgeStats"]["bridge_total_egress_discards"], prometheus.CounterValue, bridge.Client.Stats.EgressDiscards.TotalEgressDiscards, vpnName, bridgeName, remoteRouterName, remoteVpnName)
 	}
 	return 1, nil
 }

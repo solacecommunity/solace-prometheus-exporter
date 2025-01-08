@@ -8,9 +8,9 @@ import (
 	"math"
 )
 
-// Get some statistics for each individual queue of all vpn's
+// GetQueueDetailsSemp1 Get some statistics for each individual queue of all VPNs
 // This can result in heavy system load for lots of queues
-func (e *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -19,12 +19,12 @@ func (e *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter string
 						Queue []struct {
 							QueueName string `xml:"name"`
 							Info      struct {
-								MsgVpnName              string  `xml:"message-vpn"`
-								Quota                   float64 `xml:"quota"`
-								Usage                   float64 `xml:"current-spool-usage-in-mb"`
-								SpooledMsgCount         float64 `xml:"num-messages-spooled"`
-								BindCount               float64 `xml:"bind-count"`
-								TopicSubscriptionCount  float64 `xml:"topic-subscription-count"`
+								MsgVpnName             string  `xml:"message-vpn"`
+								Quota                  float64 `xml:"quota"`
+								Usage                  float64 `xml:"current-spool-usage-in-mb"`
+								SpooledMsgCount        float64 `xml:"num-messages-spooled"`
+								BindCount              float64 `xml:"bind-count"`
+								TopicSubscriptionCount float64 `xml:"topic-subscription-count"`
 							} `xml:"info"`
 						} `xml:"queue"`
 					} `xml:"queues"`
@@ -42,11 +42,11 @@ func (e *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter string
 	var lastQueueName = ""
 	var page = 1
 	for nextRequest := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
-		body, err := e.postHTTP(e.brokerURI+"/SEMP", "application/xml", nextRequest, "QueueDetailsSemp1", page)
+		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", nextRequest, "QueueDetailsSemp1", page)
 		page++
 
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't scrape QueueDetailsSemp1", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't scrape QueueDetailsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		defer body.Close()
@@ -54,11 +54,11 @@ func (e *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter string
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(e.logger).Log("msg", "Can't decode QueueDetailsSemp1", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't decode QueueDetailsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if target.ExecuteResult.Result != "ok" {
-			_ = level.Error(e.logger).Log("msg", "Can't scrape QueueDetailsSemp1", "err", err, "broker", e.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't scrape QueueDetailsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, errors.New("unexpected result: see log")
 		}
 
@@ -71,11 +71,11 @@ func (e *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter string
 				continue
 			}
 			lastQueueName = queueKey
-			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_spool_quota_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Quota*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_spool_usage_bytes"], prometheus.CounterValue, math.Round(queue.Info.Usage*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_spool_usage_msgs"], prometheus.GaugeValue, queue.Info.SpooledMsgCount, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_binds"], prometheus.GaugeValue, queue.Info.BindCount, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- e.NewMetric(MetricDesc["QueueDetails"]["queue_subscriptions"], prometheus.GaugeValue, queue.Info.TopicSubscriptionCount, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueDetails"]["queue_spool_quota_bytes"], prometheus.GaugeValue, math.Round(queue.Info.Quota*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueDetails"]["queue_spool_usage_bytes"], prometheus.CounterValue, math.Round(queue.Info.Usage*1048576.0), queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueDetails"]["queue_spool_usage_msgs"], prometheus.GaugeValue, queue.Info.SpooledMsgCount, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueDetails"]["queue_binds"], prometheus.GaugeValue, queue.Info.BindCount, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueDetails"]["queue_subscriptions"], prometheus.GaugeValue, queue.Info.TopicSubscriptionCount, queue.Info.MsgVpnName, queue.QueueName)
 		}
 		body.Close()
 	}
