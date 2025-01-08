@@ -89,7 +89,7 @@ func (semp *Semp) GetQueueStatsSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["total_bytes_spooled"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.TotalByteSpooled, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["total_messages_spooled"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.TotalMsgSpooled, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_redelivered"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.MsgRedelivered, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_transport_retransmited"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.MsgRetransmit, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_transport_retransmitted"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.MsgRetransmit, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["spool_usage_exceeded"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.SpoolUsageExceeded, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["max_message_size_exceeded"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.MsgSizeExceeded, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["total_deleted_messages"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.Deleted, queue.Info.MsgVpnName, queue.QueueName)
