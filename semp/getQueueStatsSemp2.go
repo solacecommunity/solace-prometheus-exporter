@@ -108,7 +108,7 @@ func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string,
 			var values = []V2Result{
 				{v2Desc: QueueStats["total_bytes_spooled"], valueType: prometheus.CounterValue, value: queue.TotalByteSpooled},
 				{v2Desc: QueueStats["messages_redelivered"], valueType: prometheus.CounterValue, value: queue.MsgRedelivered},
-				{v2Desc: QueueStats["messages_transport_retransmited"], valueType: prometheus.CounterValue, value: queue.MsgRetransmit},
+				{v2Desc: QueueStats["messages_transport_retransmitted"], valueType: prometheus.CounterValue, value: queue.MsgRetransmit},
 				{v2Desc: QueueStats["spool_usage_exceeded"], valueType: prometheus.CounterValue, value: queue.SpoolUsageExceeded},
 				{v2Desc: QueueStats["max_message_size_exceeded"], valueType: prometheus.CounterValue, value: queue.MsgSizeExceeded},
 				{v2Desc: QueueStats["total_deleted_messages"], valueType: prometheus.CounterValue, value: queue.Deleted},

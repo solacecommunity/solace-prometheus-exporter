@@ -88,7 +88,15 @@ func readMetrics(f *AsyncFetcher) {
 		close(metricsChan)
 	}()
 
-	// read from chanel until the channel is closed
+	// Drain checkedMetricChan and uncheckedMetricChan in case of premature return.
+	defer func() {
+		if metricsChan != nil {
+			for range metricsChan {
+			}
+		}
+	}()
+
+	// read from channel until the channel is closed
 	cache := make([]semp.PrometheusMetric, 0, 100)
 	for {
 		metric, ok := <-metricsChan
@@ -107,8 +115,8 @@ func readMetrics(f *AsyncFetcher) {
 	f.DeleteDeprecated()
 }
 
-func (f *AsyncFetcher) Describe(descs chan<- *prometheus.Desc) {
-	f.exporter.Describe(descs)
+func (f *AsyncFetcher) Describe(desc chan<- *prometheus.Desc) {
+	f.exporter.Describe(desc)
 }
 
 func (f *AsyncFetcher) Collect(metrics chan<- prometheus.Metric) {
