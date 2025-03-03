@@ -162,11 +162,10 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			} else {
 				ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, "Unknown")
 			}
-			break
+		} else {
+			ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 1, "")
 		}
 	}
-
-	ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 1, "")
 }
 
 func (e *Exporter) Collect(pch chan<- prometheus.Metric) {
