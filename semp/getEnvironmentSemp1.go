@@ -47,6 +47,7 @@ func (semp *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (ok float64, e
 		} `xml:"rpc"`
 		ExecuteResult struct {
 			Result string `xml:"code,attr"`
+			Reason string `xml:"reason,attr"`
 		} `xml:"execute-result"`
 	}
 
@@ -54,7 +55,7 @@ func (semp *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (ok float64, e
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "EnvironmentSemp1", 1)
 	if err != nil {
 		_ = level.Error(semp.logger).Log("msg", "Can't scrape EnvironmentSemp1", "err", err, "broker", semp.brokerURI)
-		return 0, err
+		return -1, err
 	}
 	defer body.Close()
 	decoder := xml.NewDecoder(body)
@@ -65,8 +66,8 @@ func (semp *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (ok float64, e
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
-		return 0, errors.New("unexpected result: see log")
+		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
+		return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 	}
 
 	for _, sensor := range target.RPC.Show.Environment.Mainboard.Sensors.Sensor {

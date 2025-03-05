@@ -31,6 +31,7 @@ func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 		} `xml:"more-cookie"`
 		ExecuteResult struct {
 			Result string `xml:"code,attr"`
+			Reason string `xml:"reason,attr"`
 		} `xml:"execute-result"`
 	}
 
@@ -41,7 +42,7 @@ func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 
 		if err != nil {
 			_ = level.Error(semp.logger).Log("msg", "Can't scrape ClientSemp1", "err", err, "broker", semp.brokerURI)
-			return 0, err
+			return -1, err
 		}
 		defer body.Close()
 		decoder := xml.NewDecoder(body)
@@ -53,7 +54,7 @@ func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 		}
 		if target.ExecuteResult.Result != "ok" {
 			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
-			return 0, errors.New("unexpected result: see log")
+			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 		}
 
 		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)

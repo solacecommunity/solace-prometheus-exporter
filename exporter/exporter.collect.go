@@ -16,6 +16,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 	var up float64 = 1
 	var err error = nil
 	var vpnName = ""
+	var atLeastSingleUpResource = false
 
 	for _, dataSource := range *e.dataSource {
 		switch dataSource.Name {
@@ -157,16 +158,29 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 		}
 
 		if up < 1 {
-			if err != nil {
-				ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, err.Error())
-			} else {
-				ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, "Unknown")
+			var prefix = dataSource.Name + ": "
+			if up < 0 {
+				prefix = ""
 			}
-			break
+
+			if err != nil {
+				ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, prefix+err.Error())
+			} else {
+				ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, prefix+"Unknown")
+			}
+
+			if up < 0 {
+				// Unrecoverable error that will be repeated on all dataSources
+				break
+			}
+		} else {
+			atLeastSingleUpResource = true
 		}
 	}
 
-	ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 1, "")
+	if atLeastSingleUpResource == true {
+		ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 1, "")
+	}
 }
 
 func (e *Exporter) Collect(pch chan<- prometheus.Metric) {

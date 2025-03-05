@@ -51,6 +51,7 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 		} `xml:"more-cookie"`
 		ExecuteResult struct {
 			Result string `xml:"code,attr"`
+			Reason string `xml:"reason,attr"`
 		} `xml:"execute-result"`
 	}
 
@@ -61,7 +62,7 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 
 		if err != nil {
 			_ = level.Error(semp.logger).Log("msg", "Can't scrape ClientStatSemp1", "err", err, "broker", semp.brokerURI)
-			return 0, err
+			return -1, err
 		}
 		defer body.Close()
 		decoder := xml.NewDecoder(body)
@@ -73,7 +74,7 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 		}
 		if target.ExecuteResult.Result != "ok" {
 			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
-			return 0, errors.New("unexpected result: see log")
+			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 		}
 
 		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
@@ -143,6 +144,7 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 		} `xml:"rpc"`
 		ExecuteResult struct {
 			Result string `xml:"code,attr"`
+			Reason string `xml:"reason,attr"`
 		} `xml:"execute-result"`
 	}
 
@@ -151,7 +153,7 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientConnectionStatsSemp1", 1)
 	if err != nil {
 		_ = level.Error(semp.logger).Log("msg", "Can't scrape GetClientConnectionStatsSemp1", "err", err, "broker", semp.brokerURI)
-		return 0, err
+		return -1, err
 	}
 	defer body.Close()
 	decoder := xml.NewDecoder(body)
@@ -162,8 +164,8 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
-		return 0, errors.New("unexpected result: see log")
+		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
+		return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 	}
 
 	//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
