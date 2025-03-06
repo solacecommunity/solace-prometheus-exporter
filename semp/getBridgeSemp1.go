@@ -42,6 +42,7 @@ func (semp *Semp) GetBridgeSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 		} `xml:"rpc"`
 		ExecuteResult struct {
 			Result string `xml:"code,attr"`
+			Reason string `xml:"reason,attr"`
 		} `xml:"execute-result"`
 	}
 
@@ -49,7 +50,7 @@ func (semp *Semp) GetBridgeSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "BridgeSemp1", 1)
 	if err != nil {
 		_ = level.Error(semp.logger).Log("msg", "Can't scrape BridgeSemp1", "err", err, "broker", semp.brokerURI)
-		return 0, err
+		return -1, err
 	}
 	defer body.Close()
 	decoder := xml.NewDecoder(body)
@@ -60,8 +61,8 @@ func (semp *Semp) GetBridgeSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
-		return 0, errors.New("unexpected result: see log")
+		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
+		return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 	}
 	ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalBridgesValue)
 	ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_max_num_total_bridges"], prometheus.CounterValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalBridgesValue)
