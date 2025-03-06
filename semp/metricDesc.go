@@ -5,7 +5,7 @@ const (
 )
 
 var (
-	variableLabelsUp               = []string{"error"}
+	variableLabelsUp               = []string{"error", "endpoint"}
 	variableLabelsEnvironment      = []string{"sensor_name"}
 	variableLabelsHardwareFC       = []string{"channel_number"}
 	variableLabelsHardwareLUN      = []string{"lun_number"}
