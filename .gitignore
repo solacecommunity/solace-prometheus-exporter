@@ -7,3 +7,4 @@ solace_prometheus_exporter
 *.pem
 *.p12
 .DS_Store
+vendor
