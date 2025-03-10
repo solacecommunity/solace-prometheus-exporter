@@ -1,0 +1,37 @@
+linters:
+  disable:
+   - errcheck
+  enable:
+   - asasalint
+   - asciicheck
+   - bidichk
+   - containedctx
+   - contextcheck
+   - decorder
+   - durationcheck
+   - errorlint
+   - exptostd
+   - fatcontext
+   - forbidigo
+   - gocheckcompilerdirectives
+   - gochecksumtype
+   - goconst
+   - gofmt
+   - goimports
+   - gosmopolitan
+   - grouper
+   - iface
+   - importas
+   - mirror
+   - misspell
+   - nilerr
+   - nilnil
+   - perfsprint
+   - prealloc
+   - reassign
+   - recvcheck
+   - sloglint
+   - testifylint
+   - unconvert
+   - wastedassign
+   - whitespace
