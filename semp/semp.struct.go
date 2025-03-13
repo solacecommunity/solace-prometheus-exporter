@@ -1,8 +1,9 @@
 package semp
 
 import (
-	"github.com/go-kit/kit/log"
 	"net/http"
+
+	"github.com/go-kit/log"
 )
 
 // Semp API to the solace broker, to collect data

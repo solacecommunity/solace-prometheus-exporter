@@ -3,9 +3,10 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
-	"github.com/go-kit/kit/log/level"
-	"github.com/prometheus/client_golang/prometheus"
 	"strings"
+
+	"github.com/go-kit/log/level"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // GetClientSemp1 Get summary for each client of VPNs
@@ -57,12 +58,11 @@ func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 		}
 
-		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
-			clientIp := strings.Split(client.ClientAddress, ":")[0]
-			ch <- semp.NewMetric(MetricDesc["Client"]["client_num_subscriptions"], prometheus.GaugeValue, client.NumSubscriptions, client.MsgVpnName, client.ClientName, clientIp)
+			clientIP := strings.Split(client.ClientAddress, ":")[0]
+			ch <- semp.NewMetric(MetricDesc["Client"]["client_num_subscriptions"], prometheus.GaugeValue, client.NumSubscriptions, client.MsgVpnName, client.ClientName, clientIP)
 		}
 		body.Close()
 	}

@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"errors"
 
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -29,7 +29,7 @@ func (semp *Semp) GetBridgeStatsSemp1(ch chan<- PrometheusMetric, vpnFilter stri
 								ClientAddress    string  `xml:"client-address"`
 								Name             string  `xml:"name"`
 								NumSubscriptions float64 `xml:"num-subscriptions"`
-								ClientId         float64 `xml:"client-id"`
+								ClientID         float64 `xml:"client-id"`
 								MessageVpn       string  `xml:"message-vpn"`
 								SlowSubscriber   bool    `xml:"slow-subscriber"`
 								ClientUsername   string  `xml:"client-username"`
@@ -70,9 +70,9 @@ func (semp *Semp) GetBridgeStatsSemp1(ch chan<- PrometheusMetric, vpnFilter stri
 										TopicParseError            float64 `xml:"topic-parse-error"`
 										ParseError                 float64 `xml:"parse-error"`
 										MsgTooBig                  float64 `xml:"msg-too-big"`
-										TtlExceeded                float64 `xml:"ttl-exceeded"`
+										TTLExceeded                float64 `xml:"ttl-exceeded"`
 										WebParseError              float64 `xml:"web-parse-error"`
-										PublishTopicAcl            float64 `xml:"publish-topic-acl"`
+										PublishTopicACL            float64 `xml:"publish-topic-acl"`
 										MsgSpoolDiscards           float64 `xml:"msg-spool-discards"`
 										MessagePromotionCongestion float64 `xml:"message-promotion-congestion"`
 										MessageSpoolCongestion     float64 `xml:"message-spool-congestion"`
@@ -82,7 +82,7 @@ func (semp *Semp) GetBridgeStatsSemp1(ch chan<- PrometheusMetric, vpnFilter stri
 										TransmitCongestion         float64 `xml:"transmit-congestion"`
 										CompressionCongestion      float64 `xml:"compression-congestion"`
 										MessageElided              float64 `xml:"message-elided"`
-										TtlExceeded                float64 `xml:"ttl-exceeded"`
+										TTLExceeded                float64 `xml:"ttl-exceeded"`
 										PayloadCouldNotBeFormatted float64 `xml:"payload-could-not-be-formatted"`
 										MessagePromotionCongestion float64 `xml:"message-promotion-congestion"`
 										MessageSpoolCongestion     float64 `xml:"message-spool-congestion"`

@@ -3,7 +3,8 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
-	"github.com/go-kit/kit/log/level"
+
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -32,9 +33,9 @@ func (semp *Semp) GetTopicEndpointStatsSemp1(ch chan<- PrometheusMetric, vpnFilt
 									DestinationGroupError  float64 `xml:"destination-group-error"`
 									LowPrioMsgDiscard      float64 `xml:"low-priority-msg-congestion-discard"`
 									Deleted                float64 `xml:"total-deleted-messages"`
-									TtlDisacarded          float64 `xml:"total-ttl-expired-discard-messages"`
-									TtlDmq                 float64 `xml:"total-ttl-expired-to-dmq-messages"`
-									TtlDmqFailed           float64 `xml:"total-ttl-expired-to-dmq-failures"`
+									TTLDiscarded           float64 `xml:"total-ttl-expired-discard-messages"`
+									TTLDmq                 float64 `xml:"total-ttl-expired-to-dmq-messages"`
+									TTLDmqFailed           float64 `xml:"total-ttl-expired-to-dmq-failures"`
 									MaxRedeliveryDiscarded float64 `xml:"max-redelivery-exceeded-discard-messages"`
 									MaxRedeliveryDmq       float64 `xml:"max-redelivery-exceeded-to-dmq-messages"`
 									MaxRedeliveryDmqFailed float64 `xml:"max-redelivery-exceeded-to-dmq-failures"`
@@ -77,7 +78,6 @@ func (semp *Semp) GetTopicEndpointStatsSemp1(ch chan<- PrometheusMetric, vpnFilt
 			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 		}
 
-		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC
 
 		for _, topicEndpoint := range target.RPC.Show.TopicEndpoint.TopicEndpoints.TopicEndpoint {

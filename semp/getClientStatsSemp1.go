@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"errors"
 
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -77,7 +77,6 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 		}
 
-		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
@@ -167,8 +166,6 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
 		return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 	}
-
-	//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 
 	for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 		if len(client.MsgVpnName) < 1 {

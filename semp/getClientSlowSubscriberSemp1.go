@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -58,13 +58,12 @@ func (semp *Semp) GetClientSlowSubscriberSemp1(ch chan<- PrometheusMetric, vpnFi
 			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 		}
 
-		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC
 		const slowSubscriber float64 = 1.0
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
-			clientIp := strings.Split(client.ClientAddress, ":")[0]
-			ch <- semp.NewMetric(MetricDesc["ClientSlowSubscriber"]["client_slow_subscriber"], prometheus.GaugeValue, slowSubscriber, client.MsgVpnName, client.ClientName, clientIp, "")
+			clientIP := strings.Split(client.ClientAddress, ":")[0]
+			ch <- semp.NewMetric(MetricDesc["ClientSlowSubscriber"]["client_slow_subscriber"], prometheus.GaugeValue, slowSubscriber, client.MsgVpnName, client.ClientName, clientIP, "")
 		}
 		body.Close()
 	}

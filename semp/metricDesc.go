@@ -77,25 +77,25 @@ var MetricDesc = map[string]Descriptions{
 		"system_mate_link_latency_avg_seconds": NewSemDesc("system_mate_link_latency_avg_seconds", NoSempV2Ready, "Average mate link latency.", nil),
 		"system_mate_link_latency_cur_seconds": NewSemDesc("system_mate_link_latency_cur_seconds", NoSempV2Ready, "Current mate link latency.", nil),
 	},
-	//SEMPv1 (Software): show storage element <element-name>
+	// SEMPv1 (Software): show storage element <element-name>
 	"StorageElement": {
 		"system_storage_used_percent": NewSemDesc("system_storage_used_percent", NoSempV2Ready, "Storage Element used percent.", variableLabelsStorageElement),
 		"system_storage_used_bytes":   NewSemDesc("system_storage_used_bytes", NoSempV2Ready, "Storage Element used bytes.", variableLabelsStorageElement),
 		"system_storage_avail_bytes":  NewSemDesc("system_storage_avail_bytes", NoSempV2Ready, "Storage Element available bytes.", variableLabelsStorageElement),
 	},
-	//SEMPv1 (Appliance): show disk detail
+	// SEMPv1 (Appliance): show disk detail
 	"Disk": {
 		"system_disk_used_percent": NewSemDesc("system_disk_used_percent", NoSempV2Ready, "Disk used percent.", variableLabelsDisk),
 		"system_disk_used_bytes":   NewSemDesc("system_disk_used_bytes", NoSempV2Ready, "Disk used bytes.", variableLabelsDisk),
 		"system_disk_avail_bytes":  NewSemDesc("system_disk_avail_bytes", NoSempV2Ready, "Disk available bytes.", variableLabelsDisk),
 	},
-	//SEMPv1: show memory
+	// SEMPv1: show memory
 	"Memory": {
 		"system_memory_physical_usage_percent":     NewSemDesc("system_memory_physical_usage_percent", NoSempV2Ready, "Physical memory usage percent.", nil),
 		"system_memory_subscription_usage_percent": NewSemDesc("system_memory_subscription_usage_percent", NoSempV2Ready, "Subscription memory usage percent.", nil),
 		"system_nab_buffer_load_factor":            NewSemDesc("system_nab_buffer_load_factor", NoSempV2Ready, "NAB buffer load factor.", nil),
 	},
-	//SEMPv1: show interface <interface-name>
+	// SEMPv1: show interface <interface-name>
 	"Interface": {
 		"network_if_rx_bytes": NewSemDesc("network_if_rx_bytes", NoSempV2Ready, "Network Interface Received Bytes.", variableLabelsInterface),
 		"network_if_tx_bytes": NewSemDesc("network_if_tx_bytes", NoSempV2Ready, "Network Interface Transmitted Bytes.", variableLabelsInterface),
@@ -113,7 +113,7 @@ var MetricDesc = map[string]Descriptions{
 		"network_ifhw_link_detected":      NewSemDesc("network_ifhw_link_detected", NoSempV2Ready, "Network Interface Link Detected. 0-No, 1-Yes", variableLabelsInterfaceHW),
 		"network_ifhw_enabled":            NewSemDesc("network_ifhw_enabled", NoSempV2Ready, "Network Interface Enabled. 0-No, 1-Yes", variableLabelsInterfaceHW),
 	},
-	//SEMPv1: show stats client
+	// SEMPv1: show stats client
 	"GlobalStats": {
 		"system_total_clients_connected": NewSemDesc("system_total_clients_connected", NoSempV2Ready, "Total clients connected.", nil),
 		"system_total_clients_quota":     NewSemDesc("system_total_clients_quota", NoSempV2Ready, "Number of maximal possible clients to be connected.", nil),
@@ -195,10 +195,10 @@ var MetricDesc = map[string]Descriptions{
 		"adb_mate_link_port1_state":       NewSemDesc("adb_mate_link_port1_state", NoSempV2Ready, "ADB Matelink Port 1 State, 0-Loss of Sync 1-OK, 2-No SFP Module, 3-No Data", nil),
 		"adb_mate_link_port2_state":       NewSemDesc("adb_mate_link_port2_state", NoSempV2Ready, "ADB Matelink Port 2 State, 0-Loss of Sync 1-OK, 2-No SFP Module, 3-No Data", nil),
 	},
-	//SEMPv1: show replication stats
+	// SEMPv1: show replication stats
 	"ReplicationStats": {
-		//Active stats
-		//Message processing
+		// Active stats
+		// Message processing
 		"system_replication_bridge_admin_state":                   NewSemDesc("system_replication_bridge_admin_state", NoSempV2Ready, "Replication Config Sync Bridge Admin State", variableLabelsReplication),
 		"system_replication_bridge_state":                         NewSemDesc("system_replication_bridge_state", NoSempV2Ready, "Replication Config Sync Bridge State", variableLabelsReplication),
 		"system_replication_sync_msgs_queued_to_standby":          NewSemDesc("system_replication_sync_msgs_queued_to_standby", NoSempV2Ready, "Replication sync messages queued to standby", variableLabelsReplication),
@@ -206,19 +206,19 @@ var MetricDesc = map[string]Descriptions{
 		"system_replication_async_msgs_queued_to_standby":         NewSemDesc("system_replication_async_msgs_queued_to_standby", NoSempV2Ready, "Replication async messages queued to standby", variableLabelsReplication),
 		"system_replication_promoted_msgs_queued_to_standby":      NewSemDesc("system_replication_promoted_msgs_queued_to_standby", NoSempV2Ready, "Replication promoted messages queued to standby", variableLabelsReplication),
 		"system_replication_pruned_locally_consumed_msgs":         NewSemDesc("system_replication_pruned_locally_consumed_msgs", NoSempV2Ready, "Replication Pruned locally consumed messages", variableLabelsReplication),
-		//Sync replication
+		// Sync replication
 		"system_replication_transitions_to_ineligible": NewSemDesc("system_replication_transitions_to_ineligible", NoSempV2Ready, "Replication transitions to ineligible", variableLabelsReplication),
-		//Ack propagation
+		// Ack propagation
 		"system_replication_msgs_tx_to_standby":   NewSemDesc("system_replication_msgs_tx_to_standby", NoSempV2Ready, "system_replication_msgs_tx_to_standby", variableLabelsReplication),
 		"system_replication_rec_req_from_standby": NewSemDesc("system_replication_rec_req_from_standby", NoSempV2Ready, "system_replication_rec_req_from_standby", variableLabelsReplication),
-		//Standby stats
-		//Message processing
+		// Standby stats
+		// Message processing
 		"system_replication_msgs_rx_from_active": NewSemDesc("system_replication_msgs_rx_from_active", NoSempV2Ready, "Replication msgs rx from active", variableLabelsReplication),
-		//Ack propagation
+		// Ack propagation
 		"system_replication_ack_prop_msgs_rx": NewSemDesc("system_replication_ack_prop_msgs_rx", NoSempV2Ready, "Replication ack prop msgs rx", variableLabelsReplication),
 		"system_replication_recon_req_tx":     NewSemDesc("system_replication_recon_req_tx", NoSempV2Ready, "Replication recon req tx", variableLabelsReplication),
 		"system_replication_out_of_seq_rx":    NewSemDesc("system_replication_out_of_seq_rx", NoSempV2Ready, "Replication out of seq rx", variableLabelsReplication),
-		//Transaction replication
+		// Transaction replication
 		"system_replication_xa_req":                  NewSemDesc("system_replication_xa_req", NoSempV2Ready, "Replication transaction requests", variableLabelsReplication),
 		"system_replication_xa_req_success":          NewSemDesc("system_replication_xa_req_success", NoSempV2Ready, "Replication transaction requests success", variableLabelsReplication),
 		"system_replication_xa_req_success_prepare":  NewSemDesc("system_replication_xa_req_success_prepare", NoSempV2Ready, "Replication transaction requests success prepare", variableLabelsReplication),
@@ -303,11 +303,11 @@ var MetricDesc = map[string]Descriptions{
 		"vpn_spool_current_transacted_sessions": NewSemDesc("vpn_spool_current_transacted_sessions", NoSempV2Ready, "Spool current number of transacted sessions.", variableLabelsVpn),
 		"vpn_spool_current_transacted_msgs":     NewSemDesc("vpn_spool_current_transacted_msgs", NoSempV2Ready, "Spool current number of transacted messages.", variableLabelsVpn),
 	},
-	//SEMPv1: show client <client-name> message-vpn <vpn-name> connected
+	// SEMPv1: show client <client-name> message-vpn <vpn-name> connected
 	"Client": {
 		"client_num_subscriptions": NewSemDesc("client_num_subscriptions", NoSempV2Ready, "Number of client subscriptions.", variableLabelsClientInfo),
 	},
-	//SEMPv1: show client <client-name> message-vpn <vpn-name> connected
+	// SEMPv1: show client <client-name> message-vpn <vpn-name> connected
 	"ClientSlowSubscriber": {
 		"client_slow_subscriber": NewSemDesc("client_slow_subscriber", NoSempV2Ready, "Is client a slow subscriber? (0=not slow, 1=slow).", variableLabelsClientSlowSub),
 	},
@@ -343,7 +343,7 @@ var MetricDesc = map[string]Descriptions{
 		"window_closed":                         NewSemDesc("client_egress_window_closed", NoSempV2Ready, "Number windows closed.", variableLabelsVpnClientFlow),
 		"message_redelivered":                   NewSemDesc("client_egress_message_redelivered", NoSempV2Ready, "Number of messages, was been redelivered.", variableLabelsVpnClientFlow),
 		"message_transport_retransmit":          NewSemDesc("client_egress_message_transport_retransmit", NoSempV2Ready, "Number of messages, was been retransmitted.", variableLabelsVpnClientFlow),
-		"message_confirmed_delivered":           NewSemDesc("client_egress_message_confirmed_delivered", NoSempV2Ready, "Number of messages succesfully delivered.", variableLabelsVpnClientFlow),
+		"message_confirmed_delivered":           NewSemDesc("client_egress_message_confirmed_delivered", NoSempV2Ready, "Number of messages successfully delivered.", variableLabelsVpnClientFlow),
 		"confirmed_delivered_store_and_forward": NewSemDesc("client_egress_confirmed_delivered_store_and_forward", NoSempV2Ready, "???", variableLabelsVpnClientFlow),
 		"confirmed_delivered_cut_through":       NewSemDesc("client_egress_confirmed_delivered_cut_through", NoSempV2Ready, "???", variableLabelsVpnClientFlow),
 		"unacked_messages":                      NewSemDesc("client_egress_unacked_messages", NoSempV2Ready, "Number of unacknowledged messages.", variableLabelsVpnClientFlow),
@@ -482,7 +482,7 @@ var MetricDesc = map[string]Descriptions{
 		"http_post_request_messages_sent":                   NewSemDesc("rdp_http_request_messages_sent_total", NoSempV2Ready, "The number of request messages sent by the REST Delivery Point (RDP) to the remote REST consumer.", variableLabelsRestConsumer),
 		"http_post_request_messages_sent_outstanding":       NewSemDesc("rdp_http_request_messages_sent_outstanding_total", NoSempV2Ready, "The numer of outstandning request messages to be sent by the REST Delivery Point (RDP) to the remote REST consumer.", variableLabelsRestConsumer),
 		"http_post_request_messages_sent_connection_closed": NewSemDesc("rdp_http_request_messages_sent_connection_closed_total", NoSempV2Ready, "The numer of connection closed encountered while the REST Delivery Point (RDP) is sending a request message to the remote REST consumer.", variableLabelsRestConsumer),
-		"http_post_request_messages_sent_timed_out":         NewSemDesc("rdp_http_request_messages_sent_timed_out_total", NoSempV2Ready, "The numer of time-out encounted while the REST Delivery Point (RDP) is sending a request message to the remote REST consumer.", variableLabelsRestConsumer),
+		"http_post_request_messages_sent_timed_out":         NewSemDesc("rdp_http_request_messages_sent_timed_out_total", NoSempV2Ready, "The numer of time-outs encountered while the REST Delivery Point (RDP) is sending a request message to the remote REST consumer.", variableLabelsRestConsumer),
 		"http_post_response_messages_received":              NewSemDesc("rdp_http_response_messages_received_total", NoSempV2Ready, "The numer of response messages received from the REST consumer.", variableLabelsRestConsumer),
 		"http_post_response_messages_received_successful":   NewSemDesc("rdp_http_response_messages_received_successful_total", NoSempV2Ready, "The numer of response messages received successfully from the REST consumer.", variableLabelsRestConsumer),
 		"http_post_response_messages_received_error":        NewSemDesc("rdp_http_response_messages_received_error_total", NoSempV2Ready, "The numer of response messages received from the REST consumer with errors", variableLabelsRestConsumer),

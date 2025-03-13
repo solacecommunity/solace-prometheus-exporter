@@ -3,12 +3,13 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
-	"github.com/go-kit/kit/log/level"
-	"github.com/prometheus/client_golang/prometheus"
 	"io"
+
+	"github.com/go-kit/log/level"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
-// GetAlarmSemp1 Get system Alarm information
+// GetAlarmSemp1 Get system Alarm information.
 func (semp *Semp) GetAlarmSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
 	type Data struct {
 		RPC struct {

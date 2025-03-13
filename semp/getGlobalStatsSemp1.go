@@ -3,7 +3,8 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
-	"github.com/go-kit/kit/log/level"
+
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -16,7 +17,7 @@ func (semp *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (ok float
 					UptimeSeconds      float64 `xml:"system-uptime-seconds"`
 					ConnectionsQuota   float64 `xml:"max-connections"`
 					MessagesQueueQuota float64 `xml:"max-queue-messages"`
-					CpuCores           float64 `xml:"cpu-cores"`
+					CPUCores           float64 `xml:"cpu-cores"`
 					SystemMemory       float64 `xml:"system-memory"`
 				} `xml:"system"`
 			} `xml:"show"`
@@ -49,7 +50,7 @@ func (semp *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (ok float
 	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_uptime_seconds"], prometheus.CounterValue, target.RPC.Show.System.UptimeSeconds)
 	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_total_clients_quota"], prometheus.CounterValue, target.RPC.Show.System.ConnectionsQuota)
 	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_message_spool_quota"], prometheus.GaugeValue, target.RPC.Show.System.MessagesQueueQuota*1000000)
-	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_cpu_cores"], prometheus.GaugeValue, target.RPC.Show.System.CpuCores)
+	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_cpu_cores"], prometheus.GaugeValue, target.RPC.Show.System.CPUCores)
 	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_memory_bytes"], prometheus.GaugeValue, target.RPC.Show.System.SystemMemory*1073741824.0)
 
 	return 1, nil

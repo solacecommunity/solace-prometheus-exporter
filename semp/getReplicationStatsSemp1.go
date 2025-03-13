@@ -3,7 +3,8 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
-	"github.com/go-kit/kit/log/level"
+
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -94,28 +95,28 @@ func (semp *Semp) GetReplicationStatsSemp1(ch chan<- PrometheusMetric) (ok float
 		replBridge := target.RPC.Show.Repl.ConfigSync.Bridge
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_bridge_admin_state"], prometheus.GaugeValue, encodeMetricMulti(replBridge.AdminState, []string{"Disabled", "Enabled", "-"}), replMateName)
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_bridge_state"], prometheus.GaugeValue, encodeMetricMulti(replBridge.State, []string{"down", "up", "n/a"}), replMateName)
-		//Active stats
+		// Active stats
 		activeStats := target.RPC.Show.Repl.Stats.ActiveStats
-		//Message processing
+		// Message processing
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_sync_msgs_queued_to_standby"], prometheus.CounterValue, activeStats.MsgProcessing.SyncQ2Standby, replMateName)
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_sync_msgs_queued_to_standby_as_async"], prometheus.CounterValue, activeStats.MsgProcessing.SyncQ2StandbyAsync, replMateName)
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_async_msgs_queued_to_standby"], prometheus.CounterValue, activeStats.MsgProcessing.AsyncQ2Standby, replMateName)
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_promoted_msgs_queued_to_standby"], prometheus.CounterValue, activeStats.MsgProcessing.PromotedQ2Standby, replMateName)
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_pruned_locally_consumed_msgs"], prometheus.CounterValue, activeStats.MsgProcessing.PrunedConsumed, replMateName)
-		//Sync replication
+		// Sync replication
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_transitions_to_ineligible"], prometheus.CounterValue, activeStats.SyncRepl.Trans2Ineligible, replMateName)
-		//Ack propagation
+		// Ack propagation
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_msgs_tx_to_standby"], prometheus.CounterValue, activeStats.AckPropagation.TxMsgToStandby, replMateName)
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_rec_req_from_standby"], prometheus.CounterValue, activeStats.AckPropagation.RxReqFromStandby, replMateName)
-		//Standby stats
+		// Standby stats
 		standbyStats := target.RPC.Show.Repl.Stats.StandbyStats
-		//Message processing
+		// Message processing
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_msgs_rx_from_active"], prometheus.CounterValue, standbyStats.MsgProcessing.RxMsgFromActive, replMateName)
-		//Ack propagation
+		// Ack propagation
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_ack_prop_msgs_rx"], prometheus.CounterValue, standbyStats.AckPropagation.RxAckPropMsgs, replMateName)
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_recon_req_tx"], prometheus.CounterValue, standbyStats.AckPropagation.TxReconReq, replMateName)
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_out_of_seq_rx"], prometheus.CounterValue, standbyStats.AckPropagation.RxOutOfSeq, replMateName)
-		//Transaction replication
+		// Transaction replication
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req"], prometheus.CounterValue, standbyStats.XaRepl.XaReq, replMateName)
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_success"], prometheus.CounterValue, standbyStats.XaRepl.XaReqSuccess, replMateName)
 		ch <- semp.NewMetric(MetricDesc["ReplicationStats"]["system_replication_xa_req_success_prepare"], prometheus.CounterValue, standbyStats.XaRepl.XaReqSuccessPrepare, replMateName)

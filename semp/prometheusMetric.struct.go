@@ -3,9 +3,10 @@ package semp
 import (
 	"errors"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 type PrometheusMetric struct {
