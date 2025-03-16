@@ -1,0 +1,29 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  lint-and-tidy:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64
+
+      - name: Run tidy check
+        run: |
+          go mod tidy
+          # Fail if go.mod or go.sum changed
+          git diff --exit-code go.mod go.sum

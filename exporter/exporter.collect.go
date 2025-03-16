@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -14,8 +14,8 @@ import (
 // as Prometheus metrics. It implements prometheus.Collector.
 func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 	var up float64 = 1
-	var err error = nil
-	var vpnName = ""
+	var err error
+	var vpnName string
 
 	for _, dataSource := range *e.dataSource {
 		switch dataSource.Name {
@@ -181,6 +181,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 func (e *Exporter) Collect(pch chan<- prometheus.Metric) {
 	var ch = make(chan semp.PrometheusMetric, capMetricChan)
 	var wg sync.WaitGroup
+
 	wg.Add(1)
 
 	collectWorker := func() {
@@ -204,6 +205,7 @@ func (e *Exporter) Collect(pch chan<- prometheus.Metric) {
 
 	// read from chanel until the channel is closed
 	var distinctMetrics = make(map[string]semp.PrometheusMetric)
+
 	for {
 		metric, ok := <-ch
 		if !ok {

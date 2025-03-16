@@ -3,7 +3,8 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
-	"github.com/go-kit/kit/log/level"
+
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -32,9 +33,9 @@ func (semp *Semp) GetQueueStatsSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 									DestinationGroupError  float64 `xml:"destination-group-error"`
 									LowPrioMsgDiscard      float64 `xml:"low-priority-msg-congestion-discard"`
 									Deleted                float64 `xml:"total-deleted-messages"`
-									TtlDiscarded           float64 `xml:"total-ttl-expired-discard-messages"`
-									TtlDmq                 float64 `xml:"total-ttl-expired-to-dmq-messages"`
-									TtlDmqFailed           float64 `xml:"total-ttl-expired-to-dmq-failures"`
+									TTLDiscarded           float64 `xml:"total-ttl-expired-discard-messages"`
+									TTLDmq                 float64 `xml:"total-ttl-expired-to-dmq-messages"`
+									TTLDmqFailed           float64 `xml:"total-ttl-expired-to-dmq-failures"`
 									MaxRedeliveryDiscarded float64 `xml:"max-redelivery-exceeded-discard-messages"`
 									MaxRedeliveryDmq       float64 `xml:"max-redelivery-exceeded-to-dmq-messages"`
 									MaxRedeliveryDmqFailed float64 `xml:"max-redelivery-exceeded-to-dmq-failures"`
@@ -79,7 +80,6 @@ func (semp *Semp) GetQueueStatsSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 
 		_ = level.Debug(semp.logger).Log("msg", "Result of QueueStatsSemp1", "results", len(target.RPC.Show.Queue.Queues.Queue), "page", page-1)
 
-		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
 			queueKey := queue.Info.MsgVpnName + "___" + queue.QueueName
@@ -95,9 +95,9 @@ func (semp *Semp) GetQueueStatsSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["max_message_size_exceeded"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.MsgSizeExceeded, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["total_deleted_messages"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.Deleted, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_shutdown_discarded"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.SpoolShutdownDiscard, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_ttl_discarded"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.TtlDiscarded, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_ttl_dmq"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.TtlDmq, queue.Info.MsgVpnName, queue.QueueName)
-			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_ttl_dmq_failed"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.TtlDmqFailed, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_ttl_discarded"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.TTLDiscarded, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_ttl_dmq"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.TTLDmq, queue.Info.MsgVpnName, queue.QueueName)
+			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_ttl_dmq_failed"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.TTLDmqFailed, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_max_redelivered_discarded"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.MaxRedeliveryDiscarded, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_max_redelivered_dmq"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.MaxRedeliveryDmq, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueStats"]["messages_max_redelivered_dmq_failed"], prometheus.CounterValue, queue.Stats.MessageSpoolStats.MaxRedeliveryDmqFailed, queue.Info.MsgVpnName, queue.QueueName)

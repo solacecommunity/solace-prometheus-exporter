@@ -2,11 +2,12 @@ package semp
 
 import (
 	"fmt"
-	"github.com/go-kit/kit/log/level"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/go-kit/log/level"
 )
 
 const longQuery time.Duration = 2 * 1000 * 1000 * 1000             // 2 seconds
@@ -32,7 +33,7 @@ func (semp *Semp) postHTTP(uri string, _ string, body string, logName string, pa
 	if queryDuration > longQuery {
 		_ = level.Warn(semp.logger).Log("msg", "Scraped "+logName+" but this took very long. Please add more cpu to your broker. Otherwise you are about to harm your broker.", "page", page, "duration", queryDuration)
 	}
-	_ = level.Debug(semp.logger).Log("msg", "Scraped "+logName, "page", page, "duration", queryDuration) //, "request", body)
+	_ = level.Debug(semp.logger).Log("msg", "Scraped "+logName, "page", page, "duration", queryDuration)
 
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
 		_ = resp.Body.Close()
@@ -61,12 +62,7 @@ func (semp *Semp) getHTTPbytes(uri string, _ string, logName string, page int) (
 		_ = level.Warn(semp.logger).Log("msg", "Scraped "+logName+" but this took very long. Please add more cpu to your broker. Otherwise you are about to harm your broker.", "page", page, "duration", queryDuration)
 	}
 
-	//var requestQuery = ""
-	//var urlParts = strings.Split(uri, "?")
-	//if len(urlParts) > 1 {
-	//	requestQuery = urlParts[1]
-	//}
-	_ = level.Debug(semp.logger).Log("msg", "Scraped "+logName, "page", page, "duration", queryDuration) //, "request", requestQuery)
+	_ = level.Debug(semp.logger).Log("msg", "Scraped "+logName, "page", page, "duration", queryDuration)
 
 	if !(resp.StatusCode >= 200 && resp.StatusCode < 500) {
 		_ = resp.Body.Close()

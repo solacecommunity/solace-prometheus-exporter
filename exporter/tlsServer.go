@@ -12,7 +12,6 @@ import (
 )
 
 func ListenAndServeTLS(conf Config) {
-
 	promlogConfig := promlog.Config{
 		Level:  &promlog.AllowedLevel{},
 		Format: &promlog.AllowedFormat{},
@@ -25,7 +24,6 @@ func ListenAndServeTLS(conf Config) {
 	var tlsCert tls.Certificate
 
 	if strings.ToUpper(conf.CertType) == CERTTYPE_PKCS12 {
-
 		// Read byte data from pkcs12 keystore
 		p12Data, err := os.ReadFile(conf.Pkcs12File)
 		if err != nil {
@@ -78,5 +76,4 @@ func ListenAndServeTLS(conf Config) {
 		level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
 		os.Exit(2)
 	}
-
 }

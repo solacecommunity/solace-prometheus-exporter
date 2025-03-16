@@ -3,6 +3,7 @@ package exporter
 import (
 	"crypto/tls"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -46,13 +47,12 @@ const (
 func (conf *Config) GetListenURI() string {
 	if conf.EnableTLS {
 		return "https://" + conf.ListenAddr
-	} else {
-		return "http://" + conf.ListenAddr
 	}
+	return "http://" + conf.ListenAddr
 }
 
 func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
-	var cfg *ini.File = nil
+	var cfg *ini.File
 	var err error
 
 	conf := &Config{}
@@ -77,7 +77,7 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	}
 	conf.CertType, err = parseConfigString(cfg, "solace", "certType", "SOLACE_LISTEN_CERTTYPE")
 	if conf.EnableTLS && err != nil {
-		fmt.Println("CertType not set. Using default PEM")
+		log.Println("CertType not set. Using default PEM")
 		conf.CertType = CERTTYPE_PEM
 	}
 	conf.Certificate, err = parseConfigString(cfg, "solace", "certificate", "SOLACE_SERVER_CERT")
@@ -155,19 +155,18 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 					parts := strings.Split(key.String(), "|")
 					if len(parts) < 2 {
 						return nil, nil, fmt.Errorf("one or two | expected at endpoint %q. Found key %q value %q. Expected: VPN wildcard | item wildcard | Optional metric filter for v2 apis", endpointName, key.Name(), key.String())
-					} else {
-						var metricFilter []string
-						if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {
-							metricFilter = strings.Split(parts[2], ",")
-						}
-
-						dataSource = append(dataSource, DataSource{
-							Name:         scrapeTarget,
-							VpnFilter:    parts[0],
-							ItemFilter:   parts[1],
-							MetricFilter: metricFilter,
-						})
 					}
+					var metricFilter []string
+					if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {
+						metricFilter = strings.Split(parts[2], ",")
+					}
+
+					dataSource = append(dataSource, DataSource{
+						Name:         scrapeTarget,
+						VpnFilter:    parts[0],
+						ItemFilter:   parts[1],
+						MetricFilter: metricFilter,
+					})
 				}
 
 				endpoints[endpointName] = dataSource
@@ -194,7 +193,7 @@ func parseConfigBool(cfg *ini.File, iniSection string, iniKey string, envKey str
 func parseConfigBoolOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue bool) (bool, error) {
 	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
 	if err != nil {
-		return defaultValue, nil
+		return defaultValue, err
 	}
 
 	val, err := strconv.ParseBool(s)
@@ -208,7 +207,7 @@ func parseConfigBoolOptional(cfg *ini.File, iniSection string, iniKey string, en
 func parseConfigDurationOptional(cfg *ini.File, iniSection string, iniKey string, envKey string) (time.Duration, error) {
 	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
 	if err != nil {
-		return time.Duration(0), nil
+		return time.Duration(0), err
 	}
 
 	val, err := time.ParseDuration(s)
@@ -222,7 +221,7 @@ func parseConfigDurationOptional(cfg *ini.File, iniSection string, iniKey string
 func parseConfigIntOptional(cfg *ini.File, iniSection string, iniKey string, envKey string) (int64, error) {
 	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
 	if err != nil {
-		return 0, nil
+		return 0, err
 	}
 
 	val, err := strconv.ParseInt(s, 10, 0)
@@ -263,7 +262,7 @@ func parseConfigString(cfg *ini.File, iniSection string, iniKey string, envKey s
 	return "", fmt.Errorf("config param %q and env param %q is mandetory. Both are missing", iniKey, envKey)
 }
 
-func (conf *Config) newHttpClient() http.Client {
+func (conf *Config) newHTTPClient() http.Client {
 	var proxy func(req *http.Request) (*url.URL, error)
 	if conf.useSystemProxy {
 		proxy = http.ProxyFromEnvironment

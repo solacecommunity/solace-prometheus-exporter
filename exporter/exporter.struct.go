@@ -3,7 +3,7 @@ package exporter
 import (
 	"solace_exporter/semp"
 
-	"github.com/go-kit/kit/log"
+	"github.com/go-kit/log"
 )
 
 // Exporter collects Solace stats from the given URI and exports them using
@@ -23,6 +23,6 @@ func NewExporter(logger log.Logger, conf *Config, dataSource *[]DataSource, vers
 		config:     conf,
 		dataSource: dataSource,
 		lastError:  nil,
-		semp:       semp.NewSemp(logger, conf.ScrapeURI, conf.newHttpClient(), conf.httpVisitor(), version, conf.logBrokerToSlowWarnings, conf.IsHWBroker),
+		semp:       semp.NewSemp(logger, conf.ScrapeURI, conf.newHTTPClient(), conf.httpVisitor(), version, conf.logBrokerToSlowWarnings, conf.IsHWBroker),
 	}
 }

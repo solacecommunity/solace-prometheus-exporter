@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/go-kit/kit/log/level"
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -22,7 +22,7 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 							ClientUsername    string  `xml:"client-username"`
 							MsgVpnName        string  `xml:"message-vpn"`
 							ClientProfile     string  `xml:"profile"`
-							AclProfile        string  `xml:"acl-profile"`
+							ACLProfile        string  `xml:"acl-profile"`
 							SlowSubscriber    bool    `xml:"slow-subscriber"`
 							ElidingTopics     float64 `xml:"eliding-topics"`
 							FlowsIngress      float64 `xml:"total-ingress-flows"`
@@ -39,8 +39,8 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 									SeqNumMessagesDiscarded        float64 `xml:"seq-num-messages-discarded"`
 									TransactedMessagesNotSequenced float64 `xml:"transacted-messages-not-sequenced"`
 									DestinationGroupError          float64 `xml:"destination-group-error"`
-									SmfTtlExceeded                 float64 `xml:"smf-ttl-exceeded"`
-									PublishAclDenied               float64 `xml:"publish-acl-denied"`
+									SmfTTLExceeded                 float64 `xml:"smf-ttl-exceeded"`
+									PublishACLDenied               float64 `xml:"publish-acl-denied"`
 									WindowSize                     float64 `xml:"window-size"`
 								} `xml:"ingress-flow-stats>ingress-flow-stat"`
 								EgressFlowStats []struct {
@@ -91,38 +91,37 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 		}
 
-		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
-			ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["client_flows_ingress"], prometheus.GaugeValue, client.FlowsIngress, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile)
-			ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["client_flows_egress"], prometheus.GaugeValue, client.FlowsEgress, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile)
+			ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["client_flows_ingress"], prometheus.GaugeValue, client.FlowsIngress, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile)
+			ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["client_flows_egress"], prometheus.GaugeValue, client.FlowsEgress, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile)
 
-			for flowId, ingressFlow := range client.MessageSpoolStats.IngressFlowStats {
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["spooling_not_ready"], prometheus.CounterValue, ingressFlow.SpoolingNotReady, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["out_of_order_messages_received"], prometheus.CounterValue, ingressFlow.OutOfOrderMessagesReceived, client.MsgVpnName, client.ClientName, client.ClientProfile, client.AclProfile, client.ClientUsername, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["duplicate_messages_received"], prometheus.CounterValue, ingressFlow.DuplicateMessagesReceived, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["no_eligible_destinations"], prometheus.CounterValue, ingressFlow.NoEligibleDestinations, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["guaranteed_messages"], prometheus.CounterValue, ingressFlow.GuaranteedMessages, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["no_local_delivery"], prometheus.CounterValue, ingressFlow.NoLocalDelivery, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["seq_num_rollover"], prometheus.CounterValue, ingressFlow.SeqNumRollover, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["seq_num_messages_discarded"], prometheus.CounterValue, ingressFlow.SeqNumMessagesDiscarded, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["transacted_messages_not_sequenced"], prometheus.CounterValue, ingressFlow.TransactedMessagesNotSequenced, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["destination_group_error"], prometheus.CounterValue, ingressFlow.DestinationGroupError, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["smf_ttl_exceeded"], prometheus.CounterValue, ingressFlow.SmfTtlExceeded, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["publish_acl_denied"], prometheus.CounterValue, ingressFlow.PublishAclDenied, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["ingress_window_size"], prometheus.CounterValue, ingressFlow.WindowSize, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+			for flowID, ingressFlow := range client.MessageSpoolStats.IngressFlowStats {
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["spooling_not_ready"], prometheus.CounterValue, ingressFlow.SpoolingNotReady, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["out_of_order_messages_received"], prometheus.CounterValue, ingressFlow.OutOfOrderMessagesReceived, client.MsgVpnName, client.ClientName, client.ClientProfile, client.ACLProfile, client.ClientUsername, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["duplicate_messages_received"], prometheus.CounterValue, ingressFlow.DuplicateMessagesReceived, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["no_eligible_destinations"], prometheus.CounterValue, ingressFlow.NoEligibleDestinations, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["guaranteed_messages"], prometheus.CounterValue, ingressFlow.GuaranteedMessages, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["no_local_delivery"], prometheus.CounterValue, ingressFlow.NoLocalDelivery, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["seq_num_rollover"], prometheus.CounterValue, ingressFlow.SeqNumRollover, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["seq_num_messages_discarded"], prometheus.CounterValue, ingressFlow.SeqNumMessagesDiscarded, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["transacted_messages_not_sequenced"], prometheus.CounterValue, ingressFlow.TransactedMessagesNotSequenced, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["destination_group_error"], prometheus.CounterValue, ingressFlow.DestinationGroupError, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["smf_ttl_exceeded"], prometheus.CounterValue, ingressFlow.SmfTTLExceeded, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["publish_acl_denied"], prometheus.CounterValue, ingressFlow.PublishACLDenied, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["ingress_window_size"], prometheus.CounterValue, ingressFlow.WindowSize, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
 			}
-			for flowId, egressFlow := range client.MessageSpoolStats.EgressFlowStats {
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["egress_window_size"], prometheus.CounterValue, egressFlow.WindowSize, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["used_window"], prometheus.CounterValue, egressFlow.UsedWindow, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["window_closed"], prometheus.CounterValue, egressFlow.WindowClosed, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["message_redelivered"], prometheus.CounterValue, egressFlow.MessageRedelivered, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["message_transport_retransmit"], prometheus.CounterValue, egressFlow.MessageTransportRetransmit, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["message_confirmed_delivered"], prometheus.CounterValue, egressFlow.MessageConfirmedDelivered, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["confirmed_delivered_store_and_forward"], prometheus.CounterValue, egressFlow.ConfirmedDeliveredStoreAndForward, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["confirmed_delivered_cut_through"], prometheus.CounterValue, egressFlow.ConfirmedDeliveredCutThrough, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
-				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["unacked_messages"], prometheus.CounterValue, egressFlow.UnackedMessages, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.AclProfile, strconv.Itoa(flowId))
+			for flowID, egressFlow := range client.MessageSpoolStats.EgressFlowStats {
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["egress_window_size"], prometheus.CounterValue, egressFlow.WindowSize, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["used_window"], prometheus.CounterValue, egressFlow.UsedWindow, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["window_closed"], prometheus.CounterValue, egressFlow.WindowClosed, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["message_redelivered"], prometheus.CounterValue, egressFlow.MessageRedelivered, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["message_transport_retransmit"], prometheus.CounterValue, egressFlow.MessageTransportRetransmit, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["message_confirmed_delivered"], prometheus.CounterValue, egressFlow.MessageConfirmedDelivered, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["confirmed_delivered_store_and_forward"], prometheus.CounterValue, egressFlow.ConfirmedDeliveredStoreAndForward, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["confirmed_delivered_cut_through"], prometheus.CounterValue, egressFlow.ConfirmedDeliveredCutThrough, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
+				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["unacked_messages"], prometheus.CounterValue, egressFlow.UnackedMessages, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, strconv.Itoa(flowID))
 			}
 		}
 

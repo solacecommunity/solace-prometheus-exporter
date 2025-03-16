@@ -3,7 +3,8 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
-	"github.com/go-kit/kit/log/level"
+
+	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -70,7 +71,6 @@ func (semp *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 		}
 
-		//fmt.Printf("Next request: %v\n", target.MoreCookie.RPC)
 		nextRequest = target.MoreCookie.RPC
 
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {

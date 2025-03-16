@@ -131,7 +131,7 @@ func main() {
 		if conf.PrefetchInterval.Seconds() > 0 {
 			var asyncFetcher = exporter.NewAsyncFetcher(urlPath, dataSource, *conf, logger, sempConnections, version)
 			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
-				doHandleAsync(w, r, asyncFetcher, *conf, logger)
+				doHandleAsync(w, r, asyncFetcher)
 			})
 		} else {
 			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
@@ -177,7 +177,7 @@ func main() {
 		doHandle(w, r, dataSource, *conf, logger)
 	})
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/", func(w http.ResponseWriter, _ *http.Request) {
 		var endpointsDoc bytes.Buffer
 		for urlPath, dataSources := range endpoints {
 			endpointsDoc.WriteString("<li><a href='/" + urlPath + "'>Custom Exporter " + urlPath + " -> " + logDataSource(dataSources) + "</a></li>")
@@ -238,7 +238,7 @@ func main() {
 					<tr><td>TopicEndpointDetails</td><td>yes</td><td>yes</td><td>may harm broker if many topic-endpoints</td></tr>
 					<tr><td>BridgeRemote</td><td>yes</td><td>yes</td><td>dont harm broker</td></tr>`))
 
-		if conf.IsHWBroker == true {
+		if conf.IsHWBroker {
 			w.Write([]byte(`					
 					<tr><td>Alarm (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Environment (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
@@ -254,7 +254,6 @@ func main() {
             <ul>
             </body>
             </html>`))
-
 	})
 
 	// start server
@@ -266,10 +265,9 @@ func main() {
 			os.Exit(2)
 		}
 	}
-
 }
 
-func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporter.AsyncFetcher, conf exporter.Config, logger log.Logger) (resultCode string) {
+func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporter.AsyncFetcher) (resultCode string) {
 	registry := prometheus.NewRegistry()
 	registry.MustRegister(asyncFetcher)
 	handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})

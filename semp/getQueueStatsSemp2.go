@@ -3,9 +3,10 @@ package semp
 import (
 	"encoding/json"
 	"errors"
-	"github.com/go-kit/kit/log/level"
-	"github.com/prometheus/client_golang/prometheus"
 	"strings"
+
+	"github.com/go-kit/log/level"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 // GetQueueStatsSemp2 Get rates for each individual queue of all VPNs
@@ -25,9 +26,9 @@ func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string,
 			DestinationGroupError               float64 `json:"destinationGroupErrorDiscardedMsgCount"`
 			LowPrioMsgDiscard                   float64 `json:"lowPriorityMsgCongestionDiscardedMsgCount"`
 			Deleted                             float64 `json:"deletedMsgCount"`
-			TtlDiscarded                        float64 `json:"maxTtlExpiredDiscardedMsgCount"`
-			TtlDmq                              float64 `json:"maxTtlExpiredToDmqMsgCount"`
-			TtlDmqFailed                        float64 `json:"maxTtlExpiredToDmqFailedMsgCount"`
+			TTLDiscarded                        float64 `json:"maxTtlExpiredDiscardedMsgCount"`
+			TTLDmq                              float64 `json:"maxTtlExpiredToDmqMsgCount"`
+			TTLDmqFailed                        float64 `json:"maxTtlExpiredToDmqFailedMsgCount"`
 			MaxRedeliveryDiscarded              float64 `json:"maxRedeliveryExceededDiscardedMsgCount"`
 			MaxRedeliveryDmq                    float64 `json:"maxRedeliveryExceededToDmqMsgCount"`
 			MaxRedeliveryDmqFailed              float64 `json:"maxRedeliveryExceededToDmqFailedMsgCount"`
@@ -39,13 +40,13 @@ func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string,
 			ResponseCode int   `json:"responseCode"`
 			Paging       struct {
 				CursorQuery string `json:"cursorQuery"`
-				NextPageUri string `json:"nextPageUri"`
-			} `json:",paging"`
+				NextPageURI string `json:"nextPageUri"`
+			} `json:"paging"`
 			Error struct {
 				Code        int    `json:"code"`
 				Description string `json:"description"`
 				Status      string `json:"status"`
-			} `json:",error"`
+			} `json:"error"`
 		} `json:"meta"`
 	}
 
@@ -75,12 +76,12 @@ func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string,
 
 	var page = 1
 	var lastQueueName = ""
-	for nextUrl := semp.brokerURI + "/SEMP/v2/monitor/msgVpns/" + vpnName + "/queues?" + getParameter; nextUrl != ""; {
-		body, err := semp.getHTTPbytes(nextUrl, "application/json ", "QueueStatsSemp2", page)
+	for nextURL := semp.brokerURI + "/SEMP/v2/monitor/msgVpns/" + vpnName + "/queues?" + getParameter; nextURL != ""; {
+		body, err := semp.getHTTPbytes(nextURL, "application/json ", "QueueStatsSemp2", page)
 		page++
 
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't scrape QueueStatsSemp2", "command", nextUrl, "err", err, "broker", semp.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "Can't scrape QueueStatsSemp2", "command", nextURL, "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 
@@ -91,13 +92,13 @@ func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string,
 			return 0, err
 		}
 		if response.Meta.ResponseCode != 200 {
-			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextUrl, "remoteError", response.Meta.Error.Description, "broker", semp.brokerURI)
+			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextURL, "remoteError", response.Meta.Error.Description, "broker", semp.brokerURI)
 			return 0, errors.New("unexpected result: see log")
 		}
 
 		_ = level.Debug(semp.logger).Log("msg", "Result of QueueStatsSemp2", "results", len(response.Queue), "page", page-1)
 
-		nextUrl = response.Meta.Paging.NextPageUri
+		nextURL = response.Meta.Paging.NextPageURI
 		for _, queue := range response.Queue {
 			queueKey := queue.MsgVpnName + "___" + queue.QueueName
 			if queueKey == lastQueueName {
@@ -113,9 +114,9 @@ func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string,
 				{v2Desc: QueueStats["max_message_size_exceeded"], valueType: prometheus.CounterValue, value: queue.MsgSizeExceeded},
 				{v2Desc: QueueStats["total_deleted_messages"], valueType: prometheus.CounterValue, value: queue.Deleted},
 				{v2Desc: QueueStats["messages_shutdown_discarded"], valueType: prometheus.CounterValue, value: queue.SpoolShutdownDiscard},
-				{v2Desc: QueueStats["messages_ttl_discarded"], valueType: prometheus.CounterValue, value: queue.TtlDiscarded},
-				{v2Desc: QueueStats["messages_ttl_dmq"], valueType: prometheus.CounterValue, value: queue.TtlDmq},
-				{v2Desc: QueueStats["messages_ttl_dmq_failed"], valueType: prometheus.CounterValue, value: queue.TtlDmqFailed},
+				{v2Desc: QueueStats["messages_ttl_discarded"], valueType: prometheus.CounterValue, value: queue.TTLDiscarded},
+				{v2Desc: QueueStats["messages_ttl_dmq"], valueType: prometheus.CounterValue, value: queue.TTLDmq},
+				{v2Desc: QueueStats["messages_ttl_dmq_failed"], valueType: prometheus.CounterValue, value: queue.TTLDmqFailed},
 				{v2Desc: QueueStats["messages_max_redelivered_discarded"], valueType: prometheus.CounterValue, value: queue.MaxRedeliveryDiscarded},
 				{v2Desc: QueueStats["messages_max_redelivered_dmq"], valueType: prometheus.CounterValue, value: queue.MaxRedeliveryDmq},
 				{v2Desc: QueueStats["messages_max_redelivered_dmq_failed"], valueType: prometheus.CounterValue, value: queue.MaxRedeliveryDmqFailed},
