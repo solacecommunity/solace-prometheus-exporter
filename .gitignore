@@ -8,3 +8,4 @@ solace_prometheus_exporter
 *.p12
 .DS_Store
 vendor
+reports

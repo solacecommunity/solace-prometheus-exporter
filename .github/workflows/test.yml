@@ -7,7 +7,7 @@ on:
 
 jobs:
   lint-and-tidy:
-    name: Linting
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,3 +27,16 @@ jobs:
           go mod tidy
           # Fail if go.mod or go.sum changed
           git diff --exit-code go.mod go.sum
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Run tests
+        run: go test -v ./...
