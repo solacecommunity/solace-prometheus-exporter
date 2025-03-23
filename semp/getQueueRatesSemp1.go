@@ -11,7 +11,7 @@ import (
 // GetQueueRatesSemp1 Get rates for each individual queue of all VPNs
 // This can result in heavy system load for lots of queues
 // Deprecated: in facor of: getQueueStatsSemp1
-func (semp *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

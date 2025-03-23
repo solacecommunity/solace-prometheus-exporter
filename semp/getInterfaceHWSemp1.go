@@ -9,7 +9,7 @@ import (
 )
 
 // GetInterfaceHWSemp1 Get interface information
-func (semp *Semp) GetInterfaceHWSemp1(ch chan<- PrometheusMetric, interfaceFilter string) (ok float64, err error) {
+func (semp *Semp) GetInterfaceHWSemp1(ch chan<- PrometheusMetric, interfaceFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

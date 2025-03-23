@@ -10,7 +10,7 @@ import (
 
 // GetQueueStatsSemp1 Get rates for each individual queue of all VPNs
 // This can result in heavy system load for lots of queues
-func (semp *Semp) GetQueueStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetQueueStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

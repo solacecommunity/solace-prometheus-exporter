@@ -5,6 +5,8 @@ import (
 )
 
 func TestEncodeMetricMulti(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		item     string
 		refItems []string

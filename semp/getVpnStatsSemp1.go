@@ -9,7 +9,7 @@ import (
 )
 
 // GetVpnStatsSemp1 Get statistics of all VPNs
-func (semp *Semp) GetVpnStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok float64, err error) {
+func (semp *Semp) GetVpnStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -22,7 +22,7 @@ func (semp *Semp) GetVpnStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string)
 						QuotaConnectionsSmf       float64 `xml:"max-connections-service-smf"`
 						QuotaConnectionsWeb       float64 `xml:"max-connections-service-web"`
 						QuotaConnectionsMqtt      float64 `xml:"max-connections-service-mqtt"`
-						QuotaConnectionsAmqp      float64 `xml:"max-connections-service-amqp"`
+						QuotaConnectionsAMQP      float64 `xml:"max-connections-service-amqp"`
 						QuotaConnectionsRestIn    float64 `xml:"max-connections-service-rest-incoming"`
 						QuotaConnectionsRestOut   float64 `xml:"max-connections-service-rest-outgoing"`
 						ConnectionsAmqService     float64 `xml:"connections-service-amqp"`
@@ -97,7 +97,7 @@ func (semp *Semp) GetVpnStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string)
 		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections"], prometheus.GaugeValue, vpn.QuotaConnections, vpn.Name)
 		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_smf"], prometheus.GaugeValue, vpn.QuotaConnectionsSmf, vpn.Name)
 		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_web"], prometheus.GaugeValue, vpn.QuotaConnectionsWeb, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_amqp"], prometheus.GaugeValue, vpn.QuotaConnectionsAmqp, vpn.Name)
+		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_amqp"], prometheus.GaugeValue, vpn.QuotaConnectionsAMQP, vpn.Name)
 		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_mqtt"], prometheus.GaugeValue, vpn.QuotaConnectionsMqtt, vpn.Name)
 		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_rest_in"], prometheus.GaugeValue, vpn.QuotaConnectionsRestIn, vpn.Name)
 		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_rest_out"], prometheus.GaugeValue, vpn.QuotaConnectionsRestOut, vpn.Name)

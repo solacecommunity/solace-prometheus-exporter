@@ -9,7 +9,7 @@ import (
 )
 
 // Cluster link states of broker
-func (semp *Semp) GetClusterLinksSemp1(ch chan<- PrometheusMetric, clusterFilter string, linkFilter string) (ok float64, err error) {
+func (semp *Semp) GetClusterLinksSemp1(ch chan<- PrometheusMetric, clusterFilter string, linkFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

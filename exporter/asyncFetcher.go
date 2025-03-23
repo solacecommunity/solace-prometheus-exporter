@@ -32,12 +32,14 @@ func NewAsyncFetcher(urlPath string, dataSource []DataSource, conf Config, logge
 		for {
 			if err := connections.Acquire(ctx, 1); err != nil {
 				_ = level.Error(logger).Log("msg", "Failed to acquire semaphore", "handler", "/"+urlPath, "err", err)
+
 				continue
 			}
 
 			_ = level.Debug(logger).Log("msg", "Fetching for handler", "handler", "/"+urlPath)
 
 			var startTime = time.Now()
+
 			readMetrics(fetcher)
 
 			connections.Release(1)
@@ -56,6 +58,7 @@ func NewAsyncFetcher(urlPath string, dataSource []DataSource, conf Config, logge
 func sleepUntilNextIteration(startTime time.Time, interval time.Duration) {
 	now := time.Now()
 	nextInterval := startTime.Add(interval)
+
 	if nextInterval.After(now) {
 		timeToSleep := nextInterval.Sub(now)
 		time.Sleep(timeToSleep)
@@ -74,8 +77,8 @@ type AsyncFetcher struct {
 func readMetrics(f *AsyncFetcher) {
 	var metricsChan = make(chan semp.PrometheusMetric, capMetricChan)
 	var wg sync.WaitGroup
-	wg.Add(1)
 
+	wg.Add(1)
 	f.DeprecateAll()
 
 	collectWorker := func() {

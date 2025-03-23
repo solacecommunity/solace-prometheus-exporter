@@ -5,6 +5,8 @@ import (
 )
 
 func TestEncodeMetricBool(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		item bool
 		want float64

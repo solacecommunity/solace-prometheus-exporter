@@ -11,7 +11,7 @@ import (
 )
 
 // GetSpoolSemp1 Get system-wide spool information
-func (semp *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+func (semp *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

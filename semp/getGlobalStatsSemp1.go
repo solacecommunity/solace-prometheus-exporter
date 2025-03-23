@@ -9,7 +9,7 @@ import (
 )
 
 // GetGlobalSystemInfoSemp1 Get global stats information
-func (semp *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+func (semp *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -56,7 +56,7 @@ func (semp *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (ok float
 	return 1, nil
 }
 
-func (semp *Semp) GetGlobalStatsSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+func (semp *Semp) GetGlobalStatsSemp1(ch chan<- PrometheusMetric) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

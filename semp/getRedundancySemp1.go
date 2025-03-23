@@ -9,8 +9,8 @@ import (
 )
 
 // GetRedundancySemp1 Get system-wide basic redundancy information for HA triples
-func (semp *Semp) GetRedundancySemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
-	var f float64
+func (semp *Semp) GetRedundancySemp1(ch chan<- PrometheusMetric) (float64, error) {
+	var redundancyState float64
 
 	type Data struct {
 		RPC struct {
@@ -78,11 +78,11 @@ func (semp *Semp) GetRedundancySemp1(ch chan<- PrometheusMetric) (ok float64, er
 
 	if target.RPC.Show.Red.ActiveStandbyRole == "Primary" && target.RPC.Show.Red.VirtualRouters.Primary.Status.Activity == "Local Active" ||
 		target.RPC.Show.Red.ActiveStandbyRole == "Backup" && target.RPC.Show.Red.VirtualRouters.Backup.Status.Activity == "Local Active" {
-		f = 1
+		redundancyState = 1
 	} else {
-		f = 0
+		redundancyState = 0
 	}
-	ch <- semp.NewMetric(MetricDesc["Redundancy"]["system_redundancy_local_active"], prometheus.GaugeValue, f, mateRouterName)
+	ch <- semp.NewMetric(MetricDesc["Redundancy"]["system_redundancy_local_active"], prometheus.GaugeValue, redundancyState, mateRouterName)
 
 	return 1, nil
 }

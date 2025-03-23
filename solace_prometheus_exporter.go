@@ -260,14 +260,19 @@ func main() {
 	if conf.EnableTLS {
 		exporter.ListenAndServeTLS(*conf)
 	} else {
-		if err := http.ListenAndServe(conf.ListenAddr, nil); err != nil {
+		server := &http.Server{
+			Addr:              conf.ListenAddr,
+			ReadHeaderTimeout: 5 * time.Second,
+		}
+
+		if err := server.ListenAndServe(); err != nil {
 			level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
 			os.Exit(2)
 		}
 	}
 }
 
-func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporter.AsyncFetcher) (resultCode string) {
+func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporter.AsyncFetcher) string {
 	registry := prometheus.NewRegistry()
 	registry.MustRegister(asyncFetcher)
 	handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
@@ -276,7 +281,7 @@ func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporte
 	return w.Header().Get("status")
 }
 
-func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf exporter.Config, logger log.Logger) (resultCode string) {
+func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf exporter.Config, logger log.Logger) string {
 	if dataSource == nil {
 		handler := promhttp.Handler()
 		handler.ServeHTTP(w, r)

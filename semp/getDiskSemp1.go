@@ -11,7 +11,7 @@ import (
 )
 
 // GetDiskSemp1 Get system disk information (for Appliance)
-func (semp *Semp) GetDiskSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+func (semp *Semp) GetDiskSemp1(ch chan<- PrometheusMetric) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

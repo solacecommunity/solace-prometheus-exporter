@@ -9,7 +9,7 @@ import (
 )
 
 // GetVpnSemp1 Get info of all VPNs
-func (semp *Semp) GetVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok float64, err error) {
+func (semp *Semp) GetVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

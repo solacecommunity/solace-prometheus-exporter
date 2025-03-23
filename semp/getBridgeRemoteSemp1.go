@@ -10,7 +10,7 @@ import (
 
 // GetBridgeRemoteSemp1 Get status of bridges for all VPNs
 // Same as GetBridge but adds labels for remote VPN and remote router
-func (semp *Semp) GetBridgeRemoteSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetBridgeRemoteSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

@@ -20,6 +20,7 @@ linters:
    - goconst
    - gofmt
    - goimports
+   - gosec
    - gosmopolitan
    - grouper
    - iface
@@ -28,6 +29,8 @@ linters:
    - misspell
    - nilerr
    - nilnil
+   - nonamedreturns
+   - paralleltest
    - perfsprint
    - prealloc
    - reassign
