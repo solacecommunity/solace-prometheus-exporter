@@ -11,7 +11,7 @@ import (
 
 // GetClientSlowSubscriberSemp1 Get slow subscriber client of VPNs
 // This can result in heavy system load when lots of clients are connected
-func (semp *Semp) GetClientSlowSubscriberSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetClientSlowSubscriberSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -45,7 +45,9 @@ func (semp *Semp) GetClientSlowSubscriberSemp1(ch chan<- PrometheusMetric, vpnFi
 			_ = level.Error(semp.logger).Log("msg", "Can't scrape ClientSlowSubscriberSemp1", "err", err, "broker", semp.brokerURI)
 			return -1, err
 		}
+
 		defer body.Close()
+
 		decoder := xml.NewDecoder(body)
 		var target Data
 		err = decoder.Decode(&target)

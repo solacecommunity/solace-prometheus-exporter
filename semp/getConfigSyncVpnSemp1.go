@@ -9,7 +9,7 @@ import (
 )
 
 // GetConfigSyncVpnSemp1 Sync Status for Broker and Vpn
-func (semp *Semp) GetConfigSyncVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string) (ok float64, err error) {
+func (semp *Semp) GetConfigSyncVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

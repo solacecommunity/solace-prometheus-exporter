@@ -10,7 +10,7 @@ import (
 
 // Get some statistics for each individual client of all VPNs
 // This can result in heavy system load for lots of clients
-func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -96,7 +96,7 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 
 // Get some statistics for each individual client connections of all VPNs
 // This can result in heavy system load for lots of clients
-func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, itemFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -199,6 +199,7 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 		ch <- semp.NewMetric(MetricDesc["ClientConnections"]["connection_fast_retransmit"], prometheus.CounterValue, client.Stats.FastRetransmits, client.MsgVpnName, client.ClientName)
 		ch <- semp.NewMetric(MetricDesc["ClientConnections"]["connection_timed_retransmit"], prometheus.CounterValue, client.Stats.TimedRetransmits, client.MsgVpnName, client.ClientName)
 	}
+
 	body.Close()
 
 	return 1, nil

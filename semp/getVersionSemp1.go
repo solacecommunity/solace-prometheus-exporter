@@ -13,7 +13,7 @@ import (
 )
 
 // GetVersionSemp1 Get version of broker
-func (semp *Semp) GetVersionSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+func (semp *Semp) GetVersionSemp1(ch chan<- PrometheusMetric) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

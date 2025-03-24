@@ -212,6 +212,7 @@ func (e *Exporter) Collect(pch chan<- prometheus.Metric) {
 			for _, metric := range distinctMetrics {
 				pch <- metric.AsPrometheusMetric()
 			}
+
 			return
 		}
 		// using a map to filter duplicates and use always most current received value
@@ -219,7 +220,7 @@ func (e *Exporter) Collect(pch chan<- prometheus.Metric) {
 	}
 }
 
-func (e *Exporter) getVpnName(vpnFilter string) (vpnName string, err error) {
+func (e *Exporter) getVpnName(vpnFilter string) (string, error) {
 	if vpnFilter == "*" {
 		if len(strings.TrimSpace(e.config.DefaultVpn)) == 0 {
 			return "", errors.New("can't scrape Semp2 As vpnFilter was an * given and the defaultVpn is not set in configuration")

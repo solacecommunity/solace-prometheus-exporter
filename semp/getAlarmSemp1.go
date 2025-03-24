@@ -10,7 +10,7 @@ import (
 )
 
 // GetAlarmSemp1 Get system Alarm information.
-func (semp *Semp) GetAlarmSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+func (semp *Semp) GetAlarmSemp1(ch chan<- PrometheusMetric) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

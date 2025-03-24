@@ -9,7 +9,7 @@ import (
 )
 
 // GetBridgeSemp1 status of bridges for all VPNs
-func (semp *Semp) GetBridgeSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetBridgeSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

@@ -9,7 +9,7 @@ import (
 )
 
 // GetReplicationStatsSemp1 Get DR replication statistics
-func (semp *Semp) GetReplicationStatsSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+func (semp *Semp) GetReplicationStatsSemp1(ch chan<- PrometheusMetric) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

@@ -9,7 +9,7 @@ import (
 )
 
 // GetHealthSemp1 Get system health information
-func (semp *Semp) GetHealthSemp1(ch chan<- PrometheusMetric) (ok float64, err error) {
+func (semp *Semp) GetHealthSemp1(ch chan<- PrometheusMetric) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

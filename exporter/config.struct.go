@@ -38,8 +38,8 @@ type Config struct {
 }
 
 const (
-	CERTTYPE_PEM    = "PEM"
-	CERTTYPE_PKCS12 = "PKCS12"
+	CertTypePEM    = "PEM"
+	CertTypePKCS12 = "PKCS12"
 )
 
 // GetListenURI returns the `listenAddr` with proper protocol (http/https),
@@ -48,6 +48,7 @@ func (conf *Config) GetListenURI() string {
 	if conf.EnableTLS {
 		return "https://" + conf.ListenAddr
 	}
+
 	return "http://" + conf.ListenAddr
 }
 
@@ -62,6 +63,7 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 			AllowBooleanKeys: true,
 		}
 		cfg, err = ini.LoadSources(opts, configFile)
+
 		if err != nil {
 			return nil, nil, fmt.Errorf("can't open config file %q: %w", configFile, err)
 		}
@@ -78,22 +80,22 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	conf.CertType, err = parseConfigString(cfg, "solace", "certType", "SOLACE_LISTEN_CERTTYPE")
 	if conf.EnableTLS && err != nil {
 		log.Println("CertType not set. Using default PEM")
-		conf.CertType = CERTTYPE_PEM
+		conf.CertType = CertTypePEM
 	}
 	conf.Certificate, err = parseConfigString(cfg, "solace", "certificate", "SOLACE_SERVER_CERT")
-	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CERTTYPE_PEM && err != nil {
+	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CertTypePEM && err != nil {
 		return nil, nil, err
 	}
 	conf.PrivateKey, err = parseConfigString(cfg, "solace", "privateKey", "SOLACE_PRIVATE_KEY")
-	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CERTTYPE_PEM && err != nil {
+	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CertTypePEM && err != nil {
 		return nil, nil, err
 	}
 	conf.Pkcs12File, err = parseConfigString(cfg, "solace", "pkcs12File", "SOLACE_PKCS12_FILE")
-	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CERTTYPE_PKCS12 && err != nil {
+	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CertTypePKCS12 && err != nil {
 		return nil, nil, err
 	}
 	conf.Pkcs12Pass, err = parseConfigString(cfg, "solace", "pkcs12Pass", "SOLACE_PKCS12_PASS")
-	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CERTTYPE_PKCS12 && err != nil {
+	if conf.EnableTLS && strings.ToUpper(conf.CertType) == CertTypePKCS12 && err != nil {
 		return nil, nil, err
 	}
 	conf.ScrapeURI, err = parseConfigString(cfg, "solace", "scrapeUri", "SOLACE_SCRAPE_URI")
@@ -156,6 +158,7 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 					if len(parts) < 2 {
 						return nil, nil, fmt.Errorf("one or two | expected at endpoint %q. Found key %q value %q. Expected: VPN wildcard | item wildcard | Optional metric filter for v2 apis", endpointName, key.Name(), key.String())
 					}
+
 					var metricFilter []string
 					if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {
 						metricFilter = strings.Split(parts[2], ",")
@@ -182,6 +185,7 @@ func parseConfigBool(cfg *ini.File, iniSection string, iniKey string, envKey str
 	if err != nil {
 		return false, err
 	}
+
 	val, err := strconv.ParseBool(s)
 	if err != nil {
 		return false, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
@@ -267,7 +271,10 @@ func (conf *Config) newHTTPClient() http.Client {
 	if conf.useSystemProxy {
 		proxy = http.ProxyFromEnvironment
 	}
-	tr := &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: !conf.SslVerify}, Proxy: proxy}
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: !conf.SslVerify}, //nolint:gosec
+		Proxy:           proxy,
+	}
 	client := http.Client{
 		Timeout:       conf.Timeout,
 		Transport:     tr,
@@ -277,9 +284,10 @@ func (conf *Config) newHTTPClient() http.Client {
 	return client
 }
 
-// Redirect callback, re-insert basic auth string into header
+// Redirect callback, re-insert basic auth string into header.
 func (conf *Config) redirectPolicyFunc(req *http.Request, _ []*http.Request) error {
 	conf.httpVisitor()(req)
+
 	return nil
 }
 

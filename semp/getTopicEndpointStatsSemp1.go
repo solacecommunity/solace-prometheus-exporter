@@ -10,7 +10,7 @@ import (
 
 // GetTopicEndpointStatsSemp1 Get rates for each individual topic-endpoint of all VPNs
 // This can result in heavy system load for lots of topc-endpoints
-func (semp *Semp) GetTopicEndpointStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetTopicEndpointStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

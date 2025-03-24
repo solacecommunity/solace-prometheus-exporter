@@ -11,7 +11,7 @@ import (
 
 // GetQueueStatsSemp2 Get rates for each individual queue of all VPNs
 // This can result in heavy system load for lots of queues
-func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string, itemFilter string, metricFilter []string) (ok float64, err error) {
+func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string, itemFilter string, metricFilter []string) (float64, error) {
 	type Response struct {
 		Queue []struct {
 			QueueName                           string  `json:"queueName"`
@@ -51,6 +51,7 @@ func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string,
 	}
 
 	var getParameter = "count=100"
+
 	if len(strings.TrimSpace(itemFilter)) > 0 && itemFilter != "*" {
 		if strings.Contains(itemFilter, "=") {
 			getParameter += "&where=" + queryEscape(itemFilter)
@@ -61,6 +62,8 @@ func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string,
 
 	var fieldsToSelect []string
 	if len(metricFilter) > 0 {
+		var err error
+
 		fieldsToSelect, err = getSempV2FieldsToSelect(
 			metricFilter,
 			[]string{"queueName", "msgVpnName"},

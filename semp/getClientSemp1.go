@@ -11,7 +11,7 @@ import (
 
 // GetClientSemp1 Get summary for each client of VPNs
 // This can result in heavy system load when lots of clients are connected
-func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (ok float64, err error) {
+func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {

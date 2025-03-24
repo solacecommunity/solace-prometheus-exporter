@@ -9,7 +9,7 @@ import (
 )
 
 // GetStorageElementSemp1 Get system storage-element information (for Software Broker)
-func (semp *Semp) GetStorageElementSemp1(ch chan<- PrometheusMetric, storageElementFilter string) (ok float64, err error) {
+func (semp *Semp) GetStorageElementSemp1(ch chan<- PrometheusMetric, storageElementFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
