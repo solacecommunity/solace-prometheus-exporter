@@ -35,7 +35,7 @@ func (semp *Semp) postHTTP(uri string, _ string, body string, logName string, pa
 	}
 	_ = level.Debug(semp.logger).Log("msg", "Scraped "+logName, "page", page, "duration", queryDuration)
 
-	if !(resp.StatusCode >= 200 && resp.StatusCode < 300) {
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		_ = resp.Body.Close()
 		return nil, fmt.Errorf("HTTP status %d (%s)", resp.StatusCode, http.StatusText(resp.StatusCode))
 	}
@@ -64,7 +64,7 @@ func (semp *Semp) getHTTPbytes(uri string, _ string, logName string, page int) (
 
 	_ = level.Debug(semp.logger).Log("msg", "Scraped "+logName, "page", page, "duration", queryDuration)
 
-	if !(resp.StatusCode >= 200 && resp.StatusCode < 500) {
+	if resp.StatusCode < 200 || resp.StatusCode >= 500 {
 		_ = resp.Body.Close()
 		return nil, fmt.Errorf("HTTP status %d (%s)", resp.StatusCode, http.StatusText(resp.StatusCode))
 	}

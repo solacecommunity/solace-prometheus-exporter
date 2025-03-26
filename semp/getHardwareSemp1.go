@@ -69,7 +69,8 @@ func (semp *Semp) GetHardwareSemp1(ch chan<- PrometheusMetric) (float64, error) 
 	ch <- semp.NewMetric(MetricDesc["Hardware"]["operational_power_supplies"], prometheus.GaugeValue, target.RPC.Show.Hardware.PowerRedundancy.OperationalPowerSupplies)
 
 	for _, slot := range target.RPC.Show.Hardware.Fabric.Slot {
-		if slot.CardType == "Host Bus Adapter Blade" {
+		switch slot.CardType {
+		case "Host Bus Adapter Blade":
 			for _, FC := range slot.FibreChannel {
 				ch <- semp.NewMetric(MetricDesc["Hardware"]["fibre_channel_operational_state"], prometheus.GaugeValue, encodeMetricMulti(FC.OperationalState, []string{"Linkdown", "Online"}), FC.Number)
 				ch <- semp.NewMetric(MetricDesc["Hardware"]["fibre_channel_state"], prometheus.GaugeValue, encodeMetricMulti(FC.State, []string{"Link Down", "Link Up - F_Port (fabric via point-to-point)", "Link Up - Loop (private loop)"}), FC.Number)
@@ -81,7 +82,7 @@ func (semp *Semp) GetHardwareSemp1(ch chan<- PrometheusMetric) (float64, error) 
 				}
 				ch <- semp.NewMetric(MetricDesc["Hardware"]["external_disk_lun_state"], prometheus.GaugeValue, encodeMetricMulti(State, []string{"Offline", "Ready"}), LUN.Number)
 			}
-		} else if slot.CardType == "Assured Delivery Blade" {
+		case "Assured Delivery Blade":
 			ch <- semp.NewMetric(MetricDesc["Hardware"]["adb_operational_state"], prometheus.GaugeValue, encodeMetricBool(slot.OperationalState))
 			ch <- semp.NewMetric(MetricDesc["Hardware"]["adb_flash_card_state"], prometheus.GaugeValue, encodeMetricMulti(slot.FlashCardState, []string{"Link Down", "Ready"}))
 			ch <- semp.NewMetric(MetricDesc["Hardware"]["adb_power_module_state"], prometheus.GaugeValue, encodeMetricMulti(slot.PowerModuleState, []string{"", "Ok"}))

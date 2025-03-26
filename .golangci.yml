@@ -1,42 +1,62 @@
+version: "2"
 linters:
-  disable:
-   - errcheck
-   - godot
-   - nlreturn
   enable:
-   - asasalint
-   - asciicheck
-   - bidichk
-   - containedctx
-   - contextcheck
-   - decorder
-   - durationcheck
-   - errorlint
-   - exptostd
-   - fatcontext
-   - forbidigo
-   - gocheckcompilerdirectives
-   - gochecksumtype
-   - goconst
-   - gofmt
-   - goimports
-   - gosec
-   - gosmopolitan
-   - grouper
-   - iface
-   - importas
-   - mirror
-   - misspell
-   - nilerr
-   - nilnil
-   - nonamedreturns
-   - paralleltest
-   - perfsprint
-   - prealloc
-   - reassign
-   - recvcheck
-   - sloglint
-   - testifylint
-   - unconvert
-   - wastedassign
-   - whitespace
+    - asasalint
+    - asciicheck
+    - bidichk
+    - containedctx
+    - contextcheck
+    - decorder
+    - durationcheck
+    - errorlint
+    - exptostd
+    - fatcontext
+    - forbidigo
+    - gocheckcompilerdirectives
+    - gochecksumtype
+    - goconst
+    - gosec
+    - gosmopolitan
+    - grouper
+    - iface
+    - importas
+    - mirror
+    - misspell
+    - nilerr
+    - nilnil
+    - nonamedreturns
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - reassign
+    - recvcheck
+    - sloglint
+    - testifylint
+    - unconvert
+    - wastedassign
+    - whitespace
+  disable:
+    - errcheck
+    - godot
+    - nlreturn
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
