@@ -35,16 +35,6 @@ func mapItems(items []string, translateMap map[string]string) ([]string, error) 
 	return translated, nil
 }
 
-func sliceContains(slice []string, lookUp string) bool {
-	for _, selectedField := range slice {
-		if selectedField == lookUp {
-			return true
-		}
-	}
-
-	return false
-}
-
 func queryEscape(raw string) string {
 	if len(strings.TrimSpace(raw)) == 0 {
 		return raw
