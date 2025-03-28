@@ -1,6 +1,8 @@
 package semp
 
 import (
+	"slices"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -32,7 +34,7 @@ func (v2Desc *Desc) isSelected(selectedFields []string) bool {
 		return true
 	}
 
-	return sliceContains(selectedFields, v2Desc.sempV2field)
+	return slices.Contains(selectedFields, v2Desc.sempV2field)
 }
 
 func getSempV2FieldMapList(descriptions Descriptions) map[string]string {
@@ -50,9 +52,9 @@ func getSempV2FieldsToSelect(metricFilter []string, mandatoryFields []string, de
 		return []string{}, err
 	}
 
-	for _, mandatoryField := range mandatoryFields {
-		if !sliceContains(fields, mandatoryField) {
-			fields = append(fields, mandatoryField)
+	for _, field := range mandatoryFields {
+		if !slices.Contains(fields, field) {
+			fields = append(fields, field)
 		}
 	}
 
