@@ -15,10 +15,10 @@ func TestEncodeMetricBool(t *testing.T) {
 		{false, 0},
 	}
 
-	for _, test := range tests {
-		result := encodeMetricBool(test.item)
-		if result != test.want {
-			t.Errorf("encodeMetricBool(%v) = %v; want %v", test.item, result, test.want)
+	for _, tt := range tests {
+		result := encodeMetricBool(tt.item)
+		if result != tt.want {
+			t.Errorf("encodeMetricBool(%v) = %v; want %v", tt.item, result, tt.want)
 		}
 	}
 }

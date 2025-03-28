@@ -11,11 +11,9 @@ func mapItems(items []string, translateMap map[string]string) ([]string, error) 
 	translated := make([]string, 0, len(items))
 	validItems := make([]string, 0, len(translateMap)*2)
 
-	for key, validRawItem := range translateMap {
-		validRawItems[validRawItem] = true
-
-		validItems = append(validItems, key)
-		validItems = append(validItems, validRawItem)
+	for key, rawItem := range translateMap {
+		validRawItems[rawItem] = true
+		validItems = append(validItems, key, rawItem)
 	}
 
 	for _, item := range items {
