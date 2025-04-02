@@ -21,10 +21,10 @@ func TestEncodeMetricMulti(t *testing.T) {
 		{"", []string{"apple", "banana", "cherry"}, -1},      // Empty string
 	}
 
-	for _, test := range tests {
-		result := encodeMetricMulti(test.item, test.refItems)
-		if result != test.want {
-			t.Errorf("encodeMetricMulti(%q, %v) = %v; want %v", test.item, test.refItems, result, test.want)
+	for _, tt := range tests {
+		result := encodeMetricMulti(tt.item, tt.refItems)
+		if result != tt.want {
+			t.Errorf("encodeMetricMulti(%q, %v) = %v; want %v", tt.item, tt.refItems, result, tt.want)
 		}
 	}
 }
