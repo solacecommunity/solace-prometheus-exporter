@@ -32,6 +32,8 @@ var (
 	variableLabelsInterfaceHW      = []string{"interface_name"}
 	variableLabelsRaid             = []string{"disk_number", "device_model"}
 	variableLabelsRestConsumer     = []string{"vpn_name", "rdp_name", "rest_consumer_name"}
+	variableLabelsRdpInfo          = []string{"vpn_name", "rdp_name"}
+	variableLabelsRdpStats         = []string{"vpn_name", "rdp_name"}
 )
 
 var QueueStats = Descriptions{
@@ -480,13 +482,43 @@ var MetricDesc = map[string]Descriptions{
 	},
 	"RestConsumerStats": {
 		"http_post_request_messages_sent":                   NewSemDesc("rdp_http_request_messages_sent_total", NoSempV2Ready, "The number of request messages sent by the REST Delivery Point (RDP) to the remote REST consumer.", variableLabelsRestConsumer),
-		"http_post_request_messages_sent_outstanding":       NewSemDesc("rdp_http_request_messages_sent_outstanding_total", NoSempV2Ready, "The numer of outstandning request messages to be sent by the REST Delivery Point (RDP) to the remote REST consumer.", variableLabelsRestConsumer),
-		"http_post_request_messages_sent_connection_closed": NewSemDesc("rdp_http_request_messages_sent_connection_closed_total", NoSempV2Ready, "The numer of connection closed encountered while the REST Delivery Point (RDP) is sending a request message to the remote REST consumer.", variableLabelsRestConsumer),
-		"http_post_request_messages_sent_timed_out":         NewSemDesc("rdp_http_request_messages_sent_timed_out_total", NoSempV2Ready, "The numer of time-outs encountered while the REST Delivery Point (RDP) is sending a request message to the remote REST consumer.", variableLabelsRestConsumer),
-		"http_post_response_messages_received":              NewSemDesc("rdp_http_response_messages_received_total", NoSempV2Ready, "The numer of response messages received from the REST consumer.", variableLabelsRestConsumer),
-		"http_post_response_messages_received_successful":   NewSemDesc("rdp_http_response_messages_received_successful_total", NoSempV2Ready, "The numer of response messages received successfully from the REST consumer.", variableLabelsRestConsumer),
-		"http_post_response_messages_received_error":        NewSemDesc("rdp_http_response_messages_received_error_total", NoSempV2Ready, "The numer of response messages received from the REST consumer with errors", variableLabelsRestConsumer),
+		"http_post_request_messages_sent_outstanding":       NewSemDesc("rdp_http_request_messages_sent_outstanding_total", NoSempV2Ready, "The number of outstandning request messages to be sent by the REST Delivery Point (RDP) to the remote REST consumer.", variableLabelsRestConsumer),
+		"http_post_request_messages_sent_connection_closed": NewSemDesc("rdp_http_request_messages_sent_connection_closed_total", NoSempV2Ready, "The number of connection closed encountered while the REST Delivery Point (RDP) is sending a request message to the remote REST consumer.", variableLabelsRestConsumer),
+		"http_post_request_messages_sent_timed_out":         NewSemDesc("rdp_http_request_messages_sent_timed_out_total", NoSempV2Ready, "The number of time-outs encountered while the REST Delivery Point (RDP) is sending a request message to the remote REST consumer.", variableLabelsRestConsumer),
+		"http_post_response_messages_received":              NewSemDesc("rdp_http_response_messages_received_total", NoSempV2Ready, "The number of response messages received from the REST consumer.", variableLabelsRestConsumer),
+		"http_post_response_messages_received_successful":   NewSemDesc("rdp_http_response_messages_received_successful_total", NoSempV2Ready, "The number of response messages received successfully from the REST consumer.", variableLabelsRestConsumer),
+		"http_post_response_messages_received_error":        NewSemDesc("rdp_http_response_messages_received_error_total", NoSempV2Ready, "The number of response messages received from the REST consumer with errors", variableLabelsRestConsumer),
 		"http_post_request_bytes_sent":                      NewSemDesc("rdp_http_request_sent_bytes_total", NoSempV2Ready, "The number of request bytes sent by the REST Delivery Point (RDP) to the remote REST consumer.", variableLabelsRestConsumer),
 		"http_post_response_bytes_received":                 NewSemDesc("rdp_http_response_received_bytes_total", NoSempV2Ready, "The number of response bytes received from the remote REST consumer", variableLabelsRestConsumer),
+	},
+	"RdpInfo": {
+		"enabled":                             NewSemDesc("rdp_enabled", NoSempV2Ready, "Is RDP enabled?", variableLabelsRdpInfo),
+		"operating_status":                    NewSemDesc("rdp_operating_status", NoSempV2Ready, "operating status of the RDP.", variableLabelsRdpInfo),
+		"consumer_out_connections_up":         NewSemDesc("rdp_consumer_out_connections_up", NoSempV2Ready, "Number of outgoing consumer connections that are up.", variableLabelsRdpInfo),
+		"consumer_out_connections_configured": NewSemDesc("rdp_consumer_out_connections_configured", NoSempV2Ready, "Number of configured outgoing consumer connections.", variableLabelsRdpInfo),
+		"queue_bindings_up":                   NewSemDesc("rdp_queue_bindings_up", NoSempV2Ready, "Number of queue bindings that are up.", variableLabelsRdpInfo),
+		"queue_bindings_configured":           NewSemDesc("rdp_queue_bindings_configured", NoSempV2Ready, "Number of configured queue bindings.", variableLabelsRdpInfo),
+		"blocked_conns_percent":               NewSemDesc("rdp_blocked_conns_percent", NoSempV2Ready, "Percentage of blocked connections", variableLabelsRdpInfo),
+	},
+	"RdpStats": {
+		"http_post_request_messages_sent":                   NewSemDesc("rdp_stats_http_request_messages_sent_total", NoSempV2Ready, "The number of request messages sent by the REST Delivery Point (RDP) to the remote REST consumer.", variableLabelsRdpStats),
+		"http_post_request_messages_sent_outstanding":       NewSemDesc("rdp_stats_http_request_messages_sent_outstanding_total", NoSempV2Ready, "The number of outstandning request messages to be sent by the REST Delivery Point (RDP) to the remote REST consumer.", variableLabelsRdpStats),
+		"http_post_request_messages_sent_connection_closed": NewSemDesc("rdp_stats_http_request_messages_sent_connection_closed_total", NoSempV2Ready, "The numebr of connection closed encountered while the REST Delivery Point (RDP) is sending a request message to the remote REST consumer.", variableLabelsRdpStats),
+		"http_post_request_messages_sent_timed_out":         NewSemDesc("rdp_stats_http_request_messages_sent_timed_out_total", NoSempV2Ready, "The number of time-outs encountered while the REST Delivery Point (RDP) is sending a request message to the remote REST consumer.", variableLabelsRdpStats),
+		"http_post_response_messages_received":              NewSemDesc("rdp_stats_http_response_messages_received_total", NoSempV2Ready, "The number of response messages received from the REST consumer.", variableLabelsRdpStats),
+		"http_post_response_messages_received_successful":   NewSemDesc("rdp_stats_http_response_messages_received_successful_total", NoSempV2Ready, "The number of response messages received successfully from the REST consumer.", variableLabelsRdpStats),
+		"http_post_response_messages_received_error":        NewSemDesc("rdp_stats_http_response_messages_received_error_total", NoSempV2Ready, "The number of response messages received from the REST consumer with errors", variableLabelsRdpStats),
+		"http_post_request_bytes_sent":                      NewSemDesc("rdp_stats_http_request_sent_bytes_total", NoSempV2Ready, "The number of request bytes sent by the REST Delivery Point (RDP) to the remote REST consumer.", variableLabelsRdpStats),
+		"http_post_response_bytes_received":                 NewSemDesc("rdp_stats_http_response_received_bytes_total", NoSempV2Ready, "The number of response bytes received from the remote REST consumer", variableLabelsRdpStats),
+	},
+	"RdpTotals": {
+		"total_rest_delivery_points_up":                       NewSemDesc("rdp_total_rest_delivery_points_up", NoSempV2Ready, "The total number of RDPs that are up.", nil),
+		"total_rest_delivery_points_configured":               NewSemDesc("rdp_total_rest_delivery_points_configured", NoSempV2Ready, "The total number of configured RDPs.", nil),
+		"total_rest_consumers_up":                             NewSemDesc("rdp_total_rest_consumers_up", NoSempV2Ready, "The total number of REST consumers that are up.", nil),
+		"total_rest_consumers_configured":                     NewSemDesc("rdp_total_rest_consumers_configured", NoSempV2Ready, "The total number of configured REST consumers.", nil),
+		"total_rest_consumer_outgoing_connections_up":         NewSemDesc("rdp_total_rest_consumer_outgoing_connections_up", NoSempV2Ready, "The total number of outgoing REST consumer connections that are up.", nil),
+		"total_rest_consumer_outgoing_connections_configured": NewSemDesc("rdp_total_rest_consumer_outgoing_connections_configured", NoSempV2Ready, "The total number of configured outgoing REST consumer connections.", nil),
+		"total_queue_bindings_up":                             NewSemDesc("rdp_total_queue_bindings_up", NoSempV2Ready, "The total number of queue bindings that are up.", nil),
+		"total_queue_bindings_configured":                     NewSemDesc("rdp_total_queue_bindings_configured", NoSempV2Ready, "The total number of configured queue bindings.", nil),
 	},
 }
