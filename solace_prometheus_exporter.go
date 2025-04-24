@@ -199,7 +199,7 @@ func main() {
 				<br>The first asterisk the VPN filter and the second asterisk the item filter.
 				Not all scrape targets support filter.
 				<br>Scrape targets:<br>
-				<table><tr><th>scape target</th><th>vpn filter supports</th><th>item filter supported</th><th>performance</th><tr>
+				<table><tr><th>scrape target</th><th>vpn filter supports</th><th>item filter supported</th><th>performance</th><tr>
 					<tr><td>Version</td><td>no</td><td>no</td><td>dont harm broker</td></tr>`))
 		if !conf.IsHWBroker {
 			w.Write([]byte(`					
@@ -236,7 +236,10 @@ func main() {
 					<tr><td>TopicEndpointRates</td><td>yes</td><td>yes</td><td>DEPRECATED: may harm broker if many topic-endpoints</td></tr>
 					<tr><td>TopicEndpointStats</td><td>yes</td><td>yes</td><td>may harm broker if many topic-endpoints</td></tr>
 					<tr><td>TopicEndpointDetails</td><td>yes</td><td>yes</td><td>may harm broker if many topic-endpoints</td></tr>
-					<tr><td>BridgeRemote</td><td>yes</td><td>yes</td><td>dont harm broker</td></tr>`))
+					<tr><td>BridgeRemote</td><td>yes</td><td>yes</td><td>dont harm broker</td></tr>
+					<tr><td>RestConsumer</td><td>yes</td><td>yes</td><td>may harm broker if many rest consumers</td></tr>
+					<tr><td>RdpInfo</td><td>yes</td><td>yes</td><td>may harm broker if many rest delivery points</td></tr>
+					<tr><td>RdpIStats</td><td>yes</td><td>yes</td><td>may harm broker if many rest delivery points</td></tr>`))
 
 		if conf.IsHWBroker {
 			w.Write([]byte(`					

@@ -150,6 +150,10 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			up, err = e.semp.GetTopicEndpointDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "RestConsumerStats", "RestConsumerStatsV1":
 			up, err = e.semp.GetRestConsumerStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "RdpStats", "RdpStatsV1":
+			up, err = e.semp.GetRdpStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "RdpInfo", "RdpInfoV1":
+			up, err = e.semp.GetRdpInfoSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		default:
 			up = 0
 			err = errors.New("Unknown scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
