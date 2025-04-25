@@ -31,7 +31,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Build and push Docker images
-      uses: docker/build-push-action@v6.15.0
+      uses: docker/build-push-action@v6.16.0
       with:
         push: ${{ GitHub.event_name != 'pull_request' || contains(GitHub.head_ref, 'feature') }}
         tags: ${{ steps.meta.outputs.tags }}
