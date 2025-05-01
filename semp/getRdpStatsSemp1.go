@@ -3,9 +3,11 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
+
+	"strconv"
+
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
-	"strconv"
 )
 
 // GetRdpStatsSemp1 Get rates for each individual queue of all VPNs

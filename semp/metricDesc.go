@@ -14,6 +14,7 @@ var (
 	variableLabelsReplication      = []string{"mate_name"}
 	variableLabelsVpn              = []string{"vpn_name"}
 	variableLabelsClientInfo       = []string{"vpn_name", "client_name", "client_address"}
+	variableLabelsClientProfile    = []string{"vpn_name", "client_profile"}
 	variableLabelsClientSlowSub    = []string{"vpn_name", "client_name", "client_address", "client_username"}
 	variableLabelsVpnClient        = []string{"vpn_name", "client_name"}
 	variableLabelsVpnClientUser    = []string{"vpn_name", "client_name", "client_username"}
@@ -308,6 +309,15 @@ var MetricDesc = map[string]Descriptions{
 	// SEMPv1: show client <client-name> message-vpn <vpn-name> connected
 	"Client": {
 		"client_num_subscriptions": NewSemDesc("client_num_subscriptions", NoSempV2Ready, "Number of client subscriptions.", variableLabelsClientInfo),
+	},
+	// SEMPv1: show client <client-name> message-vpn <vpn-name> connected
+	"ClientProfile": {
+		"clientprofile_max_connections_per_username": NewSemDesc("clientprofile_max_connections_per_username", NoSempV2Ready, "Maximum connections per username.", variableLabelsClientProfile),
+		"clientprofile_max_endpoints_per_username":   NewSemDesc("clientprofile_max_endpoints_per_username", NoSempV2Ready, "Maximum endpoints per username.", variableLabelsClientProfile),
+		"clientprofile_max_egress_flows":             NewSemDesc("clientprofile_max_egress_flows", NoSempV2Ready, "Maximum egress flows.", variableLabelsClientProfile),
+		"clientprofile_max_ingress_flows":            NewSemDesc("clientprofile_max_ingress_flows", NoSempV2Ready, "Maximum ingress flows.", variableLabelsClientProfile),
+		"clientprofile_max_subscriptions":            NewSemDesc("clientprofile_max_subscriptions", NoSempV2Ready, "Maximum subscriptions.", variableLabelsClientProfile),
+		"clientprofile_num_users":                    NewSemDesc("clientprofile_num_users", NoSempV2Ready, "Number of users.", variableLabelsClientProfile),
 	},
 	// SEMPv1: show client <client-name> message-vpn <vpn-name> connected
 	"ClientSlowSubscriber": {

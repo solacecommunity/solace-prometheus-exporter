@@ -151,6 +151,7 @@ not starting with the word "internal"
 | InterfaceHW                           | no                  | yes                   | no                       | dont harm broker                                                      | show interface interfaceFilter                                                     | appliance           |
 | Raid                                  | no                  | no                    | no                       | dont harm broker                                                      | show disk                                                                          | appliance           |
 | RDP/ Rest Consumers                   | yes                 | yes                   | no                       | may harm broker if many REST consumers                                | show message-vpn <vpnFiler> rest rest-consumer <itemFiler> stats count 100 (paged) | software, appliance |
+| ClientProfile                        | yes                 | no                    | no                       | may harm broker if many Client Profiles                               | show client-profile * message-vpn vpnFilter detail | software, appliance |
 
 ##### V2 endpoints
 
