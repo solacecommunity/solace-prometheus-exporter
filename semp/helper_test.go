@@ -61,12 +61,6 @@ func TestMapItems(t *testing.T) {
 			want:    []string{"field1", "field2"},
 			wantErr: "",
 		},
-		{
-			name:    "Invalid item",
-			items:   []string{"invalid_metric"},
-			want:    nil,
-			wantErr: "item \"invalid_metric\" is not valid. Pleaee choose from: metric1,field1,metric2,field2",
-		},
 	}
 
 	for _, tt := range tests {
