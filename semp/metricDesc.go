@@ -304,6 +304,7 @@ var MetricDesc = map[string]Descriptions{
 		"vpn_spool_current_ingress_flows":       NewSemDesc("vpn_spool_current_ingress_flows", NoSempV2Ready, "Spool current number of ingress flows.", variableLabelsVpn),
 		"vpn_spool_maximum_ingress_flows":       NewSemDesc("vpn_spool_maximum_ingress_flows", NoSempV2Ready, "Spool maximum number of ingress flows.", variableLabelsVpn),
 		"vpn_spool_current_transacted_sessions": NewSemDesc("vpn_spool_current_transacted_sessions", NoSempV2Ready, "Spool current number of transacted sessions.", variableLabelsVpn),
+		"vpn_spool_maximum_transacted_sessions": NewSemDesc("vpn_spool_maximum_transacted_sessions", NoSempV2Ready, "Spool maximum number of transacted messages.", variableLabelsVpn),
 		"vpn_spool_current_transacted_msgs":     NewSemDesc("vpn_spool_current_transacted_msgs", NoSempV2Ready, "Spool current number of transacted messages.", variableLabelsVpn),
 	},
 	// SEMPv1: show client <client-name> message-vpn <vpn-name> connected

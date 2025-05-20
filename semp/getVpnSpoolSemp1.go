@@ -17,18 +17,19 @@ func (semp *Semp) GetVpnSpoolSemp1(ch chan<- PrometheusMetric, vpnFilter string)
 				MessageSpool struct {
 					MessageVpn struct {
 						Vpn []struct {
-							Name                string  `xml:"name"`
-							SpooledMsgCount     float64 `xml:"current-messages-spooled"`
-							SpoolUsageCurrentMb float64 `xml:"current-spool-usage-mb"`
-							SpoolUsageMaxMb     float64 `xml:"maximum-spool-usage-mb"`
-							CurrentEndpoints    float64 `xml:"current-queues-and-topic-endpoints"`
-							MaximumEndpoints    float64 `xml:"maximum-queues-and-topic-endpoints"`
-							CurrentEgressFlows  float64 `xml:"current-egress-flows"`
-							MaximumEgressFlows  float64 `xml:"maximum-egress-flows"`
-							CurrentIngressFlows float64 `xml:"current-ingress-flows"`
-							MaximumIngressFlows float64 `xml:"maximum-ingress-flows"`
-							TransactedSessions  float64 `xml:"current-transacted-sessions"`
-							TransactiedMsgs     float64 `xml:"current-number-of-transacted-messages"`
+							Name                  string  `xml:"name"`
+							SpooledMsgCount       float64 `xml:"current-messages-spooled"`
+							SpoolUsageCurrentMb   float64 `xml:"current-spool-usage-mb"`
+							SpoolUsageMaxMb       float64 `xml:"maximum-spool-usage-mb"`
+							CurrentEndpoints      float64 `xml:"current-queues-and-topic-endpoints"`
+							MaximumEndpoints      float64 `xml:"maximum-queues-and-topic-endpoints"`
+							CurrentEgressFlows    float64 `xml:"current-egress-flows"`
+							MaximumEgressFlows    float64 `xml:"maximum-egress-flows"`
+							CurrentIngressFlows   float64 `xml:"current-ingress-flows"`
+							MaximumIngressFlows   float64 `xml:"maximum-ingress-flows"`
+							TransactedSessions    float64 `xml:"current-transacted-sessions"`
+							MaxTransactedSessions float64 `xml:"maximum-transacted-sessions"`
+							TransactiedMsgs       float64 `xml:"current-number-of-transacted-messages"`
 						} `xml:"vpn"`
 					} `xml:"message-vpn"`
 				} `xml:"message-spool"`
@@ -76,6 +77,7 @@ func (semp *Semp) GetVpnSpoolSemp1(ch chan<- PrometheusMetric, vpnFilter string)
 		ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_ingress_flows"], prometheus.GaugeValue, vpn.CurrentIngressFlows, vpn.Name)
 		ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_ingress_flows"], prometheus.GaugeValue, vpn.MaximumIngressFlows, vpn.Name)
 		ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_transacted_sessions"], prometheus.GaugeValue, vpn.TransactedSessions, vpn.Name)
+		ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_transacted_sessions"], prometheus.GaugeValue, vpn.MaxTransactedSessions, vpn.Name)
 		ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_transacted_msgs"], prometheus.GaugeValue, vpn.TransactiedMsgs, vpn.Name)
 	}
 
