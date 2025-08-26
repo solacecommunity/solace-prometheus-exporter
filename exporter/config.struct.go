@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"log"
@@ -12,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"
 	"gopkg.in/ini.v1"
 )
 
@@ -35,6 +38,12 @@ type Config struct {
 	ParallelSempConnections int64
 	logBrokerToSlowWarnings bool
 	IsHWBroker              bool
+	OAuthTokenURL           string
+	OAuthClientID           string
+	OAuthClientSecret       string
+	oAuthAccessToken        string
+	oAuthTokenExpiry        time.Time
+	authType                AuthType
 }
 
 const (
@@ -102,14 +111,6 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	conf.Username, err = parseConfigString(cfg, "solace", "username", "SOLACE_USERNAME")
-	if err != nil {
-		return nil, nil, err
-	}
-	conf.Password, err = parseConfigString(cfg, "solace", "password", "SOLACE_PASSWORD")
-	if err != nil {
-		return nil, nil, err
-	}
 	conf.DefaultVpn, err = parseConfigString(cfg, "solace", "defaultVpn", "SOLACE_DEFAULT_VPN")
 	if err != nil {
 		return nil, nil, err
@@ -137,6 +138,39 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	conf.IsHWBroker, err = parseConfigBoolOptional(cfg, "solace", "isHWBroker", "SOLACE_IS_HW_BROKER", false)
 	if err != nil {
 		return nil, nil, err
+	}
+
+	conf.OAuthTokenURL, err = parseConfigStringOptional(cfg, "solace", "oAuthTokenURL", "SOLACE_OAUTH_TOKEN_URL", "")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.OAuthClientID, err = parseConfigStringOptional(cfg, "solace", "oAuthClientID", "SOLACE_OAUTH_CLIENT_ID", "")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.OAuthClientSecret, err = parseConfigStringOptional(cfg, "solace", "oAuthClientSecret", "SOLACE_OAUTH_CLIENT_SECRET", "")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.Username, err = parseConfigStringOptional(cfg, "solace", "username", "SOLACE_USERNAME", "")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.Password, err = parseConfigStringOptional(cfg, "solace", "password", "SOLACE_PASSWORD", "")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if (len(conf.Username) == 0 || len(conf.Password) == 0) && (len(conf.OAuthClientID) == 0 || len(conf.OAuthClientSecret) == 0 || len(conf.OAuthTokenURL) == 0) {
+		return nil, nil, fmt.Errorf("either basic auth (username+password) or OAuth (oAuthClientID+oAuthClientSecret+oAuthTokenURL) must be configured")
+	}
+
+	if len(conf.Username) > 0 && len(conf.Password) > 0 {
+		conf.authType = AuthTypeBasic
+	}
+
+	if len(conf.OAuthClientID) > 0 && len(conf.OAuthClientSecret) > 0 && len(conf.OAuthTokenURL) > 0 {
+		conf.authType = AuthTypeOAuth
 	}
 
 	if conf.ParallelSempConnections < 1 {
@@ -208,6 +242,20 @@ func parseConfigBoolOptional(cfg *ini.File, iniSection string, iniKey string, en
 	return val, nil
 }
 
+func parseConfigDuration(cfg *ini.File, iniSection string, iniKey string, envKey string) (time.Duration, error) {
+	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
+	if err != nil {
+		return 0, err
+	}
+
+	val, err := time.ParseDuration(s)
+	if err != nil {
+		return 0, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+	}
+
+	return val, nil
+}
+
 func parseConfigDurationOptional(cfg *ini.File, iniSection string, iniKey string, envKey string) (time.Duration, error) {
 	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
 	if err != nil {
@@ -236,20 +284,6 @@ func parseConfigIntOptional(cfg *ini.File, iniSection string, iniKey string, env
 	return val, nil
 }
 
-func parseConfigDuration(cfg *ini.File, iniSection string, iniKey string, envKey string) (time.Duration, error) {
-	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
-	if err != nil {
-		return 0, err
-	}
-
-	val, err := time.ParseDuration(s)
-	if err != nil {
-		return 0, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
-	}
-
-	return val, nil
-}
-
 func parseConfigString(cfg *ini.File, iniSection string, iniKey string, envKey string) (string, error) {
 	s := os.Getenv(envKey)
 	if len(s) > 0 {
@@ -266,8 +300,30 @@ func parseConfigString(cfg *ini.File, iniSection string, iniKey string, envKey s
 	return "", fmt.Errorf("config param %q and env param %q is mandetory. Both are missing", iniKey, envKey)
 }
 
+// parseConfigStringOptional tries to find the config value from environment variable first, then from ini file.
+func parseConfigStringOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue string) (string, error) {
+	s := os.Getenv(envKey)
+	if len(s) > 0 {
+		return s, nil
+	}
+
+	if cfg != nil {
+		s := cfg.Section(iniSection).Key(iniKey).String()
+		if len(s) > 0 {
+			return s, nil
+		}
+	}
+
+	return defaultValue, nil
+}
+
+// newHTTPClient creates a new HTTP client based on the configuration, including TLS settings and authentication method.
 func (conf *Config) newHTTPClient() http.Client {
+	var client http.Client
 	var proxy func(req *http.Request) (*url.URL, error)
+
+	ctx := context.Background()
+
 	if conf.useSystemProxy {
 		proxy = http.ProxyFromEnvironment
 	}
@@ -275,10 +331,21 @@ func (conf *Config) newHTTPClient() http.Client {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: !conf.SslVerify}, //nolint:gosec
 		Proxy:           proxy,
 	}
-	client := http.Client{
-		Timeout:       conf.Timeout,
-		Transport:     tr,
-		CheckRedirect: conf.redirectPolicyFunc,
+	if conf.authType == AuthTypeOAuth {
+		cc := &clientcredentials.Config{
+			ClientID:     conf.OAuthClientID,
+			ClientSecret: conf.OAuthClientSecret,
+			TokenURL:     conf.OAuthTokenURL,
+		}
+		client = *oauth2.NewClient(ctx, cc.TokenSource(ctx))
+		client.Timeout = conf.Timeout
+		client.Transport = tr
+	} else {
+		client = http.Client{
+			Timeout:       conf.Timeout,
+			Transport:     tr,
+			CheckRedirect: conf.redirectPolicyFunc,
+		}
 	}
 
 	return client
@@ -286,13 +353,11 @@ func (conf *Config) newHTTPClient() http.Client {
 
 // Redirect callback, re-insert basic auth string into header.
 func (conf *Config) redirectPolicyFunc(req *http.Request, _ []*http.Request) error {
-	conf.httpVisitor()(req)
-
+	f, _ := conf.httpVisitor()
+	f(req)
 	return nil
 }
 
-func (conf *Config) httpVisitor() func(*http.Request) {
-	return func(request *http.Request) {
-		request.SetBasicAuth(conf.Username, conf.Password)
-	}
+func (conf *Config) httpVisitor() (func(*http.Request), error) {
+	return conf.setAuthHeader()
 }

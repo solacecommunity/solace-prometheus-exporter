@@ -10,7 +10,10 @@ require (
 	gopkg.in/ini.v1 v1.67.0
 )
 
-require golang.org/x/crypto v0.35.0 // indirect
+require (
+	golang.org/x/crypto v0.35.0 // indirect
+	golang.org/x/oauth2 v0.30.0 // indirect
+)
 
 require (
 	github.com/alecthomas/units v0.0.0-20231202071711-9a357b53e9c9 // indirect

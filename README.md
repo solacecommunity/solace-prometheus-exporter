@@ -1,7 +1,42 @@
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 
 # solace-prometheus-exporter
+
 A Prometheus exporter for Solace Message Brokers.
+
+- [solace-prometheus-exporter](#solace-prometheus-exporter)
+  - [Overview](#overview)
+  - [Features](#features)
+    - [Modular endpoint explained](#modular-endpoint-explained)
+      - [Endpoints using SEMP v1](#endpoints-using-semp-v1)
+      - [Examples](#examples)
+      - [Endpoints using SEMP v2](#endpoints-using-semp-v2)
+      - [Examples](#examples-1)
+      - [Scrape targets](#scrape-targets)
+        - [V2 endpoints](#v2-endpoints)
+        - [Metric collisions](#metric-collisions)
+      - [Broker Connectivity Metric](#broker-connectivity-metric)
+    - [Modular endpoint configs](#modular-endpoint-configs)
+    - [Port registration](#port-registration)
+  - [Usage](#usage)
+    - [Config File](#config-file)
+    - [Environment Variables](#environment-variables)
+    - [Authentication](#authentication)
+    - [URL](#url)
+      - [Sample prometheus config](#sample-prometheus-config)
+  - [Build](#build)
+    - [Default Build](#default-build)
+  - [Docker](#docker)
+    - [Build Docker Image](#build-docker-image)
+    - [Run Docker Image](#run-docker-image)
+  - [Bonus Material](#bonus-material)
+  - [Security](#security)
+    - [How to enable TLS](#how-to-enable-tls)
+    - [Alternatively you can also use a P12 Keystore (PKCS12)](#alternatively-you-can-also-use-a-p12-keystore-pkcs12)
+  - [Resources](#resources)
+  - [Contributing](#contributing)
+  - [Authors](#authors)
+  - [License](#license)
 
 ## Overview
 
@@ -11,14 +46,13 @@ The exporter is written in Go, based on the Solace Legacy SEMP protocol.
 It grabs metrics via SEMP v1 and provides those as prometheus friendly HTTP endpoints.
 
 Video Intro available on
-YouTube: [Integrating Prometheus and Grafana with Solace PubSub+ | Solace Community Lightning Talk
-](https://youtu.be/72Wz5rrStAU?t=35)
+YouTube: [Integrating Prometheus and Grafana with Solace PubSub+ | Solace Community Lightning Talk](https://youtu.be/72Wz5rrStAU?t=35)
 
 ## Features
 
 It implements the following endpoints:
 
-```
+```plaintext
 http://<host>:<port>/                    Document page showing list of endpoints
 http://<host>:<port>/metrics             Golang and standard Prometheus metrics
 http://<host>:<port>/solace-std          legacy, via config: Solace metrics for System and VPN levels
@@ -42,8 +76,7 @@ The value contains out of 2–3 parts, delimited by a pipe `|`.
 - The second part is the ITEM filter.
 - The third part is the METRIC filter.
 
-Not all scrape targets support both filters. Please see [scrape target](#scrape-targets) to find out what is supported
-where.  
+Not all scrape targets support both filters. Please see [scrape target](#scrape-targets) to find out what is supported where.
 The first both filters can contain multiple asterisk `*` as wildcard for N chars.
 
 Each scrape target can be used multiple times, to implement or condition filters.
@@ -57,10 +90,10 @@ The ITEM filter is using the SEMP v1 semantic (* is a wildcard for one or more c
 
 #### Examples
 
-Get the same result as the legacy `solace-det` endpoint.  
+Get the same result as the legacy `solace-det` endpoint.
 `http://your-exporter:9628/solace?m.ClientStats=*|*&m.VpnStats=*|*&m.BridgeStats=*|*&m.QueueRates=*|*&m.QueueDetails=*|*`
 
-Get the same result as the legacy `solace-det` endpoint, but only from VPN `myVpn`.  
+Get the same result as the legacy `solace-det` endpoint, but only from VPN `myVpn`.
 `http://your-exporter:9628/solace?m.ClientStats=myVpn|*&m.VpnStats=myVpn|*&m.BridgeStats=myVpn|*&m.QueueRates=myVpn|*&m.QueueDetails=myVpn|*`
 
 Get all queue information, where the queue name starts with `BRAVO`or `ARBON` and only from VPN `myVpn`.
@@ -74,7 +107,7 @@ Get all queue information, where the queue name starts with `BRAVO`or `ARBON` an
 a `my` and ends with and `prod`.
 `http://your-exporter:9628/solace?m.QueueStats=*my*prod|ARBON*&m.QueueStats=*my*prod|BRAVO*&m.QueueDetails=*my*prod|ARBON*&m.QueueDetails=*my*prod|BRAVO*`
 
-Get the same result as the legacy `solace-det` endpoint, but from a specific broker.  
+Get the same result as the legacy `solace-det` endpoint, but from a specific broker.
 `http://your-exporter:9628/solace?m.ClientStats=*|*&m.VpnStats=*|*&m.BridgeStats=*|*&m.QueueRates=*|*&m.QueueDetails=*|*&scrapeURI=http://your-broker-url:8080`
 
 #### Endpoints using SEMP v2
@@ -92,7 +125,7 @@ You can either provide only the filter string, in this case main field and == wi
 Or you provide full qualified solace SEMP [v2 filter](https://docs.solace.com/Admin/SEMP/SEMP-Features.htm#Filtering)
 like:
 
-`queueName!=internal*` All queues that are NOT internal.  
+`queueName!=internal*` All queues that are NOT internal.
 `queueName==important*` Only important queues.
 
 The METRIC filter limits the metrics that are returned.
@@ -151,7 +184,7 @@ not starting with the word "internal"
 | InterfaceHW                           | no                  | yes                   | no                       | dont harm broker                                                      | show interface interfaceFilter                                                     | appliance           |
 | Raid                                  | no                  | no                    | no                       | dont harm broker                                                      | show disk                                                                          | appliance           |
 | RDP/ Rest Consumers                   | yes                 | yes                   | no                       | may harm broker if many REST consumers                                | show message-vpn <vpnFiler> rest rest-consumer <itemFiler> stats count 100 (paged) | software, appliance |
-| ClientProfile                        | yes                 | no                    | no                       | dont harm                      | show client-profile * message-vpn vpnFilter detail | software, appliance |
+| ClientProfile                         | yes                 | no                    | no                       | dont harm                                                             | show client-profile * message-vpn vpnFilter detail                                 | software, appliance |
 
 ##### V2 endpoints
 
@@ -168,10 +201,10 @@ Using a 10.5.1 software broker.
 There are metrics that may be provided by multiple endpoints. But not with the same labels.
 For example:
 
-| scrape target           | sample metric                                                                                                                                                                                                                           |
-|:------------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ClientSlowSubscriber    | `solace_client_slow_subscriber{client_name="Try-Me-Pub/solclientjs/chrome-120.0.0-Windows-0.0.0/4120211072/0001",client_address="10.170.74.225",vpn_name="AaaBbbCcc"} 1`                                                                |
-| ClientStats             | `solace_client_slow_subscriber{client_name="Try-Me-Pub/solclientjs/chrome-120.0.0-Windows-0.0.0/4120211072/0001",client_username="my_username",vpn_name="AaaBbbCcc"} 1`                                                                 |
+| scrape target        | sample metric                                                                                                                                                            |
+|:---------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ClientSlowSubscriber | `solace_client_slow_subscriber{client_name="Try-Me-Pub/solclientjs/chrome-120.0.0-Windows-0.0.0/4120211072/0001",client_address="10.170.74.225",vpn_name="AaaBbbCcc"} 1` |
+| ClientStats          | `solace_client_slow_subscriber{client_name="Try-Me-Pub/solclientjs/chrome-120.0.0-Windows-0.0.0/4120211072/0001",client_username="my_username",vpn_name="AaaBbbCcc"} 1`  |
 
 Because this is a problem for Prometheus, you need to choose only one of three endpoints you want to use.
 Otherwise, you will find in log a message like: ` descriptors reported by collector have inconsistent label names or help strings for the same fully-qualified name, offender is Desc{fqName: "solace_client_slow_subscriber
@@ -219,10 +252,10 @@ QueueRates = *|*
 QueueDetails = *|*
 ```
 
-This will provide a new endpoint.  
+This will provide a new endpoint.
 http://your-exporter:9628/solace-det
 
-This will provide the same output as:    
+This will provide the same output as:
 http://your-exporter:9628/solace?m.ClientStats=*|*&?m.VpnStats=*|*&?m.BridgeStats=*|*&?m.QueueRates=*|*&?m.QueueDetails=*|*
 
 If you want to use wildcards to only have a subset but need more than one wildcard,
@@ -240,7 +273,7 @@ The [registered](https://github.com/prometheus/prometheus/wiki/Default-port-allo
 
 ## Usage
 
-```
+```plaintext
 solace_prometheus_exporter -h
 usage: solace_prometheus_exporter [<flags>]
 
@@ -254,11 +287,11 @@ Flags:
       --private-key=PRIVATE-KEY  If using TLS, you must provide a valid private key in PEM format. Can be set via config file, cli parameter or env variable.
       --cert-type=CERT-TYPE      Set the certificate type PEM | PKCS12.
       --pkcs12File=PKCS12FILE    If using TLS, you must provide a valid pkcs12 file.
-      --pkcs12Pass=PKCS12PASS    If using TLS, you must provide a valid pkcs12 password.    
+      --pkcs12Pass=PKCS12PASS    If using TLS, you must provide a valid pkcs12 password.
 ```
 
 The configuration parameters can be placed into a config file or into a set of environment variables or can be given via
-URL. If you use docker, you should prefer the environment variable configuration method (see below).  
+URL. If you use docker, you should prefer the environment variable configuration method (see below).
 If the exporter is started with a config file argument, then the config file entries have precedence over the
 environment variables. If a parameter is neither found in the URL, nor the config file nor in the environment, the
 exporter exits with an error.
@@ -310,6 +343,15 @@ username = admin
 # Basic Auth password for HTTP scrape requests to Solace broker.
 password = admin
 
+# OAuth Token URL to fetch tokens from.
+oAuthTokenURL=https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/token
+
+# OAuth Client ID to fetch tokens from.
+oAuthClientID=your-client-id
+
+# OAuth Client Secret to fetch tokens from.
+oAuthClientSecret=your-client-secret
+
 # Timeout for HTTP scrape requests to Solace broker.
 timeout = 5s
 
@@ -348,9 +390,27 @@ SOLACE_PKCS12_PASS=123456
 SOLACE_SCRAPE_URI=http://your-broker:8080
 SOLACE_USERNAME=admin
 SOLACE_PASSWORD=admin
+SOLACE_OAUTH_TOKEN_URL=https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/token
+SOLACE_OAUTH_CLIENT_ID=your-client-id
+SOLACE_OAUTH_CLIENT_SECRET=your-client-secret
 SOLACE_TIMEOUT=5s
 SOLACE_SSL_VERIFY=false
 ```
+
+### Authentication
+
+`solace-prometheus-exporter` offers both ways of authentication which the [SEMP documentation](https://docs.solace.com/Admin/SEMP/SEMP-Security.htm) shows:
+
+- Basic Auth
+- OAuth
+
+Both can be configured using either the `ini` file or by setting environment variables.
+
+**WARNING:** OAuth authentication is currently experimental and might break in the future because of the need of a more complex automated test setup.
+
+If both basic auth (username/password) and OAuth (token URL, client ID and secret) are configured, OAuth configuration will be prioritized.
+
+OAuth authentication is implemented using [golang.org/x/oauth2](https://pkg.go.dev/golang.org/x/oauth2) so every OAuth2-compliant provider should work properly.
 
 ### URL
 
@@ -402,14 +462,16 @@ go build
 
 ### Build Docker Image
 
-A build Dockerfile is included in the repository.<br/>
+A build Dockerfile is included in the repository.
+
 This is used to automatically build and push the latest image to the Dockerhub
 repository [solacecommunity/solace-prometheus-exporter](https://hub.docker.com/r/solacecommunity/solace-prometheus-exporter)
 
 ### Run Docker Image
 
-Environment variables are recommended to parameterize the exporter in Docker.<br/>
-Put the following parameters, adapted to your situation, into a file on the local host, e.g., env.txt:<br/>
+Environment variables are recommended to parameterize the exporter in Docker.
+
+Put the following parameters, adapted to your situation, into a file on the local host, e.g., env.txt:
 
 ```bash
 SOLACE_LISTEN_ADDR=0.0.0.0:9628
@@ -438,7 +500,7 @@ for building.
 ## Security
 
 Please ensure to run this application only in a secured network or protected by a reverse proxy.
-It may reveal insights of your application you don't want.  
+It may reveal insights of your application you don't want.
 If you use the feature to pass broker credentials via HTTP body/header, you are forced to enable TLS on the listening
 port or to run this application within kubernetes/openshift or similar to add an HTTPS layer.
 
@@ -452,17 +514,17 @@ TLS encryption requires you to provide two files in PEM (base64) format. You can
 different ways:
 
 - Certificate Type (If not defined, it'll defaut to PEM)
-    - __cli parameter__: `--cert-type=PEM`
-    - __environment variable__: `SOLACE_LISTEN_CERTTYPE=PEM`
-    - __config file__: `certType=PEM`
+  - **cli parameter**: `--cert-type=PEM`
+  - **environment variable**: `SOLACE_LISTEN_CERTTYPE=PEM`
+  - **config file**: `certType=PEM`
 - Server certificate (including intermediates and CA's certificate)
-    - __cli parameter__: `--certificate=cert.pem`
-    - __environment variable__: `SOLACE_SERVER_CERT`
-    - __config file__: `certificate=cert.pem`
+  - **cli parameter**: `--certificate=cert.pem`
+  - **environment variable**: `SOLACE_SERVER_CERT`
+  - **config file**: `certificate=cert.pem`
 - Server private Key
-    - __cli parameter__: `--private-key=key.pem`
-    - __environment variable__: `SOLACE_PRIVATE_KEY`
-    - __config file__: `privateKey=key.pem`
+  - **cli parameter**: `--private-key=key.pem`
+  - **environment variable**: `SOLACE_PRIVATE_KEY`
+  - **config file**: `privateKey=key.pem`
 
 If you're running the exporter via Docker container, you can map the certificate files during your `docker run` command
 from the host to the container.
@@ -485,21 +547,22 @@ SOLACE_SERVER_CERT=/etc/solace/cert.pem
 SOLACE_PRIVATE_KEY=/etc/solace/key.pem
 ```
 
-### Alternatively you can also use a P12 Keystore (PKCS12).
+### Alternatively you can also use a P12 Keystore (PKCS12)
+
 You can define the path and the password in different ways:
 
 - Certificate Type  (If not defined, it'll defaut to PEM)
-    - __cli parameter__: `--cert-type=PKCS12`
-    - __environment variable__: `SOLACE_LISTEN_CERTTYPE=PKCS12`
-    - __config file__: `certType=PKCS12`
+  - **cli parameter**: `--cert-type=PKCS12`
+  - **environment variable**: `SOLACE_LISTEN_CERTTYPE=PKCS12`
+  - **config file**: `certType=PKCS12`
 - Path to PKCS12 Keystore File
-    - __cli parameter__: `--pkcs12File=keystore.p12`
-    - __environment variable__: `SOLACE_PKCS12_FILE=/path/to/your/keystore.p12`
-    - __config file__: `pkcs12File=keystore.p12`
+  - **cli parameter**: `--pkcs12File=keystore.p12`
+  - **environment variable**: `SOLACE_PKCS12_FILE=/path/to/your/keystore.p12`
+  - **config file**: `pkcs12File=keystore.p12`
 - Password for PCS12 Keystore
-    - __cli parameter__: `--pkcs12Pass=123456`
-    - __environment variable__: `SOLACE_PKCS12_PASS=123456`
-    - __config file__: `pkcs12Pass=123456`
+  - **cli parameter**: `--pkcs12Pass=123456`
+  - **environment variable**: `SOLACE_PKCS12_PASS=123456`
+  - **config file**: `pkcs12Pass=123456`
 
 If you're running the exporter via Docker container, you can map the keystore file during your `docker run` command
 from the host to the container.
@@ -522,13 +585,11 @@ SOLACE_PKCS12_FILE=/etc/solace/keystore.p12
 SOLACE_PKCS12_PASS=123456
 ```
 
-
-
 ## Resources
 
 For more information, try these resources:
 
-- The Solace Developer Portal website at: https://solace.dev
+- The [Solace Developer Portal](https://solace.dev)
 - Ask the [Solace Community](https://solace.community)
 
 ## Contributing
