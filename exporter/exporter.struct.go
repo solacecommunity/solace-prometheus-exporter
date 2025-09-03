@@ -19,7 +19,6 @@ type Exporter struct {
 
 // NewExporter returns an initialized Exporter.
 func NewExporter(logger log.Logger, conf *Config, dataSource *[]DataSource, version float64) *Exporter {
-
 	httpVisitor, err := conf.httpVisitor()
 	if err != nil {
 		_ = level.Error(logger).Log("msg", "Failed to create HTTP visitor for exporter", "err", err)

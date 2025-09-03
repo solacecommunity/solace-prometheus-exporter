@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -161,7 +162,7 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	}
 
 	if (len(conf.Username) == 0 || len(conf.Password) == 0) && (len(conf.OAuthClientID) == 0 || len(conf.OAuthClientSecret) == 0 || len(conf.OAuthTokenURL) == 0 || len(conf.OAuthClientScope) == 0) {
-		return nil, nil, fmt.Errorf("either basic auth (username+password) or OAuth (oAuthClientID+oAuthClientSecret+oAuthTokenURL+oAuthClientScope) must be configured")
+		return nil, nil, errors.New("either basic auth (username+password) or OAuth (oAuthClientID+oAuthClientSecret+oAuthTokenURL+oAuthClientScope) must be configured")
 	}
 
 	if len(conf.Username) > 0 && len(conf.Password) > 0 {

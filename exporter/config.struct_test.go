@@ -256,7 +256,7 @@ func TestParseConfigDuration(t *testing.T) {
 			iniKey:     "scrapeInterval",
 			envKey:     "SOLACE_SCRAPE_INTERVAL",
 			envValue:   "15s",
-			want:       time.Duration(15 * time.Second),
+			want:       15 * time.Second,
 			wantErr:    false,
 		},
 		{
@@ -266,7 +266,7 @@ func TestParseConfigDuration(t *testing.T) {
 			iniKey:     "scrapeInterval",
 			envKey:     "SOLACE_SCRAPE_INTERVAL",
 			envValue:   "",
-			want:       time.Duration(15 * time.Second),
+			want:       15 * time.Second,
 			wantErr:    false,
 		},
 		{
@@ -276,7 +276,7 @@ func TestParseConfigDuration(t *testing.T) {
 			iniKey:     "scrapeInterval",
 			envKey:     "SOLACE_SCRAPE_INTERVAL",
 			envValue:   "",
-			want:       time.Duration(0 * time.Second),
+			want:       0 * time.Second,
 			wantErr:    true,
 		},
 		{
@@ -286,7 +286,7 @@ func TestParseConfigDuration(t *testing.T) {
 			iniKey:     "scrapeInterval",
 			envKey:     "SOLACE_SCRAPE_INTERVAL",
 			envValue:   "notanint",
-			want:       time.Duration(0 * time.Second),
+			want:       0 * time.Second,
 			wantErr:    true,
 		},
 		{
@@ -296,7 +296,7 @@ func TestParseConfigDuration(t *testing.T) {
 			iniKey:     "scrapeInterval",
 			envKey:     "SOLACE_SCRAPE_INTERVAL",
 			envValue:   "",
-			want:       time.Duration(0 * time.Second),
+			want:       0 * time.Second,
 			wantErr:    true,
 		},
 	}
@@ -330,7 +330,7 @@ func TestParseConfigDuration(t *testing.T) {
 
 //nolint:paralleltest
 func TestParseConfigDurationOptional(t *testing.T) {
-	testDefault := time.Duration(0 * time.Second)
+	testDefault := 0 * time.Second
 
 	tests := []struct {
 		name       string
@@ -349,7 +349,7 @@ func TestParseConfigDurationOptional(t *testing.T) {
 			iniKey:     "scrapeInterval",
 			envKey:     "SOLACE_SCRAPE_INTERVAL",
 			envValue:   "15s",
-			want:       time.Duration(15 * time.Second),
+			want:       15 * time.Second,
 			wantErr:    false,
 		},
 		{
@@ -359,7 +359,7 @@ func TestParseConfigDurationOptional(t *testing.T) {
 			iniKey:     "scrapeInterval",
 			envKey:     "SOLACE_SCRAPE_INTERVAL",
 			envValue:   "",
-			want:       time.Duration(15 * time.Second),
+			want:       15 * time.Second,
 			wantErr:    false,
 		},
 		{
