@@ -12,7 +12,6 @@ services:
     volumes:
       - ./keycloak/prepared-realm.json:/opt/keycloak/data/import/prepared-realm.json:ro
       - ./keycloak/tls/:/etc/keycloak_tls/:ro
-      - ./keycloak/healthcheck.sh:/opt/keycloak/bin/healthcheck.sh:ro
     environment:
       - KC_BOOTSTRAP_ADMIN_USERNAME=admin
       - KC_BOOTSTRAP_ADMIN_PASSWORD=admin

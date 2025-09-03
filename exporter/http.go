@@ -25,21 +25,8 @@ func (conf *Config) basicHTTPClient() http.Client {
 }
 
 func (conf *Config) newHTTPClient() http.Client {
-	// ctx := context.Background()
 	client := conf.basicHTTPClient()
-
 	client.CheckRedirect = conf.redirectPolicyFunc
-
-	// if conf.authType == AuthTypeOAuth {
-	// 	cc := &clientcredentials.Config{
-	// 		ClientID:     conf.OAuthClientID,
-	// 		ClientSecret: conf.OAuthClientSecret,
-	// 		TokenURL:     conf.OAuthTokenURL,
-	// 	}
-	// 	client = *oauth2.NewClient(ctx, cc.TokenSource(ctx))
-	// } else {
-	// 	client.CheckRedirect = conf.redirectPolicyFunc
-	// }
 
 	return client
 }

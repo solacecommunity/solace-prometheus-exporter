@@ -27,7 +27,6 @@ curl -X POST -u admin:admin \
         "authorizationGroup": "admin"
       }'
 
-
 echo "Get token for prometheus-exporter oauth user"
 export TOKEN=$(curl -s -X POST \
   "http://localhost:8080/realms/test-realm/protocol/openid-connect/token" \
