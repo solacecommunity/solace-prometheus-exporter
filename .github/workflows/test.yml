@@ -61,7 +61,7 @@ jobs:
         timeout-minutes: 20
       - name: Check metric scrape service status
         run: |
-          status=$(docker compose -f oauth_test/docker-compose.yaml ps -q check_metric_scrape | xargs docker inspect -f '{{.State.ExitCode}}')
+          status=$(docker compose -f oauth_test/docker-compose.yaml ps -aq check_metric_scrape | xargs docker inspect -f '{{.State.ExitCode}}')
           if [ "$status" -eq 0 ]; then
             echo "E2E test successful: check_metric_scrape exited with code 0."
           else
