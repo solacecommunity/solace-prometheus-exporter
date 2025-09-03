@@ -48,11 +48,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+      - name: Pre-pull docker images
+        run: |
+          docker compose -f oauth_test/docker-compose.yaml pull --ignore-buildable --ignore-pull-failures
+        timeout-minutes: 15
       - name: Run docker compose
         uses: hoverkraft-tech/compose-action@v2.3.0
         with:
           compose-file: oauth_test/docker-compose.yaml
           up-flags: --wait --wait-timeout 600
+          compose-version: latest
         timeout-minutes: 20
       - name: Check metric scrape service status
         run: |
