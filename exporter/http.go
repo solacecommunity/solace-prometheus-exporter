@@ -14,7 +14,7 @@ func (conf *Config) basicHTTPClient() http.Client {
 		proxy = http.ProxyFromEnvironment
 	}
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: !conf.SslVerify}, //nolint:gosec
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
 		Proxy:           proxy,
 	}
 	client = http.Client{

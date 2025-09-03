@@ -35,6 +35,7 @@ type Config struct {
 	OAuthTokenURL           string
 	OAuthClientID           string
 	OAuthClientSecret       string
+	OAuthClientScope        string
 	oAuthAccessToken        string
 	oAuthTokenExpiry        time.Time
 	authType                AuthType
@@ -146,6 +147,10 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	conf.OAuthClientScope, err = parseConfigStringOptional(cfg, "solace", "oAuthClientScope", "SOLACE_OAUTH_CLIENT_SCOPE", "")
+	if err != nil {
+		return nil, nil, err
+	}
 	conf.Username, err = parseConfigStringOptional(cfg, "solace", "username", "SOLACE_USERNAME", "")
 	if err != nil {
 		return nil, nil, err
@@ -155,15 +160,15 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 		return nil, nil, err
 	}
 
-	if (len(conf.Username) == 0 || len(conf.Password) == 0) && (len(conf.OAuthClientID) == 0 || len(conf.OAuthClientSecret) == 0 || len(conf.OAuthTokenURL) == 0) {
-		return nil, nil, fmt.Errorf("either basic auth (username+password) or OAuth (oAuthClientID+oAuthClientSecret+oAuthTokenURL) must be configured")
+	if (len(conf.Username) == 0 || len(conf.Password) == 0) && (len(conf.OAuthClientID) == 0 || len(conf.OAuthClientSecret) == 0 || len(conf.OAuthTokenURL) == 0 || len(conf.OAuthClientScope) == 0) {
+		return nil, nil, fmt.Errorf("either basic auth (username+password) or OAuth (oAuthClientID+oAuthClientSecret+oAuthTokenURL+oAuthClientScope) must be configured")
 	}
 
 	if len(conf.Username) > 0 && len(conf.Password) > 0 {
 		conf.authType = AuthTypeBasic
 	}
 
-	if len(conf.OAuthClientID) > 0 && len(conf.OAuthClientSecret) > 0 && len(conf.OAuthTokenURL) > 0 {
+	if len(conf.OAuthClientID) > 0 && len(conf.OAuthClientSecret) > 0 && len(conf.OAuthTokenURL) > 0 && len(conf.OAuthClientScope) > 0 {
 		conf.authType = AuthTypeOAuth
 	}
 

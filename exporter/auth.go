@@ -44,12 +44,14 @@ func (conf *Config) getOAuthToken() (string, error) {
 		return conf.oAuthAccessToken, nil
 	}
 
-	reqContext := context.WithValue(context.Background(), oauth2.HTTPClient, conf.basicHTTPClient())
+	client := conf.basicHTTPClient()
+	reqContext := context.WithValue(context.Background(), oauth2.HTTPClient, &client)
 
 	cc := &clientcredentials.Config{
 		ClientID:     conf.OAuthClientID,
 		ClientSecret: conf.OAuthClientSecret,
 		TokenURL:     conf.OAuthTokenURL,
+		Scopes:       []string{conf.OAuthClientScope},
 	}
 
 	token, err := cc.Token(reqContext)
