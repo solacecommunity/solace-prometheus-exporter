@@ -3,9 +3,9 @@ name: Test
 on:
   push:
     branches:
-      - '*'
+      - "*"
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   lint-and-tidy:
@@ -42,3 +42,21 @@ jobs:
 
       - name: Run tests
         run: go test -v ./...
+  oauth_e2e_test:
+    name: OAuth E2E Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Run docker compose
+        uses: hoverkraft-tech/compose-action@v2.3.0
+        with:
+          compose-file: oauth_test/docker-compose.yaml
+      - name: Check metric scrape service status
+        run: |
+          status=$(docker compose -f oauth_test/docker-compose.yaml ps -q check_metric_scrape | xargs docker inspect -f '{{.State.ExitCode}}')
+          if [ "$status" -eq 0 ]; then
+            echo "E2E test successful: check_metric_scrape exited with code 0."
+          else
+            echo "E2E test failed: check_metric_scrape exited with code $status."
+            exit 1
+          fi

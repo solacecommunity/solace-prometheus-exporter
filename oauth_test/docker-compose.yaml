@@ -128,6 +128,20 @@ services:
     ports:
       - 9628:9628
 
+  check_metric_scrape:
+    depends_on:
+      prometheus_exporter:
+        condition: service_started
+    image: alpine:latest
+    networks:
+      - solace_msg_net
+    volumes:
+      - ./scripts/metric_check.sh:/tmp/metric_check.sh:ro
+    working_dir: /tmp/
+    command:
+      - "sh"
+      - "./metric_check.sh"
+
 secrets:
   solace_server.pem:
     file: "solace/tls/solbroker.pem"
