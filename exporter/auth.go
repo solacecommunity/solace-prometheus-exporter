@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 )
 
@@ -42,14 +43,16 @@ func (conf *Config) getOAuthToken() (string, error) {
 	if conf.oAuthAccessToken != "" && time.Now().Before(conf.oAuthTokenExpiry.Add(-time.Minute*5)) {
 		return conf.oAuthAccessToken, nil
 	}
-	ctx := context.Background()
+
+	reqContext := context.WithValue(context.Background(), oauth2.HTTPClient, conf.basicHTTPClient())
+
 	cc := &clientcredentials.Config{
 		ClientID:     conf.OAuthClientID,
 		ClientSecret: conf.OAuthClientSecret,
 		TokenURL:     conf.OAuthTokenURL,
 	}
 
-	token, err := cc.Token(ctx)
+	token, err := cc.Token(reqContext)
 	if err != nil {
 		return "", err
 	}

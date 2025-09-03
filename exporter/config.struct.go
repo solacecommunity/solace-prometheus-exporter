@@ -1,20 +1,14 @@
 package exporter
 
 import (
-	"context"
-	"crypto/tls"
 	"fmt"
 	"log"
-	"net/http"
-	"net/url"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/clientcredentials"
 	"gopkg.in/ini.v1"
 )
 
@@ -315,49 +309,4 @@ func parseConfigStringOptional(cfg *ini.File, iniSection string, iniKey string, 
 	}
 
 	return defaultValue, nil
-}
-
-// newHTTPClient creates a new HTTP client based on the configuration, including TLS settings and authentication method.
-func (conf *Config) newHTTPClient() http.Client {
-	var client http.Client
-	var proxy func(req *http.Request) (*url.URL, error)
-
-	ctx := context.Background()
-
-	if conf.useSystemProxy {
-		proxy = http.ProxyFromEnvironment
-	}
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: !conf.SslVerify}, //nolint:gosec
-		Proxy:           proxy,
-	}
-	if conf.authType == AuthTypeOAuth {
-		cc := &clientcredentials.Config{
-			ClientID:     conf.OAuthClientID,
-			ClientSecret: conf.OAuthClientSecret,
-			TokenURL:     conf.OAuthTokenURL,
-		}
-		client = *oauth2.NewClient(ctx, cc.TokenSource(ctx))
-		client.Timeout = conf.Timeout
-		client.Transport = tr
-	} else {
-		client = http.Client{
-			Timeout:       conf.Timeout,
-			Transport:     tr,
-			CheckRedirect: conf.redirectPolicyFunc,
-		}
-	}
-
-	return client
-}
-
-// Redirect callback, re-insert basic auth string into header.
-func (conf *Config) redirectPolicyFunc(req *http.Request, _ []*http.Request) error {
-	f, _ := conf.httpVisitor()
-	f(req)
-	return nil
-}
-
-func (conf *Config) httpVisitor() (func(*http.Request), error) {
-	return conf.setAuthHeader()
 }
