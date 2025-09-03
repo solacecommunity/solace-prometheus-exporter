@@ -1,0 +1,50 @@
+meta {
+  name: CreateOAuthProfile
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{host}}/SEMP/v2/config/oauthProfiles
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-type: application/json
+}
+
+body:json {
+  {
+    "clientId": "solace-broker",
+    "clientSecret": "my-secret",
+    "clientScope": "",
+    "defaultGlobalAccessLevel": "read-only",
+    "defaultMsgVpnAccessLevel": "read-only",
+    "displayName": "Keycloak M2M",
+    "enabled": true,
+    "endpointDiscovery": "{{keycloakhost}}/realms/test-realm/.well-known/openid-configuration",
+    "endpointIntrospectionTimeout": 10,
+    "endpointTokenTimeout": 10,
+    "endpointUserinfoTimeout": 10,
+    "interactiveEnabled": false,
+    "oauthProfileName": "KeycloakM2M",
+    "oauthRole": "resource-server",
+    "resourceServerParseAccessTokenEnabled": true,
+    "resourceServerRequiredAudience": "solace",
+    "resourceServerRequiredIssuer": "{{keycloakiss}}/realms/test-realm",
+    "resourceServerValidateAudienceEnabled": true,
+    "resourceServerValidateIssuerEnabled": true,
+    "sempEnabled": true,
+    "usernameClaimName": "azp",
+    "resourceServerRequiredScope": "solace",
+    "resourceServerRequiredType": "JWT",
+    "resourceServerValidateTypeEnabled": false,
+    "resourceServerValidateScopeEnabled": false
+  }
+
+}
+
+settings {
+  encodeUrl: false
+}
