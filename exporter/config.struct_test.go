@@ -9,8 +9,6 @@ import (
 )
 
 func TestParseConfigBool(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name       string
 		iniContent string
@@ -123,7 +121,6 @@ func TestParseConfigBool(t *testing.T) {
 }
 
 func TestParseConfigBoolOptional(t *testing.T) {
-
 	testDefault := true
 
 	tests := []struct {
@@ -328,7 +325,6 @@ func TestParseConfigDuration(t *testing.T) {
 }
 
 func TestParseConfigDurationOptional(t *testing.T) {
-
 	testDefault := time.Duration(0 * time.Second)
 
 	tests := []struct {
@@ -421,8 +417,6 @@ func TestParseConfigDurationOptional(t *testing.T) {
 }
 
 func TestParseConfigIntOptional(t *testing.T) {
-	t.Parallel()
-
 	testDefault := int64(0)
 
 	tests := []struct {
@@ -516,8 +510,6 @@ func TestParseConfigIntOptional(t *testing.T) {
 }
 
 func TestParseConfigString(t *testing.T) {
-	t.Parallel()
-
 	tests := []struct {
 		name       string
 		iniContent string
@@ -590,9 +582,6 @@ func TestParseConfigString(t *testing.T) {
 }
 
 func TestParseConfigStringOptional(t *testing.T) {
-
-	t.Parallel()
-
 	testDefault := "defaultValue"
 
 	tests := []struct {
