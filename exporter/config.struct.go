@@ -1,11 +1,9 @@
 package exporter
 
 import (
-	"crypto/tls"
+	"errors"
 	"fmt"
 	"log"
-	"net/http"
-	"net/url"
 	"os"
 	"regexp"
 	"strconv"
@@ -35,6 +33,13 @@ type Config struct {
 	ParallelSempConnections int64
 	logBrokerToSlowWarnings bool
 	IsHWBroker              bool
+	OAuthTokenURL           string
+	OAuthClientID           string
+	OAuthClientSecret       string
+	OAuthClientScope        string
+	oAuthAccessToken        string
+	oAuthTokenExpiry        time.Time
+	authType                AuthType
 }
 
 const (
@@ -102,14 +107,6 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	conf.Username, err = parseConfigString(cfg, "solace", "username", "SOLACE_USERNAME")
-	if err != nil {
-		return nil, nil, err
-	}
-	conf.Password, err = parseConfigString(cfg, "solace", "password", "SOLACE_PASSWORD")
-	if err != nil {
-		return nil, nil, err
-	}
 	conf.DefaultVpn, err = parseConfigString(cfg, "solace", "defaultVpn", "SOLACE_DEFAULT_VPN")
 	if err != nil {
 		return nil, nil, err
@@ -137,6 +134,43 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	conf.IsHWBroker, err = parseConfigBoolOptional(cfg, "solace", "isHWBroker", "SOLACE_IS_HW_BROKER", false)
 	if err != nil {
 		return nil, nil, err
+	}
+
+	conf.OAuthTokenURL, err = parseConfigStringOptional(cfg, "solace", "oAuthTokenURL", "SOLACE_OAUTH_TOKEN_URL", "")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.OAuthClientID, err = parseConfigStringOptional(cfg, "solace", "oAuthClientID", "SOLACE_OAUTH_CLIENT_ID", "")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.OAuthClientSecret, err = parseConfigStringOptional(cfg, "solace", "oAuthClientSecret", "SOLACE_OAUTH_CLIENT_SECRET", "")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.OAuthClientScope, err = parseConfigStringOptional(cfg, "solace", "oAuthClientScope", "SOLACE_OAUTH_CLIENT_SCOPE", "")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.Username, err = parseConfigStringOptional(cfg, "solace", "username", "SOLACE_USERNAME", "")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.Password, err = parseConfigStringOptional(cfg, "solace", "password", "SOLACE_PASSWORD", "")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if (len(conf.Username) == 0 || len(conf.Password) == 0) && (len(conf.OAuthClientID) == 0 || len(conf.OAuthClientSecret) == 0 || len(conf.OAuthTokenURL) == 0 || len(conf.OAuthClientScope) == 0) {
+		return nil, nil, errors.New("either basic auth (username+password) or OAuth (oAuthClientID+oAuthClientSecret+oAuthTokenURL+oAuthClientScope) must be configured")
+	}
+
+	if len(conf.Username) > 0 && len(conf.Password) > 0 {
+		conf.authType = AuthTypeBasic
+	}
+
+	if len(conf.OAuthClientID) > 0 && len(conf.OAuthClientSecret) > 0 && len(conf.OAuthTokenURL) > 0 && len(conf.OAuthClientScope) > 0 {
+		conf.authType = AuthTypeOAuth
 	}
 
 	if conf.ParallelSempConnections < 1 {
@@ -208,6 +242,20 @@ func parseConfigBoolOptional(cfg *ini.File, iniSection string, iniKey string, en
 	return val, nil
 }
 
+func parseConfigDuration(cfg *ini.File, iniSection string, iniKey string, envKey string) (time.Duration, error) {
+	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
+	if err != nil {
+		return 0, err
+	}
+
+	val, err := time.ParseDuration(s)
+	if err != nil {
+		return 0, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+	}
+
+	return val, nil
+}
+
 func parseConfigDurationOptional(cfg *ini.File, iniSection string, iniKey string, envKey string) (time.Duration, error) {
 	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
 	if err != nil {
@@ -236,20 +284,6 @@ func parseConfigIntOptional(cfg *ini.File, iniSection string, iniKey string, env
 	return val, nil
 }
 
-func parseConfigDuration(cfg *ini.File, iniSection string, iniKey string, envKey string) (time.Duration, error) {
-	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
-	if err != nil {
-		return 0, err
-	}
-
-	val, err := time.ParseDuration(s)
-	if err != nil {
-		return 0, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
-	}
-
-	return val, nil
-}
-
 func parseConfigString(cfg *ini.File, iniSection string, iniKey string, envKey string) (string, error) {
 	s := os.Getenv(envKey)
 	if len(s) > 0 {
@@ -266,33 +300,19 @@ func parseConfigString(cfg *ini.File, iniSection string, iniKey string, envKey s
 	return "", fmt.Errorf("config param %q and env param %q is mandetory. Both are missing", iniKey, envKey)
 }
 
-func (conf *Config) newHTTPClient() http.Client {
-	var proxy func(req *http.Request) (*url.URL, error)
-	if conf.useSystemProxy {
-		proxy = http.ProxyFromEnvironment
-	}
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: !conf.SslVerify}, //nolint:gosec
-		Proxy:           proxy,
-	}
-	client := http.Client{
-		Timeout:       conf.Timeout,
-		Transport:     tr,
-		CheckRedirect: conf.redirectPolicyFunc,
+// parseConfigStringOptional tries to find the config value from environment variable first, then from ini file.
+func parseConfigStringOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue string) (string, error) {
+	s := os.Getenv(envKey)
+	if len(s) > 0 {
+		return s, nil
 	}
 
-	return client
-}
-
-// Redirect callback, re-insert basic auth string into header.
-func (conf *Config) redirectPolicyFunc(req *http.Request, _ []*http.Request) error {
-	conf.httpVisitor()(req)
-
-	return nil
-}
-
-func (conf *Config) httpVisitor() func(*http.Request) {
-	return func(request *http.Request) {
-		request.SetBasicAuth(conf.Username, conf.Password)
+	if cfg != nil {
+		s := cfg.Section(iniSection).Key(iniKey).String()
+		if len(s) > 0 {
+			return s, nil
+		}
 	}
+
+	return defaultValue, nil
 }

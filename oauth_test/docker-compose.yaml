@@ -1,0 +1,157 @@
+---
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.0
+    hostname: keycloak
+    ports:
+      - 8080:8080
+      - 9000:9000
+      - 8443:8443
+    networks:
+      - solace_msg_net
+    volumes:
+      - ./keycloak/prepared-realm.json:/opt/keycloak/data/import/prepared-realm.json:ro
+      - ./keycloak/tls/:/etc/keycloak_tls/:ro
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KC_HTTPS_CERTIFICATE_FILE=/run/secrets/keycloak_server.crt
+      - KC_HTTPS_CERTIFICATE_KEY_FILE=/run/secrets/keycloak_server.key
+      - KC_HOSTNAME=keycloak
+      - KC_HOSTNAME_PORT=8443
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME_STRICT_HTTPS=false
+      - KC_HEALTH_ENABLED=true
+    command:
+      - "start-dev"
+      - "--import-realm"
+    secrets:
+      - keycloak_server.crt
+      - keycloak_server.key
+      - root_ca.crt
+    healthcheck:
+      test: [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/localhost/9000; \
+          echo -en 'GET /health/ready' >&3; \
+          # Give the server a moment to respond, then search for 'UP'
+          if timeout 3 cat <&3 | grep -m 1 'UP'; then \
+          exec 3<&-; exec 3>&-; exit 0; \
+          else \
+          exec 3<&-; exec 3>&-; exit 1; \
+          fi",
+        ]
+      retries: 10
+      start_period: 20s
+
+  solbroker:
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    image: solace/solace-pubsub-standard:latest
+    hostname: solbroker
+    ports:
+      - 55555:55555
+      - 1943:1943
+      - 9443:9443
+      - 5550:5550
+    networks:
+      - solace_msg_net
+    volumes:
+      - ./solace/tls/:/etc/solace_tls/:ro
+    env_file:
+      - ./solace/solace_tls.env
+    shm_size: 1g
+    secrets:
+      - solace_server.pem
+      - root_ca.crt
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-skv",
+          "http://localhost:5550/health-check/guaranteed-active",
+        ]
+      retries: 3
+      start_period: 20s
+
+  bruno:
+    depends_on:
+      solbroker:
+        condition: service_healthy
+    image: ghcr.io/davidkarlsen/bruno-image:main
+    hostname: bruno
+    networks:
+      - solace_msg_net
+    volumes:
+      - ./bruno/:/tmp/bruno/
+    working_dir: /tmp/bruno/
+    secrets:
+      - root_ca.crt
+    command:
+      - "run"
+      - "--cacert=/run/secrets/root_ca.crt"
+      - "--verbose"
+      - "--env=solace"
+
+  oauth_checker:
+    depends_on:
+      bruno:
+        condition: service_completed_successfully
+    image: alpine:latest
+    networks:
+      - solace_msg_net
+    volumes:
+      - ./scripts/oauth_check.sh:/tmp/oauth_check.sh:ro
+    working_dir: /tmp/
+    command:
+      - "sh"
+      - "./oauth_check.sh"
+
+  prometheus_exporter:
+    depends_on:
+      oauth_checker:
+        condition: service_completed_successfully
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    networks:
+      - solace_msg_net
+    hostname: prometheus_exporter
+    volumes:
+      - ./prometheus_exporter/solace_prometheus_exporter.ini:/etc/solace_prometheus_exporter/solace_prometheus_exporter.ini:ro
+    entrypoint:
+      - "/solace_prometheus_exporter"
+      - "--config-file=/etc/solace_prometheus_exporter/solace_prometheus_exporter.ini"
+      - "--log.format=json"
+    ports:
+      - 9628:9628
+
+  check_metric_scrape:
+    depends_on:
+      prometheus_exporter:
+        condition: service_started
+    image: alpine:latest
+    networks:
+      - solace_msg_net
+    volumes:
+      - ./scripts/metric_check.sh:/tmp/metric_check.sh:ro
+    working_dir: /tmp/
+    command:
+      - "sh"
+      - "./metric_check.sh"
+
+secrets:
+  solace_server.pem:
+    file: "solace/tls/solbroker.pem"
+  keycloak_server.crt:
+    file: "keycloak/tls/keycloak.crt"
+  keycloak_server.key:
+    file: "keycloak/tls/keycloak.key"
+  root_ca.crt:
+    file: "rootCA.crt"
+
+networks:
+  solace_msg_net:
+    external: false

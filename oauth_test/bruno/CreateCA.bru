@@ -1,0 +1,31 @@
+meta {
+  name: CreateCA
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{host}}/SEMP/v2/__private_config__/domainCertAuthorities?select=certAuthorityName
+  body: json
+  auth: inherit
+}
+
+params:query {
+  select: certAuthorityName
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "certAuthorityName": "keycloak_ca",
+      "certContent": "-----BEGIN CERTIFICATE-----\nMIIFYjCCA0qgAwIBAgIUaKGTemmnBTdFgH8L7VFxDxDHDKMwDQYJKoZIhvcNAQEL\nBQAwWzELMAkGA1UEBhMCQ0ExEDAOBgNVBAgMB09udGFyaW8xDzANBgNVBAcMBkth\nbmF0YTEXMBUGA1UECgwOU29sYWNlIFN5c3RlbXMxEDAOBgNVBAMMB1Jvb3QgQ0Ew\nHhcNMjUwOTAyMDg1MDQ3WhcNNDUwODI4MDg1MDQ3WjB1MQswCQYDVQQGEwJDQTEQ\nMA4GA1UECAwHT250YXJpbzEPMA0GA1UEBwwGS2FuYXRhMRcwFQYDVQQKDA5Tb2xh\nY2UgU3lzdGVtczEXMBUGA1UECwwOU29sYWNlIFN5c3RlbXMxETAPBgNVBAMMCGtl\neWNsb2FrMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuVkpjzyhUims\n1i9ZaJuuMj1tx1tn6xWSyvBjR5h7nSsVLD2aWV1/wa7mdxTIr91oSN54QQOmFhP1\nw1Qye1TiSUJnctmCNUztu6JltmxZz/WOLwND5BkKjeNMCMhInl0hdLTGpyUe+ry4\nMpTJkLKba/QnadX0slQLxOzapjcfKaX5pE94upwZ7oxhTDbZBVg6uIuLBi4w3QuJ\nWQJ7HFMjgwmkeLWQvR74d42n/AgSHVB4Zmun03OZvGheyLS/AeWcFJ6ng4gXY0Qf\nthRkClYIV0DzzRGzlIxfEXvKM7uYxrrSZfwC6x4IX87ewQku0PbxoJRnQfroqfgH\nzugKxrFGTwIDAQABo4IBAjCB/zCBvAYDVR0RBIG0MIGxgghrZXljbG9ha4IJa2V5\nY2xvYWsxggprZXljbG9ha18xgglsb2NhbGhvc3SCDWtleWNsb2FrT0F1dGiCDWtl\neWNsb2Frb2F1dGiCDmtleWNsb2Frb2F1dGgyghUqLnNvbGFjZV9pbnRlcm5hbF9u\nZXSCECouc29sYWNlX21zZ19uZXSCFCouc29sYWNlX21zZ19uZXR3b3JrhwR/AAAB\nhxAAAAAAAAAAAAAAAAAAAAABMB0GA1UdDgQWBBQNGg2F7f6ha6f3uBM1E7yfn5K5\nATAfBgNVHSMEGDAWgBTHBp+E3IcORXLgMEKNK/Zm9dQXcTANBgkqhkiG9w0BAQsF\nAAOCAgEAiZhPyIxuCnNk7XAV6F0L/CZTKywFiXwgTpYdFuwByD9VfqI5G+4WvejJ\n5apI5JtnP984EVa1yqLSd9a6maUn4OXIDtQTbPTQHyz0ttk4JW3h8MworaBUbNnZ\njSCW6XOQ7DeXpyoCcn1qlSHMxvZlhfoYsspxljUkruXcXs7ULtoib9AlQ5/xR25F\nUqldREZg1NBeQblTsYqPok9V4XXKW2WPW8MtmWLHlUFmxaoqLwV0Lz2Csrm0ovkD\n/F+QCJ8r1B/0qbzI11Ii6pqjescWF6LXfPBJabzG4f1PL+SdXtrDS7N4sLUSxIkG\nrWC/Xgr4FMiZ52g6kLaaCRX62I1zgaWzhr/SsYXb23kPRp0hsUpTtEmQteKvLXZ4\nGEKqUvAKD11YkLl+MlMekIB27l30ZSlo2DHqVWRTClU2wNX5fEVLXQPt4qesSYVg\ncu8iDW3RjrNtcGQS4IoAgdjLzhBOzlGr47QUnf5qA9e2ylMkEdjv/TS2TVz6ICZZ\nxzXQxxm5nmAnS5FFwSz0BtpRMRE/tXpRZBRIRinMh/hAcHjwkaZFz/MkqPZJkkvy\nDpUz/F3LtZzFNGw15gnZUtrbR7YQG7uwgLj61ZuSZX8wCL/02YdIbcNdS+ed/QxN\n7ixVb3Oo3HHgE1Dp8584rFMESK07gxpOAPxH2EWDVV7EfWdVgJ4=\n-----END CERTIFICATE-----\n"
+  }
+}
+
+settings {
+  encodeUrl: false
+}
