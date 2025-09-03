@@ -1,3 +1,4 @@
+//nolint:gosec
 package exporter
 
 import (
@@ -8,6 +9,7 @@ import (
 	"gopkg.in/ini.v1"
 )
 
+//nolint:paralleltest
 func TestParseConfigBool(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -120,6 +122,7 @@ func TestParseConfigBool(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest
 func TestParseConfigBoolOptional(t *testing.T) {
 	testDefault := true
 
@@ -234,6 +237,7 @@ func TestParseConfigBoolOptional(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest
 func TestParseConfigDuration(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -324,6 +328,7 @@ func TestParseConfigDuration(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest
 func TestParseConfigDurationOptional(t *testing.T) {
 	testDefault := time.Duration(0 * time.Second)
 
@@ -416,6 +421,7 @@ func TestParseConfigDurationOptional(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest
 func TestParseConfigIntOptional(t *testing.T) {
 	testDefault := int64(0)
 
@@ -509,6 +515,7 @@ func TestParseConfigIntOptional(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest
 func TestParseConfigString(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -581,6 +588,7 @@ func TestParseConfigString(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest
 func TestParseConfigStringOptional(t *testing.T) {
 	testDefault := "defaultValue"
 
