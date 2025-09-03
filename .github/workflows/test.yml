@@ -52,7 +52,6 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.3.0
         with:
           compose-file: oauth_test/docker-compose.yaml
-          timeout: 600
         timeout-minutes: 20
       - name: Check metric scrape service status
         run: |
