@@ -1,8 +1,9 @@
+---
 name: Publish
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
     tags:
       - v*
 
@@ -11,27 +12,27 @@ jobs:
     if: ${{ github.repository_owner == 'solacecommunity' }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+      - uses: actions/checkout@v5
 
-    - name: Docker meta
-      id: meta
-      uses: crazy-max/ghaction-docker-meta@v5
-      with:
-        images: solacecommunity/solace-prometheus-exporter
-        tags: |
-          type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
-          type=raw,value=testing,enable=${{ contains(GitHub.head_ref, 'feature') }}
-          type=ref,event=tag
-        flavor: |
+      - name: Docker meta
+        id: meta
+        uses: crazy-max/ghaction-docker-meta@v5
+        with:
+          images: solacecommunity/solace-prometheus-exporter
+          tags: |
+            type=raw,value=latest,enable=${{ endsWith(GitHub.ref, 'master') }}
+            type=raw,value=testing,enable=${{ contains(GitHub.head_ref, 'feature') }}
+            type=ref,event=tag
+          flavor: |
 
-    - name: Login to DockerHub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push Docker images
-      uses: docker/build-push-action@v6.18.0
-      with:
-        push: ${{ GitHub.event_name != 'pull_request' || contains(GitHub.head_ref, 'feature') }}
-        tags: ${{ steps.meta.outputs.tags }}
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v6.18.0
+        with:
+          push: ${{ GitHub.event_name != 'pull_request' || contains(GitHub.head_ref, 'feature') }}
+          tags: ${{ steps.meta.outputs.tags }}
