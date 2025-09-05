@@ -1,0 +1,17 @@
+secret:
+  ignored_matches:
+  - match: 2ce06e970fe975a6a0276d025b008783b06ae56332c08191b5bc06194e4e18d7
+    name: DocumentationPassword
+  - match: 11fe55300f6741249f3a603bc8b2bc46f859217e02a58d635e62292401678c02
+    name: E2ETestKeycloakTLS
+  - match: a61b1c2e2ba680fbabcde7bb8e066d41c0e217bdc6d1a75cf9e3d9ee9a4be012
+    name: E2ETestSolaceTLS
+  - match: 59fdd6e4207a4f352d8b957beda17582fa66775e38d60b62569096c3f172f292C
+    name: DocumentationPassword2
+  - match: 535c69281f730ef59fa01b05f5a3544d51c100df27b6b96c029c35e87fb95fd0
+    name: E2ETestKeycloakRealm
+  - match: 2e1b3675a4049cd39fe6db081735f747730969071528270800f00fa98720d198
+    name: E2ETestKeycloakRealm2
+  - match: 59fdd6e4207a4f352d8b957beda17582fa66775e38d60b62569096c3f172f292
+    name: DocumentationPassword
+version: 2
