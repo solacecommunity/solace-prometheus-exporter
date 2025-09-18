@@ -23,6 +23,7 @@ func (semp *Semp) GetClientProfileSemp1(ch chan<- PrometheusMetric, vpnFilter st
 							MaxEndpointsPerClientUsername   float64 `xml:"maximum-endpoints-per-client-username-effective"`
 							MaxEgressFlows                  float64 `xml:"maximum-egress-flows-effective"`
 							MaxIngressFlows                 float64 `xml:"maximum-ingress-flows-effective"`
+							MaxTransactedSessions           float64 `xml:"maximum-transacted-sessions-effective"`
 							MaxSubscriptions                float64 `xml:"max-subscriptions-effective"`
 						} `xml:"profile"`
 					} `xml:"profiles"`
@@ -59,6 +60,7 @@ func (semp *Semp) GetClientProfileSemp1(ch chan<- PrometheusMetric, vpnFilter st
 		ch <- semp.NewMetric(MetricDesc["ClientProfile"]["clientprofile_max_endpoints_per_username"], prometheus.GaugeValue, clientProfile.MaxEndpointsPerClientUsername, clientProfile.MsgVpnName, clientProfile.Name)
 		ch <- semp.NewMetric(MetricDesc["ClientProfile"]["clientprofile_max_egress_flows"], prometheus.GaugeValue, clientProfile.MaxEgressFlows, clientProfile.MsgVpnName, clientProfile.Name)
 		ch <- semp.NewMetric(MetricDesc["ClientProfile"]["clientprofile_max_ingress_flows"], prometheus.GaugeValue, clientProfile.MaxIngressFlows, clientProfile.MsgVpnName, clientProfile.Name)
+		ch <- semp.NewMetric(MetricDesc["ClientProfile"]["clientprofile_max_transacted_sessions_per_client"], prometheus.GaugeValue, clientProfile.MaxTransactedSessions, clientProfile.MsgVpnName, clientProfile.Name)
 		ch <- semp.NewMetric(MetricDesc["ClientProfile"]["clientprofile_max_subscriptions"], prometheus.GaugeValue, clientProfile.MaxSubscriptions, clientProfile.MsgVpnName, clientProfile.Name)
 		ch <- semp.NewMetric(MetricDesc["ClientProfile"]["clientprofile_num_users"], prometheus.GaugeValue, clientProfile.NumUsers, clientProfile.MsgVpnName, clientProfile.Name)
 	}
