@@ -313,12 +313,13 @@ var MetricDesc = map[string]Descriptions{
 	},
 	// SEMPv1: show client <client-name> message-vpn <vpn-name> connected
 	"ClientProfile": {
-		"clientprofile_max_connections_per_username": NewSemDesc("clientprofile_max_connections_per_username", NoSempV2Ready, "Maximum connections per username.", variableLabelsClientProfile),
-		"clientprofile_max_endpoints_per_username":   NewSemDesc("clientprofile_max_endpoints_per_username", NoSempV2Ready, "Maximum endpoints per username.", variableLabelsClientProfile),
-		"clientprofile_max_egress_flows":             NewSemDesc("clientprofile_max_egress_flows", NoSempV2Ready, "Maximum egress flows of this client profile.", variableLabelsClientProfile),
-		"clientprofile_max_ingress_flows":            NewSemDesc("clientprofile_max_ingress_flows", NoSempV2Ready, "Maximum ingress flows of this client profile.", variableLabelsClientProfile),
-		"clientprofile_max_subscriptions":            NewSemDesc("clientprofile_max_subscriptions", NoSempV2Ready, "Maximum subscriptions of this client profile.", variableLabelsClientProfile),
-		"clientprofile_num_users":                    NewSemDesc("clientprofile_num_users", NoSempV2Ready, "Number of users using this client profile.", variableLabelsClientProfile),
+		"clientprofile_max_connections_per_username":       NewSemDesc("clientprofile_max_connections_per_username", NoSempV2Ready, "Maximum connections per username.", variableLabelsClientProfile),
+		"clientprofile_max_endpoints_per_username":         NewSemDesc("clientprofile_max_endpoints_per_username", NoSempV2Ready, "Maximum endpoints per username.", variableLabelsClientProfile),
+		"clientprofile_max_egress_flows":                   NewSemDesc("clientprofile_max_egress_flows", NoSempV2Ready, "Maximum egress flows of this client profile.", variableLabelsClientProfile),
+		"clientprofile_max_ingress_flows":                  NewSemDesc("clientprofile_max_ingress_flows", NoSempV2Ready, "Maximum ingress flows of this client profile.", variableLabelsClientProfile),
+		"clientprofile_max_transacted_sessions_per_client": NewSemDesc("clientprofile_max_transacted_sessions", NoSempV2Ready, "Maximum effective transacted sessions per client.", variableLabelsClientProfile),
+		"clientprofile_max_subscriptions":                  NewSemDesc("clientprofile_max_subscriptions", NoSempV2Ready, "Maximum subscriptions of this client profile.", variableLabelsClientProfile),
+		"clientprofile_num_users":                          NewSemDesc("clientprofile_num_users", NoSempV2Ready, "Number of users using this client profile.", variableLabelsClientProfile),
 	},
 	// SEMPv1: show client <client-name> message-vpn <vpn-name> connected
 	"ClientSlowSubscriber": {
