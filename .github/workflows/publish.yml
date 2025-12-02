@@ -9,10 +9,30 @@ on:
 
 jobs:
   docker:
-    if: ${{ github.repository_owner == 'solacecommunity' }}
+    if: ${{ github.repository_owner == 'pascalre' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: head
+
+      - name: Install github-changelog-generator
+        run: gem install github_changelog_generator
+
+      - name: Generate changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: github_changelog_generator --user pascalre --project solace-prometheus-exporter
+
+      - name: Commit changelog
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add CHANGELOG.md
+          git diff --quiet && echo "No changes in changelog" || (git commit -m "docs: update changelog" && git push)
 
       - name: Docker meta
         id: meta
