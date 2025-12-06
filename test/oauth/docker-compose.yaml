@@ -114,7 +114,7 @@ services:
       oauth_checker:
         condition: service_completed_successfully
     build:
-      context: ../
+      context: ../../
       dockerfile: Dockerfile
     networks:
       - solace_msg_net

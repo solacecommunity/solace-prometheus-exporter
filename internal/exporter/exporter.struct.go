@@ -1,7 +1,7 @@
 package exporter
 
 import (
-	"solace_exporter/semp"
+	"solace_exporter/internal/semp"
 
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
