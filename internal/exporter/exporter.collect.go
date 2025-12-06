@@ -2,7 +2,7 @@ package exporter
 
 import (
 	"errors"
-	"solace_exporter/semp"
+	"solace_exporter/internal/semp"
 	"strings"
 	"sync"
 

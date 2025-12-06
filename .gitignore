@@ -9,3 +9,4 @@ solace_prometheus_exporter
 .DS_Store
 vendor
 reports
+bin/
