@@ -23,7 +23,6 @@ RUN apk add --no-cache ca-certificates
 FROM scratch
 LABEL maintainer="https://github.com/solacecommunity/solace-prometheus-exporter"
 
-
 EXPOSE 9628
 ENTRYPOINT [ "/solace_prometheus_exporter", "--config-file=/etc/solace/solace_prometheus_exporter.ini" ]
 CMD [ ]

@@ -23,6 +23,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
+          args: run ./...
           version: v2.1.0
 
       - name: Run tidy check
@@ -30,6 +31,7 @@ jobs:
           go mod tidy
           # Fail if go.mod or go.sum changed
           git diff --exit-code go.mod go.sum
+
   test:
     name: Test
     runs-on: ubuntu-latest
