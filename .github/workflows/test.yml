@@ -23,6 +23,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
+          args: ./...
           version: v2.1.0
 
       - name: Run tidy check
@@ -30,6 +31,7 @@ jobs:
           go mod tidy
           # Fail if go.mod or go.sum changed
           git diff --exit-code go.mod go.sum
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -43,6 +45,7 @@ jobs:
 
       - name: Run tests
         run: go test -v ./...
+
   oauth_e2e_test:
     name: OAuth E2E Test
     runs-on: ubuntu-latest
@@ -50,18 +53,18 @@ jobs:
       - uses: actions/checkout@v5
       - name: Pre-pull docker images
         run: |
-          docker compose -f oauth_test/docker-compose.yaml pull --ignore-buildable --ignore-pull-failures
+          docker compose -f test/oauth/docker-compose.yaml pull --ignore-buildable --ignore-pull-failures
         timeout-minutes: 15
       - name: Run docker compose
         uses: hoverkraft-tech/compose-action@v2.4.1
         with:
-          compose-file: oauth_test/docker-compose.yaml
+          compose-file: test/oauth/docker-compose.yaml
           up-flags: --wait --wait-timeout 600
           compose-version: latest
         timeout-minutes: 20
       - name: Check metric scrape service status
         run: |
-          status=$(docker compose -f oauth_test/docker-compose.yaml ps -aq check_metric_scrape | xargs docker inspect -f '{{.State.ExitCode}}')
+          status=$(docker compose -f test/oauth/docker-compose.yaml ps -aq check_metric_scrape | xargs docker inspect -f '{{.State.ExitCode}}')
           if [ "$status" -eq 0 ]; then
             echo "E2E test successful: check_metric_scrape exited with code 0."
           else

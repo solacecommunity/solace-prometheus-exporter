@@ -3,7 +3,7 @@ package exporter
 import (
 	"github.com/prometheus/client_golang/prometheus"
 
-	"solace_exporter/semp"
+	"solace_exporter/internal/semp"
 )
 
 // Describe describes all the metrics ever exported by the Solace exporter. It

@@ -16,7 +16,7 @@ import (
 	"bytes"
 	"net/http"
 	"os"
-	"solace_exporter/exporter"
+	"solace_exporter/internal/exporter"
 	"strings"
 	"time"
 
@@ -202,12 +202,12 @@ func main() {
 				<table><tr><th>scrape target</th><th>vpn filter supports</th><th>item filter supported</th><th>performance</th><tr>
 					<tr><td>Version</td><td>no</td><td>no</td><td>dont harm broker</td></tr>`))
 		if !conf.IsHWBroker {
-			w.Write([]byte(`					
+			w.Write([]byte(`
 					<tr><td>Health</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>StorageElement</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Disk</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>`))
 		}
-		w.Write([]byte(`					
+		w.Write([]byte(`
 					<tr><td>Memory</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Interface</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>
 					<tr><td>GlobalStats</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
@@ -242,21 +242,21 @@ func main() {
 					<tr><td>RdpIStats</td><td>yes</td><td>yes</td><td>may harm broker if many rest delivery points</td></tr>`))
 
 		if conf.IsHWBroker {
-			w.Write([]byte(`					
+			w.Write([]byte(`
 					<tr><td>Alarm (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Environment (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>Hardware (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>
 					<tr><td>InterfaceHW (only for Hardware brokers)</td><td>no</td><td>yes</td><td>dont harm broker</td></tr>
 					<tr><td>Raid (only for Hardware brokers)</td><td>no</td><td>no</td><td>dont harm broker</td></tr>`))
 		}
-		w.Write([]byte(`				
+		w.Write([]byte(`
 				</table>
 				<br>
 				</p>
 				</li>
-            <ul>
-            </body>
-            </html>`))
+						<ul>
+						</body>
+						</html>`))
 	})
 
 	// start server

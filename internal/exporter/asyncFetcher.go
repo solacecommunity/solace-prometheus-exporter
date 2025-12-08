@@ -2,7 +2,7 @@ package exporter
 
 import (
 	"context"
-	"solace_exporter/semp"
+	"solace_exporter/internal/semp"
 	"sync"
 	"time"
 
