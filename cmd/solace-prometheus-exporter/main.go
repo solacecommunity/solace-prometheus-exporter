@@ -19,8 +19,6 @@ import (
 	"golang.org/x/sync/semaphore"
 )
 
-const version = float64(1004005)
-
 func logDataSource(dataSources []exporter.DataSource) string {
 	dS := make([]string, len(dataSources))
 	for index, dataSource := range dataSources {
@@ -78,7 +76,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	level.Info(logger).Log("msg", "Starting solace_prometheus_exporter", "version", version)
+	level.Info(logger).Log("msg", "Starting solace_prometheus_exporter")
 	level.Info(logger).Log("msg", "Build context", "context", promVersion.BuildContext())
 
 	if *enableTLS {
@@ -117,7 +115,7 @@ func main() {
 		_ = level.Info(logger).Log("msg", "Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
 
 		if conf.PrefetchInterval.Seconds() > 0 {
-			var asyncFetcher = exporter.NewAsyncFetcher(urlPath, dataSource, *conf, logger, sempConnections, version)
+			var asyncFetcher = exporter.NewAsyncFetcher(urlPath, dataSource, *conf, logger, sempConnections)
 			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
 				doHandleAsync(w, r, asyncFetcher)
 			})
@@ -301,7 +299,7 @@ func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.Data
 
 		level.Info(logger).Log("msg", "handle http request", "dataSource", logDataSource(dataSource), "scrapeURI", conf.ScrapeURI)
 
-		exp := exporter.NewExporter(logger, &conf, &dataSource, version)
+		exp := exporter.NewExporter(logger, &conf, &dataSource)
 		registry := prometheus.NewRegistry()
 		registry.MustRegister(exp)
 		handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})

@@ -64,7 +64,6 @@ var MetricDesc = map[string]Descriptions{
 	"Version": {
 		"system_version_currentload":      NewSemDesc("system_version_currentload", NoSempV2Ready, "Solace Version as WWWXXXYYYZZZ", nil),
 		"system_version_uptime_totalsecs": NewSemDesc("system_version_uptime_totalsecs", NoSempV2Ready, "Broker uptime in seconds", nil),
-		"exporter_version_current":        NewSemDesc("exporter_version_current", NoSempV2Ready, "Exporter Version as XXXYYYZZZ", nil),
 	},
 	"Health": {
 		"system_disk_latency_min_seconds":      NewSemDesc("system_disk_latency_min_seconds", NoSempV2Ready, "Minimum disk latency.", nil),
