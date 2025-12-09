@@ -67,7 +67,6 @@ func (semp *Semp) GetVersionSemp1(ch chan<- PrometheusMetric) (float64, error) {
 
 	ch <- semp.NewMetric(MetricDesc["Version"]["system_version_currentload"], prometheus.GaugeValue, vmrVersionNr)
 	ch <- semp.NewMetric(MetricDesc["Version"]["system_version_uptime_totalsecs"], prometheus.GaugeValue, target.RPC.Show.Version.Uptime.TotalSecs)
-	ch <- semp.NewMetric(MetricDesc["Version"]["exporter_version_current"], prometheus.GaugeValue, semp.exporterVersion)
 
 	return 1, nil
 }

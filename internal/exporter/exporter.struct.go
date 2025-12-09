@@ -18,7 +18,7 @@ type Exporter struct {
 }
 
 // NewExporter returns an initialized Exporter.
-func NewExporter(logger log.Logger, conf *Config, dataSource *[]DataSource, version float64) *Exporter {
+func NewExporter(logger log.Logger, conf *Config, dataSource *[]DataSource) *Exporter {
 	httpVisitor, err := conf.httpVisitor()
 	if err != nil {
 		_ = level.Error(logger).Log("msg", "Failed to create HTTP visitor for exporter", "err", err)
@@ -29,6 +29,6 @@ func NewExporter(logger log.Logger, conf *Config, dataSource *[]DataSource, vers
 		config:     conf,
 		dataSource: dataSource,
 		lastError:  nil,
-		semp:       semp.NewSemp(logger, conf.ScrapeURI, conf.newHTTPClient(), httpVisitor, version, conf.logBrokerToSlowWarnings, conf.IsHWBroker),
+		semp:       semp.NewSemp(logger, conf.ScrapeURI, conf.newHTTPClient(), httpVisitor, conf.logBrokerToSlowWarnings, conf.IsHWBroker),
 	}
 }

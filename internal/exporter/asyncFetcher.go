@@ -17,13 +17,13 @@ const (
 	capMetricChan = 1000
 )
 
-func NewAsyncFetcher(urlPath string, dataSource []DataSource, conf Config, logger log.Logger, connections *semaphore.Weighted, version float64) *AsyncFetcher {
+func NewAsyncFetcher(urlPath string, dataSource []DataSource, conf Config, logger log.Logger, connections *semaphore.Weighted) *AsyncFetcher {
 	var fetcher = &AsyncFetcher{
 		dataSource: dataSource,
 		conf:       conf,
 		logger:     logger,
 		metrics:    make(map[string]semp.PrometheusMetric),
-		exporter:   NewExporter(logger, &conf, &dataSource, version),
+		exporter:   NewExporter(logger, &conf, &dataSource),
 	}
 
 	collectWorker := func() {
