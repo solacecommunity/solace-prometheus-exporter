@@ -40,7 +40,7 @@ A Prometheus exporter for Solace Message Brokers.
 
 ## Overview
 
-![Architecture overview](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/doc/architecture_001.png)
+![Architecture overview](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/docs/architecture_001.png)
 
 The exporter is written in Go, based on the Solace Legacy SEMP protocol.
 It grabs metrics via SEMP v1 and provides those as prometheus friendly HTTP endpoints.
