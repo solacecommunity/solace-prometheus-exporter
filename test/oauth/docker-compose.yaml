@@ -48,7 +48,7 @@ services:
     depends_on:
       keycloak:
         condition: service_healthy
-    image: solace/solace-pubsub-standard:latest
+    image: solace/solace-pubsub-standard:10.25.0
     hostname: solbroker
     ports:
       - 55555:55555
@@ -61,7 +61,12 @@ services:
       - ./solace/tls/:/etc/solace_tls/:ro
     env_file:
       - ./solace/solace_tls.env
-    shm_size: 1g
+    shm_size: 2g
+    ulimits:
+      memlock: -1
+      nofile:
+        soft: 1048576
+        hard: 1048576
     secrets:
       - solace_server.pem
       - root_ca.crt
