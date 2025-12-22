@@ -13,6 +13,12 @@ import (
 	"gopkg.in/ini.v1"
 )
 
+type ExporterAuthConfig struct {
+	Scheme   string
+	Username string
+	Password string
+}
+
 // Config Collection of configs
 type Config struct {
 	ListenAddr              string
@@ -40,6 +46,7 @@ type Config struct {
 	oAuthAccessToken        string
 	oAuthTokenExpiry        time.Time
 	authType                AuthType
+	ExporterAuth            ExporterAuthConfig
 }
 
 const (
@@ -74,6 +81,18 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 		}
 	}
 
+	conf.ExporterAuth.Scheme, err = parseConfigStringOptional(cfg, "solace", "exporterAuthScheme", "SOLACE_EXPORTER_AUTH_SCHEME", "none")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.ExporterAuth.Username, err = parseConfigStringOptional(cfg, "solace", "exporterAuthUsername", "SOLACE_EXPORTER_AUTH_USERNAME", "")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.ExporterAuth.Password, err = parseConfigStringOptional(cfg, "solace", "exporterAuthPassword", "SOLACE_EXPORTER_AUTH_PASSWORD", "")
+	if err != nil {
+		return nil, nil, err
+	}
 	conf.ListenAddr, err = parseConfigString(cfg, "solace", "listenAddr", "SOLACE_LISTEN_ADDR")
 	if err != nil {
 		return nil, nil, err

@@ -180,7 +180,7 @@ func main() {
 		level.Error(logger).Log("msg", err)
 	}
 
-	http.Handle("/", handler)
+	http.Handle("/", web.WrapWithAuth(handler, conf.ExporterAuth))
 
 	// start server
 	if conf.EnableTLS {
@@ -208,9 +208,9 @@ func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporte
 }
 
 func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf exporter.Config, logger log.Logger) string {
+	var handler http.Handler
 	if dataSource == nil {
-		handler := promhttp.Handler()
-		handler.ServeHTTP(w, r)
+		handler = promhttp.Handler()
 	} else {
 		// Exporter for endpoint
 		username := r.FormValue("username")
@@ -239,8 +239,10 @@ func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.Data
 		exp := exporter.NewExporter(logger, &conf, &dataSource)
 		registry := prometheus.NewRegistry()
 		registry.MustRegister(exp)
-		handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
-		handler.ServeHTTP(w, r)
+		handler = promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
 	}
+	securedHandler := web.WrapWithAuth(handler, conf.ExporterAuth)
+
+	securedHandler.ServeHTTP(w, r)
 	return w.Header().Get("status")
 }
