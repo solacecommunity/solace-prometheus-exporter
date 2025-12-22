@@ -372,6 +372,21 @@ prefetchInterval = 30s
 # Maximum connections to the configured broker. Keep in mind solace advices us to use max 10 SEMP connects per seconds.
 # Dont increase this value if your broker may have more thant 100 clients, queues, ...
 parallelSempConnections = 1
+
+# Authentication scheme for protecting the exporter endpoints
+# Supported values:
+#   none  - no authentication required (default)
+#   basic - HTTP Basic Authentication required
+# Can be overridden via env variable SOLACE_EXPORTER_AUTH_SCHEME
+exporterAuthScheme = basic
+
+# Username used when exporterAuthScheme = "basic"
+# Can be overridden via env variable SOLACE_EXPORTER_AUTH_USERNAME
+exporterAuthUsername = monitor
+
+# Password used when exporterAuthScheme = "basic"
+# Can be overridden via env variable SOLACE_EXPORTER_AUTH_PASSWORD
+exporterAuthPassword = changeit
 ```
 
 ### Environment Variables
@@ -395,6 +410,9 @@ SOLACE_OAUTH_CLIENT_ID=your-client-id
 SOLACE_OAUTH_CLIENT_SECRET=your-client-secret
 SOLACE_TIMEOUT=5s
 SOLACE_SSL_VERIFY=false
+SOLACE_EXPORTER_AUTH_SCHEME=basic
+SOLACE_EXPORTER_AUTH_USERNAME=monitor
+SOLACE_EXPORTER_AUTH_PASSWORD=changeit
 ```
 
 ### Authentication
@@ -412,6 +430,16 @@ If both basic auth (username/password) and OAuth (token URL, client ID and secre
 
 OAuth authentication is implemented using [golang.org/x/oauth2](https://pkg.go.dev/golang.org/x/oauth2) so every OAuth2-compliant provider should work properly.
 
+#### Securing the Exporter Endpoint
+The exporter now supports optional authentication for its own HTTP endpoints (including `/`, `/solace` and `/metrics`).
+
+|Config Key|Env Variable|Description|
+|-|-|-|
+|exporterAuthScheme|SOLACE_EXPORTER_AUTH_SCHEME|none or basic|
+|exporterAuthUsername|SOLACE_EXPORTER_AUTH_USERNAME|Username for basic auth|
+|exporterAuthPassword|SOLACE_EXPORTER_AUTH_PASSWORD|Password for basic auth|
+
+Default scheme is `none`, meaning no authentication is required unless configured. When basic is enabled, both username and password must be provided.
 ### URL
 
 You can call:
