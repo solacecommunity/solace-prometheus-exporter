@@ -10,9 +10,6 @@ func (conf *Config) basicHTTPClient() http.Client {
 	var client http.Client
 	var proxy func(req *http.Request) (*url.URL, error)
 
-	if conf.useSystemProxy {
-		proxy = http.ProxyFromEnvironment
-	}
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true}, //nolint:gosec
 		Proxy:           proxy,
