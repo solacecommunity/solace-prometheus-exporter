@@ -33,7 +33,6 @@ type Config struct {
 	Password                string
 	DefaultVpn              string
 	SslVerify               bool
-	useSystemProxy          bool
 	Timeout                 time.Duration
 	PrefetchInterval        time.Duration
 	ParallelSempConnections int64
