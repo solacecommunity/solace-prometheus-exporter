@@ -42,30 +42,6 @@ func main() {
 		"config-file",
 		"Path and name of ini file with configuration settings. See sample file solace_prometheus_exporter.ini.",
 	).String()
-	enableTLS := kingpin.Flag(
-		"enable-tls",
-		"Set to true, to start listenAddr as TLS port. Make sure to provide valid server certificate and private key files.",
-	).Bool()
-	certfile := kingpin.Flag(
-		"certificate",
-		"If using TLS, you must provide a valid server certificate in PEM format. Can be set via config file, cli parameter or env variable.",
-	).ExistingFile()
-	privateKey := kingpin.Flag(
-		"private-key",
-		"If using TLS, you must provide a valid private key in PEM format. Can be set via config file, cli parameter or env variable.",
-	).ExistingFile()
-	certType := kingpin.Flag(
-		"cert-type",
-		" Set the certificate type PEM | PKCS12.",
-	).String()
-	pkcs12File := kingpin.Flag(
-		"pkcs12File",
-		"If using TLS, you must provide a valid pkcs12 file.",
-	).ExistingFile()
-	pkcs12Pass := kingpin.Flag(
-		"pkcs12Pass",
-		"If using TLS, you must provide a valid pkcs12 password.",
-	).String()
 	kingpin.Parse()
 
 	logger := promlog.New(&promlogConfig)
@@ -79,24 +55,6 @@ func main() {
 	level.Info(logger).Log("msg", "Starting solace_prometheus_exporter")
 	level.Info(logger).Log("msg", "Build context", "context", promVersion.BuildContext())
 
-	if *enableTLS {
-		conf.EnableTLS = *enableTLS
-	}
-	if len(*certfile) > 0 {
-		conf.Certificate = *certfile
-	}
-	if len(*privateKey) > 0 {
-		conf.PrivateKey = *privateKey
-	}
-	if len(*certType) > 0 {
-		conf.CertType = *certType
-	}
-	if len(*pkcs12File) > 0 {
-		conf.Pkcs12File = *pkcs12File
-	}
-	if len(*pkcs12Pass) > 0 {
-		conf.Pkcs12Pass = *pkcs12Pass
-	}
 	level.Info(logger).Log("msg", "Scraping",
 		"listenAddr", conf.GetListenURI(),
 		"scrapeURI", conf.ScrapeURI,
