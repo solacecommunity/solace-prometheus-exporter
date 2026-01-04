@@ -2,7 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
-	"errors"
+	"solace_exporter/internal/semp/types"
 
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -43,18 +43,13 @@ func (semp *Semp) GetRdpInfoSemp1(ch chan<- PrometheusMetric, vpnFilter string, 
 				} `xml:"message-vpn"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie struct {
-			RPC string `xml:",innerxml"`
-		} `xml:"more-cookie"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-			Reason string `xml:"reason,attr"`
-		} `xml:"execute-result"`
+		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
+		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 	var page = 1
 	var lastRdpName = ""
-	for nextRequest := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>" + itemFilter + "</rdp-name></message-vpn></show></rpc>"; nextRequest != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", nextRequest, "RdpInfoSemp1", page)
+	for command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>" + itemFilter + "</rdp-name></message-vpn></show></rpc>"; command != ""; {
+		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "RdpInfoSemp1", page)
 		page++
 		if err != nil {
 			_ = level.Error(semp.logger).Log("msg", "Can't scrape RdpInfoSemp1", "err", err, "broker", semp.brokerURI)
@@ -68,12 +63,18 @@ func (semp *Semp) GetRdpInfoSemp1(ch chan<- PrometheusMetric, vpnFilter string, 
 			_ = level.Error(semp.logger).Log("msg", "Can't decode Xml RdpInfoSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
-		if target.ExecuteResult.Result != "ok" {
-			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
-			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
+		if err := target.ExecuteResult.OK(); err != nil {
+			_ = level.Error(semp.logger).Log(
+				"msg", "unexpected result",
+				"command", command,
+				"result", target.ExecuteResult.Result,
+				"reason", target.ExecuteResult.Reason,
+				"broker", semp.brokerURI,
+			)
+			return 0, err
 		}
 		_ = level.Debug(semp.logger).Log("msg", "Result of RdpInfoSemp1", "results", len(target.RPC.Show.MessageVpn.Rest.RestDeliveryPoints.RestDeliveryPoint), "page", page-1)
-		nextRequest = target.MoreCookie.RPC
+		command = target.MoreCookie.RPC
 
 		rdpTotals := target.RPC.Show.MessageVpn.Rest.RestDeliveryPoints.Totals
 		ch <- semp.NewMetric(MetricDesc["RdpTotals"]["total_rest_delivery_points_up"], prometheus.CounterValue, rdpTotals.TotalRdpsUp)

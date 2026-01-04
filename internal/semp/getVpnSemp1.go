@@ -3,6 +3,7 @@ package semp
 import (
 	"encoding/xml"
 	"errors"
+	"solace_exporter/internal/semp/types"
 
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -31,10 +32,7 @@ func (semp *Semp) GetVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string) (flo
 				} `xml:"message-vpn"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-			Reason string `xml:"reason,attr"`
-		} `xml:"execute-result"`
+		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
 	command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name></message-vpn></show></rpc>"

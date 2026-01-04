@@ -2,8 +2,8 @@ package semp
 
 import (
 	"encoding/xml"
-	"errors"
 	"math"
+	"solace_exporter/internal/semp/types"
 	"strconv"
 	"strings"
 
@@ -46,10 +46,7 @@ func (semp *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (float64, erro
 				} `xml:"environment"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-			Reason string `xml:"reason,attr"`
-		} `xml:"execute-result"`
+		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
 	command := "<rpc><show><environment/></show></rpc>"
@@ -66,9 +63,15 @@ func (semp *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (float64, erro
 		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml EnvironmentSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
-	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
-		return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
+	if err := target.ExecuteResult.OK(); err != nil {
+		_ = level.Error(semp.logger).Log(
+			"msg", "unexpected result",
+			"command", command,
+			"result", target.ExecuteResult.Result,
+			"reason", target.ExecuteResult.Reason,
+			"broker", semp.brokerURI,
+		)
+		return 0, err
 	}
 
 	for _, sensor := range target.RPC.Show.Environment.Mainboard.Sensors.Sensor {

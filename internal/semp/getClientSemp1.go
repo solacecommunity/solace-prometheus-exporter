@@ -2,7 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
-	"errors"
+	"solace_exporter/internal/semp/types"
 	"strings"
 
 	"github.com/go-kit/log/level"
@@ -27,18 +27,13 @@ func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 				} `xml:"client"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie struct {
-			RPC string `xml:",innerxml"`
-		} `xml:"more-cookie"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-			Reason string `xml:"reason,attr"`
-		} `xml:"execute-result"`
+		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
+		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
 	var page = 1
-	for nextRequest := "<rpc><show><client><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><connected/></client></show></rpc>"; nextRequest != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", nextRequest, "ClientSemp1", page)
+	for command := "<rpc><show><client><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><connected/></client></show></rpc>"; command != ""; {
+		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientSemp1", page)
 		page++
 
 		if err != nil {
@@ -53,12 +48,18 @@ func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 			_ = level.Error(semp.logger).Log("msg", "Can't decode ClientSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
-		if target.ExecuteResult.Result != "ok" {
-			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
-			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
+		if err := target.ExecuteResult.OK(); err != nil {
+			_ = level.Error(semp.logger).Log(
+				"msg", "unexpected result",
+				"command", command,
+				"result", target.ExecuteResult.Result,
+				"reason", target.ExecuteResult.Reason,
+				"broker", semp.brokerURI,
+			)
+			return 0, err
 		}
 
-		nextRequest = target.MoreCookie.RPC
+		command = target.MoreCookie.RPC
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientIP := strings.Split(client.ClientAddress, ":")[0]

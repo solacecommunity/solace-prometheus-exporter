@@ -2,8 +2,8 @@ package semp
 
 import (
 	"encoding/xml"
-	"errors"
 	"math"
+	"solace_exporter/internal/semp/types"
 
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -31,19 +31,14 @@ func (semp *Semp) GetTopicEndpointDetailsSemp1(ch chan<- PrometheusMetric, vpnFi
 				} `xml:"topic-endpoint"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie struct {
-			RPC string `xml:",innerxml"`
-		} `xml:"more-cookie"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-			Reason string `xml:"reason,attr"`
-		} `xml:"execute-result"`
+		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
+		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
 	var page = 1
 	var lastTopicEndpointName = ""
-	for nextRequest := "<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; nextRequest != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", nextRequest, "TopicEndpointDetailsSemp1", page)
+	for command := "<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; command != ""; {
+		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "TopicEndpointDetailsSemp1", page)
 		page++
 
 		if err != nil {
@@ -58,12 +53,18 @@ func (semp *Semp) GetTopicEndpointDetailsSemp1(ch chan<- PrometheusMetric, vpnFi
 			_ = level.Error(semp.logger).Log("msg", "Can't decode TopicEndpointDetailsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
-		if target.ExecuteResult.Result != "ok" {
-			_ = level.Error(semp.logger).Log("msg", "Can't scrape TopicEndpointDetailsSemp1", "err", err, "broker", semp.brokerURI)
-			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
+		if err := target.ExecuteResult.OK(); err != nil {
+			_ = level.Error(semp.logger).Log(
+				"msg", "unexpected result",
+				"command", command,
+				"result", target.ExecuteResult.Result,
+				"reason", target.ExecuteResult.Reason,
+				"broker", semp.brokerURI,
+			)
+			return 0, err
 		}
 
-		nextRequest = target.MoreCookie.RPC
+		command = target.MoreCookie.RPC
 
 		for _, topicEndpoint := range target.RPC.Show.TopicEndpoint.TopicEndpoints.TopicEndpoint {
 			topicEndpointKey := topicEndpoint.Info.MsgVpnName + "___" + topicEndpoint.TopicEndpointName

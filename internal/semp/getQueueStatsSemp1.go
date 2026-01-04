@@ -2,7 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
-	"errors"
+	"solace_exporter/internal/semp/types"
 
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -46,19 +46,14 @@ func (semp *Semp) GetQueueStatsSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 				} `xml:"queue"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie struct {
-			RPC string `xml:",innerxml"`
-		} `xml:"more-cookie"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-			Reason string `xml:"reason,attr"`
-		} `xml:"execute-result"`
+		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
+		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
 	var page = 1
 	var lastQueueName = ""
-	for nextRequest := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><stats/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", nextRequest, "QueueStatsSemp1", page)
+	for command := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><stats/><count/><num-elements>100</num-elements></queue></show></rpc>"; command != ""; {
+		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "QueueStatsSemp1", page)
 		page++
 
 		if err != nil {
@@ -73,14 +68,20 @@ func (semp *Semp) GetQueueStatsSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 			_ = level.Error(semp.logger).Log("msg", "Can't decode QueueStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
-		if target.ExecuteResult.Result != "ok" {
-			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextRequest, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
-			return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
+		if err := target.ExecuteResult.OK(); err != nil {
+			_ = level.Error(semp.logger).Log(
+				"msg", "unexpected result",
+				"command", command,
+				"result", target.ExecuteResult.Result,
+				"reason", target.ExecuteResult.Reason,
+				"broker", semp.brokerURI,
+			)
+			return 0, err
 		}
 
 		_ = level.Debug(semp.logger).Log("msg", "Result of QueueStatsSemp1", "results", len(target.RPC.Show.Queue.Queues.Queue), "page", page-1)
 
-		nextRequest = target.MoreCookie.RPC
+		command = target.MoreCookie.RPC
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
 			queueKey := queue.Info.MsgVpnName + "___" + queue.QueueName
 			if queueKey == lastQueueName {

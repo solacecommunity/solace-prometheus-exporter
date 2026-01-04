@@ -2,7 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
-	"errors"
+	"solace_exporter/internal/semp/types"
 
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -30,10 +30,7 @@ func (semp *Semp) GetRaidSemp1(ch chan<- PrometheusMetric) (float64, error) {
 				} `xml:"disk"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-			Reason string `xml:"reason,attr"`
-		} `xml:"execute-result"`
+		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
 	command := "<rpc><show><disk></disk></show></rpc>"
@@ -50,9 +47,15 @@ func (semp *Semp) GetRaidSemp1(ch chan<- PrometheusMetric) (float64, error) {
 		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml GetRaidSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
-	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
-		return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
+	if err := target.ExecuteResult.OK(); err != nil {
+		_ = level.Error(semp.logger).Log(
+			"msg", "unexpected result",
+			"command", command,
+			"result", target.ExecuteResult.Result,
+			"reason", target.ExecuteResult.Reason,
+			"broker", semp.brokerURI,
+		)
+		return 0, err
 	}
 
 	for _, disk := range target.RPC.Show.Disk.DiskInfos.InternalDisks.DiskInfo {
