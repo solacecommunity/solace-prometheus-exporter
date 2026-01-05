@@ -5,6 +5,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"solace_exporter/internal/semp/types"
 	"strconv"
 	"strings"
 
@@ -30,10 +31,7 @@ func (semp *Semp) GetVersionSemp1(ch chan<- PrometheusMetric) (float64, error) {
 				} `xml:"version"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-			Reason string `xml:"reason,attr"`
-		} `xml:"execute-result"`
+		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
 	command := "<rpc><show><version/></show></rpc>"

@@ -2,8 +2,8 @@ package semp
 
 import (
 	"encoding/xml"
-	"errors"
 	"math"
+	"solace_exporter/internal/semp/types"
 	"strconv"
 
 	"github.com/go-kit/log/level"
@@ -56,10 +56,7 @@ func (semp *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (float64, error) {
 				} `xml:"message-spool"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-			Reason string `xml:"reason,attr"`
-		} `xml:"execute-result"`
+		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
 	command := "<rpc><show><message-spool><detail/></message-spool></show ></rpc>"
@@ -76,9 +73,15 @@ func (semp *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (float64, error) {
 		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
-	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
-		return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
+	if err := target.ExecuteResult.OK(); err != nil {
+		_ = level.Error(semp.logger).Log(
+			"msg", "unexpected result",
+			"command", command,
+			"result", target.ExecuteResult.Result,
+			"reason", target.ExecuteResult.Reason,
+			"broker", semp.brokerURI,
+		)
+		return 0, err
 	}
 
 	ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_quota_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.QuotaDiskUsage*1048576.0))

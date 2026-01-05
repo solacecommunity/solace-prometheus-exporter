@@ -2,7 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
-	"errors"
+	"solace_exporter/internal/semp/types"
 
 	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
@@ -22,10 +22,7 @@ func (semp *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (float64,
 				} `xml:"system"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-			Reason string `xml:"reason,attr"`
-		} `xml:"execute-result"`
+		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
 	command := "<rpc><show><system/></show></rpc>"
@@ -42,9 +39,15 @@ func (semp *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (float64,
 		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml GetGlobalSystemInfoSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
-	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
-		return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
+	if err := target.ExecuteResult.OK(); err != nil {
+		_ = level.Error(semp.logger).Log(
+			"msg", "unexpected result",
+			"command", command,
+			"result", target.ExecuteResult.Result,
+			"reason", target.ExecuteResult.Reason,
+			"broker", semp.brokerURI,
+		)
+		return 0, err
 	}
 
 	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_uptime_seconds"], prometheus.CounterValue, target.RPC.Show.System.UptimeSeconds)
@@ -85,10 +88,7 @@ func (semp *Semp) GetGlobalStatsSemp1(ch chan<- PrometheusMetric) (float64, erro
 				} `xml:"stats"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult struct {
-			Result string `xml:"code,attr"`
-			Reason string `xml:"reason,attr"`
-		} `xml:"execute-result"`
+		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
 	command := "<rpc><show><stats><client/></stats></show></rpc>"
@@ -105,9 +105,15 @@ func (semp *Semp) GetGlobalStatsSemp1(ch chan<- PrometheusMetric) (float64, erro
 		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml GlobalStatsSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
-	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
-		return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
+	if err := target.ExecuteResult.OK(); err != nil {
+		_ = level.Error(semp.logger).Log(
+			"msg", "unexpected result",
+			"command", command,
+			"result", target.ExecuteResult.Result,
+			"reason", target.ExecuteResult.Reason,
+			"broker", semp.brokerURI,
+		)
+		return 0, err
 	}
 
 	ch <- semp.NewMetric(MetricDesc["GlobalStats"]["system_total_clients_connected"], prometheus.GaugeValue, target.RPC.Show.Stats.Client.Global.Stats.ClientsConnected)
