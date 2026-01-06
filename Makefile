@@ -19,9 +19,6 @@ test-coverage: ## Run tests with coverage
 	@go test -short -coverprofile reports/cover.out ${PKG_LIST}
 	@go tool cover -html reports/cover.out -o reports/cover.html
 
-build: dep ## Build the binary file
-	@go build -a -ldflags '-s -w -extldflags "-static"' -o solace_prometheus_exporter
-
 build: ## Build binary
 	@echo "Building $(BINARY_NAME)..."
 	@go build -a -ldflags '-s -w -extldflags "-static"' -o bin/$(BINARY_NAME) $(CMD_PATH)
