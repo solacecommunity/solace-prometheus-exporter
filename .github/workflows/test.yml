@@ -56,7 +56,7 @@ jobs:
           docker compose -f test/oauth/docker-compose.yaml pull --ignore-buildable --ignore-pull-failures
         timeout-minutes: 15
       - name: Run docker compose
-        uses: hoverkraft-tech/compose-action@v2.4.2
+        uses: hoverkraft-tech/compose-action@v2.4.3
         with:
           compose-file: test/oauth/docker-compose.yaml
           up-flags: --wait --wait-timeout 600
