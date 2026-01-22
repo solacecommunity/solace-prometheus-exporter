@@ -251,7 +251,7 @@
           <td>yes</td>
           <td>may harm broker if many rest delivery points</td>
         </tr>
-        {{ if not .IsHWBroker -}}
+        {{ if .IsHWBroker -}}
         <tr>
           <td>Alarm (only for Hardware brokers)</td>
           <td>no</td>
