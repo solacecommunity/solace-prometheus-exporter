@@ -2,6 +2,7 @@ package exporter
 
 import (
 	"context"
+	"encoding/base64"
 	"net/http"
 	"time"
 
@@ -30,7 +31,7 @@ func (conf *Config) setAuthHeader() (func(*http.Request), error) {
 			return nil, err
 		}
 		return func(request *http.Request) {
-			request.Header.Set("Authorization", "Bearer "+token)
+			request.Header.Set("Authorization", "Bearer "+conf.issuerPrefixedToken(token))
 		}, nil
 	}
 
@@ -63,4 +64,13 @@ func (conf *Config) getOAuthToken() (string, error) {
 	conf.oAuthTokenExpiry = token.Expiry
 
 	return conf.oAuthAccessToken, nil
+}
+
+func (conf *Config) issuerPrefixedToken(token string) string {
+	if conf.OAuthIssuer == "" {
+		return token
+	}
+	return "~" +
+		base64.StdEncoding.EncodeToString([]byte(conf.OAuthIssuer)) +
+		"~" + token
 }
