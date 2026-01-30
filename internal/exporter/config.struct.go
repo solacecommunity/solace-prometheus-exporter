@@ -42,6 +42,7 @@ type Config struct {
 	OAuthClientID           string
 	OAuthClientSecret       string
 	OAuthClientScope        string
+	OAuthIssuer             string
 	oAuthAccessToken        string
 	oAuthTokenExpiry        time.Time
 	authType                AuthType
@@ -167,6 +168,10 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 		return nil, nil, err
 	}
 	conf.OAuthClientScope, err = parseConfigStringOptional(cfg, "solace", "oAuthClientScope", "SOLACE_OAUTH_CLIENT_SCOPE", "")
+	if err != nil {
+		return nil, nil, err
+	}
+	conf.OAuthIssuer, err = parseConfigStringOptional(cfg, "solace", "oAuthIssuer", "SOLACE_OAUTH_ISSUER", "")
 	if err != nil {
 		return nil, nil, err
 	}
