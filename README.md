@@ -445,7 +445,32 @@ This allows you to overwrite the parameters, which are in the ini-config file / 
 
 This provides you a single exporter for all your OnPrem brokers.
 
-Security: Only use this feature with HTTPS.
+#### Providing SEMP Basic Auth Credentials
+
+Credentials for accessing the Solace broker can be provided in three ways (in order of priority):
+
+1. **HTTP Headers** (recommended for security):
+   - `X-Solace-Username`: The username for SEMP authentication
+   - `X-Solace-Password`: The password for SEMP authentication
+
+   Example using curl:
+   ```bash
+   curl -H "X-Solace-Username: admin" -H "X-Solace-Password: admin" \
+     "https://your-exporter:9628/solace?m.Version=*|*&scrapeURI=https://your-broker:943"
+   ```
+
+2. **Query Parameters**:
+   - `username`: The username for SEMP authentication
+   - `password`: The password for SEMP authentication
+
+   Example:
+   ```
+   https://your-exporter:9628/solace?m.Version=*|*&scrapeURI=https://your-broker:943&username=admin&password=admin
+   ```
+
+3. **Config File / Environment Variables** (fallback):
+   If no credentials are provided via headers or query parameters, the exporter uses the values from the config file or environment variables (`SOLACE_USERNAME` / `SOLACE_PASSWORD`).
+   
 
 #### Sample prometheus config
 
