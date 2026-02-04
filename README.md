@@ -346,7 +346,7 @@ oAuthClientID=your-client-id
 # OAuth Client Secret to fetch tokens from.
 oAuthClientSecret=your-client-secret
 
-# OAuth Client Secret to fetch tokens from (optional)
+# Use this parameter to select a specific OAuth profile (optional)
 # See https://docs.solace.com/Security/Client-Authentication-Overview.htm#provisioning-configuration-information-3
 # And https://community.solace.com/t/oauth-2-0-authentication-for-solace-cloud-rest-endpoints/1742/2
 oAuthIssuer=optional-issuer
