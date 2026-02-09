@@ -52,6 +52,24 @@ func (semp *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (float64, error) {
 
 						QueueTopicSubscriptionsQuota float64 `xml:"max-queue-topic-subscriptions"`
 						QueueTopicSubscriptionsUsed  float64 `xml:"queue-topic-subscriptions-used"`
+
+                        DefragScheduleEnabled           bool    `xml:"defrag-schedule-enabled"`
+                        DefragThresholdEnabled          bool    `xml:"defrag-threshold-enabled"`
+                        DefragThresholdFragPercentage   float64 `xml:"defrag-threshold-spool-fragmentation-percentage"`
+                        DefragThresholdUsagePercentage  float64 `xml:"defrag-threshold-spool-usage-percentage"`
+                        DefragEstimatedFragPercentage   float64 `xml:"defrag-est-fragmentation-percentage"`
+                        DefragEstimatedRecoverableSpace float64 `xml:"defrag-est-recoverable-space"`
+
+                        DiskInfos                       struct {
+                            DiskInfo                    []struct{
+                                Partition               string  `xml:"partition"`
+                                PartitionBlocks         float64 `xml:"blocks"`
+                                PartitionUsed           float64 `xml:"used"`
+                                PartitionAvailable      float64 `xml:"available"`
+                                PartitionUsePercentage  string  `xml:"use"`
+                                PartitionMountedOn      string  `xml:"mounted-on"`
+                            } `xml:"disk-info"`
+                        } `xml:"disk-infos"`
 					} `xml:"message-spool-info"`
 				} `xml:"message-spool"`
 			} `xml:"show"`
@@ -139,6 +157,23 @@ func (semp *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (float64, error) {
 	ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_messages_total_disk_usage_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.CurrentDiskUsage*1048576.0))
 	// I have been unable to ascertain what the error values for this metric are
 	ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_sync_status"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Spool.Info.SpoolSyncStatus, []string{"Synced"}))
+
+    ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_defrag_schedule_enabled"], prometheus.GaugeValue, encodeMetricBool(target.RPC.Show.Spool.Info.DefragScheduleEnabled))
+    ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_defrag_threshold_enabled"], prometheus.GaugeValue, encodeMetricBool(target.RPC.Show.Spool.Info.DefragThresholdEnabled))
+    ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_defrag_threshold_frag_percent"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.DefragThresholdFragPercentage)
+    ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_defrag_threshold_usage_percent"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.DefragThresholdUsagePercentage)
+    ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_defrag_estimated_frag_percent"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.DefragEstimatedFragPercentage)
+    ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_defrag_estimated_recoverable_space"], prometheus.GaugeValue, target.RPC.Show.Spool.Info.DefragEstimatedRecoverableSpace)
+
+    for _, diskInfo := range target.RPC.Show.Spool.Info.DiskInfos.DiskInfo {
+        partition := diskInfo.Partition
+        ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_disk_partition_blocks"], prometheus.GaugeValue, diskInfo.PartitionBlocks, partition)
+        ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_disk_partition_used"], prometheus.GaugeValue, diskInfo.PartitionUsed, partition)
+        ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_disk_partition_available"], prometheus.GaugeValue, diskInfo.PartitionAvailable, partition)
+        if value, err := strconv.ParseFloat(diskInfo.PartitionUsePercentage, 64); err == nil {
+            ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_disk_partition_use_percent"], prometheus.GaugeValue, math.Round(value), partition)
+        }
+    }
 
 	return 1, nil
 }
