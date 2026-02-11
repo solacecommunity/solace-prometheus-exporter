@@ -28,6 +28,7 @@ func (semp *Semp) GetBridgeDetailSemp1(ch chan<- PrometheusMetric, vpnFilter str
 							QueueOperationalState           string  `xml:"queue-operational-state"`
 							Redundancy                      string  `xml:"redundancy"`
 							ConnectionUptimeInSeconds       float64 `xml:"connection-uptime-in-seconds"`
+							LocalQueueName                  string  `xml:"local-queue-name"`
                             RemoteMessageVPNList                struct {
                                 RemoteMessageVPN                    []struct {
                                     VpnName                             string  `xml:"vpn-name"`
@@ -86,14 +87,15 @@ func (semp *Semp) GetBridgeDetailSemp1(ch chan<- PrometheusMetric, vpnFilter str
 		vpnName := bridge.LocalVpnName
 		connectedRemoteVpnName := bridge.ConnectedRemoteVpnName
 		connectedRemoteRouter := bridge.ConnectedRemoteRouterName
-		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_admin_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.AdminState, []string{"Enabled", "Disabled", "-", "N/A"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter)
-		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_connection_establisher"], prometheus.GaugeValue, encodeMetricMulti(bridge.ConnectionEstablisher, []string{"NotApplicable", "Local", "Remote", "Invalid"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter)
-		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_inbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalState, opStates), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter)
-		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_inbound_operational_failure_reason"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalFailureReason, failReasons), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter)
-		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_outbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.OutboundOperationalState, opStates), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter)
-		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_queue_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.QueueOperationalState, []string{"NotApplicable", "Bound", "Unbound"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter)
-		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup", "static", "none"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter)
-		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter)
+		localQueueName := bridge.LocalQueueName
+		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_admin_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.AdminState, []string{"Enabled", "Disabled", "-", "N/A"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName)
+		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_connection_establisher"], prometheus.GaugeValue, encodeMetricMulti(bridge.ConnectionEstablisher, []string{"NotApplicable", "Local", "Remote", "Invalid"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName)
+		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_inbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalState, opStates), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName)
+		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_inbound_operational_failure_reason"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalFailureReason, failReasons), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName)
+		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_outbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.OutboundOperationalState, opStates), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName)
+		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_queue_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.QueueOperationalState, []string{"NotApplicable", "Bound", "Unbound"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName)
+		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup", "static", "none"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName)
+		ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName)
 		for _, remoteVpn := range bridge.RemoteMessageVPNList.RemoteMessageVPN {
             remoteVpnName := remoteVpn.VpnName
             remoteRouter := remoteVpn.RouterName
@@ -102,11 +104,11 @@ func (semp *Semp) GetBridgeDetailSemp1(ch chan<- PrometheusMetric, vpnFilter str
             }
             compressed := remoteVpn.Compressed
             ssl := remoteVpn.SSL
-            queueName := remoteVpn.QueueName
-		    ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_remote_admin_state"], prometheus.GaugeValue, encodeMetricMulti(remoteVpn.AdminState, []string{"Enabled", "Disabled", "-", "N/A"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, remoteVpnName, remoteRouter, compressed, ssl, queueName)
-		    ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_remote_connection_state"], prometheus.GaugeValue, encodeMetricMulti(remoteVpn.ConnectionState, []string{"Down", "Up"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, remoteVpnName, remoteRouter, compressed, ssl, queueName)
-		    ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_remote_last_conn_failure_reason"], prometheus.GaugeValue, encodeMetricMulti(remoteVpn.LastConnectionFailureReason, failReasons), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, remoteVpnName, remoteRouter, compressed, ssl, queueName)
-		    ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_remote_queue_bind_state"], prometheus.GaugeValue, encodeMetricMulti(remoteVpn.QueueBindState, []string{"Down", "Up"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, remoteVpnName, remoteRouter, compressed, ssl, queueName)
+            remoteQueueName := remoteVpn.QueueName
+		    ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_remote_admin_state"], prometheus.GaugeValue, encodeMetricMulti(remoteVpn.AdminState, []string{"Enabled", "Disabled", "-", "N/A"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName, remoteVpnName, remoteRouter, compressed, ssl, remoteQueueName)
+		    ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_remote_connection_state"], prometheus.GaugeValue, encodeMetricMulti(remoteVpn.ConnectionState, []string{"Down", "Up"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, remoteVpnName, localQueueName, remoteRouter, compressed, ssl, remoteQueueName)
+		    ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_remote_last_conn_failure_reason"], prometheus.GaugeValue, encodeMetricMulti(remoteVpn.LastConnectionFailureReason, failReasons), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName, remoteVpnName, remoteRouter, compressed, ssl, remoteQueueName)
+		    ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_remote_queue_bind_state"], prometheus.GaugeValue, encodeMetricMulti(remoteVpn.QueueBindState, []string{"Down", "Up"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName, remoteVpnName, remoteRouter, compressed, ssl, remoteQueueName)
 		}
 	}
 	return 1, nil

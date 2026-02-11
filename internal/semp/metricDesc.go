@@ -25,8 +25,8 @@ var (
 	variableLabelsClusterLink      = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
 	variableLabelsBridge           = []string{"vpn_name", "bridge_name"}
 	variableLabelsBridgeRemote     = []string{"vpn_name", "bridge_name", "remote_vpn_name", "remote_router"}
-	variableLabelsBridgeDetail     = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router"}
-	variableLabelsBridgeDetailRemote     = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "remote_vpn_name", "remote_router", "compressed", "ssl", "queue_name"}
+	variableLabelsBridgeDetail     = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name"}
+	variableLabelsBridgeDetailRemote     = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name", "remote_vpn_name", "remote_router", "compressed", "ssl", "remote_queue_name"}
 	variableLabelsBridgeStats      = []string{"vpn_name", "bridge_name", "remote_router_name", "remote_vpn_name"}
 	variableLabelsConfigSyncTable  = []string{"table_name"}
 	variableLabelsStorageElement   = []string{"path", "device_name", "element_name"}
