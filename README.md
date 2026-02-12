@@ -346,6 +346,11 @@ oAuthClientID=your-client-id
 # OAuth Client Secret to fetch tokens from.
 oAuthClientSecret=your-client-secret
 
+# Use this parameter to select a specific OAuth profile (optional)
+# See https://docs.solace.com/Security/Client-Authentication-Overview.htm#provisioning-configuration-information-3
+# And https://community.solace.com/t/oauth-2-0-authentication-for-solace-cloud-rest-endpoints/1742/2
+oAuthIssuer=optional-issuer
+
 # Timeout for HTTP scrape requests to Solace broker.
 timeout = 5s
 
@@ -398,6 +403,7 @@ SOLACE_PASSWORD=admin
 SOLACE_OAUTH_TOKEN_URL=https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/token
 SOLACE_OAUTH_CLIENT_ID=your-client-id
 SOLACE_OAUTH_CLIENT_SECRET=your-client-secret
+SOLACE_OAUTH_ISSUER=optional-issuer
 SOLACE_TIMEOUT=5s
 SOLACE_SSL_VERIFY=false
 SOLACE_EXPORTER_AUTH_SCHEME=basic
