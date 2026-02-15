@@ -24,7 +24,7 @@ jobs:
         uses: golangci/golangci-lint-action@v9
         with:
           args: ./...
-          version: v2.1.0
+          version: latest
 
       - name: Run tidy check
         run: |
