@@ -13,7 +13,6 @@ type Exporter struct {
 	config     *Config
 	dataSource *[]DataSource
 	logger     log.Logger
-	lastError  error
 	semp       *semp.Semp
 }
 
@@ -28,7 +27,6 @@ func NewExporter(logger log.Logger, conf *Config, dataSource *[]DataSource) *Exp
 		logger:     logger,
 		config:     conf,
 		dataSource: dataSource,
-		lastError:  nil,
 		semp:       semp.NewSemp(logger, conf.ScrapeURI, conf.newHTTPClient(), httpVisitor, conf.logBrokerToSlowWarnings, conf.IsHWBroker),
 	}
 }
