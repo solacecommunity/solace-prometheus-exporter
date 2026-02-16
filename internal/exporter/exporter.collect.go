@@ -113,6 +113,8 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			up, err = e.semp.GetBridgeSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "BridgeRemote", "BridgeRemoteV1":
 			up, err = e.semp.GetBridgeRemoteSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+		case "BridgeDetail", "BridgeDetailV1":
+			up, err = e.semp.GetBridgeDetailSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "VpnSpool", "VpnSpoolV1":
 			up, err = e.semp.GetVpnSpoolSemp1(ch, dataSource.VpnFilter)
 		case "Client", "ClientV1":
