@@ -8,7 +8,7 @@ require (
 	github.com/prometheus/common v0.45.0
 	golang.org/x/oauth2 v0.31.0
 	golang.org/x/sync v0.17.0
-	gopkg.in/ini.v1 v1.67.0
+	gopkg.in/ini.v1 v1.67.1
 )
 
 require golang.org/x/crypto v0.35.0 // indirect
