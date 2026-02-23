@@ -184,7 +184,7 @@ func TestParseConfigBoolOptional(t *testing.T) {
 			envKey:     "SOLACE_LISTEN_TLS",
 			envValue:   "",
 			want:       testDefault,
-			wantErr:    true,
+			wantErr:    false,
 		},
 		{
 			name:       "invalid env value",
@@ -370,7 +370,7 @@ func TestParseConfigDurationOptional(t *testing.T) {
 			envKey:     "SOLACE_SCRAPE_INTERVAL",
 			envValue:   "",
 			want:       testDefault,
-			wantErr:    true,
+			wantErr:    false,
 		},
 		{
 			name:       "invalid env value",
@@ -410,7 +410,7 @@ func TestParseConfigDurationOptional(t *testing.T) {
 					t.Fatalf("failed to load ini: %v", err)
 				}
 			}
-			got, err := parseConfigDurationOptional(cfg, tt.iniSection, tt.iniKey, tt.envKey)
+			got, err := parseConfigDurationOptional(cfg, tt.iniSection, tt.iniKey, tt.envKey, testDefault)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseConfigDurationOptional() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -463,7 +463,7 @@ func TestParseConfigIntOptional(t *testing.T) {
 			envKey:     "SOLACE_SCRAPE_TIMEOUT",
 			envValue:   "",
 			want:       testDefault,
-			wantErr:    true,
+			wantErr:    false,
 		},
 		{
 			name:       "invalid env value",
@@ -504,7 +504,7 @@ func TestParseConfigIntOptional(t *testing.T) {
 				}
 			}
 
-			got, err := parseConfigIntOptional(cfg, tt.iniSection, tt.iniKey, tt.envKey)
+			got, err := parseConfigIntOptional(cfg, tt.iniSection, tt.iniKey, tt.envKey, testDefault)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("parseConfigIntOptional() error = %v, wantErr %v", err, tt.wantErr)
 			}
