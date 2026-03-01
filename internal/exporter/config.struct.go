@@ -16,21 +16,21 @@ import (
 type ExporterAuthConfig struct {
 	Scheme   string
 	Username string
-	Password string
+	Password string `json:"-"`
 }
 
 // Config Collection of configs
 type Config struct {
 	ListenAddr              string
 	EnableTLS               bool
-	Certificate             string
-	PrivateKey              string
+	Certificate             string `json:"-"`
+	PrivateKey              string `json:"-"`
 	CertType                string
-	Pkcs12File              string
-	Pkcs12Pass              string
+	Pkcs12File              string `json:"-"`
+	Pkcs12Pass              string `json:"-"`
 	ScrapeURI               string
 	Username                string
-	Password                string
+	Password                string `json:"-"`
 	DefaultVpn              string
 	SslVerify               bool
 	Timeout                 time.Duration
@@ -254,7 +254,7 @@ func parseConfigBool(cfg *ini.File, iniSection string, iniKey string, envKey str
 func parseConfigBoolOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue bool) (bool, error) {
 	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
 	if err != nil {
-		return defaultValue, nil
+		return defaultValue, err
 	}
 
 	val, err := strconv.ParseBool(s)
@@ -282,7 +282,7 @@ func parseConfigDuration(cfg *ini.File, iniSection string, iniKey string, envKey
 func parseConfigDurationOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue time.Duration) (time.Duration, error) {
 	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
 	if err != nil {
-		return defaultValue, nil
+		return defaultValue, err
 	}
 
 	val, err := time.ParseDuration(s)
@@ -296,7 +296,7 @@ func parseConfigDurationOptional(cfg *ini.File, iniSection string, iniKey string
 func parseConfigIntOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue int64) (int64, error) {
 	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
 	if err != nil {
-		return defaultValue, nil
+		return defaultValue, err
 	}
 
 	val, err := strconv.ParseInt(s, 10, 0)
