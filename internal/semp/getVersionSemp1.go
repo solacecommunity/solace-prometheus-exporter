@@ -58,7 +58,7 @@ func (semp *Semp) GetVersionSemp1(ch chan<- PrometheusMetric) (float64, error) {
 	// compute a version number so it can be measured by Prometheus
 	var vmrVersionStrBuffer bytes.Buffer
 	for _, s := range strings.Split(vmrVersion, ".") {
-		vmrVersionStrBuffer.WriteString(fmt.Sprintf("%03v", s))
+		fmt.Fprintf(&vmrVersionStrBuffer, "%03v", s)
 	}
 	var vmrVersionNr float64
 	vmrVersionNr, _ = strconv.ParseFloat(vmrVersionStrBuffer.String(), 64)

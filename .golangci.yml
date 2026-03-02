@@ -16,7 +16,6 @@ linters:
     - gocheckcompilerdirectives
     - gochecksumtype
     - goconst
-    - gosec
     - gosmopolitan
     - grouper
     - iface
@@ -40,6 +39,7 @@ linters:
     - errcheck
     - godot
     - nlreturn
+    - gosec
   exclusions:
     generated: lax
     presets:
