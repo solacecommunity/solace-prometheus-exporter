@@ -5,7 +5,6 @@ import (
 	"solace_exporter/internal/semp/types"
 	"strconv"
 
-	
 	"github.com/prometheus/client_golang/prometheus"
 )
 

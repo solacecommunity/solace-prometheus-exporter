@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 
-	
 	"github.com/prometheus/client_golang/prometheus"
 )
 

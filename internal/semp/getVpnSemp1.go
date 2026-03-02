@@ -5,7 +5,6 @@ import (
 	"errors"
 	"solace_exporter/internal/semp/types"
 
-	
 	"github.com/prometheus/client_golang/prometheus"
 )
 

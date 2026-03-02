@@ -5,39 +5,39 @@ const (
 )
 
 var (
-	variableLabelsUp               = []string{"error", "endpoint"}
-	variableLabelsEnvironment      = []string{"sensor_name"}
-	variableLabelsHardwareFC       = []string{"channel_number"}
-	variableLabelsHardwareLUN      = []string{"lun_number"}
-	variableLabelsRedundancy       = []string{"mate_name"}
-	variableLabelsRedundancyHW     = []string{"mate_name"}
-	variableLabelsReplication      = []string{"mate_name"}
-	variableLabelsVpn              = []string{"vpn_name"}
-	variableLabelsClientInfo       = []string{"vpn_name", "client_name", "client_address"}
-	variableLabelsClientProfile    = []string{"vpn_name", "client_profile"}
-	variableLabelsClientSlowSub    = []string{"vpn_name", "client_name", "client_address", "client_username"}
-	variableLabelsVpnClient        = []string{"vpn_name", "client_name"}
-	variableLabelsVpnClientUser    = []string{"vpn_name", "client_name", "client_username"}
-	variableLabelsVpnClientDetail  = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile"}
-	variableLabelsVpnClientFlow    = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
-	variableLabelsVpnQueue         = []string{"vpn_name", "queue_name"}
-	variableLabelsVpnTopicEndpoint = []string{"vpn_name", "topic_endpoint_name"}
-	variableLabelsClusterLink      = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
-	variableLabelsBridge           = []string{"vpn_name", "bridge_name"}
-	variableLabelsBridgeRemote     = []string{"vpn_name", "bridge_name", "remote_vpn_name", "remote_router"}
-	variableLabelsBridgeDetail     = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name"}
-	variableLabelsBridgeDetailRemote     = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name", "remote_vpn_name", "remote_router", "compressed", "ssl", "remote_queue_name"}
-	variableLabelsBridgeStats      = []string{"vpn_name", "bridge_name", "remote_router_name", "remote_vpn_name"}
-	variableLabelsConfigSyncTable  = []string{"table_name"}
-	variableLabelsStorageElement   = []string{"path", "device_name", "element_name"}
-	variableLabelsDisk             = []string{"path", "device_name"}
-	variableLabelsInterface        = []string{"interface_name"}
-	variableLabelsInterfaceHW      = []string{"interface_name"}
-	variableLabelsRaid             = []string{"disk_number", "device_model"}
-	variableLabelsRestConsumer     = []string{"vpn_name", "rdp_name", "rest_consumer_name"}
-	variableLabelsRdpInfo          = []string{"vpn_name", "rdp_name"}
-	variableLabelsRdpStats         = []string{"vpn_name", "rdp_name"}
-	variableLabelsSpool            = []string{"partition"}
+	variableLabelsUp                 = []string{"error", "endpoint"}
+	variableLabelsEnvironment        = []string{"sensor_name"}
+	variableLabelsHardwareFC         = []string{"channel_number"}
+	variableLabelsHardwareLUN        = []string{"lun_number"}
+	variableLabelsRedundancy         = []string{"mate_name"}
+	variableLabelsRedundancyHW       = []string{"mate_name"}
+	variableLabelsReplication        = []string{"mate_name"}
+	variableLabelsVpn                = []string{"vpn_name"}
+	variableLabelsClientInfo         = []string{"vpn_name", "client_name", "client_address"}
+	variableLabelsClientProfile      = []string{"vpn_name", "client_profile"}
+	variableLabelsClientSlowSub      = []string{"vpn_name", "client_name", "client_address", "client_username"}
+	variableLabelsVpnClient          = []string{"vpn_name", "client_name"}
+	variableLabelsVpnClientUser      = []string{"vpn_name", "client_name", "client_username"}
+	variableLabelsVpnClientDetail    = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile"}
+	variableLabelsVpnClientFlow      = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
+	variableLabelsVpnQueue           = []string{"vpn_name", "queue_name"}
+	variableLabelsVpnTopicEndpoint   = []string{"vpn_name", "topic_endpoint_name"}
+	variableLabelsClusterLink        = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
+	variableLabelsBridge             = []string{"vpn_name", "bridge_name"}
+	variableLabelsBridgeRemote       = []string{"vpn_name", "bridge_name", "remote_vpn_name", "remote_router"}
+	variableLabelsBridgeDetail       = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name"}
+	variableLabelsBridgeDetailRemote = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name", "remote_vpn_name", "remote_router", "compressed", "ssl", "remote_queue_name"}
+	variableLabelsBridgeStats        = []string{"vpn_name", "bridge_name", "remote_router_name", "remote_vpn_name"}
+	variableLabelsConfigSyncTable    = []string{"table_name"}
+	variableLabelsStorageElement     = []string{"path", "device_name", "element_name"}
+	variableLabelsDisk               = []string{"path", "device_name"}
+	variableLabelsInterface          = []string{"interface_name"}
+	variableLabelsInterfaceHW        = []string{"interface_name"}
+	variableLabelsRaid               = []string{"disk_number", "device_model"}
+	variableLabelsRestConsumer       = []string{"vpn_name", "rdp_name", "rest_consumer_name"}
+	variableLabelsRdpInfo            = []string{"vpn_name", "rdp_name"}
+	variableLabelsRdpStats           = []string{"vpn_name", "rdp_name"}
+	variableLabelsSpool              = []string{"partition"}
 )
 
 var QueueStats = Descriptions{
@@ -149,17 +149,17 @@ var MetricDesc = map[string]Descriptions{
 		"system_spool_files_utilization_percent":           NewSemDesc("system_spool_files_utilization_percent", NoSempV2Ready, "Utilization of spool files in percent.", nil),
 		"system_spool_message_count_utilization_percent":   NewSemDesc("system_spool_message_count_utilization_percent", NoSempV2Ready, "Utilization of queue message resource in percent.", nil),
 
-        "system_spool_defrag_schedule_enabled":             NewSemDesc("system_spool_defrag_schedule_enabled", NoSempV2Ready, "Spool defragmentation schedule is enablement 0 = disabled, 1 = enabled.", nil),
-        "system_spool_defrag_threshold_enabled":            NewSemDesc("system_spool_defrag_threshold_enabled", NoSempV2Ready, "Spool defragmentation threshold is enablement 0 = disabled, 1 = enabled.", nil),
-        "system_spool_defrag_threshold_frag_percent":       NewSemDesc("system_spool_defrag_threshold_frag_percent", NoSempV2Ready, "Spool defragmentation threshold fragmentation in percent.", nil),
-        "system_spool_defrag_threshold_usage_percent":      NewSemDesc("system_spool_defrag_threshold_usage_percent", NoSempV2Ready, "Spool defragmentation threshold spool usage in percent.", nil),
-        "system_spool_defrag_estimated_frag_percent":       NewSemDesc("system_spool_defrag_estimated_frag_percent", NoSempV2Ready, "Spool defragmentation estimated fragmentation in percent.", nil),
-        "system_spool_defrag_estimated_recoverable_space":  NewSemDesc("system_spool_defrag_estimated_recoverable_space", NoSempV2Ready, "Spool defragmentation estimated recoverable space in MB.", nil),
+		"system_spool_defrag_schedule_enabled":            NewSemDesc("system_spool_defrag_schedule_enabled", NoSempV2Ready, "Spool defragmentation schedule is enablement 0 = disabled, 1 = enabled.", nil),
+		"system_spool_defrag_threshold_enabled":           NewSemDesc("system_spool_defrag_threshold_enabled", NoSempV2Ready, "Spool defragmentation threshold is enablement 0 = disabled, 1 = enabled.", nil),
+		"system_spool_defrag_threshold_frag_percent":      NewSemDesc("system_spool_defrag_threshold_frag_percent", NoSempV2Ready, "Spool defragmentation threshold fragmentation in percent.", nil),
+		"system_spool_defrag_threshold_usage_percent":     NewSemDesc("system_spool_defrag_threshold_usage_percent", NoSempV2Ready, "Spool defragmentation threshold spool usage in percent.", nil),
+		"system_spool_defrag_estimated_frag_percent":      NewSemDesc("system_spool_defrag_estimated_frag_percent", NoSempV2Ready, "Spool defragmentation estimated fragmentation in percent.", nil),
+		"system_spool_defrag_estimated_recoverable_space": NewSemDesc("system_spool_defrag_estimated_recoverable_space", NoSempV2Ready, "Spool defragmentation estimated recoverable space in MB.", nil),
 
-		"system_spool_disk_partition_blocks":           NewSemDesc("system_spool_disk_partition_blocks", NoSempV2Ready, "Total disk partition bytes", variableLabelsSpool),
-		"system_spool_disk_partition_used":             NewSemDesc("system_spool_disk_partition_used", NoSempV2Ready, "Disk partition used bytes.", variableLabelsSpool),
-		"system_spool_disk_partition_available":        NewSemDesc("system_spool_disk_partition_available", NoSempV2Ready, "Disk partition available bytes.", variableLabelsSpool),
-		"system_spool_disk_partition_use_percent":      NewSemDesc("system_spool_disk_partition_use_percent", NoSempV2Ready, "Disk partition usage in percent.", variableLabelsSpool),
+		"system_spool_disk_partition_blocks":      NewSemDesc("system_spool_disk_partition_blocks", NoSempV2Ready, "Total disk partition bytes", variableLabelsSpool),
+		"system_spool_disk_partition_used":        NewSemDesc("system_spool_disk_partition_used", NoSempV2Ready, "Disk partition used bytes.", variableLabelsSpool),
+		"system_spool_disk_partition_available":   NewSemDesc("system_spool_disk_partition_available", NoSempV2Ready, "Disk partition available bytes.", variableLabelsSpool),
+		"system_spool_disk_partition_use_percent": NewSemDesc("system_spool_disk_partition_use_percent", NoSempV2Ready, "Disk partition usage in percent.", variableLabelsSpool),
 
 		"system_spool_ingress_flows_quota":             NewSemDesc("system_spool_ingress_flows_quota", NoSempV2Ready, "Number of maximal possible ingress flows.", nil),
 		"system_spool_ingress_flows_count":             NewSemDesc("system_spool_ingress_flows_count", NoSempV2Ready, "Number of used ingress flows.", nil),
