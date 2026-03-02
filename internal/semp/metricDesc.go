@@ -25,6 +25,8 @@ var (
 	variableLabelsClusterLink      = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
 	variableLabelsBridge           = []string{"vpn_name", "bridge_name"}
 	variableLabelsBridgeRemote     = []string{"vpn_name", "bridge_name", "remote_vpn_name", "remote_router"}
+	variableLabelsBridgeDetail     = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name"}
+	variableLabelsBridgeDetailRemote     = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name", "remote_vpn_name", "remote_router", "compressed", "ssl", "remote_queue_name"}
 	variableLabelsBridgeStats      = []string{"vpn_name", "bridge_name", "remote_router_name", "remote_vpn_name"}
 	variableLabelsConfigSyncTable  = []string{"table_name"}
 	variableLabelsStorageElement   = []string{"path", "device_name", "element_name"}
@@ -35,6 +37,7 @@ var (
 	variableLabelsRestConsumer     = []string{"vpn_name", "rdp_name", "rest_consumer_name"}
 	variableLabelsRdpInfo          = []string{"vpn_name", "rdp_name"}
 	variableLabelsRdpStats         = []string{"vpn_name", "rdp_name"}
+	variableLabelsSpool            = []string{"partition"}
 )
 
 var QueueStats = Descriptions{
@@ -145,6 +148,18 @@ var MetricDesc = map[string]Descriptions{
 		"system_spool_usage_msgs":                          NewSemDesc("system_spool_usage_msgs", NoSempV2Ready, "Spool total number of persisted messages.", nil),
 		"system_spool_files_utilization_percent":           NewSemDesc("system_spool_files_utilization_percent", NoSempV2Ready, "Utilization of spool files in percent.", nil),
 		"system_spool_message_count_utilization_percent":   NewSemDesc("system_spool_message_count_utilization_percent", NoSempV2Ready, "Utilization of queue message resource in percent.", nil),
+
+        "system_spool_defrag_schedule_enabled":             NewSemDesc("system_spool_defrag_schedule_enabled", NoSempV2Ready, "Spool defragmentation schedule is enablement 0 = disabled, 1 = enabled.", nil),
+        "system_spool_defrag_threshold_enabled":            NewSemDesc("system_spool_defrag_threshold_enabled", NoSempV2Ready, "Spool defragmentation threshold is enablement 0 = disabled, 1 = enabled.", nil),
+        "system_spool_defrag_threshold_frag_percent":       NewSemDesc("system_spool_defrag_threshold_frag_percent", NoSempV2Ready, "Spool defragmentation threshold fragmentation in percent.", nil),
+        "system_spool_defrag_threshold_usage_percent":      NewSemDesc("system_spool_defrag_threshold_usage_percent", NoSempV2Ready, "Spool defragmentation threshold spool usage in percent.", nil),
+        "system_spool_defrag_estimated_frag_percent":       NewSemDesc("system_spool_defrag_estimated_frag_percent", NoSempV2Ready, "Spool defragmentation estimated fragmentation in percent.", nil),
+        "system_spool_defrag_estimated_recoverable_space":  NewSemDesc("system_spool_defrag_estimated_recoverable_space", NoSempV2Ready, "Spool defragmentation estimated recoverable space in MB.", nil),
+
+		"system_spool_disk_partition_blocks":           NewSemDesc("system_spool_disk_partition_blocks", NoSempV2Ready, "Total disk partition bytes", variableLabelsSpool),
+		"system_spool_disk_partition_used":             NewSemDesc("system_spool_disk_partition_used", NoSempV2Ready, "Disk partition used bytes.", variableLabelsSpool),
+		"system_spool_disk_partition_available":        NewSemDesc("system_spool_disk_partition_available", NoSempV2Ready, "Disk partition available bytes.", variableLabelsSpool),
+		"system_spool_disk_partition_use_percent":      NewSemDesc("system_spool_disk_partition_use_percent", NoSempV2Ready, "Disk partition usage in percent.", variableLabelsSpool),
 
 		"system_spool_ingress_flows_quota":             NewSemDesc("system_spool_ingress_flows_quota", NoSempV2Ready, "Number of maximal possible ingress flows.", nil),
 		"system_spool_ingress_flows_count":             NewSemDesc("system_spool_ingress_flows_count", NoSempV2Ready, "Number of used ingress flows.", nil),
@@ -290,6 +305,20 @@ var MetricDesc = map[string]Descriptions{
 		"bridge_remote_queue_operational_state":            NewSemDesc("bridge_remote_queue_operational_state", NoSempV2Ready, "Queue Ops State (0-NotApplicable, 1-Bound, 2-Unbound)", variableLabelsBridgeRemote),
 		"bridge_remote_redundancy":                         NewSemDesc("bridge_remote_redundancy", NoSempV2Ready, "Bridge Redundancy (0-NotApplicable, 1-auto, 2-primary, 3-backup, 4-static, 5-none)", variableLabelsBridgeRemote),
 		"bridge_remote_connection_uptime_in_seconds":       NewSemDesc("bridge_remote_connection_uptime_in_seconds", NoSempV2Ready, "Connection Uptime (s)", variableLabelsBridgeRemote),
+	},
+	"BridgeDetail": {
+		"bridge_detail_admin_state":                        NewSemDesc("bridge_detail_admin_state", NoSempV2Ready, "Bridge Administrative State (0-Enabled 1-Disabled, 2--, 3-N/A)", variableLabelsBridgeDetail),
+		"bridge_detail_connection_establisher":             NewSemDesc("bridge_detail_connection_establisher", NoSempV2Ready, "Connection Establisher (0-NotApplicable, 1-Local, 2-Remote, 3-Invalid)", variableLabelsBridgeDetail),
+		"bridge_detail_inbound_operational_state":          NewSemDesc("bridge_detail_inbound_operational_state", NoSempV2Ready, "Inbound Ops State (0-Init, 1-Shutdown, 2-NoShutdown, 3-Prepare, 4-Prepare-WaitToConnect, 5-Prepare-FetchingDNS, 6-NotReady, 7-NotReady-Connecting, 8-NotReady-Handshaking, 9-NotReady-WaitNext, 10-NotReady-WaitReuse, 11-NotRead-WaitBridgeVersionMismatch, 12-NotReady-WaitCleanup, 13-Ready, 14-Ready-Subscribing, 15-Ready-InSync, 16-NotApplicable, 17-Invalid)", variableLabelsBridgeDetail),
+		"bridge_detail_inbound_operational_failure_reason": NewSemDesc("bridge_detail_inbound_operational_failure_reason", NoSempV2Ready, "Inbound Ops Failure Reason (0-Bridge disabled ,1-No remote message-vpns configured, 2-SMF service is disabled, 3-Msg Backbone is disabled, 4-Local message-vpn is disabled, 5-Active-Standby Role Mismatch, 6-Invalid Active-Standby Role, 7-Redundancy Disabled, 8-Not active, 9-Replication standby, 10-Remote message-vpns disabled, 11-Enforce-trusted-common-name but empty trust-common-name list, 12-SSL transport used but cipher-suite list is empty, 13-Authentication Scheme is Client-Certificate but no certificate is configured, 14-Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL, 15-Basic Authentication Scheme used but Basic Client Username not configured, 16-Cluster Down, 17-Cluster Link Down, 18-N/A)", variableLabelsBridgeDetail),
+		"bridge_detail_outbound_operational_state":         NewSemDesc("bridge_detail_outbound_operational_state", NoSempV2Ready, "Outbound Ops State (0-Init, 1-Shutdown, 2-NoShutdown, 3-Prepare, 4-Prepare-WaitToConnect, 5-Prepare-FetchingDNS, 6-NotReady, 7-NotReady-Connecting, 8-NotReady-Handshaking, 9-NotReady-WaitNext, 10-NotReady-WaitReuse, 11-NotRead-WaitBridgeVersionMismatch, 12-NotReady-WaitCleanup, 13-Ready, 14-Ready-Subscribing, 15-Ready-InSync, 16-NotApplicable, 17-Invalid)", variableLabelsBridgeDetail),
+		"bridge_detail_queue_operational_state":            NewSemDesc("bridge_detail_queue_operational_state", NoSempV2Ready, "Queue Ops State (0-NotApplicable, 1-Bound, 2-Unbound)", variableLabelsBridgeDetail),
+		"bridge_detail_redundancy":                         NewSemDesc("bridge_detail_redundancy", NoSempV2Ready, "Bridge Redundancy (0-NotApplicable, 1-auto, 2-primary, 3-backup, 4-static, 5-none)", variableLabelsBridgeDetail),
+		"bridge_detail_connection_uptime_in_seconds":       NewSemDesc("bridge_detail_connection_uptime_in_seconds", NoSempV2Ready, "Connection Uptime (s)", variableLabelsBridgeDetail),
+		"bridge_detail_remote_admin_state":                 NewSemDesc("bridge_detail_remote_admin_state", NoSempV2Ready, "Bridge Remote Administrative State (0-Enabled 1-Disabled, 2--, 3-N/A)", variableLabelsBridgeDetailRemote),
+		"bridge_detail_remote_connection_state":            NewSemDesc("bridge_detail_remote_connection_state", NoSempV2Ready, "Bridge Remote Connection Current Status (0-Down, 1-Up)", variableLabelsBridgeDetailRemote),
+		"bridge_detail_remote_last_conn_failure_reason":    NewSemDesc("bridge_detail_remote_last_conn_failure_reason", NoSempV2Ready, "Bridge Remote Last Connection Failure Reason (0-Bridge disabled ,1-No remote message-vpns configured, 2-SMF service is disabled, 3-Msg Backbone is disabled, 4-Local message-vpn is disabled, 5-Active-Standby Role Mismatch, 6-Invalid Active-Standby Role, 7-Redundancy Disabled, 8-Not active, 9-Replication standby, 10-Remote message-vpns disabled, 11-Enforce-trusted-common-name but empty trust-common-name list, 12-SSL transport used but cipher-suite list is empty, 13-Authentication Scheme is Client-Certificate but no certificate is configured, 14-Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL, 15-Basic Authentication Scheme used but Basic Client Username not configured, 16-Cluster Down, 17-Cluster Link Down, 18-N/A)", variableLabelsBridgeDetailRemote),
+		"bridge_detail_remote_queue_bind_state":            NewSemDesc("bridge_detail_remote_queue_bind_state", NoSempV2Ready, "Bridge Remote Queue Bind Status (0-Down, 1-Up)", variableLabelsBridgeDetailRemote),
 	},
 	"VpnSpool": {
 		"vpn_spool_quota_bytes":                 NewSemDesc("vpn_spool_quota_bytes", NoSempV2Ready, "Spool configured max disk usage.", variableLabelsVpn),
