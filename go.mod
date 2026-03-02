@@ -7,7 +7,7 @@ require (
 	github.com/prometheus/client_golang v1.20.4
 	github.com/prometheus/common v0.67.5
 	golang.org/x/oauth2 v0.35.0
-	golang.org/x/sync v0.17.0
+	golang.org/x/sync v0.19.0
 	gopkg.in/ini.v1 v1.67.1
 )
 
