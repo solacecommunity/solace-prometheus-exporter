@@ -34,3 +34,4 @@ COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 COPY --from=builder /bin/solace_prometheus_exporter /solace_prometheus_exporter
+COPY --from=builder /go/src/app/web /web
