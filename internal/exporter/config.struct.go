@@ -81,22 +81,10 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 		}
 	}
 
-	conf.ExporterAuth.Scheme, err = parseConfigStringOptional(cfg, "solace", "exporterAuthScheme", "SOLACE_EXPORTER_AUTH_SCHEME", "none")
-	if err != nil {
-		return nil, nil, err
-	}
-	conf.ExporterAuth.Username, err = parseConfigStringOptional(cfg, "solace", "exporterAuthUsername", "SOLACE_EXPORTER_AUTH_USERNAME", "")
-	if err != nil {
-		return nil, nil, err
-	}
-	conf.ExporterAuth.Password, err = parseConfigStringOptional(cfg, "solace", "exporterAuthPassword", "SOLACE_EXPORTER_AUTH_PASSWORD", "")
-	if err != nil {
-		return nil, nil, err
-	}
-	conf.ListenAddr, err = parseConfigStringOptional(cfg, "solace", "listenAddr", "SOLACE_LISTEN_ADDR", "0.0.0.0:9628")
-	if err != nil {
-		return nil, nil, err
-	}
+	conf.ExporterAuth.Scheme = parseConfigStringOptional(cfg, "solace", "exporterAuthScheme", "SOLACE_EXPORTER_AUTH_SCHEME", "none")
+	conf.ExporterAuth.Username = parseConfigStringOptional(cfg, "solace", "exporterAuthUsername", "SOLACE_EXPORTER_AUTH_USERNAME", "")
+	conf.ExporterAuth.Password = parseConfigStringOptional(cfg, "solace", "exporterAuthPassword", "SOLACE_EXPORTER_AUTH_PASSWORD", "")
+	conf.ListenAddr = parseConfigStringOptional(cfg, "solace", "listenAddr", "SOLACE_LISTEN_ADDR", "0.0.0.0:9628")
 	conf.EnableTLS, err = parseConfigBoolOptional(cfg, "solace", "enableTLS", "SOLACE_LISTEN_TLS", false)
 	if err != nil {
 		return nil, nil, err
@@ -126,10 +114,7 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	conf.DefaultVpn, err = parseConfigStringOptional(cfg, "solace", "defaultVpn", "SOLACE_DEFAULT_VPN", "default")
-	if err != nil {
-		return nil, nil, err
-	}
+	conf.DefaultVpn = parseConfigStringOptional(cfg, "solace", "defaultVpn", "SOLACE_DEFAULT_VPN", "default")
 	conf.Timeout, err = parseConfigDurationOptional(cfg, "solace", "timeout", "SOLACE_TIMEOUT", 5*time.Second)
 	if err != nil {
 		return nil, nil, err
@@ -155,34 +140,13 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 		return nil, nil, err
 	}
 
-	conf.OAuthTokenURL, err = parseConfigStringOptional(cfg, "solace", "oAuthTokenURL", "SOLACE_OAUTH_TOKEN_URL", "")
-	if err != nil {
-		return nil, nil, err
-	}
-	conf.OAuthClientID, err = parseConfigStringOptional(cfg, "solace", "oAuthClientID", "SOLACE_OAUTH_CLIENT_ID", "")
-	if err != nil {
-		return nil, nil, err
-	}
-	conf.OAuthClientSecret, err = parseConfigStringOptional(cfg, "solace", "oAuthClientSecret", "SOLACE_OAUTH_CLIENT_SECRET", "")
-	if err != nil {
-		return nil, nil, err
-	}
-	conf.OAuthClientScope, err = parseConfigStringOptional(cfg, "solace", "oAuthClientScope", "SOLACE_OAUTH_CLIENT_SCOPE", "")
-	if err != nil {
-		return nil, nil, err
-	}
-	conf.OAuthIssuer, err = parseConfigStringOptional(cfg, "solace", "oAuthIssuer", "SOLACE_OAUTH_ISSUER", "")
-	if err != nil {
-		return nil, nil, err
-	}
-	conf.Username, err = parseConfigStringOptional(cfg, "solace", "username", "SOLACE_USERNAME", "admin")
-	if err != nil {
-		return nil, nil, err
-	}
-	conf.Password, err = parseConfigStringOptional(cfg, "solace", "password", "SOLACE_PASSWORD", "admin")
-	if err != nil {
-		return nil, nil, err
-	}
+	conf.OAuthTokenURL = parseConfigStringOptional(cfg, "solace", "oAuthTokenURL", "SOLACE_OAUTH_TOKEN_URL", "")
+	conf.OAuthClientID = parseConfigStringOptional(cfg, "solace", "oAuthClientID", "SOLACE_OAUTH_CLIENT_ID", "")
+	conf.OAuthClientSecret = parseConfigStringOptional(cfg, "solace", "oAuthClientSecret", "SOLACE_OAUTH_CLIENT_SECRET", "")
+	conf.OAuthClientScope = parseConfigStringOptional(cfg, "solace", "oAuthClientScope", "SOLACE_OAUTH_CLIENT_SCOPE", "")
+	conf.OAuthIssuer = parseConfigStringOptional(cfg, "solace", "oAuthIssuer", "SOLACE_OAUTH_ISSUER", "")
+	conf.Username = parseConfigStringOptional(cfg, "solace", "username", "SOLACE_USERNAME", "admin")
+	conf.Password = parseConfigStringOptional(cfg, "solace", "password", "SOLACE_PASSWORD", "admin")
 
 	if (len(conf.Username) == 0 || len(conf.Password) == 0) && (len(conf.OAuthClientID) == 0 || len(conf.OAuthClientSecret) == 0 || len(conf.OAuthTokenURL) == 0 || len(conf.OAuthClientScope) == 0) {
 		return nil, nil, errors.New("either basic auth (username+password) or OAuth (oAuthClientID+oAuthClientSecret+oAuthTokenURL+oAuthClientScope) must be configured")
@@ -252,14 +216,14 @@ func parseConfigBool(cfg *ini.File, iniSection string, iniKey string, envKey str
 }
 
 func parseConfigBoolOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue bool) (bool, error) {
-	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
-	if err != nil {
-		return defaultValue, err
+	s := parseConfigStringOptional(cfg, iniSection, iniKey, envKey, "")
+	if s == "" {
+		return defaultValue, nil
 	}
 
 	val, err := strconv.ParseBool(s)
 	if err != nil {
-		return false, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+		return false, fmt.Errorf("config param %q and env param %q is invalid: %w", iniKey, envKey, err)
 	}
 
 	return val, nil
@@ -273,35 +237,36 @@ func parseConfigDuration(cfg *ini.File, iniSection string, iniKey string, envKey
 
 	val, err := time.ParseDuration(s)
 	if err != nil {
-		return 0, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+		return 0, fmt.Errorf("config param %q and env param %q is invalid: %w", iniKey, envKey, err)
 	}
 
 	return val, nil
 }
 
 func parseConfigDurationOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue time.Duration) (time.Duration, error) {
-	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
-	if err != nil {
-		return defaultValue, err
+	s := parseConfigStringOptional(cfg, iniSection, iniKey, envKey, "")
+	if s == "" {
+		return defaultValue, nil
 	}
 
 	val, err := time.ParseDuration(s)
 	if err != nil {
-		return defaultValue, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+		return defaultValue, fmt.Errorf("config param %q and env param %q is invalid: %w", iniKey, envKey, err)
 	}
 
 	return val, nil
 }
 
 func parseConfigIntOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue int64) (int64, error) {
-	s, err := parseConfigString(cfg, iniSection, iniKey, envKey)
-	if err != nil {
-		return defaultValue, err
+	s := parseConfigStringOptional(cfg, iniSection, iniKey, envKey, "")
+
+	if s == "" {
+		return defaultValue, nil
 	}
 
 	val, err := strconv.ParseInt(s, 10, 0)
 	if err != nil {
-		return 0, fmt.Errorf("config param %q and env param %q is mandetory. Both are missing: %w", iniKey, envKey, err)
+		return 0, fmt.Errorf("config param %q and env param %q is invalid: %w", iniKey, envKey, err)
 	}
 
 	return val, nil
@@ -324,18 +289,18 @@ func parseConfigString(cfg *ini.File, iniSection string, iniKey string, envKey s
 }
 
 // parseConfigStringOptional tries to find the config value from environment variable first, then from ini file.
-func parseConfigStringOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue string) (string, error) {
+func parseConfigStringOptional(cfg *ini.File, iniSection string, iniKey string, envKey string, defaultValue string) string {
 	s := os.Getenv(envKey)
 	if len(s) > 0 {
-		return s, nil
+		return s
 	}
 
 	if cfg != nil {
 		s := cfg.Section(iniSection).Key(iniKey).String()
 		if len(s) > 0 {
-			return s, nil
+			return s
 		}
 	}
 
-	return defaultValue, nil
+	return defaultValue
 }
