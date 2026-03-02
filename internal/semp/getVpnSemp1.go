@@ -5,7 +5,7 @@ import (
 	"errors"
 	"solace_exporter/internal/semp/types"
 
-	"github.com/go-kit/log/level"
+	
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -38,7 +38,7 @@ func (semp *Semp) GetVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string) (flo
 	command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name></message-vpn></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "VpnSemp1", 1)
 	if err != nil {
-		_ = level.Error(semp.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't scrape VpnSemp1", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
 	defer body.Close()
@@ -46,11 +46,11 @@ func (semp *Semp) GetVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string) (flo
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml VpnSemp1", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't decode Xml VpnSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if target.ExecuteResult.Result != "ok" {
-		_ = level.Error(semp.logger).Log("msg", "Unexpected result for VpnSemp1", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
+		semp.logger.Error("Unexpected result for VpnSemp1", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
 		return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
 	}
 

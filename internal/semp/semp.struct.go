@@ -1,14 +1,13 @@
 package semp
 
 import (
+	"log/slog"
 	"net/http"
-
-	"github.com/go-kit/log"
 )
 
 // Semp API to the solace broker, to collect data
 type Semp struct {
-	logger                  log.Logger
+	logger                  *slog.Logger
 	httpClient              http.Client
 	httpRequestVisitor      func(*http.Request)
 	brokerURI               string
@@ -17,7 +16,7 @@ type Semp struct {
 }
 
 // NewSemp returns an initialized Semp.
-func NewSemp(logger log.Logger, brokerURI string, httpClient http.Client, httpRequestVisitor func(*http.Request), logBrokerToSlowWarnings bool, isHWBroker bool) *Semp {
+func NewSemp(logger *slog.Logger, brokerURI string, httpClient http.Client, httpRequestVisitor func(*http.Request), logBrokerToSlowWarnings bool, isHWBroker bool) *Semp {
 	return &Semp{
 		logger:                  logger,
 		brokerURI:               brokerURI,

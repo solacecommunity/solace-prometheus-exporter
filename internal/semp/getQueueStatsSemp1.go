@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 
-	"github.com/go-kit/log/level"
+	
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -57,7 +57,7 @@ func (semp *Semp) GetQueueStatsSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 		page++
 
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't scrape QueueStatsSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't scrape QueueStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return -1, err
 		}
 		defer body.Close()
@@ -65,12 +65,11 @@ func (semp *Semp) GetQueueStatsSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't decode QueueStatsSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't decode QueueStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if err := target.ExecuteResult.OK(); err != nil {
-			_ = level.Error(semp.logger).Log(
-				"msg", "unexpected result",
+			semp.logger.Error("unexpected result",
 				"command", command,
 				"result", target.ExecuteResult.Result,
 				"reason", target.ExecuteResult.Reason,
@@ -79,7 +78,7 @@ func (semp *Semp) GetQueueStatsSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 			return 0, err
 		}
 
-		_ = level.Debug(semp.logger).Log("msg", "Result of QueueStatsSemp1", "results", len(target.RPC.Show.Queue.Queues.Queue), "page", page-1)
+		semp.logger.Debug("Result of QueueStatsSemp1", "results", len(target.RPC.Show.Queue.Queues.Queue), "page", page-1)
 
 		command = target.MoreCookie.RPC
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {

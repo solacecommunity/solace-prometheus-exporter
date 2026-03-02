@@ -5,7 +5,7 @@ import (
 	"solace_exporter/internal/semp/types"
 	"strconv"
 
-	"github.com/go-kit/log/level"
+	
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -47,7 +47,7 @@ func (semp *Semp) GetRestConsumerStatsSemp1(ch chan<- PrometheusMetric, vpnFilte
 		page++
 
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't scrape RestConsumerStatsSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't scrape RestConsumerStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return -1, err
 		}
 		defer body.Close()
@@ -55,12 +55,11 @@ func (semp *Semp) GetRestConsumerStatsSemp1(ch chan<- PrometheusMetric, vpnFilte
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't decode Xml RestConsumerStatsSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't decode Xml RestConsumerStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if err := target.ExecuteResult.OK(); err != nil {
-			_ = level.Error(semp.logger).Log(
-				"msg", "unexpected result",
+			semp.logger.Error("unexpected result",
 				"command", command,
 				"result", target.ExecuteResult.Result,
 				"reason", target.ExecuteResult.Reason,
@@ -69,7 +68,7 @@ func (semp *Semp) GetRestConsumerStatsSemp1(ch chan<- PrometheusMetric, vpnFilte
 			return 0, err
 		}
 
-		_ = level.Debug(semp.logger).Log("msg", "Result of RestConsumerStatsSemp1", "results", len(target.RPC.Show.MessageVpn.RestConsumerInfo.StatsInfo), "page", page-1)
+		semp.logger.Debug("Result of RestConsumerStatsSemp1", "results", len(target.RPC.Show.MessageVpn.RestConsumerInfo.StatsInfo), "page", page-1)
 
 		command = target.MoreCookie.RPC
 

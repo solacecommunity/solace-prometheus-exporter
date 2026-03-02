@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/go-kit/log/level"
+	
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -71,7 +71,7 @@ func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string,
 		)
 
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Unable to map metric filter", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Unable to map metric filter", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		getParameter += "&select=" + strings.Join(fieldsToSelect, ",")
@@ -84,22 +84,22 @@ func (semp *Semp) GetQueueStatsSemp2(ch chan<- PrometheusMetric, vpnName string,
 		page++
 
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't scrape QueueStatsSemp2", "command", nextURL, "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't scrape QueueStatsSemp2", "command", nextURL, "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 
 		var response Response
 		err = json.Unmarshal(body, &response)
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't decode QueueStatsSemp2", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't decode QueueStatsSemp2", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if response.Meta.ResponseCode != 200 {
-			_ = level.Error(semp.logger).Log("msg", "unexpected result", "command", nextURL, "remoteError", response.Meta.Error.Description, "broker", semp.brokerURI)
+			semp.logger.Error("unexpected result", "command", nextURL, "remoteError", response.Meta.Error.Description, "broker", semp.brokerURI)
 			return 0, errors.New("unexpected result: see log")
 		}
 
-		_ = level.Debug(semp.logger).Log("msg", "Result of QueueStatsSemp2", "results", len(response.Queue), "page", page-1)
+		semp.logger.Debug("Result of QueueStatsSemp2", "results", len(response.Queue), "page", page-1)
 
 		nextURL = response.Meta.Paging.NextPageURI
 		for _, queue := range response.Queue {

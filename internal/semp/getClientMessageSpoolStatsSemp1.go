@@ -5,7 +5,6 @@ import (
 	"solace_exporter/internal/semp/types"
 	"strconv"
 
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -70,7 +69,7 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 		page++
 
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't scrape ClientMessageSpoolStatsSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't scrape ClientMessageSpoolStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return -1, err
 		}
 		defer body.Close()
@@ -78,12 +77,12 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't decode ClientMessageSpoolStatsSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't decode ClientMessageSpoolStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if err := target.ExecuteResult.OK(); err != nil {
-			_ = level.Error(semp.logger).Log(
-				"msg", "unexpected result",
+			semp.logger.Error(
+				"unexpected result",
 				"command", command,
 				"result", target.ExecuteResult.Result,
 				"reason", target.ExecuteResult.Reason,

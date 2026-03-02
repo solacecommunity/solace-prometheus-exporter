@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -36,7 +35,7 @@ func (semp *Semp) GetClientProfileSemp1(ch chan<- PrometheusMetric, vpnFilter st
 	command := "<rpc><show><client-profile><name>*</name><vpn-name>" + vpnFilter + "</vpn-name><detail/></client-profile></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "DiskSemp1", 1)
 	if err != nil {
-		_ = level.Error(semp.logger).Log("msg", "Can't scrape ClientProfiles", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't scrape ClientProfiles", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
 	defer body.Close()
@@ -44,12 +43,12 @@ func (semp *Semp) GetClientProfileSemp1(ch chan<- PrometheusMetric, vpnFilter st
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml ClientProfiles", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't decode Xml ClientProfiles", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if err := target.ExecuteResult.OK(); err != nil {
-		_ = level.Error(semp.logger).Log(
-			"msg", "unexpected result",
+		semp.logger.Error(
+			"unexpected result",
 			"command", command,
 			"result", target.ExecuteResult.Result,
 			"reason", target.ExecuteResult.Reason,

@@ -5,7 +5,6 @@ import (
 	"solace_exporter/internal/semp/types"
 	"strings"
 
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -37,7 +36,7 @@ func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 		page++
 
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't scrape ClientSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't scrape ClientSemp1", "err", err, "broker", semp.brokerURI)
 			return -1, err
 		}
 		defer body.Close()
@@ -45,12 +44,12 @@ func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't decode ClientSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't decode ClientSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if err := target.ExecuteResult.OK(); err != nil {
-			_ = level.Error(semp.logger).Log(
-				"msg", "unexpected result",
+			semp.logger.Error(
+				"unexpected result",
 				"command", command,
 				"result", target.ExecuteResult.Result,
 				"reason", target.ExecuteResult.Reason,

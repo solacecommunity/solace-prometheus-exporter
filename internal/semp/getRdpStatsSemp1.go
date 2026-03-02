@@ -6,7 +6,7 @@ import (
 
 	"strconv"
 
-	"github.com/go-kit/log/level"
+	
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -46,11 +46,11 @@ func (semp *Semp) GetRdpStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 	var lastRdpName = ""
 	numOfElementsPerRequest := int64(100)
 	for command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>" + itemFilter + "</rdp-name><stats/><count/><num-elements>" + strconv.FormatInt(numOfElementsPerRequest, 10) + "</num-elements></message-vpn></show></rpc>"; command != ""; {
-		_ = level.Debug(semp.logger).Log("msg", "RdpStatsSemp1", "vpnFilter", vpnFilter, "itemFilter", itemFilter)
+		semp.logger.Debug("RdpStatsSemp1", "vpnFilter", vpnFilter, "itemFilter", itemFilter)
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "RdpStatsSemp1", page)
 		page++
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't scrape RdpStatsSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't scrape RdpStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return -1, err
 		}
 		defer body.Close()
@@ -58,12 +58,11 @@ func (semp *Semp) GetRdpStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't decode Xml RdpStatsSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't decode Xml RdpStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if err := target.ExecuteResult.OK(); err != nil {
-			_ = level.Error(semp.logger).Log(
-				"msg", "unexpected result",
+			semp.logger.Error("unexpected result",
 				"command", command,
 				"result", target.ExecuteResult.Result,
 				"reason", target.ExecuteResult.Reason,
@@ -71,7 +70,7 @@ func (semp *Semp) GetRdpStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 			)
 			return 0, err
 		}
-		_ = level.Debug(semp.logger).Log("msg", "Result of RdpStatsSemp1", "results", len(target.RPC.Show.MessageVpn.Rest.RestDeliveryPoints.RestDeliveryPoint), "page", page-1)
+		semp.logger.Debug("Result of RdpStatsSemp1", "results", len(target.RPC.Show.MessageVpn.Rest.RestDeliveryPoints.RestDeliveryPoint), "page", page-1)
 		command = target.MoreCookie.RPC
 
 		for _, rdp := range target.RPC.Show.MessageVpn.Rest.RestDeliveryPoints.RestDeliveryPoint {

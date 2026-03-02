@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -37,7 +36,7 @@ func (semp *Semp) GetConfigSyncRouterSemp1(ch chan<- PrometheusMetric) (float64,
 	command := "<rpc><show><config-sync><database/><router/></config-sync></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ConfigSyncRouterSemp1", 1)
 	if err != nil {
-		_ = level.Error(semp.logger).Log("msg", "Can't scrape VpnSemp1", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't scrape VpnSemp1", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
 	defer body.Close()
@@ -45,12 +44,12 @@ func (semp *Semp) GetConfigSyncRouterSemp1(ch chan<- PrometheusMetric) (float64,
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml ConfigSyncRouterSemp1", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't decode Xml ConfigSyncRouterSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if err := target.ExecuteResult.OK(); err != nil {
-		_ = level.Error(semp.logger).Log(
-			"msg", "unexpected result",
+		semp.logger.Error(
+			"unexpected result",
 			"command", command,
 			"result", target.ExecuteResult.Result,
 			"reason", target.ExecuteResult.Reason,

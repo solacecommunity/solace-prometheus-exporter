@@ -5,7 +5,7 @@ import (
 	"solace_exporter/internal/semp/types"
 	"strings"
 
-	"github.com/go-kit/log/level"
+	
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -47,7 +47,7 @@ func (semp *Semp) GetHardwareSemp1(ch chan<- PrometheusMetric) (float64, error) 
 	command := "<rpc><show><hardware><details/></hardware></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "HardwareSemp1", 1)
 	if err != nil {
-		_ = level.Error(semp.logger).Log("msg", "Can't scrape HardwareSemp1", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't scrape HardwareSemp1", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
 	defer body.Close()
@@ -55,12 +55,11 @@ func (semp *Semp) GetHardwareSemp1(ch chan<- PrometheusMetric) (float64, error) 
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(semp.logger).Log("msg", "Can't decode Xml HardwareSemp1", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't decode Xml HardwareSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if err := target.ExecuteResult.OK(); err != nil {
-		_ = level.Error(semp.logger).Log(
-			"msg", "unexpected result",
+		semp.logger.Error("unexpected result",
 			"command", command,
 			"result", target.ExecuteResult.Result,
 			"reason", target.ExecuteResult.Reason,

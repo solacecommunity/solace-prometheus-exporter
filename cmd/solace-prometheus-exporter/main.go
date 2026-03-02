@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log/slog"
 	"net/http"
 	"os"
 	"solace_exporter/internal/exporter"
@@ -9,12 +10,10 @@ import (
 	"time"
 
 	"github.com/alecthomas/kingpin/v2"
-	"github.com/go-kit/log"
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/promlog"
-	"github.com/prometheus/common/promlog/flag"
+	"github.com/prometheus/common/promslog"
+	"github.com/prometheus/common/promslog/flag"
 	promVersion "github.com/prometheus/common/version"
 	"golang.org/x/sync/semaphore"
 )
@@ -30,9 +29,9 @@ func logDataSource(dataSources []exporter.DataSource) string {
 func main() {
 	kingpin.HelpFlag.Short('h')
 
-	promlogConfig := promlog.Config{
-		Level:  &promlog.AllowedLevel{},
-		Format: &promlog.AllowedFormat{},
+	promlogConfig := promslog.Config{
+		Level:  promslog.NewLevel(),
+		Format: promslog.NewFormat(),
 	}
 	promlogConfig.Level.Set("info")
 	promlogConfig.Format.Set("logfmt")
@@ -44,18 +43,18 @@ func main() {
 	).String()
 	kingpin.Parse()
 
-	logger := promlog.New(&promlogConfig)
+	logger := promslog.New(&promlogConfig)
 
 	endpoints, conf, err := exporter.ParseConfig(*configFile)
 	if err != nil {
-		level.Error(logger).Log("msg", err)
+		logger.Error("Error parsing config", "err", err)
 		os.Exit(1)
 	}
 
-	level.Info(logger).Log("msg", "Starting solace_prometheus_exporter")
-	level.Info(logger).Log("msg", "Build context", "context", promVersion.BuildContext())
+	logger.Info("Starting solace_prometheus_exporter")
+	logger.Info("Build context", "context", promVersion.BuildContext())
 
-	level.Info(logger).Log("msg", "Scraping",
+	logger.Info("Scraping",
 		"listenAddr", conf.GetListenURI(),
 		"scrapeURI", conf.ScrapeURI,
 		"username", conf.Username,
@@ -70,7 +69,7 @@ func main() {
 	// A broker has only max 10 semp connections that can be served in parallel.
 	var sempConnections = semaphore.NewWeighted(conf.ParallelSempConnections)
 	declareHandlerFromConfig := func(urlPath string, dataSource []exporter.DataSource) {
-		_ = level.Info(logger).Log("msg", "Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
+		logger.Info("Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
 
 		if conf.PrefetchInterval.Seconds() > 0 {
 			var asyncFetcher = exporter.NewAsyncFetcher(urlPath, dataSource, *conf, logger, sempConnections)
@@ -90,7 +89,7 @@ func main() {
 	http.HandleFunc("/solace", func(w http.ResponseWriter, r *http.Request) {
 		var err = r.ParseForm()
 		if err != nil {
-			level.Error(logger).Log("msg", "Can not parse the request parameter", "err", err)
+			logger.Error("Can not parse the request parameter", "err", err)
 			return
 		}
 
@@ -100,7 +99,7 @@ func main() {
 				for _, value := range values {
 					parts := strings.Split(value, "|")
 					if len(parts) < 2 {
-						level.Error(logger).Log("msg", "One or two | expected. Use VPN wildcard | Item wildcard | Optional metric filter for v2 apis", "key", key, "value", value)
+						logger.Error("One or two | expected. Use VPN wildcard | Item wildcard | Optional metric filter for v2 apis", "key", key, "value", value)
 					} else {
 						var metricFilter []string
 						if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {
@@ -135,7 +134,7 @@ func main() {
 		Endpoints:  endpointViews,
 	})
 	if err != nil {
-		level.Error(logger).Log("msg", err)
+		logger.Error(err.Error())
 	}
 
 	http.Handle("/", web.WrapWithAuth(handler, conf.ExporterAuth))
@@ -150,7 +149,7 @@ func main() {
 		}
 
 		if err := server.ListenAndServe(); err != nil {
-			level.Error(logger).Log("msg", "Error starting HTTP server", "err", err)
+			logger.Error("Error starting HTTP server", "err", err)
 			os.Exit(2)
 		}
 	}
@@ -165,7 +164,7 @@ func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporte
 	return w.Header().Get("status")
 }
 
-func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf exporter.Config, logger log.Logger) string {
+func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf exporter.Config, logger *slog.Logger) string {
 	var handler http.Handler
 	if dataSource == nil {
 		handler = promhttp.Handler()
@@ -188,11 +187,11 @@ func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.Data
 			var err error
 			conf.Timeout, err = time.ParseDuration(timeout)
 			if err != nil {
-				level.Error(logger).Log("msg", "Per HTTP given timeout parameter is not valid", "err", err, "timeout", timeout)
+				logger.Error("Per HTTP given timeout parameter is not valid", "err", err, "timeout", timeout)
 			}
 		}
 
-		level.Info(logger).Log("msg", "handle http request", "dataSource", logDataSource(dataSource), "scrapeURI", conf.ScrapeURI)
+		logger.Info("handle http request", "dataSource", logDataSource(dataSource), "scrapeURI", conf.ScrapeURI)
 
 		exp := exporter.NewExporter(logger, &conf, &dataSource)
 		registry := prometheus.NewRegistry()

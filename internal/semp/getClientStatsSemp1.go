@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -56,7 +55,7 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 		page++
 
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't scrape ClientStatSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't scrape ClientStatSemp1", "err", err, "broker", semp.brokerURI)
 			return -1, err
 		}
 		defer body.Close()
@@ -64,12 +63,12 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
-			_ = level.Error(semp.logger).Log("msg", "Can't decode ClientStatSemp1", "err", err, "broker", semp.brokerURI)
+			semp.logger.Error("Can't decode ClientStatSemp1", "err", err, "broker", semp.brokerURI)
 			return 0, err
 		}
 		if err := target.ExecuteResult.OK(); err != nil {
-			_ = level.Error(semp.logger).Log(
-				"msg", "unexpected result",
+			semp.logger.Error(
+				"unexpected result",
 				"command", command,
 				"result", target.ExecuteResult.Result,
 				"reason", target.ExecuteResult.Reason,
@@ -149,7 +148,7 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientConnectionStatsSemp1", 1)
 	if err != nil {
-		_ = level.Error(semp.logger).Log("msg", "Can't scrape GetClientConnectionStatsSemp1", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't scrape GetClientConnectionStatsSemp1", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
 	defer body.Close()
@@ -157,12 +156,12 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		_ = level.Error(semp.logger).Log("msg", "Can't decode GetClientConnectionStatsSemp1", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't decode GetClientConnectionStatsSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if err := target.ExecuteResult.OK(); err != nil {
-		_ = level.Error(semp.logger).Log(
-			"msg", "unexpected result",
+		semp.logger.Error(
+			"unexpected result",
 			"command", command,
 			"result", target.ExecuteResult.Result,
 			"reason", target.ExecuteResult.Reason,

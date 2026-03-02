@@ -6,7 +6,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/go-kit/log/level"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -27,7 +26,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			} else {
 				up = 0
 				err = errors.New("Software only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				_ = level.Error(e.logger).Log("Software only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				e.logger.Error("Software only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
 		case "StorageElement", "StorageElementV1":
 			if !e.config.IsHWBroker {
@@ -35,7 +34,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			} else {
 				up = 0
 				err = errors.New("Software only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				_ = level.Error(e.logger).Log("Software only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				e.logger.Error("Software only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
 		case "Disk", "DiskV1":
 			if e.config.IsHWBroker {
@@ -43,7 +42,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			} else {
 				up = 0
 				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
 		case "Raid", "RaidV1":
 			if e.config.IsHWBroker {
@@ -51,7 +50,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			} else {
 				up = 0
 				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
 		case "Memory", "MemoryV1":
 			up, err = e.semp.GetMemorySemp1(ch)
@@ -63,7 +62,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			} else {
 				up = 0
 				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
 		case "GlobalStats", "GlobalStatsV1":
 			up, err = e.semp.GetGlobalStatsSemp1(ch)
@@ -79,7 +78,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			} else {
 				up = 0
 				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
 		case "Environment", "EnvironmentV1":
 			if e.config.IsHWBroker {
@@ -87,7 +86,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			} else {
 				up = 0
 				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
 		case "Hardware", "HardwareV1":
 			if e.config.IsHWBroker {
@@ -95,7 +94,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			} else {
 				up = 0
 				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				_ = level.Error(e.logger).Log("Hardware only  scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
 		case "ReplicationStats", "ReplicationStatsV1":
 			up, err = e.semp.GetReplicationStatsSemp1(ch)
@@ -161,7 +160,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 		default:
 			up = 0
 			err = errors.New("Unknown scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			_ = level.Error(e.logger).Log("Unknown scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+			e.logger.Error("Unknown scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 		}
 
 		var endpoint = dataSource.Name
