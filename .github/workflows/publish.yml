@@ -16,7 +16,7 @@ jobs:
 
       - name: Docker meta
         id: meta
-        uses: crazy-max/ghaction-docker-meta@v5
+        uses: crazy-max/ghaction-docker-meta@v6
         with:
           images: solacecommunity/solace-prometheus-exporter
           tags: |
