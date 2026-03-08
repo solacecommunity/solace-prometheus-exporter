@@ -70,6 +70,8 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			up, err = e.semp.GetGlobalSystemInfoSemp1(ch)
 		case "Spool", "SpoolV1":
 			up, err = e.semp.GetSpoolSemp1(ch)
+		case "SpoolStats", "SpoolStatsV1":
+			up, err = e.semp.GetSpoolStatsSemp1(ch)
 		case "Redundancy", "RedundancyV1":
 			up, err = e.semp.GetRedundancySemp1(ch)
 		case "Alarm", "AlarmV1":
