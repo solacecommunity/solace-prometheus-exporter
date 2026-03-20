@@ -1,56 +1,56 @@
+# Solace Prometheus Exporter
+
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
+[![Go Report Card](https://goreportcard.com/badge/github.com/solacecommunity/solace-prometheus-exporter)](https://goreportcard.com/report/github.com/solacecommunity/solace-prometheus-exporter)
 
-# solace-prometheus-exporter
-
-A Prometheus exporter for Solace Message Brokers.
-
-- [solace-prometheus-exporter](#solace-prometheus-exporter)
-  - [Overview](#overview)
-  - [Features](#features)
-    - [Modular endpoint explained](#modular-endpoint-explained)
-      - [Endpoints using SEMP v1](#endpoints-using-semp-v1)
-      - [Examples](#examples)
-      - [Endpoints using SEMP v2](#endpoints-using-semp-v2)
-      - [Examples](#examples-1)
-      - [Scrape targets](#scrape-targets)
-        - [V2 endpoints](#v2-endpoints)
-        - [Metric collisions](#metric-collisions)
-      - [Broker Connectivity Metric](#broker-connectivity-metric)
-    - [Modular endpoint configs](#modular-endpoint-configs)
-    - [Port registration](#port-registration)
-  - [Usage](#usage)
-    - [Config File](#config-file)
-    - [Environment Variables](#environment-variables)
-    - [Authentication](#authentication)
-    - [URL](#url)
-      - [Sample prometheus config](#sample-prometheus-config)
-  - [Build](#build)
-    - [Default Build](#default-build)
-  - [Docker](#docker)
-    - [Build Docker Image](#build-docker-image)
-    - [Run Docker Image](#run-docker-image)
-  - [Bonus Material](#bonus-material)
-  - [Security](#security)
-    - [How to enable TLS](#how-to-enable-tls)
-    - [Alternatively you can also use a P12 Keystore (PKCS12)](#alternatively-you-can-also-use-a-p12-keystore-pkcs12)
-  - [Resources](#resources)
-  - [Contributing](#contributing)
-  - [Authors](#authors)
-  - [License](#license)
-
-## Overview
+The community-led standard for real-time observability and monitoring of Solace Event Brokers.
 
 ![Architecture overview](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/docs/architecture_001.png)
 
-The exporter is written in Go, based on the Solace Legacy SEMP protocol.
-It grabs metrics via SEMP v1 and provides those as prometheus friendly HTTP endpoints.
+## 🚀 Quick Start
 
-Video Intro available on
-YouTube: [Integrating Prometheus and Grafana with Solace PubSub+ | Solace Community Lightning Talk](https://youtu.be/72Wz5rrStAU?t=35)
+The fastest way to get visibility into your Solace Broker is using Docker:
 
-## Features
+```bash
+docker run -d \
+  -p 9628:9628 \
+  -e SOLACE_SCRAPE_URI=http://<your-broker-ip>:8080 \
+  -e SOLACE_USERNAME=admin \
+  -e SOLACE_PASSWORD=admin \
+  solacecommunity/solace-prometheus-exporter
+```
 
-It implements the following endpoints:
+Access your metrics immediately at http://localhost:9628/solace-std
+
+## ✨ Key Features
+* **Modular Scraping**: Use the `/solace` endpoint with GET parameters to fetch exactly what you need, saving broker resources.
+
+* **Enterprise Security**: Full support for TLS encryption, OAuth 2.0, and mTLS authentication.
+
+* **Cloud-Native Ready**: Optimized for Docker and Kubernetes environments with native [Prometheus port registration](https://github.com/prometheus/prometheus/wiki/Default-port-allocations) (9628).
+
+
+## 🛠 Configuration
+```plaintext
+solace_prometheus_exporter -h
+usage: solace_prometheus_exporter [<flags>]
+
+Flags:
+  -h, --help                     Show context-sensitive help (also try --help-long and --help-man).
+      --log.level=info           Only log messages with the given severity or above. One of: [debug, info, warn, error]
+      --log.format=logfmt        Output format of log messages. One of: [logfmt, json]
+      --config-file=CONFIG-FILE  Path and name of config file. See sample file solace_prometheus_exporter.ini.
+```
+
+The exporter can be configured via **Environment Variables**, a **Config File** (`.ini`), or **URL Parameters**.
+
+### Quick Reference
+* `SOLACE_SCRAPE_URI`: The SEMP endpoint of your broker (e.g., `http://localhost:8080`).
+* `SOLACE_USERNAME` / `SOLACE_PASSWORD`: Your broker credentials.
+
+*Note: Check out the [Configuration Guide](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/docs/CONFIG.md) for all settings.*
+## 🧩 The Modular Endpoint
+The broker provides the following endpoints:
 
 ```plaintext
 http://<host>:<port>/                    Document page showing list of endpoints
@@ -64,23 +64,31 @@ http://<host>:<port>/solace-vpn-det      legacy, via config: Solace Vpn only Det
 http://<host>:<port>/solace              The modular endpoint
 ```
 
-### Modular endpoint explained
+The `/solace` endpoint is the most flexible way to scrape data. You can filter by VPN, Item, and even specific Metrics.
 
-Configure the data you want to receive via [HTTP GET parameters](https://www.seobility.net/en/wiki/GET_Parameters).
+### Example: Get specific queue stats for a single VPN
+`http://localhost:9628/solace?m.QueueStats=myVpn|BRAVO*`
 
-The key is always the [scrape target](#scrape-targets) prefixed by a `m.`.
+### Supported Scrape Targets (Shortlist)
+The exporter supports over 30 targets, including:
+* System: Health, Version, Disk, Memory, Redundancy.
+* VPN: VpnStats, BridgeStats, VpnSpool.
+* Clients: ClientStats, ClientConnections, SlowSubscriber.
+* Queues: QueueStats, QueueDetails, QueueStatsV2.
 
-The value contains out of 2–3 parts, delimited by a pipe `|`.
+*For a full list of all targets and their CLI equivalents, see the [Configuration Guide](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/docs/CONFIG.md).*
 
-- The first part is the VPN filter.
-- The second part is the ITEM filter.
-- The third part is the METRIC filter.
+## 🤝 Contributing & Development
+We welcome contributions! Whether it's a bug report, a new feature, or improved documentation. If you want to build the exporter from source or contribute code:
 
-Not all scrape targets support both filters. Please see [scrape target](#scrape-targets) to find out what is supported where.
-The first both filters can contain multiple asterisk `*` as wildcard for N chars.
+### Local Build
+1. Clone the repo
+1. Run `make build`
+1. Run with `./bin/solace-prometheus-exporter --config-file=your_config.ini`
 
-Each scrape target can be used multiple times, to implement or condition filters.
+Please read [CONTRIBUTING.md](CONTRIBUTING.MD) for our code of conduct and the process for submitting pull requests and issues.
 
+<<<<<<< Updated upstream
 #### Endpoints using SEMP v1
 
 Only the first two filters are supported.
@@ -619,7 +627,11 @@ requests to us.
 
 See the list of [contributors](https://github.com/solacecommunity/solace-prometheus-exporter/graphs/contributors) who
 participated in this project.
+=======
+## 📚 Resources
+* Video: [Integrating Prometheus and Grafana with Solace](https://youtu.be/72Wz5rrStAU?t=35)
+* Blog: [How to Use OAuth with solace-prometheus-exporter](https://dev.to/pascalre/securing-solace-metrics-how-to-use-oauth-with-solace-prometheus-exporter-2i6l)
+>>>>>>> Stashed changes
 
 ## License
-
-See the [LICENSE](LICENSE) file for details.
+Distributed under [MIT](LICENSE).
