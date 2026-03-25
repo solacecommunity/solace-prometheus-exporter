@@ -52,7 +52,7 @@ Each parameter key must be a **scrape target** (see list below) prefixed by `m.`
 | Metric Filter | Not supported. | Supported. Limits returned fields to save resources.|
 | Performance | Fast (e.g., 37s for 4.5k queues). | Slower (e.g., 136s for 4.5k queues).|
 
-### 📋 Supported Scrape Targets
+### Supported Scrape Targets
 | Scrape Target                         | VPN Filter | Item Filter | Metrics Filter | Performance Impact                                                    | Corresponding CLI Command                                                              | Supported By        |
 |:--------------------------------------|:--------------------|:----------------------|--------------------------|:----------------------------------------------------------------------|:-----------------------------------------------------------------------------------|:--------------------|
 | Alarm                                 | no                  | no                    | no                       | dont harm broker                                                      | show alarm                                                                         | appliance           |
