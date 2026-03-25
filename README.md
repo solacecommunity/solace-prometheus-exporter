@@ -44,11 +44,7 @@ Flags:
 
 The exporter can be configured via **Environment Variables**, a **Config File** (`.ini`), or **URL Parameters**.
 
-### Quick Reference
-* `SOLACE_SCRAPE_URI`: The SEMP endpoint of your broker (e.g., `http://localhost:8080`).
-* `SOLACE_USERNAME` / `SOLACE_PASSWORD`: Your broker credentials.
-
-*Note: Check out the [Configuration Guide](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/docs/CONFIG.md) for all settings.*
+Check out the [Configuration Guide](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/docs/CONFIG.md) for all settings.
 ## 🧩 The Modular Endpoint
 The broker provides the following endpoints:
 
@@ -76,7 +72,7 @@ The exporter supports over 30 targets, including:
 * Clients: ClientStats, ClientConnections, SlowSubscriber.
 * Queues: QueueStats, QueueDetails, QueueStatsV2.
 
-*For a full list of all targets and their CLI equivalents, see the [Configuration Guide](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/docs/CONFIG.md).*
+For a full list of all targets and their CLI equivalents, see the [Configuration Guide](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/docs/CONFIG.md).
 
 ## 🤝 Contributing & Development
 We welcome contributions! Whether it's a bug report, a new feature, or improved documentation. If you want to build the exporter from source or contribute code:
@@ -86,7 +82,7 @@ We welcome contributions! Whether it's a bug report, a new feature, or improved 
 1. Run `make build`
 1. Run with `./bin/solace-prometheus-exporter --config-file=your_config.ini`
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.MD) for our code of conduct and the process for submitting pull requests and issues.
+Please read the [Contribution Guide](CONTRIBUTING.MD) for our code of conduct and the process for submitting pull requests and issues.
 
 ## 📚 Resources
 * Video: [Integrating Prometheus and Grafana with Solace](https://youtu.be/72Wz5rrStAU?t=35)
