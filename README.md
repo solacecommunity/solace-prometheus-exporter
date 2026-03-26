@@ -44,7 +44,7 @@ Flags:
 
 The exporter can be configured via **Environment Variables**, a **Config File** (`.ini`), or **URL Parameters**.
 
-Check out the [Configuration Guide](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/docs/CONFIG.md) for all settings.
+Check out the [Configuration Guide](https://github.com/solacecommunity/solace-prometheus-exporter/blob/master/docs/CONFIG.md) for all settings.
 ## 🧩 The Modular Endpoint
 The broker provides the following endpoints:
 
@@ -72,7 +72,7 @@ The exporter supports over 30 targets, including:
 * Clients: ClientStats, ClientConnections, SlowSubscriber.
 * Queues: QueueStats, QueueDetails, QueueStatsV2.
 
-For a full list of all targets and their CLI equivalents, see the [Configuration Guide](https://raw.githubusercontent.com/solacecommunity/solace-prometheus-exporter/master/docs/CONFIG.md).
+For a full list of all targets and their CLI equivalents, see the [Configuration Guide](https://github.com/solacecommunity/solace-prometheus-exporter/blob/master/docs/CONFIG.md).
 
 ## 🤝 Contributing & Development
 We welcome contributions! Whether it's a bug report, a new feature, or improved documentation. If you want to build the exporter from source or contribute code:
