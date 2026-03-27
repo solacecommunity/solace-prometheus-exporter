@@ -24,11 +24,13 @@ func main() {
 
 	log.SetFlags(0)
 
-	queueStats(brokerURI, username, password)
-	topicEndpointStats(brokerURI, username, password)
+	httpClient := newHTTPClient()
+
+	queueStats(brokerURI, username, password, httpClient)
+	topicEndpointStats(brokerURI, username, password, httpClient)
 }
 
-func queueStats(brokerURI string, username string, password string) {
+func queueStats(brokerURI string, username string, password string, httpClient *http.Client) {
 	queueMap := make(map[string][]struct {
 		name      string
 		vpn       string
@@ -66,7 +68,7 @@ func queueStats(brokerURI string, username string, password string) {
 	var lastQueueName = ""
 	var page = 1
 	for nextRequest := "<rpc><show><queue><name>*</name><vpn-name>*</vpn-name><detail/><count/><num-elements>100</num-elements></queue></show></rpc>"; nextRequest != ""; {
-		body, err := postHTTP(brokerURI+"/SEMP", "application/xml", nextRequest, username, password, "QueueDetailsSemp1", page)
+		body, err := postHTTP(brokerURI+"/SEMP", "application/xml", nextRequest, username, password, "QueueDetailsSemp1", page, httpClient)
 		page++
 
 		if err != nil {
@@ -126,7 +128,7 @@ func queueStats(brokerURI string, username string, password string) {
 	}
 }
 
-func topicEndpointStats(brokerURI string, username string, password string) {
+func topicEndpointStats(brokerURI string, username string, password string, httpClient *http.Client) {
 	queueMap := make(map[string][]struct {
 		name      string
 		vpn       string
@@ -164,7 +166,7 @@ func topicEndpointStats(brokerURI string, username string, password string) {
 	var lastQueueName = ""
 	var page = 1
 	for nextRequest := "<rpc><show><topic-endpoint><name>*</name><vpn-name>*</vpn-name><detail/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; nextRequest != ""; {
-		body, err := postHTTP(brokerURI+"/SEMP", "application/xml", nextRequest, username, password, "QueueDetailsSemp1", page)
+		body, err := postHTTP(brokerURI+"/SEMP", "application/xml", nextRequest, username, password, "QueueDetailsSemp1", page, httpClient)
 		page++
 
 		if err != nil {
@@ -224,9 +226,8 @@ func topicEndpointStats(brokerURI string, username string, password string) {
 	}
 }
 
-func postHTTP(uri string, _ string, body string, username string, password string, logName string, page int) (io.ReadCloser, error) {
+func postHTTP(uri string, _ string, body string, username string, password string, logName string, page int, httpClient *http.Client) (io.ReadCloser, error) {
 	//start := time.Now()
-	var httpClient = newHTTPClient()
 
 	req, err := http.NewRequest("POST", uri, strings.NewReader(body))
 	if err != nil {
@@ -250,14 +251,14 @@ func postHTTP(uri string, _ string, body string, username string, password strin
 	return resp.Body, nil
 }
 
-func newHTTPClient() http.Client {
+func newHTTPClient() *http.Client {
 	proxy := http.ProxyFromEnvironment
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: false, MinVersion: tls.VersionTLS12},
 		Proxy:           proxy,
 	}
-	client := http.Client{
+	client := &http.Client{
 		Timeout:   30 * time.Second,
 		Transport: tr,
 	}
