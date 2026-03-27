@@ -41,6 +41,18 @@ func (conf *Config) setAuthHeader() (func(*http.Request), error) {
 
 // getOAuthToken retrieves a new OAuth token using the client credentials flow if the current token is expired or about to expire.
 func (conf *Config) getOAuthToken() (string, error) {
+	conf.oAuthTokenMutex.RLock()
+	if conf.oAuthAccessToken != "" && time.Now().Before(conf.oAuthTokenExpiry.Add(-time.Minute*5)) {
+		token := conf.oAuthAccessToken
+		conf.oAuthTokenMutex.RUnlock()
+		return token, nil
+	}
+	conf.oAuthTokenMutex.RUnlock()
+
+	conf.oAuthTokenMutex.Lock()
+	defer conf.oAuthTokenMutex.Unlock()
+
+	// Double-check after acquiring the write lock
 	if conf.oAuthAccessToken != "" && time.Now().Before(conf.oAuthTokenExpiry.Add(-time.Minute*5)) {
 		return conf.oAuthAccessToken, nil
 	}

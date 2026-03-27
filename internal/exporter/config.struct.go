@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"gopkg.in/ini.v1"
@@ -45,6 +46,7 @@ type Config struct {
 	OAuthIssuer             string
 	oAuthAccessToken        string
 	oAuthTokenExpiry        time.Time
+	oAuthTokenMutex         sync.RWMutex
 	authType                AuthType
 	ExporterAuth            ExporterAuthConfig
 }
