@@ -49,12 +49,12 @@ func (semp *Semp) GetRestConsumerStatsSemp1(ch chan<- PrometheusMetric, vpnFilte
 			semp.logger.Error("Can't scrape RestConsumerStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return -1, err
 		}
-		defer body.Close()
 		decoder := xml.NewDecoder(body)
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
 			semp.logger.Error("Can't decode Xml RestConsumerStatsSemp1", "err", err, "broker", semp.brokerURI)
+			_ = body.Close()
 			return 0, err
 		}
 		if err := target.ExecuteResult.OK(); err != nil {
@@ -64,6 +64,7 @@ func (semp *Semp) GetRestConsumerStatsSemp1(ch chan<- PrometheusMetric, vpnFilte
 				"reason", target.ExecuteResult.Reason,
 				"broker", semp.brokerURI,
 			)
+			_ = body.Close()
 			return 0, err
 		}
 

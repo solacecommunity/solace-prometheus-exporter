@@ -58,12 +58,12 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 			semp.logger.Error("Can't scrape ClientStatSemp1", "err", err, "broker", semp.brokerURI)
 			return -1, err
 		}
-		defer body.Close()
 		decoder := xml.NewDecoder(body)
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
 			semp.logger.Error("Can't decode ClientStatSemp1", "err", err, "broker", semp.brokerURI)
+			_ = body.Close()
 			return 0, err
 		}
 		if err := target.ExecuteResult.OK(); err != nil {
@@ -74,6 +74,7 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 				"reason", target.ExecuteResult.Reason,
 				"broker", semp.brokerURI,
 			)
+			_ = body.Close()
 			return 0, err
 		}
 
@@ -151,12 +152,12 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 		semp.logger.Error("Can't scrape GetClientConnectionStatsSemp1", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
-	defer body.Close()
 	decoder := xml.NewDecoder(body)
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
 		semp.logger.Error("Can't decode GetClientConnectionStatsSemp1", "err", err, "broker", semp.brokerURI)
+		_ = body.Close()
 		return 0, err
 	}
 	if err := target.ExecuteResult.OK(); err != nil {
@@ -167,6 +168,7 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 			"reason", target.ExecuteResult.Reason,
 			"broker", semp.brokerURI,
 		)
+		_ = body.Close()
 		return 0, err
 	}
 

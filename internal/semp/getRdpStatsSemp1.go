@@ -52,12 +52,12 @@ func (semp *Semp) GetRdpStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 			semp.logger.Error("Can't scrape RdpStatsSemp1", "err", err, "broker", semp.brokerURI)
 			return -1, err
 		}
-		defer body.Close()
 		decoder := xml.NewDecoder(body)
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
 			semp.logger.Error("Can't decode Xml RdpStatsSemp1", "err", err, "broker", semp.brokerURI)
+			_ = body.Close()
 			return 0, err
 		}
 		if err := target.ExecuteResult.OK(); err != nil {
@@ -67,6 +67,7 @@ func (semp *Semp) GetRdpStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 				"reason", target.ExecuteResult.Reason,
 				"broker", semp.brokerURI,
 			)
+			_ = body.Close()
 			return 0, err
 		}
 		semp.logger.Debug("Result of RdpStatsSemp1", "results", len(target.RPC.Show.MessageVpn.Rest.RestDeliveryPoints.RestDeliveryPoint), "page", page-1)

@@ -52,12 +52,12 @@ func (semp *Semp) GetTopicEndpointRatesSemp1(ch chan<- PrometheusMetric, vpnFilt
 			semp.logger.Error("Can't scrape TopicEndpointRatesSemp1", "err", err, "broker", semp.brokerURI)
 			return -1, err
 		}
-		defer body.Close()
 		decoder := xml.NewDecoder(body)
 		var target Data
 		err = decoder.Decode(&target)
 		if err != nil {
 			semp.logger.Error("Can't decode TopicEndpointRatesSemp1", "err", err, "broker", semp.brokerURI)
+			_ = body.Close()
 			return 0, err
 		}
 		if err := target.ExecuteResult.OK(); err != nil {
@@ -67,6 +67,7 @@ func (semp *Semp) GetTopicEndpointRatesSemp1(ch chan<- PrometheusMetric, vpnFilt
 				"reason", target.ExecuteResult.Reason,
 				"broker", semp.brokerURI,
 			)
+			_ = body.Close()
 			return 0, err
 		}
 
