@@ -1,10 +1,13 @@
 package web
 
 import (
+	"embed"
 	"html/template"
 	"net/http"
-	"path/filepath"
 )
+
+//go:embed templates/index.html
+var templateFS embed.FS
 
 type EndpointView struct {
 	Path string
@@ -22,8 +25,7 @@ type Handler struct {
 }
 
 func NewHandler(data TemplateData) (*Handler, error) {
-	path := filepath.Join("web", "templates", "index.html")
-	tmpl, err := template.ParseFiles(path)
+	tmpl, err := template.ParseFS(templateFS, "templates/index.html")
 	if err != nil {
 		return nil, err
 	}
