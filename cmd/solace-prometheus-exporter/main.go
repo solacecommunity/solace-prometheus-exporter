@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 	"os"
@@ -72,7 +73,7 @@ func main() {
 		logger.Info("Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
 
 		if conf.PrefetchInterval.Seconds() > 0 {
-			var asyncFetcher = exporter.NewAsyncFetcher(urlPath, dataSource, *conf, logger, sempConnections)
+			var asyncFetcher = exporter.NewAsyncFetcher(context.Background(), urlPath, dataSource, *conf, logger, sempConnections)
 			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
 				doHandleAsync(w, r, asyncFetcher)
 			})

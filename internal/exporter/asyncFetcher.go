@@ -14,9 +14,12 @@ import (
 const (
 	// Capacity for the channel to collect metrics and descriptors.
 	capMetricChan = 1000
+
+	// Number of metrics to cache before merging into the main map.
+	metricCacheChunkSize = 100
 )
 
-func NewAsyncFetcher(urlPath string, dataSource []DataSource, conf Config, logger *slog.Logger, connections *semaphore.Weighted) *AsyncFetcher {
+func NewAsyncFetcher(ctx context.Context, urlPath string, dataSource []DataSource, conf Config, logger *slog.Logger, connections *semaphore.Weighted) *AsyncFetcher {
 	var fetcher = &AsyncFetcher{
 		dataSource: dataSource,
 		conf:       conf,
@@ -26,42 +29,39 @@ func NewAsyncFetcher(urlPath string, dataSource []DataSource, conf Config, logge
 	}
 
 	collectWorker := func() {
-		ctx := context.Background()
+		ticker := time.NewTicker(conf.PrefetchInterval)
+		defer ticker.Stop()
 
 		for {
 			if err := connections.Acquire(ctx, 1); err != nil {
 				logger.Error("Failed to acquire semaphore", "handler", "/"+urlPath, "err", err)
 
-				continue
+				select {
+				case <-ctx.Done():
+					return
+				case <-time.After(time.Second):
+					continue
+				}
 			}
 
 			logger.Debug("Fetching for handler", "handler", "/"+urlPath)
-
-			var startTime = time.Now()
 
 			readMetrics(fetcher)
 
 			connections.Release(1)
 
-			// logger.Debug("Finished fetching for handler", "handler", "/"+urlPath)
-			// Be nice to the broker and wait between scrapes and let other threads fetch data.
-			sleepUntilNextIteration(startTime, conf.PrefetchInterval)
+			select {
+			case <-ctx.Done():
+				return
+			case <-ticker.C:
+				continue
+			}
 		}
 	}
 
 	go collectWorker()
 
 	return fetcher
-}
-
-func sleepUntilNextIteration(startTime time.Time, interval time.Duration) {
-	now := time.Now()
-	nextInterval := startTime.Add(interval)
-
-	if nextInterval.After(now) {
-		timeToSleep := nextInterval.Sub(now)
-		time.Sleep(timeToSleep)
-	}
 }
 
 type AsyncFetcher struct {
@@ -75,42 +75,22 @@ type AsyncFetcher struct {
 
 func readMetrics(f *AsyncFetcher) {
 	var metricsChan = make(chan semp.PrometheusMetric, capMetricChan)
-	var wg sync.WaitGroup
 
-	wg.Add(1)
 	f.DeprecateAll()
 
-	collectWorker := func() {
-		f.exporter.CollectPrometheusMetric(metricsChan)
-		wg.Done()
-	}
-	go collectWorker()
-
 	go func() {
-		wg.Wait()
-		close(metricsChan)
-	}()
-
-	// Drain checkedMetricChan and uncheckedMetricChan in case of premature return.
-	defer func() {
-		if metricsChan != nil {
-			for range metricsChan {
-			}
-		}
+		defer close(metricsChan)
+		f.exporter.CollectPrometheusMetric(metricsChan)
 	}()
 
 	// read from channel until the channel is closed
-	cache := make([]semp.PrometheusMetric, 0, 100)
-	for {
-		metric, ok := <-metricsChan
-		if !ok {
-			break
-		}
+	cache := make([]semp.PrometheusMetric, 0, metricCacheChunkSize)
+	for metric := range metricsChan {
 		cache = append(cache, metric)
-		if len(cache) >= 100 {
-			// Update cache by chunks of 100 to provide updated metrics as early as possible
+		if len(cache) >= metricCacheChunkSize {
+			// Update cache by chunks to provide updated metrics as early as possible
 			f.Merge(cache)
-			cache = make([]semp.PrometheusMetric, 0, 100)
+			cache = make([]semp.PrometheusMetric, 0, metricCacheChunkSize)
 		}
 	}
 
@@ -124,16 +104,22 @@ func (f *AsyncFetcher) Describe(desc chan<- *prometheus.Desc) {
 
 func (f *AsyncFetcher) Collect(metrics chan<- prometheus.Metric) {
 	f.mutex.Lock()
+	copiedMetrics := make([]prometheus.Metric, 0, len(f.metrics))
 	for _, metric := range f.metrics {
-		metrics <- metric.AsPrometheusMetric()
+		copiedMetrics = append(copiedMetrics, metric.AsPrometheusMetric())
 	}
 	f.mutex.Unlock()
+
+	for _, metric := range copiedMetrics {
+		metrics <- metric
+	}
 }
 
 func (f *AsyncFetcher) DeprecateAll() {
 	f.mutex.Lock()
-	for _, metric := range f.metrics {
+	for key, metric := range f.metrics {
 		metric.Deprecate()
+		f.metrics[key] = metric
 	}
 	f.mutex.Unlock()
 }
