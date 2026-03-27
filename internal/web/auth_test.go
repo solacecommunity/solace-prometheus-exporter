@@ -82,24 +82,50 @@ func TestWrapWithAuthBasicAuthFailure(t *testing.T) {
 		Password: "secret",
 	}
 
-	wrapped := WrapWithAuth(handler, authConf)
-
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	req.SetBasicAuth("wrong", "creds")
-
-	rr := httptest.NewRecorder()
-
-	wrapped.ServeHTTP(rr, req)
-
-	if rr.Code != http.StatusUnauthorized {
-		t.Errorf("expected status 401, got %d", rr.Code)
+	tests := []struct {
+		name     string
+		username string
+		password string
+	}{
+		{
+			name:     "Wrong password",
+			username: "admin",
+			password: "wrong_password",
+		},
+		{
+			name:     "Wrong username",
+			username: "wrong_username",
+			password: "secret",
+		},
+		{
+			name:     "Wrong both",
+			username: "wrong_username",
+			password: "wrong_password",
+		},
 	}
 
-	if rr.Header().Get("WWW-Authenticate") == "" {
-		t.Errorf("expected WWW-Authenticate header to be set")
-	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			wrapped := WrapWithAuth(handler, authConf)
 
-	if !strings.Contains(rr.Body.String(), "unauthorized") {
-		t.Errorf("expected body to contain 'unauthorized', got '%s'", rr.Body.String())
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
+			req.SetBasicAuth(tt.username, tt.password)
+
+			rr := httptest.NewRecorder()
+
+			wrapped.ServeHTTP(rr, req)
+
+			if rr.Code != http.StatusUnauthorized {
+				t.Errorf("expected status 401, got %d", rr.Code)
+			}
+
+			if rr.Header().Get("WWW-Authenticate") == "" {
+				t.Errorf("expected WWW-Authenticate header to be set")
+			}
+
+			if !strings.Contains(rr.Body.String(), "unauthorized") {
+				t.Errorf("expected body to contain 'unauthorized', got '%s'", rr.Body.String())
+			}
+		})
 	}
 }
