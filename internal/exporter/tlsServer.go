@@ -11,7 +11,7 @@ import (
 	"software.sslmate.com/src/go-pkcs12"
 )
 
-func ListenAndServeTLS(conf Config) {
+func ListenAndServeTLS(conf *Config) {
 	promlogConfig := promslog.Config{
 		Level:  promslog.NewLevel(),
 		Format: promslog.NewFormat(),

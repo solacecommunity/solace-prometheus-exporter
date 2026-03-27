@@ -64,7 +64,7 @@ func main() {
 
 	// Configure endpoints
 	http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
-		doHandle(w, r, nil, *conf, logger)
+		doHandle(w, r, nil, conf, logger)
 	})
 
 	// A broker has only max 10 semp connections that can be served in parallel.
@@ -73,13 +73,13 @@ func main() {
 		logger.Info("Register handler from config", "handler", "/"+urlPath, "dataSource", logDataSource(dataSource))
 
 		if conf.PrefetchInterval.Seconds() > 0 {
-			var asyncFetcher = exporter.NewAsyncFetcher(context.Background(), urlPath, dataSource, *conf, logger, sempConnections)
+			var asyncFetcher = exporter.NewAsyncFetcher(context.Background(), urlPath, dataSource, conf, logger, sempConnections)
 			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
 				doHandleAsync(w, r, asyncFetcher)
 			})
 		} else {
 			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
-				doHandle(w, r, dataSource, *conf, logger)
+				doHandle(w, r, dataSource, conf, logger)
 			})
 		}
 	}
@@ -118,7 +118,7 @@ func main() {
 			}
 		}
 
-		doHandle(w, r, dataSource, *conf, logger)
+		doHandle(w, r, dataSource, conf, logger)
 	})
 
 	endpointViews := make([]web.EndpointView, 0, len(endpoints))
@@ -142,7 +142,7 @@ func main() {
 
 	// start server
 	if conf.EnableTLS {
-		exporter.ListenAndServeTLS(*conf)
+		exporter.ListenAndServeTLS(conf)
 	} else {
 		server := &http.Server{
 			Addr:              conf.ListenAddr,
@@ -165,7 +165,7 @@ func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporte
 	return w.Header().Get("status")
 }
 
-func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf exporter.Config, logger *slog.Logger) string {
+func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf *exporter.Config, logger *slog.Logger) string {
 	var handler http.Handler
 	if dataSource == nil {
 		handler = promhttp.Handler()
@@ -194,7 +194,7 @@ func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.Data
 
 		logger.Info("handle http request", "dataSource", logDataSource(dataSource), "scrapeURI", conf.ScrapeURI)
 
-		exp := exporter.NewExporter(logger, &conf, &dataSource)
+		exp := exporter.NewExporter(logger, conf, &dataSource)
 		registry := prometheus.NewRegistry()
 		registry.MustRegister(exp)
 		handler = promhttp.HandlerFor(registry, promhttp.HandlerOpts{})

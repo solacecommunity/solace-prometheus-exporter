@@ -19,13 +19,13 @@ const (
 	metricCacheChunkSize = 100
 )
 
-func NewAsyncFetcher(ctx context.Context, urlPath string, dataSource []DataSource, conf Config, logger *slog.Logger, connections *semaphore.Weighted) *AsyncFetcher {
+func NewAsyncFetcher(ctx context.Context, urlPath string, dataSource []DataSource, conf *Config, logger *slog.Logger, connections *semaphore.Weighted) *AsyncFetcher {
 	var fetcher = &AsyncFetcher{
 		dataSource: dataSource,
 		conf:       conf,
 		logger:     logger,
 		metrics:    make(map[string]semp.PrometheusMetric),
-		exporter:   NewExporter(logger, &conf, &dataSource),
+		exporter:   NewExporter(logger, conf, &dataSource),
 	}
 
 	collectWorker := func() {
@@ -67,7 +67,7 @@ func NewAsyncFetcher(ctx context.Context, urlPath string, dataSource []DataSourc
 type AsyncFetcher struct {
 	mutex      sync.Mutex
 	dataSource []DataSource
-	conf       Config
+	conf       *Config
 	logger     *slog.Logger
 	metrics    map[string]semp.PrometheusMetric
 	exporter   *Exporter
