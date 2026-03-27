@@ -96,10 +96,10 @@ func TestParseConfigBool(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envValue != "" {
-				os.Setenv(tt.envKey, tt.envValue)
-				defer os.Unsetenv(tt.envKey)
+				_ = os.Setenv(tt.envKey, tt.envValue)
+				defer func() { _ = os.Unsetenv(tt.envKey) }()
 			} else {
-				os.Unsetenv(tt.envKey)
+				_ = os.Unsetenv(tt.envKey)
 			}
 
 			var cfg *ini.File
@@ -211,10 +211,10 @@ func TestParseConfigBoolOptional(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envValue != "" {
-				os.Setenv(tt.envKey, tt.envValue)
-				defer os.Unsetenv(tt.envKey)
+				_ = os.Setenv(tt.envKey, tt.envValue)
+				defer func() { _ = os.Unsetenv(tt.envKey) }()
 			} else {
-				os.Unsetenv(tt.envKey)
+				_ = os.Unsetenv(tt.envKey)
 			}
 
 			var cfg *ini.File
@@ -304,10 +304,10 @@ func TestParseConfigDuration(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envValue != "" {
-				os.Setenv(tt.envKey, tt.envValue)
-				defer os.Unsetenv(tt.envKey)
+				_ = os.Setenv(tt.envKey, tt.envValue)
+				defer func() { _ = os.Unsetenv(tt.envKey) }()
 			} else {
-				os.Unsetenv(tt.envKey)
+				_ = os.Unsetenv(tt.envKey)
 			}
 			var cfg *ini.File
 			var err error
@@ -397,10 +397,10 @@ func TestParseConfigDurationOptional(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envValue != "" {
-				os.Setenv(tt.envKey, tt.envValue)
-				defer os.Unsetenv(tt.envKey)
+				_ = os.Setenv(tt.envKey, tt.envValue)
+				defer func() { _ = os.Unsetenv(tt.envKey) }()
 			} else {
-				os.Unsetenv(tt.envKey)
+				_ = os.Unsetenv(tt.envKey)
 			}
 			var cfg *ini.File
 			var err error
@@ -489,10 +489,10 @@ func TestParseConfigIntOptional(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envValue != "" {
-				os.Setenv(tt.envKey, tt.envValue)
-				defer os.Unsetenv(tt.envKey)
+				_ = os.Setenv(tt.envKey, tt.envValue)
+				defer func() { _ = os.Unsetenv(tt.envKey) }()
 			} else {
-				os.Unsetenv(tt.envKey)
+				_ = os.Unsetenv(tt.envKey)
 			}
 
 			var cfg *ini.File
@@ -562,10 +562,10 @@ func TestParseConfigString(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envValue != "" {
-				os.Setenv(tt.envKey, tt.envValue)
-				defer os.Unsetenv(tt.envKey)
+				_ = os.Setenv(tt.envKey, tt.envValue)
+				defer func() { _ = os.Unsetenv(tt.envKey) }()
 			} else {
-				os.Unsetenv(tt.envKey)
+				_ = os.Unsetenv(tt.envKey)
 			}
 
 			var cfg *ini.File
@@ -637,10 +637,10 @@ func TestParseConfigStringOptional(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.envValue != "" {
-				os.Setenv(tt.envKey, tt.envValue)
-				defer os.Unsetenv(tt.envKey)
+				_ = os.Setenv(tt.envKey, tt.envValue)
+				defer func() { _ = os.Unsetenv(tt.envKey) }()
 			} else {
-				os.Unsetenv(tt.envKey)
+				_ = os.Unsetenv(tt.envKey)
 			}
 
 			var cfg *ini.File

@@ -19,14 +19,14 @@ const (
 
 // setAuthHeader sets the appropriate authentication header on the request based on the configured auth type.
 // It returns a function that can be used to set the header on an http.Request, or an error if there was an issue obtaining an OAuth token.
-func (conf *Config) setAuthHeader() (func(*http.Request), error) {
+func (conf *Config) setAuthHeader(ctx context.Context) (func(*http.Request), error) {
 	if conf.authType == AuthTypeBasic {
 		return func(request *http.Request) {
 			request.SetBasicAuth(conf.Username, conf.Password)
 		}, nil
 	}
 	if conf.authType == AuthTypeOAuth {
-		token, err := conf.getOAuthToken()
+		token, err := conf.getOAuthToken(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -40,7 +40,7 @@ func (conf *Config) setAuthHeader() (func(*http.Request), error) {
 }
 
 // getOAuthToken retrieves a new OAuth token using the client credentials flow if the current token is expired or about to expire.
-func (conf *Config) getOAuthToken() (string, error) {
+func (conf *Config) getOAuthToken(ctx context.Context) (string, error) {
 	conf.oAuthTokenMutex.RLock()
 	if conf.oAuthAccessToken != "" && time.Now().Before(conf.oAuthTokenExpiry.Add(-time.Minute*5)) {
 		token := conf.oAuthAccessToken
@@ -58,7 +58,7 @@ func (conf *Config) getOAuthToken() (string, error) {
 	}
 
 	client := conf.basicHTTPClient()
-	reqContext := context.WithValue(context.Background(), oauth2.HTTPClient, &client)
+	reqContext := context.WithValue(ctx, oauth2.HTTPClient, &client)
 
 	cc := &clientcredentials.Config{
 		ClientID:     conf.OAuthClientID,

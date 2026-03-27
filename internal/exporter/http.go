@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"context"
 	"crypto/tls"
 	"net/http"
 	"net/url"
@@ -30,11 +31,11 @@ func (conf *Config) newHTTPClient() http.Client {
 
 // Redirect callback, re-insert basic auth string into header.
 func (conf *Config) redirectPolicyFunc(req *http.Request, _ []*http.Request) error {
-	f, _ := conf.httpVisitor()
+	f, _ := conf.httpVisitor(req.Context())
 	f(req)
 	return nil
 }
 
-func (conf *Config) httpVisitor() (func(*http.Request), error) {
-	return conf.setAuthHeader()
+func (conf *Config) httpVisitor(ctx context.Context) (func(*http.Request), error) {
+	return conf.setAuthHeader(ctx)
 }

@@ -61,7 +61,6 @@ jobs:
           compose-file: test/oauth/docker-compose.yaml
           up-flags: --wait --wait-timeout 600
           compose-version: latest
-        timeout-minutes: 20
       - name: Check metric scrape service status
         run: |
           status=$(docker compose -f test/oauth/docker-compose.yaml ps -aq check_metric_scrape | xargs docker inspect -f '{{.State.ExitCode}}')

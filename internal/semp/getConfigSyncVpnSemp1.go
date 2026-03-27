@@ -39,7 +39,7 @@ func (semp *Semp) GetConfigSyncVpnSemp1(ch chan<- PrometheusMetric, vpnFilter st
 		semp.logger.Error("Can't scrape VpnSemp1", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
-	defer body.Close()
+	defer func() { _ = body.Close() }()
 	decoder := xml.NewDecoder(body)
 	var target Data
 	err = decoder.Decode(&target)

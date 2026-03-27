@@ -65,7 +65,7 @@ func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 			clientIP := strings.Split(client.ClientAddress, ":")[0]
 			ch <- semp.NewMetric(MetricDesc["Client"]["client_num_subscriptions"], prometheus.GaugeValue, client.NumSubscriptions, client.MsgVpnName, client.ClientName, clientIP)
 		}
-		body.Close()
+		_ = body.Close()
 	}
 
 	return 1, nil

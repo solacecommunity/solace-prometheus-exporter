@@ -25,7 +25,7 @@ func NewAsyncFetcher(ctx context.Context, urlPath string, dataSource []DataSourc
 		conf:       conf,
 		logger:     logger,
 		metrics:    make(map[string]semp.PrometheusMetric),
-		exporter:   NewExporter(logger, conf, &dataSource),
+		exporter:   NewExporter(ctx, logger, conf, &dataSource),
 	}
 
 	collectWorker := func() {

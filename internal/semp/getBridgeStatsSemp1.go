@@ -107,7 +107,7 @@ func (semp *Semp) GetBridgeStatsSemp1(ch chan<- PrometheusMetric, vpnFilter stri
 		semp.logger.Error("Can't scrape BridgeSemp1", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
-	defer body.Close()
+	defer func() { _ = body.Close() }()
 	decoder := xml.NewDecoder(body)
 	var target Data
 	err = decoder.Decode(&target)

@@ -11,6 +11,7 @@ import (
 )
 
 func TestDeprecateAllAndDeleteDeprecated(t *testing.T) {
+	t.Parallel()
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	// Create a dummy Semp to create metrics

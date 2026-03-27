@@ -7,7 +7,7 @@ func (e *Exporter) getVpnSemp2(ch chan<- prometheus.Metric) (ok float64) {
 		level.Error(e.logger).Log("msg", "Can't scrape VpnSemp2", "err", err)
 		return 0
 	}
-	defer body.Close()
+	defer func() { _ = body.Close() }()
 
 	bodyBytes, err := ioutil.ReadAll(body)
 
@@ -80,7 +80,7 @@ func (e *Exporter) getClientSemp2(ch chan<- prometheus.Metric) (ok float64) {
 				level.Error(e.logger).Log("msg", "Can't scrape ClientSemp2", "err", err)
 				return 0
 			}
-			defer body.Close()
+			defer func() { _ = body.Close() }()
 
 			bodyBytes, err := ioutil.ReadAll(body)
 

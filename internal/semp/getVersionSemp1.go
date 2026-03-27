@@ -39,7 +39,7 @@ func (semp *Semp) GetVersionSemp1(ch chan<- PrometheusMetric) (float64, error) {
 		semp.logger.Error("Can't scrape getVersionSemp1", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
-	defer body.Close()
+	defer func() { _ = body.Close() }()
 	decoder := xml.NewDecoder(body)
 	var target Data
 	err = decoder.Decode(&target)

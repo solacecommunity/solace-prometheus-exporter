@@ -131,7 +131,7 @@ func (semp *Semp) GetSpoolStatsSemp1(ch chan<- PrometheusMetric) (float64, error
 		semp.logger.Error("Can't scrape Solace", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
-	defer body.Close()
+	defer func() { _ = body.Close() }()
 	decoder := xml.NewDecoder(body)
 	var target Data
 	err = decoder.Decode(&target)

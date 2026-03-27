@@ -88,7 +88,7 @@ func (semp *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_rx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxByteRate, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_tx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxByteRate, queue.Info.MsgVpnName, queue.QueueName)
 		}
-		body.Close()
+		_ = body.Close()
 	}
 
 	return 1, nil

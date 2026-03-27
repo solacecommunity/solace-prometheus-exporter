@@ -126,7 +126,7 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 			}
 		}
 
-		body.Close()
+		_ = body.Close()
 	}
 
 	return 1, nil

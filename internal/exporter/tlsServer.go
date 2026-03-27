@@ -16,8 +16,8 @@ func ListenAndServeTLS(conf *Config) {
 		Level:  promslog.NewLevel(),
 		Format: promslog.NewFormat(),
 	}
-	promlogConfig.Level.Set("info")
-	promlogConfig.Format.Set("logfmt")
+	_ = promlogConfig.Level.Set("info")
+	_ = promlogConfig.Format.Set("logfmt")
 
 	logger := promslog.New(&promlogConfig)
 

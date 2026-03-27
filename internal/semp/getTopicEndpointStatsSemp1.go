@@ -94,7 +94,7 @@ func (semp *Semp) GetTopicEndpointStatsSemp1(ch chan<- PrometheusMetric, vpnFilt
 			ch <- semp.NewMetric(MetricDesc["TopicEndpointStats"]["max_message_size_exceeded"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.MsgSizeExceeded, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndpointName)
 			ch <- semp.NewMetric(MetricDesc["TopicEndpointStats"]["total_deleted_messages"], prometheus.CounterValue, topicEndpoint.Stats.MessageSpoolStats.Deleted, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndpointName)
 		}
-		body.Close()
+		_ = body.Close()
 	}
 
 	return 1, nil

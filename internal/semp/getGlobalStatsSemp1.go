@@ -30,7 +30,7 @@ func (semp *Semp) GetGlobalSystemInfoSemp1(ch chan<- PrometheusMetric) (float64,
 		semp.logger.Error("Can't scrape GetGlobalSystemInfoSemp1", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
-	defer body.Close()
+	defer func() { _ = body.Close() }()
 	decoder := xml.NewDecoder(body)
 	var target Data
 	err = decoder.Decode(&target)
@@ -96,7 +96,7 @@ func (semp *Semp) GetGlobalStatsSemp1(ch chan<- PrometheusMetric) (float64, erro
 		semp.logger.Error("Can't scrape GlobalStatsSemp1", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
-	defer body.Close()
+	defer func() { _ = body.Close() }()
 	decoder := xml.NewDecoder(body)
 	var target Data
 	err = decoder.Decode(&target)

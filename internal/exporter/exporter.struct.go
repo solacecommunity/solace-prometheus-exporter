@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"context"
 	"log/slog"
 	"solace_exporter/internal/semp"
 )
@@ -15,8 +16,8 @@ type Exporter struct {
 }
 
 // NewExporter returns an initialized Exporter.
-func NewExporter(logger *slog.Logger, conf *Config, dataSource *[]DataSource) *Exporter {
-	httpVisitor, err := conf.httpVisitor()
+func NewExporter(ctx context.Context, logger *slog.Logger, conf *Config, dataSource *[]DataSource) *Exporter {
+	httpVisitor, err := conf.httpVisitor(ctx)
 	if err != nil {
 		logger.Error("Failed to create HTTP visitor for exporter", "err", err)
 	}

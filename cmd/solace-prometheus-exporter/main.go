@@ -34,8 +34,8 @@ func main() {
 		Level:  promslog.NewLevel(),
 		Format: promslog.NewFormat(),
 	}
-	promlogConfig.Level.Set("info")
-	promlogConfig.Format.Set("logfmt")
+	_ = promlogConfig.Level.Set("info")
+	_ = promlogConfig.Format.Set("logfmt")
 	flag.AddFlags(kingpin.CommandLine, &promlogConfig)
 
 	configFile := kingpin.Flag(
@@ -194,7 +194,7 @@ func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.Data
 
 		logger.Info("handle http request", "dataSource", logDataSource(dataSource), "scrapeURI", conf.ScrapeURI)
 
-		exp := exporter.NewExporter(logger, conf, &dataSource)
+		exp := exporter.NewExporter(r.Context(), logger, conf, &dataSource)
 		registry := prometheus.NewRegistry()
 		registry.MustRegister(exp)
 		handler = promhttp.HandlerFor(registry, promhttp.HandlerOpts{})

@@ -78,7 +78,7 @@ func (semp *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter str
 			ch <- semp.NewMetric(MetricDesc["QueueDetails"]["queue_binds"], prometheus.GaugeValue, queue.Info.BindCount, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueDetails"]["queue_subscriptions"], prometheus.GaugeValue, queue.Info.TopicSubscriptionCount, queue.Info.MsgVpnName, queue.QueueName)
 		}
-		body.Close()
+		_ = body.Close()
 	}
 
 	return 1, nil

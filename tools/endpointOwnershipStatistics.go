@@ -76,7 +76,7 @@ func queueStats(brokerURI string, username string, password string, httpClient *
 			return
 		}
 		//goland:noinspection ALL
-		defer body.Close()
+		defer func() { _ = body.Close() }()
 		decoder := xml.NewDecoder(body)
 		var target Data
 		err = decoder.Decode(&target)
@@ -110,7 +110,7 @@ func queueStats(brokerURI string, username string, password string, httpClient *
 		}
 
 		//goland:noinspection ALL
-		body.Close()
+		_ = body.Close()
 	}
 
 	var totalQueues int
@@ -174,7 +174,7 @@ func topicEndpointStats(brokerURI string, username string, password string, http
 			return
 		}
 		//goland:noinspection ALL
-		defer body.Close()
+		defer func() { _ = body.Close() }()
 		decoder := xml.NewDecoder(body)
 		var target Data
 		err = decoder.Decode(&target)
@@ -208,7 +208,7 @@ func topicEndpointStats(brokerURI string, username string, password string, http
 		}
 
 		//goland:noinspection ALL
-		body.Close()
+		_ = body.Close()
 	}
 
 	var totalQueues int

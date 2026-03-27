@@ -89,7 +89,7 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 			ch <- semp.NewMetric(MetricDesc["ClientStats"]["client_tx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.EgressDiscards.DiscardedTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
 			ch <- semp.NewMetric(MetricDesc["ClientStats"]["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, "", client.ClientUsername)
 		}
-		body.Close()
+		_ = body.Close()
 	}
 
 	return 1, nil
@@ -205,7 +205,7 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 		ch <- semp.NewMetric(MetricDesc["ClientConnections"]["connection_timed_retransmit"], prometheus.CounterValue, client.Stats.TimedRetransmits, client.MsgVpnName, client.ClientName)
 	}
 
-	body.Close()
+	_ = body.Close()
 
 	return 1, nil
 }

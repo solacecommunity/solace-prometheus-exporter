@@ -18,7 +18,7 @@ func basicAuth(h http.Handler, authConf exporter.ExporterAuthConfig) http.Handle
 		if !ok || u != authConf.Username || p != authConf.Password {
 			w.Header().Set("WWW-Authenticate", `Basic realm="restricted"`)
 			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("unauthorized\n"))
+			_, _ = w.Write([]byte("unauthorized\n"))
 			return
 		}
 
