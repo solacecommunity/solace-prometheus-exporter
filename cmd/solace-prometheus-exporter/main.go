@@ -172,9 +172,21 @@ func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.Data
 	} else {
 		// Exporter for endpoint
 		username := r.FormValue("username")
+		if len(username) == 0 {
+			username = r.Header.Get("x-solace-broker-username")
+		}
 		password := r.FormValue("password")
+		if len(password) == 0 {
+			password = r.Header.Get("x-solace-broker-password")
+		}
 		scrapeURI := r.FormValue("scrapeURI")
+		if len(scrapeURI) == 0 {
+			scrapeURI = r.Header.Get("x-solace-broker-scrapeuri")
+		}
 		timeout := r.FormValue("timeout")
+		if len(timeout) == 0 {
+			timeout = r.Header.Get("x-solace-broker-timeout")
+		}
 		if len(username) > 0 {
 			conf.Username = username
 		}
