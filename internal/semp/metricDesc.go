@@ -38,6 +38,8 @@ var (
 	variableLabelsRdpInfo            = []string{"vpn_name", "rdp_name"}
 	variableLabelsRdpStats           = []string{"vpn_name", "rdp_name"}
 	variableLabelsSpool              = []string{"partition"}
+	variableLabelsMqttSession        = []string{"vpn_name", "client_id", "owner"}
+	variableLabelsMqttSessionInfo    = []string{"vpn_name", "client_id", "owner", "clean", "durable", "enabled"}
 )
 
 var QueueStats = Descriptions{
@@ -678,5 +680,10 @@ var MetricDesc = map[string]Descriptions{
 		"total_rest_consumer_outgoing_connections_configured": NewSemDesc("rdp_total_rest_consumer_outgoing_connections_configured", NoSempV2Ready, "The total number of configured outgoing REST consumer connections.", nil),
 		"total_queue_bindings_up":                             NewSemDesc("rdp_total_queue_bindings_up", NoSempV2Ready, "The total number of queue bindings that are up.", nil),
 		"total_queue_bindings_configured":                     NewSemDesc("rdp_total_queue_bindings_configured", NoSempV2Ready, "The total number of configured queue bindings.", nil),
+	},
+	"MqttSession": {
+		"mqtt_session_info":           NewSemDesc("mqtt_session_info", NoSempV2Ready, "Static information and flags regarding the MQTT session. Value is always 1.", variableLabelsMqttSessionInfo),
+		"mqtt_session_subscriptions":  NewSemDesc("mqtt_session_subscriptions", NoSempV2Ready, "Number of subscriptions for the MQTT session.", variableLabelsMqttSession),
+		"mqtt_session_uptime_seconds": NewSemDesc("mqtt_session_uptime_seconds", NoSempV2Ready, "Uptime of the MQTT session in seconds.", variableLabelsMqttSession),
 	},
 }

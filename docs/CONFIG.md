@@ -109,6 +109,7 @@ Each parameter key must be a **scrape target** (see list below) prefixed by `m.`
 | VpnReplication                        | yes        | no          | no             | dont harm broker                                                      | show message-vpn vpnFilter replication                                             | software, appliance |
 | VpnSpool                              | yes        | no          | no             | dont harm broker                                                      | show message-spool message-vpn vpnFilter                                           | software, appliance |
 | VpnStats                              | yes        | no          | no             | has a very small performance down site                                | show message-vpn vpnFilter stats                                                   | software, appliance |
+| MqttSession                           | yes        | yes         | no             | may harm broker if many mqtt sessions                                 | show message-vpn vpnFilter mqtt mqtt-session itemFilter count 100 (paged)          | software, appliance |
 
 ### ⚠️ Metric Collisions
 There are metrics that may be provided by multiple endpoints. But not with the same labels. Avoid using these simultaneously. Otherwise it will cause Prometheus errors.
