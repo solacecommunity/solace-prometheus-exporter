@@ -3,21 +3,10 @@ package semp
 import (
 	"encoding/xml"
 	"solace_exporter/internal/semp/types"
-	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// Kleine Hilfsfunktion, um Solace "yes"/"no" oder "true"/"false" in 1.0/0.0 umzuwandeln
-func boolToFloat(val string) float64 {
-	v := strings.ToLower(strings.TrimSpace(val))
-	if v == "yes" || v == "true" || v == "1" {
-		return 1.0
-	}
-	return 0.0
-}
-
-// GetMqttSessionSemp1 holt Details zu MQTT-Sessions inklusive Flags
 func (semp *Semp) GetMqttSessionSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
