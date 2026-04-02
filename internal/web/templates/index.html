@@ -263,6 +263,12 @@
           <td>yes</td>
           <td>may harm broker if many rest delivery points</td>
         </tr>
+        <tr>
+          <td>MqttSession</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>may harm broker if many mqtt sessions</td>
+        </tr>
         {{ if .IsHWBroker -}}
         <tr>
           <td>Alarm (only for Hardware brokers)</td>
