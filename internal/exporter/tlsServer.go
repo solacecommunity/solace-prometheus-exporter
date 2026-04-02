@@ -69,8 +69,25 @@ func ListenAndServeTLS(conf *Config) {
 		},
 		Certificates: []tls.Certificate{tlsCert},
 	}
+	// Middleware to add HSTS header (RFC 6797) and other security headers
+	hstsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// HSTS header (RFC 6797)
+		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
+		// Prevent MIME type sniffing
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		// Prevent clickjacking attacks
+		w.Header().Set("X-Frame-Options", "DENY")
+		// Enable XSS protection in older browsers
+		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		// Control referrer information
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		// Delegate to the default handler (Prometheus metrics handler)
+		http.DefaultServeMux.ServeHTTP(w, r)
+	})
+
 	httpServer := &http.Server{
 		Addr:              conf.ListenAddr,
+		Handler:           hstsHandler,
 		TLSConfig:         cfg,
 		TLSNextProto:      make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
 		ReadHeaderTimeout: 5 * time.Second,
