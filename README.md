@@ -80,7 +80,7 @@ We welcome contributions! Whether it's a bug report, a new feature, or improved 
 ### Local Build
 1. Clone the repo
 1. Run `make build`
-1. Run with `./bin/solace-prometheus-exporter --config-file=your_config.ini`
+1. Run with `./bin/solace_prometheus_exporter --config-file=your_config.ini`
 
 Please read the [Contribution Guide](CONTRIBUTING.MD) for our code of conduct and the process for submitting pull requests and issues.
 
