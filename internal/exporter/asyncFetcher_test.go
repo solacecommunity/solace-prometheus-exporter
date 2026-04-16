@@ -83,20 +83,20 @@ func TestNewAsyncFetcher(t *testing.T) {
 		case 0:
 			// That return an ok response for: getQueueDetailsSemp1
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`<rpc-reply semp-version="soltr/9_1_1VMR"><rpc><show><queue><queues><queue><name>q1</name><info><message-vpn>default</message-vpn></info></queue></queues></queue></show></rpc><execute-result code="ok"/></rpc-reply>`))
+			_, _ = w.Write([]byte(`<rpc-reply semp-version="soltr/9_1_1VMR"><rpc><show><queue><queues><queue><name>q1</name><info><message-vpn>default</message-vpn></info></queue></queues></queue></show></rpc><execute-result code="ok"/></rpc-reply>`))
 		case 1:
 			// That return an a 500 after 2sec body="pending shutdown" for: getQueueDetailsSemp1
 			time.Sleep(2 * time.Second)
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(`pending shutdown`))
+			_, _ = w.Write([]byte(`pending shutdown`))
 		case 2:
 			// That return an a 500 body="pending shutdown. see log for further details" for: getQueueDetailsSemp1
 			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(`pending shutdown. see log for further details`))
+			_, _ = w.Write([]byte(`pending shutdown. see log for further details`))
 		case 3:
 			// That return an ok response for: getQueueDetailsSemp1
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`<rpc-reply semp-version="soltr/9_1_1VMR"><rpc><show><queue><queues><queue><name>q1</name><info><message-vpn>default</message-vpn></info></queue></queues></queue></show></rpc><execute-result code="ok"/></rpc-reply>`))
+			_, _ = w.Write([]byte(`<rpc-reply semp-version="soltr/9_1_1VMR"><rpc><show><queue><queues><queue><name>q1</name><info><message-vpn>default</message-vpn></info></queue></queues></queue></show></rpc><execute-result code="ok"/></rpc-reply>`))
 		}
 	}))
 	defer server.Close()
