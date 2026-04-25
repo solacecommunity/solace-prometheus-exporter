@@ -19,7 +19,13 @@ var (
 	variableLabelsVpnClient          = []string{"vpn_name", "client_name"}
 	variableLabelsVpnClientUser      = []string{"vpn_name", "client_name", "client_username"}
 	variableLabelsVpnClientDetail    = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile"}
-	variableLabelsVpnClientFlow      = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
+	variableLabelsVpnClientFlow          = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
+	variableLabelsVpnClientEndpointBind  = []string{
+		"vpn_name", "client_name", "client_address",
+		"client_id", "client_username", "original_client_username",
+		"user", "description", "software_version", "platform",
+		"bind_type", "bind_name", "bind_target",
+	}
 	variableLabelsVpnQueue           = []string{"vpn_name", "queue_name"}
 	variableLabelsVpnTopicEndpoint   = []string{"vpn_name", "topic_endpoint_name"}
 	variableLabelsClusterLink        = []string{"cluster", "node_name", "remote_cluster", "remote_node_name"}
@@ -509,6 +515,13 @@ var MetricDesc = map[string]Descriptions{
 		"confirmed_delivered_store_and_forward": NewSemDesc("client_egress_confirmed_delivered_store_and_forward", NoSempV2Ready, "???", variableLabelsVpnClientFlow),
 		"confirmed_delivered_cut_through":       NewSemDesc("client_egress_confirmed_delivered_cut_through", NoSempV2Ready, "???", variableLabelsVpnClientFlow),
 		"unacked_messages":                      NewSemDesc("client_egress_unacked_messages", NoSempV2Ready, "Number of unacknowledged messages.", variableLabelsVpnClientFlow),
+	},
+	"ClientMessageSpoolEgress": {
+		"client_endpoint_egress_bind_time_seconds": NewSemDesc(
+			"client_endpoint_egress_bind_time_seconds", NoSempV2Ready,
+			"Unix timestamp (seconds) when this client became bound to the queue or topic endpoint as a consumer. One series per (client, endpoint) binding.",
+			variableLabelsVpnClientEndpointBind,
+		),
 	},
 	"VpnStats": {
 		"vpn_rx_msgs_total":                NewSemDesc("vpn_rx_msgs_total", NoSempV2Ready, "Number of received messages.", variableLabelsVpn),
