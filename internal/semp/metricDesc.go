@@ -20,8 +20,9 @@ var (
 	variableLabelsVpnClientUser      = []string{"vpn_name", "client_name", "client_username"}
 	variableLabelsVpnClientDetail    = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile"}
 	variableLabelsVpnClientFlow          = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
-	variableLabelsVpnClientQueueBind     = []string{
-		"vpn_name", "client_id", "client_username", "original_client_username",
+	variableLabelsVpnClientEndpointBind  = []string{
+		"vpn_name", "client_name", "client_address",
+		"client_id", "client_username", "original_client_username",
 		"user", "description", "software_version", "platform",
 		"bind_type", "bind_name", "bind_target",
 	}
@@ -516,10 +517,10 @@ var MetricDesc = map[string]Descriptions{
 		"unacked_messages":                      NewSemDesc("client_egress_unacked_messages", NoSempV2Ready, "Number of unacknowledged messages.", variableLabelsVpnClientFlow),
 	},
 	"ClientMessageSpoolEgress": {
-		"client_queue_bind_time_seconds": NewSemDesc(
-			"client_queue_bind_time_seconds", NoSempV2Ready,
-			"Unix timestamp (seconds) when this client became bound to the queue or topic endpoint. One series per (client, endpoint) binding.",
-			variableLabelsVpnClientQueueBind,
+		"client_endpoint_egress_bind_time_seconds": NewSemDesc(
+			"client_endpoint_egress_bind_time_seconds", NoSempV2Ready,
+			"Unix timestamp (seconds) when this client became bound to the queue or topic endpoint as a consumer. One series per (client, endpoint) binding.",
+			variableLabelsVpnClientEndpointBind,
 		),
 	},
 	"VpnStats": {

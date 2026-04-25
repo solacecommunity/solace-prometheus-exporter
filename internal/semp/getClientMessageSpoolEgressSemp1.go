@@ -3,14 +3,20 @@ package semp
 import (
 	"encoding/xml"
 	"strconv"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus"
 
 	"solace_exporter/internal/semp/types"
 )
 
-// GetClientMessageSpoolEgressSemp1 emits one client_queue_bind_time_seconds
-// gauge per (client, endpoint) binding.
+// GetClientMessageSpoolEgressSemp1 emits one client_endpoint_egress_bind_time_seconds
+// gauge per (client, endpoint) binding. A single client can be bound to multiple
+// endpoints, so each <flow> under <flows-to-client> becomes one series.
+//
+// itemFilter is the broker-side client-name wildcard (passed verbatim into
+// <name>); the broker handles the wildcard. There is no VPN or endpoint-name
+// filter at the SEMP level for `show client ... message-spool egress`.
 func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, itemFilter string) (float64, error) {
 	type Data struct {
 		RPC struct {
@@ -18,6 +24,8 @@ func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, i
 				Client struct {
 					PrimaryVirtualRouter struct {
 						Client []struct {
+							ClientName             string `xml:"name"`
+							ClientAddress          string `xml:"client-address"`
 							ClientID               uint32 `xml:"client-id"`
 							MsgVpnName             string `xml:"message-vpn"`
 							ClientUsername         string `xml:"client-username"`
@@ -70,14 +78,16 @@ func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, i
 		command = target.MoreCookie.RPC
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientIDStr := strconv.FormatUint(uint64(client.ClientID), 10)
+			clientIP := strings.Split(client.ClientAddress, ":")[0]
 			for _, flow := range client.MessageSpool.FlowsToClient.Flow {
 				bindTarget := flow.Type + "=" + flow.Name
 				ch <- semp.NewMetric(
-					MetricDesc["ClientMessageSpoolEgress"]["client_queue_bind_time_seconds"],
+					MetricDesc["ClientMessageSpoolEgress"]["client_endpoint_egress_bind_time_seconds"],
 					prometheus.GaugeValue,
 					float64(flow.BindTimeSeconds),
-					client.MsgVpnName, clientIDStr, client.ClientUsername,
-					client.OriginalClientUsername, client.User, client.Description,
+					client.MsgVpnName, client.ClientName, clientIP,
+					clientIDStr, client.ClientUsername, client.OriginalClientUsername,
+					client.User, client.Description,
 					client.SoftwareVersion, client.Platform,
 					flow.Type, flow.Name, bindTarget,
 				)
