@@ -2,13 +2,14 @@ package semp
 
 import (
 	"encoding/xml"
+    "fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 // GetVpnStatsSemp1 Get statistics of all VPNs
-func (semp *Semp) GetVpnStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string) (float64, error) {
+func (semp *Semp) GetVpnStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string, sempPageSize int64) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -54,55 +55,72 @@ func (semp *Semp) GetVpnStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string)
 				} `xml:"message-vpn"`
 			} `xml:"show"`
 		} `xml:"rpc"`
+		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
 		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
-	command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><stats/></message-vpn></show></rpc>"
-	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "VpnStatsSemp1", 1)
-	if err != nil {
-		semp.logger.Error("Can't scrape VpnSemp1", "err", err, "broker", semp.brokerURI)
-		return -1, err
-	}
-	defer func() { _ = body.Close() }()
-	decoder := xml.NewDecoder(body)
-	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		semp.logger.Error("Can't decode Xml VpnSemp1", "err", err, "broker", semp.brokerURI)
-		return 0, err
-	}
-	if err := target.ExecuteResult.OK(); err != nil {
-		semp.logger.Error("unexpected result",
-			"command", command,
-			"result", target.ExecuteResult.Result,
-			"reason", target.ExecuteResult.Reason,
-			"broker", semp.brokerURI,
-		)
-		return 0, err
-	}
+    var page = 1
+	var lastVpnName = ""
+	for command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><stats/><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize); command != ""; {
+        body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "VpnStatsSemp1", page)
+        page++
 
-	for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_rx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataRxMsgCount, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_tx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataTxMsgCount, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_rx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataRxByteCount, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_tx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataTxByteCount, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_rx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.IngressDiscards.DiscardedRxMsgCount, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_tx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.EgressDiscards.DiscardedTxMsgCount, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_amqp"], prometheus.GaugeValue, vpn.ConnectionsAmqService, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_mqtt"], prometheus.GaugeValue, vpn.ConnectionsMqttService, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_smf"], prometheus.GaugeValue, vpn.ConnectionsSmfService, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_web"], prometheus.GaugeValue, vpn.ConnectionsWebService, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_rest_in"], prometheus.GaugeValue, vpn.ConnectionsRestInService, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_rest_out"], prometheus.GaugeValue, vpn.ConnectionsRestOutService, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections"], prometheus.GaugeValue, vpn.QuotaConnections, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_smf"], prometheus.GaugeValue, vpn.QuotaConnectionsSmf, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_web"], prometheus.GaugeValue, vpn.QuotaConnectionsWeb, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_amqp"], prometheus.GaugeValue, vpn.QuotaConnectionsAMQP, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_mqtt"], prometheus.GaugeValue, vpn.QuotaConnectionsMqtt, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_rest_in"], prometheus.GaugeValue, vpn.QuotaConnectionsRestIn, vpn.Name)
-		ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_rest_out"], prometheus.GaugeValue, vpn.QuotaConnectionsRestOut, vpn.Name)
-	}
+        if err != nil {
+            semp.logger.Error("Can't scrape VpnStatsSemp1", "err", err, "broker", semp.brokerURI)
+            return -1, err
+        }
+        defer func() { _ = body.Close() }()
+        decoder := xml.NewDecoder(body)
+        var target Data
+        err = decoder.Decode(&target)
+        if err != nil {
+            semp.logger.Error("Can't decode Xml VpnStatsSemp1", "err", err, "broker", semp.brokerURI)
+            _ = body.Close()
+            return 0, err
+        }
+        if err := target.ExecuteResult.OK(); err != nil {
+            semp.logger.Error("unexpected result",
+                "command", command,
+                "result", target.ExecuteResult.Result,
+                "reason", target.ExecuteResult.Reason,
+                "broker", semp.brokerURI,
+            )
+            _ = body.Close()
+            return 0, err
+        }
+
+        semp.logger.Debug("Result of VpnStatsSemp1", "results", len(target.RPC.Show.MessageVpn.Vpn), "page", page-1)
+        command = target.MoreCookie.RPC
+
+        for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
+			vpnKey := vpn.Name
+			if vpnKey == lastVpnName {
+				continue
+			}
+			lastVpnName = vpnKey
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_rx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataRxMsgCount, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_tx_msgs_total"], prometheus.CounterValue, vpn.Stats.DataTxMsgCount, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_rx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataRxByteCount, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_tx_bytes_total"], prometheus.CounterValue, vpn.Stats.DataTxByteCount, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_rx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.IngressDiscards.DiscardedRxMsgCount, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_tx_discarded_msgs_total"], prometheus.CounterValue, vpn.Stats.EgressDiscards.DiscardedTxMsgCount, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections"], prometheus.GaugeValue, vpn.Connections, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_amqp"], prometheus.GaugeValue, vpn.ConnectionsAmqService, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_mqtt"], prometheus.GaugeValue, vpn.ConnectionsMqttService, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_smf"], prometheus.GaugeValue, vpn.ConnectionsSmfService, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_web"], prometheus.GaugeValue, vpn.ConnectionsWebService, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_rest_in"], prometheus.GaugeValue, vpn.ConnectionsRestInService, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_connections_service_rest_out"], prometheus.GaugeValue, vpn.ConnectionsRestOutService, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections"], prometheus.GaugeValue, vpn.QuotaConnections, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_smf"], prometheus.GaugeValue, vpn.QuotaConnectionsSmf, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_web"], prometheus.GaugeValue, vpn.QuotaConnectionsWeb, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_amqp"], prometheus.GaugeValue, vpn.QuotaConnectionsAMQP, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_mqtt"], prometheus.GaugeValue, vpn.QuotaConnectionsMqtt, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_rest_in"], prometheus.GaugeValue, vpn.QuotaConnectionsRestIn, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["VpnStats"]["vpn_quota_connections_rest_out"], prometheus.GaugeValue, vpn.QuotaConnectionsRestOut, vpn.Name)
+        }
+		_ = body.Close()
+    }
 
 	return 1, nil
 }

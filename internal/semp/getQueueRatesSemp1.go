@@ -2,6 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
+    "fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -10,7 +11,7 @@ import (
 // GetQueueRatesSemp1 Get rates for each individual queue of all VPNs
 // This can result in heavy system load for lots of queues
 // Deprecated: in facor of: getQueueStatsSemp1
-func (semp *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (float64, error) {
+func (semp *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string, sempPageSize int64) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -44,7 +45,7 @@ func (semp *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 
 	var page = 1
 	var lastQueueName = ""
-	for command := "<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><rates/><count/><num-elements>100</num-elements></queue></show></rpc>"; command != ""; {
+	for command := fmt.Sprintf("<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><rates/><count/><num-elements>%d</num-elements></queue></show></rpc>", sempPageSize); command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "QueueRatesSemp1", page)
 		page++
 

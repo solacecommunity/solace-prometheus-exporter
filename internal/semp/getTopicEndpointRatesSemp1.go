@@ -2,6 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
+    "fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -10,7 +11,7 @@ import (
 // GetTopicEndpointRatesSemp1 Get rates for each individual topic-endpoint of all VPNs
 // This can result in heavy system load for lots of topic-endpoints
 // Deprecated: in favor of: getTopicEndpointStatsSemp1
-func (semp *Semp) GetTopicEndpointRatesSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (float64, error) {
+func (semp *Semp) GetTopicEndpointRatesSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string, sempPageSize int64) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -44,7 +45,7 @@ func (semp *Semp) GetTopicEndpointRatesSemp1(ch chan<- PrometheusMetric, vpnFilt
 
 	var page = 1
 	var lastTopicEndpointName = ""
-	for command := "<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><rates/><count/><num-elements>100</num-elements></topic-endpoint></show></rpc>"; command != ""; {
+	for command := fmt.Sprintf("<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><rates/><count/><num-elements>%d</num-elements></topic-endpoint></show></rpc>", sempPageSize); command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "TopicEndpointRatesSemp1", page)
 		page++
 

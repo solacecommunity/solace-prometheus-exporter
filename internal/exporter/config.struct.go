@@ -39,6 +39,7 @@ type Config struct {
 	ParallelSempConnections int64
 	logBrokerToSlowWarnings bool
 	IsHWBroker              bool
+	SempPageSize            int64
 	OAuthTokenURL           string
 	OAuthClientID           string
 	OAuthClientSecret       string
@@ -141,6 +142,10 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+	conf.SempPageSize, err = parseConfigIntOptional(cfg, "solace", "sempPageSize", "SOLACE_SEMP_PAGE_SIZE", 100)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	conf.OAuthTokenURL = parseConfigStringOptional(cfg, "solace", "oAuthTokenURL", "SOLACE_OAUTH_TOKEN_URL", "")
 	conf.OAuthClientID = parseConfigStringOptional(cfg, "solace", "oAuthClientID", "SOLACE_OAUTH_CLIENT_ID", "")
@@ -164,6 +169,10 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 
 	if conf.ParallelSempConnections < 1 {
 		conf.ParallelSempConnections = 2
+	}
+
+	if conf.SempPageSize < 1 {
+		conf.SempPageSize = 100
 	}
 
 	endpoints := make(map[string][]DataSource)

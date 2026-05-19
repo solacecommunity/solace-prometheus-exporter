@@ -32,7 +32,7 @@ func (semp *Semp) GetVpnReplicationSemp1(ch chan<- PrometheusMetric, vpnFilter s
 	command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><replication/></message-vpn></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "VpnReplicationSemp1", 1)
 	if err != nil {
-		semp.logger.Error("Can't scrape VpnSemp1", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't scrape VpnReplicationSemp1", "err", err, "broker", semp.brokerURI)
 		return -1, err
 	}
 	defer func() { _ = body.Close() }()
@@ -40,7 +40,7 @@ func (semp *Semp) GetVpnReplicationSemp1(ch chan<- PrometheusMetric, vpnFilter s
 	var target Data
 	err = decoder.Decode(&target)
 	if err != nil {
-		semp.logger.Error("Can't decode Xml VpnSemp1", "err", err, "broker", semp.brokerURI)
+		semp.logger.Error("Can't decode Xml VpnReplicationSemp1", "err", err, "broker", semp.brokerURI)
 		return 0, err
 	}
 	if err := target.ExecuteResult.OK(); err != nil {

@@ -39,7 +39,10 @@ var (
 	variableLabelsDisk               = []string{"path", "device_name"}
 	variableLabelsInterface          = []string{"interface_name"}
 	variableLabelsInterfaceHW        = []string{"interface_name"}
+	variableLabelsMemory             = []string{"memory_type"}
 	variableLabelsRaid               = []string{"disk_number", "device_model"}
+	variableLabelsClockPro           = []string{"clock_protocol"}
+	variableLabelsClockNTPAddr       = []string{"clock_ntp_addr"}
 	variableLabelsRestConsumer       = []string{"vpn_name", "rdp_name", "rest_consumer_name"}
 	variableLabelsRdpInfo            = []string{"vpn_name", "rdp_name"}
 	variableLabelsRdpStats           = []string{"vpn_name", "rdp_name"}
@@ -107,6 +110,11 @@ var MetricDesc = map[string]Descriptions{
 		"system_memory_physical_usage_percent":     NewSemDesc("system_memory_physical_usage_percent", NoSempV2Ready, "Physical memory usage percent.", nil),
 		"system_memory_subscription_usage_percent": NewSemDesc("system_memory_subscription_usage_percent", NoSempV2Ready, "Subscription memory usage percent.", nil),
 		"system_nab_buffer_load_factor":            NewSemDesc("system_nab_buffer_load_factor", NoSempV2Ready, "NAB buffer load factor.", nil),
+		"system_memory_physical_total_kb":            NewSemDesc("system_memory_physical_total_kb", NoSempV2Ready, "Physical memory total in KB.", variableLabelsMemory),
+		"system_memory_physical_used_kb":            NewSemDesc("system_memory_physical_used_kb", NoSempV2Ready, "Physical memory used in KB.", variableLabelsMemory),
+		"system_memory_physical_free_kb":            NewSemDesc("system_memory_physical_free_kb", NoSempV2Ready, "Physical memory free in KB.", variableLabelsMemory),
+		"system_memory_physical_buffers_kb":            NewSemDesc("system_memory_physical_buffers_kb", NoSempV2Ready, "Physical memory buffers in KB.", variableLabelsMemory),
+		"system_memory_physical_cached_kb":            NewSemDesc("system_memory_physical_cached_kb", NoSempV2Ready, "Physical memory caches in KB.", variableLabelsMemory),
 	},
 	// SEMPv1: show interface <interface-name>
 	"Interface": {
@@ -146,6 +154,10 @@ var MetricDesc = map[string]Descriptions{
 		"system_disk_AdministrativeStateEnabled": NewSemDesc("system_disk_AdministrativeStateEnabled", NoSempV2Ready, "Disk enablement 0 = disabled, 1 = enabled.", variableLabelsRaid),
 		"system_raid_state":                      NewSemDesc("system_raid_state", NoSempV2Ready, "Current RAID state of the internal disks, 1 if fully redundant.", nil),
 		"system_reload_required":                 NewSemDesc("system_reload_required", NoSempV2Ready, "1 if a system reload is required.", nil),
+	},
+	"ClockDetail": {
+		"system_clock_detail_admin_state":                 NewSemDesc("system_clock_detail_admin_state", NoSempV2Ready, "Clock Admin state. 0 = disabled, 1 = enabled.", variableLabelsClockPro),
+		"system_clock_detail_ntp_server_reachable":        NewSemDesc("system_clock_detail_ntp_server_reachable", NoSempV2Ready, "Clock NTP Server Reachable? (0-no, 1-yes).", variableLabelsClockNTPAddr),
 	},
 	"Spool": {
 		"system_spool_quota_bytes":                         NewSemDesc("system_spool_quota_bytes", NoSempV2Ready, "Spool configured max disk usage.", nil),
@@ -324,8 +336,12 @@ var MetricDesc = map[string]Descriptions{
 	},
 	"Environment": {
 		"system_chassis_fan_speed_rpm": NewSemDesc("system_chassis_fan_speed_rpm", NoSempV2Ready, "Chassis Fan Speed (RPM)", variableLabelsEnvironment),
+		"system_chassis_fan_speed_rpm_status": NewSemDesc("system_chassis_fan_speed_rpm_status", NoSempV2Ready, "Chassis Fan Speed (RPM) Status (0-Fail, 1-OK, 2-Warining, -1-Undefined)", variableLabelsEnvironment),
 		"system_cpu_thermal_margin":    NewSemDesc("system_cpu_thermal_margin", NoSempV2Ready, "CPU thermal headroom (Degrees C, larger negative values are better.)", variableLabelsEnvironment),
+		"system_voltage":    NewSemDesc("system_voltage", NoSempV2Ready, "Mainboard Voltage (Volts, close to volts values in sensor name are better.)", variableLabelsEnvironment),
+		"system_voltage_status":    NewSemDesc("system_voltage_status", NoSempV2Ready, "Mainboard Voltage (0-Fail, 1-OK, 2-Warining, -1-Undefined).", variableLabelsEnvironment),
 		"system_nab_core_temperature":  NewSemDesc("system_nab_core_temperature", NoSempV2Ready, "NAB core temperature (Degrees C).", variableLabelsEnvironment),
+		"system_nab_core_temperature_status":  NewSemDesc("system_nab_core_temperature_status", NoSempV2Ready, "NAB core temperature Status (0-Fail, 1-OK, 2-Warining, -1-Undefined).", variableLabelsEnvironment),
 	},
 	"Hardware": {
 		"operational_power_supplies":      NewSemDesc("operational_power_supplies", NoSempV2Ready, "Number of operational power supplies", nil),
