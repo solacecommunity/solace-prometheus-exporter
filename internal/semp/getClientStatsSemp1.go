@@ -2,6 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
+    "fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -9,7 +10,7 @@ import (
 
 // Get some statistics for each individual client of all VPNs
 // This can result in heavy system load for lots of clients
-func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter string) (float64, error) {
+func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter string, sempPageSize int64) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -50,7 +51,8 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 	}
 
 	var page = 1
-	for command := "<rpc><show><client><name>" + itemFilter + "</name><stats/></client></show></rpc>"; command != ""; {
+	var lastClientName = ""
+	for command := fmt.Sprintf("<rpc><show><client><name>" + itemFilter + "</name><stats/><count/><num-elements>%d</num-elements></client></show></rpc>", sempPageSize); command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientStatsSemp1", page)
 		page++
 
@@ -78,9 +80,14 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 			return 0, err
 		}
 
+        semp.logger.Debug("Result of ClientStatSemp1", "results", len(target.RPC.Show.Client.PrimaryVirtualRouter.Client), "page", page-1)
 		command = target.MoreCookie.RPC
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
+			clientKey := client.MsgVpnName + "___" + client.ClientName
+			if clientKey == lastClientName {
+				continue
+			}
 			ch <- semp.NewMetric(MetricDesc["ClientStats"]["client_rx_msgs_total"], prometheus.CounterValue, client.Stats.DataRxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
 			ch <- semp.NewMetric(MetricDesc["ClientStats"]["client_tx_msgs_total"], prometheus.CounterValue, client.Stats.DataTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
 			ch <- semp.NewMetric(MetricDesc["ClientStats"]["client_rx_bytes_total"], prometheus.CounterValue, client.Stats.DataRxByteCount, client.MsgVpnName, client.ClientName, client.ClientUsername)

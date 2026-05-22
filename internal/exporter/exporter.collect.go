@@ -98,6 +98,14 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
 			}
+		case "ClockDetail", "ClockDetailV1":
+			if e.config.IsHWBroker {
+			    up, err = e.semp.GetClockDetailSemp1(ch)
+			} else {
+				up = 0
+				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
+			}
 		case "ReplicationStats", "ReplicationStatsV1":
 			up, err = e.semp.GetReplicationStatsSemp1(ch)
 		case "ConfigSyncRouter", "ConfigSyncRouterV1":
@@ -105,19 +113,19 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 		case "ConfigSync", "ConfigSyncV1":
 			up, err = e.semp.GetConfigSyncSemp1(ch)
 		case "Vpn", "VpnV1":
-			up, err = e.semp.GetVpnSemp1(ch, dataSource.VpnFilter)
+			up, err = e.semp.GetVpnSemp1(ch, dataSource.VpnFilter, e.config.SempPageSize)
 		case "VpnReplication", "VpnReplicationV1":
 			up, err = e.semp.GetVpnReplicationSemp1(ch, dataSource.VpnFilter)
 		case "ConfigSyncVpn", "ConfigSyncVpnV1":
-			up, err = e.semp.GetConfigSyncVpnSemp1(ch, dataSource.VpnFilter)
+			up, err = e.semp.GetConfigSyncVpnSemp1(ch, dataSource.VpnFilter, e.config.SempPageSize)
 		case "Bridge", "BridgeV1":
-			up, err = e.semp.GetBridgeSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetBridgeSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "BridgeRemote", "BridgeRemoteV1":
 			up, err = e.semp.GetBridgeRemoteSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "BridgeDetail", "BridgeDetailV1":
-			up, err = e.semp.GetBridgeDetailSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetBridgeDetailSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "VpnSpool", "VpnSpoolV1":
-			up, err = e.semp.GetVpnSpoolSemp1(ch, dataSource.VpnFilter)
+			up, err = e.semp.GetVpnSpoolSemp1(ch, dataSource.VpnFilter, e.config.SempPageSize)
 		case "Client", "ClientV1":
 			up, err = e.semp.GetClientSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "ClientProfile", "ClientProfileV1":
@@ -125,7 +133,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 		case "ClientSlowSubscriber", "ClientSlowSubscriberV1":
 			up, err = e.semp.GetClientSlowSubscriberSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "ClientStats", "ClientStatsV1":
-			up, err = e.semp.GetClientStatsSemp1(ch, dataSource.ItemFilter)
+			up, err = e.semp.GetClientStatsSemp1(ch, dataSource.ItemFilter, e.config.SempPageSize)
 		case "ClientConnections", "ClientConnectionsV1":
 			up, err = e.semp.GetClientConnectionStatsSemp1(ch, dataSource.ItemFilter)
 		case "ClientMessageSpoolStats", "ClientMessageSpoolStatsV1":
@@ -135,34 +143,34 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 		case "ClusterLinks", "ClusterLinksV1":
 			up, err = e.semp.GetClusterLinksSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "VpnStats", "VpnStatsV1":
-			up, err = e.semp.GetVpnStatsSemp1(ch, dataSource.VpnFilter)
+			up, err = e.semp.GetVpnStatsSemp1(ch, dataSource.VpnFilter, e.config.SempPageSize)
 		case "BridgeStats", "BridgeStatsV1":
-			up, err = e.semp.GetBridgeStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetBridgeStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "QueueRates", "QueueRatesV1":
-			up, err = e.semp.GetQueueRatesSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetQueueRatesSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "QueueStats", "QueueStatsV1":
-			up, err = e.semp.GetQueueStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetQueueStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "QueueStatsV2":
 			vpnName, err = e.getVpnName(dataSource.VpnFilter)
 			if err == nil {
 				up, err = e.semp.GetQueueStatsSemp2(ch, vpnName, dataSource.ItemFilter, dataSource.MetricFilter)
 			}
 		case "QueueDetails", "QueueDetailsV1":
-			up, err = e.semp.GetQueueDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetQueueDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "TopicEndpointRates", "TopicEndpointRatesV1":
-			up, err = e.semp.GetTopicEndpointRatesSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetTopicEndpointRatesSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "TopicEndpointStats", "TopicEndpointStatsV1":
-			up, err = e.semp.GetTopicEndpointStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetTopicEndpointStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "TopicEndpointDetails", "TopicEndpointDetailsV1":
-			up, err = e.semp.GetTopicEndpointDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetTopicEndpointDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "RestConsumerStats", "RestConsumerStatsV1":
-			up, err = e.semp.GetRestConsumerStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetRestConsumerStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "RdpStats", "RdpStatsV1":
-			up, err = e.semp.GetRdpStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetRdpStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "RdpInfo", "RdpInfoV1":
 			up, err = e.semp.GetRdpInfoSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "MqttSession":
-			up, err = e.semp.GetMqttSessionSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
+			up, err = e.semp.GetMqttSessionSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		default:
 			up = 0
 			err = errors.New("Unknown scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")

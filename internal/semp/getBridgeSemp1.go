@@ -2,13 +2,14 @@ package semp
 
 import (
 	"encoding/xml"
+    "fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
 // GetBridgeSemp1 status of bridges for all VPNs
-func (semp *Semp) GetBridgeSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string) (float64, error) {
+func (semp *Semp) GetBridgeSemp1(ch chan<- PrometheusMetric, vpnFilter string, itemFilter string, sempPageSize int64) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -40,60 +41,77 @@ func (semp *Semp) GetBridgeSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 				} `xml:"bridge"`
 			} `xml:"show"`
 		} `xml:"rpc"`
+		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
 		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
-	command := "<rpc><show><bridge><bridge-name-pattern>" + itemFilter + "</bridge-name-pattern><vpn-name-pattern>" + vpnFilter + "</vpn-name-pattern></bridge></show></rpc>"
-	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "BridgeSemp1", 1)
-	if err != nil {
-		semp.logger.Error("Can't scrape BridgeSemp1", "err", err, "broker", semp.brokerURI)
-		return -1, err
-	}
-	defer func() { _ = body.Close() }()
-	decoder := xml.NewDecoder(body)
-	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		semp.logger.Error("Can't decode Xml BridgeSemp1", "err", err, "broker", semp.brokerURI)
-		return 0, err
-	}
-	if err := target.ExecuteResult.OK(); err != nil {
-		semp.logger.Error(
-			"unexpected result",
-			"command", command,
-			"result", target.ExecuteResult.Result,
-			"reason", target.ExecuteResult.Reason,
-			"broker", semp.brokerURI,
-		)
-		return 0, err
-	}
-	ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalBridgesValue)
-	ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_max_num_total_bridges"], prometheus.CounterValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalBridgesValue)
-	ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_local_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumLocalBridgesValue)
-	ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_max_num_local_bridges"], prometheus.CounterValue, target.RPC.Show.Bridge.Bridges.MaxNumLocalBridgesValue)
-	ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_remote_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumRemoteBridgesValue)
-	ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_max_num_remote_bridges"], prometheus.CounterValue, target.RPC.Show.Bridge.Bridges.MaxNumRemoteBridgesValue)
-	ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_total_remote_bridge_subscriptions"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalRemoteBridgeSubscriptions)
-	ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_max_num_total_remote_bridge_subscriptions"], prometheus.CounterValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalRemoteBridgeSubscriptions)
-	opStates := []string{"Init", "Shutdown", "NoShutdown", "Prepare", "Prepare-WaitToConnect",
-		"Prepare-FetchingDNS", "NotReady", "NotReady-Connecting", "NotReady-Handshaking", "NotReady-WaitNext",
-		"NotReady-WaitReuse", "NotRead-WaitBridgeVersionMismatch", "NotReady-WaitCleanup", "Ready", "Ready-Subscribing",
-		"Ready-InSync", "NotApplicable", "Invalid"}
-	failReasons := []string{"Bridge disabled", "No remote message-vpns configured", "SMF service is disabled", "Msg Backbone is disabled",
-		"Local message-vpn is disabled", "Active-Standby Role Mismatch", "Invalid Active-Standby Role", "Redundancy Disabled", "Not active",
-		"Replication standby", "Remote message-vpns disabled", "Enforce-trusted-common-name but empty trust-common-name list", "SSL transport used but cipher-suite list is empty", "Authentication Scheme is Client-Certificate but no certificate is configured",
-		"Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL", "Basic Authentication Scheme used but Basic Client Username not configured", "Cluster Down", "Cluster Link Down", ""}
-	for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
-		bridgeName := bridge.BridgeName
-		vpnName := bridge.LocalVpnName
-		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_admin_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.AdminState, []string{"Enabled", "Disabled", "-"}), vpnName, bridgeName)
-		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_connection_establisher"], prometheus.GaugeValue, encodeMetricMulti(bridge.ConnectionEstablisher, []string{"NotApplicable", "Local", "Remote", "Invalid"}), vpnName, bridgeName)
-		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_inbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalState, opStates), vpnName, bridgeName)
-		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_inbound_operational_failure_reason"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalFailureReason, failReasons), vpnName, bridgeName)
-		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_outbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.OutboundOperationalState, opStates), vpnName, bridgeName)
-		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_queue_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.QueueOperationalState, []string{"NotApplicable", "Bound", "Unbound"}), vpnName, bridgeName)
-		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup", "static", "none"}), vpnName, bridgeName)
-		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, vpnName, bridgeName)
-	}
+    var page = 1
+	var lastBridgeName = ""
+	for command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>" + itemFilter + "</bridge-name-pattern><vpn-name-pattern>" + vpnFilter + "</vpn-name-pattern><count/><num-elements>%d</num-elements></bridge></show></rpc>", sempPageSize); command != ""; {
+        body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "BridgeSemp1", page)
+        page++
+
+        if err != nil {
+            semp.logger.Error("Can't scrape BridgeSemp1", "err", err, "broker", semp.brokerURI)
+            return -1, err
+        }
+        defer func() { _ = body.Close() }()
+        decoder := xml.NewDecoder(body)
+        var target Data
+        err = decoder.Decode(&target)
+        if err != nil {
+            semp.logger.Error("Can't decode Xml BridgeSemp1", "err", err, "broker", semp.brokerURI)
+            _ = body.Close()
+            return 0, err
+        }
+        if err := target.ExecuteResult.OK(); err != nil {
+            semp.logger.Error(
+                "unexpected result",
+                "command", command,
+                "result", target.ExecuteResult.Result,
+                "reason", target.ExecuteResult.Reason,
+                "broker", semp.brokerURI,
+            )
+            return 0, err
+        }
+
+        semp.logger.Debug("Result of BridgeSemp1", "results", len(target.RPC.Show.Bridge.Bridges.Bridge), "page", page-1)
+        command = target.MoreCookie.RPC
+
+        ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalBridgesValue)
+        ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_max_num_total_bridges"], prometheus.CounterValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalBridgesValue)
+        ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_local_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumLocalBridgesValue)
+        ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_max_num_local_bridges"], prometheus.CounterValue, target.RPC.Show.Bridge.Bridges.MaxNumLocalBridgesValue)
+        ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_remote_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumRemoteBridgesValue)
+        ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_max_num_remote_bridges"], prometheus.CounterValue, target.RPC.Show.Bridge.Bridges.MaxNumRemoteBridgesValue)
+        ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_total_remote_bridge_subscriptions"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalRemoteBridgeSubscriptions)
+        ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_max_num_total_remote_bridge_subscriptions"], prometheus.CounterValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalRemoteBridgeSubscriptions)
+        opStates := []string{"Init", "Shutdown", "NoShutdown", "Prepare", "Prepare-WaitToConnect",
+            "Prepare-FetchingDNS", "NotReady", "NotReady-Connecting", "NotReady-Handshaking", "NotReady-WaitNext",
+            "NotReady-WaitReuse", "NotRead-WaitBridgeVersionMismatch", "NotReady-WaitCleanup", "Ready", "Ready-Subscribing",
+            "Ready-InSync", "NotApplicable", "Invalid"}
+        failReasons := []string{"Bridge disabled", "No remote message-vpns configured", "SMF service is disabled", "Msg Backbone is disabled",
+            "Local message-vpn is disabled", "Active-Standby Role Mismatch", "Invalid Active-Standby Role", "Redundancy Disabled", "Not active",
+            "Replication standby", "Remote message-vpns disabled", "Enforce-trusted-common-name but empty trust-common-name list", "SSL transport used but cipher-suite list is empty", "Authentication Scheme is Client-Certificate but no certificate is configured",
+            "Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL", "Basic Authentication Scheme used but Basic Client Username not configured", "Cluster Down", "Cluster Link Down", ""}
+        for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
+            bridgeName := bridge.BridgeName
+            vpnName := bridge.LocalVpnName
+			bridgeKey := vpnName + "___" + bridgeName
+			if bridgeKey == lastBridgeName {
+				continue
+			}
+			lastBridgeName = bridgeKey
+            ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_admin_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.AdminState, []string{"Enabled", "Disabled", "-"}), vpnName, bridgeName)
+            ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_connection_establisher"], prometheus.GaugeValue, encodeMetricMulti(bridge.ConnectionEstablisher, []string{"NotApplicable", "Local", "Remote", "Invalid"}), vpnName, bridgeName)
+            ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_inbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalState, opStates), vpnName, bridgeName)
+            ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_inbound_operational_failure_reason"], prometheus.GaugeValue, encodeMetricMulti(bridge.InboundOperationalFailureReason, failReasons), vpnName, bridgeName)
+            ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_outbound_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.OutboundOperationalState, opStates), vpnName, bridgeName)
+            ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_queue_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.QueueOperationalState, []string{"NotApplicable", "Bound", "Unbound"}), vpnName, bridgeName)
+            ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup", "static", "none"}), vpnName, bridgeName)
+            ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, vpnName, bridgeName)
+        }
+		_ = body.Close()
+    }
 	return 1, nil
 }
