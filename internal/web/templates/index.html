@@ -31,132 +31,50 @@
           <th>scrape target</th>
           <th>vpn filter supports</th>
           <th>item filter supported</th>
+          <th>metrics filter supported</th>
           <th>performance</th>
+          </tr>
         <tr>
+        {{ if .IsHWBroker -}}
         <tr>
-          <td>Version</td>
+          <td>Alarm</td>
           <td>no</td>
           <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        {{ if not .IsHWBroker -}}
-        <tr>
-          <td>Health</td>
           <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>StorageElement</td>
-          <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>Disk</td>
-          <td>no</td>
-          <td>yes</td>
           <td>dont harm broker</td>
         </tr>
         {{- end -}}
         <tr>
-          <td>Memory</td>
-          <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>Interface</td>
-          <td>no</td>
-          <td>yes</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>GlobalStats</td>
-          <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>Spool</td>
-          <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>SpoolStats</td>
-          <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>Redundancy (only for HA brokers)</td>
-          <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>ConfigSync (only for HA brokers)</td>
-          <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>ConfigSyncRouter (only for HA brokers)</td>
-          <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>ReplicationStats (only for DR replication brokers)</td>
-          <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>Vpn</td>
-          <td>yes</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>VpnReplication</td>
-          <td>yes</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>ConfigSyncVpn (only for HA broker)</td>
-          <td>yes</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
           <td>Bridge</td>
           <td>yes</td>
           <td>yes</td>
+          <td>no</td>
           <td>dont harm broker</td>
         </tr>
         <tr>
-          <td>VpnSpool</td>
+          <td>BridgeDetail</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>may harm broker if many bridges</td>
+        </tr>
+        <tr>
+          <td>BridgeRemote</td>
+          <td>yes</td>
           <td>yes</td>
           <td>no</td>
           <td>dont harm broker</td>
+        </tr>
+        <tr>
+          <td>BridgeStats</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>has a very small performance down site</td>
         </tr>
         <tr>
           <td>Client</td>
           <td>yes</td>
-          <td>yes</td>
-          <td>may harm broker if many clients</td>
-        </tr>
-        <tr>
-          <td>ClientSlowSubscriber</td>
-          <td>yes</td>
-          <td>yes</td>
-          <td>may harm broker if many clients</td>
-        </tr>
-        <tr>
-          <td>ClientStats</td>
           <td>yes</td>
           <td>no</td>
           <td>may harm broker if many clients</td>
@@ -165,148 +83,289 @@
           <td>ClientConnections</td>
           <td>yes</td>
           <td>no</td>
-          <td>may harm broker if many clients</td>
-        </tr>
-        <tr>
-          <td>ClientMessageSpoolStats</td>
-          <td>yes</td>
-          <td>yes</td>
           <td>no</td>
+          <td>may harm broker if many clients</td>
         </tr>
         <tr>
           <td>ClientMessageSpoolEgress</td>
           <td>no</td>
           <td>yes</td>
+          <td>no</td>
           <td>may harm broker if many clients</td>
         </tr>
+        <tr>
+          <td>ClientMessageSpoolStats</td>
+          <td>no</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>may harm broker if many clients</td>
+        </tr>
+        <tr>
+          <td>ClientProfile</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        <tr>
+          <td>ClientSlowSubscriber</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>may harm broker if many clients but less expensive than `ClientStats`</td>
+        </tr>
+        <tr>
+          <td>ClientStats</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>may harm broker if many clients</td>
+        </tr>
+        {{ if .IsHWBroker -}}
+        <tr>
+          <td>ClockDetail</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        {{- end -}}
         <tr>
           <td>ClusterLinks</td>
+          <td>no</td>
           <td>yes</td>
           <td>no</td>
-          <td>may harm broker if many clients</td>
+          <td>dont harm broker</td>
         </tr>
         <tr>
-          <td>VpnStats</td>
+          <td>ConfigSync (only for HA broker)</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        <tr>
+          <td>ConfigSyncRouter (only for HA broker)</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        <tr>
+          <td>ConfigSyncVpn (only for HA broker)</td>
           <td>yes</td>
           <td>no</td>
-          <td>has a very small performance down site</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        {{ if .IsHWBroker -}}
+        <tr>
+          <td>Disk</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
         </tr>
         <tr>
-          <td>BridgeStats</td>
+          <td>Environment</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        {{- end -}}
+        <tr>
+          <td>GlobalStats</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        <tr>
+          <td>GlobalSystemInfo</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        {{ if .IsHWBroker -}}
+        <tr>
+          <td>Hardware</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        {{- end -}}
+        {{ if not .IsHWBroker -}}
+        <tr>
+          <td>Health</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        {{- end -}}
+        <tr>
+          <td>Interface</td>
+          <td>no</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        {{ if .IsHWBroker -}}
+        <tr>
+          <td>InterfaceHW</td>
+          <td>no</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        {{- end -}}
+        <tr>
+          <td>Memory</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        <tr>
+          <td>MqttSession</td>
           <td>yes</td>
           <td>yes</td>
-          <td>has a very small performance down site</td>
+          <td>no</td>
+          <td>may harm broker if many mqtt sessions</td>
+        </tr>
+        <tr>
+          <td>QueueDetails</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>may harm broker if many queues</td>
         </tr>
         <tr>
           <td>QueueRates</td>
           <td>yes</td>
           <td>yes</td>
+          <td>no</td>
           <td>DEPRECATED: may harm broker if many queues</td>
         </tr>
         <tr>
           <td>QueueStats</td>
           <td>yes</td>
           <td>yes</td>
+          <td>no</td>
           <td>may harm broker if many queues</td>
         </tr>
         <tr>
           <td>QueueStatsV2</td>
           <td>yes</td>
           <td>yes</td>
+          <td>yes</td>
           <td>may harm broker if many queues</td>
         </tr>
+        {{ if .IsHWBroker -}}
         <tr>
-          <td>QueueDetails</td>
+          <td>Raid</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        {{- end -}}
+        <tr>
+          <td>RDP/ Rest Consumers</td>
           <td>yes</td>
           <td>yes</td>
-          <td>may harm broker if many queues</td>
+          <td>no</td>
+          <td>may harm broker if many REST consumers</td>
+        </tr>
+        <tr>
+          <td>Redundancy (only for HA broker)</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        <tr>
+          <td>Replication (only for DR broker)</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        <tr>
+          <td>Spool</td>
+          <td>no</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        {{ if not .IsHWBroker -}}
+        <tr>
+          <td>StorageElement</td>
+          <td>no</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        {{- end -}}
+        <tr>
+          <td>TopicEndpointDetails</td>
+          <td>yes</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>may harm broker if many topic-endpoints</td>
         </tr>
         <tr>
           <td>TopicEndpointRates</td>
           <td>yes</td>
           <td>yes</td>
+          <td>no</td>
           <td>DEPRECATED: may harm broker if many topic-endpoints</td>
         </tr>
         <tr>
           <td>TopicEndpointStats</td>
           <td>yes</td>
           <td>yes</td>
-          <td>may harm broker if many topic-endpoints</td>
+          <td>no</td>
+          <td>may harm broker if many topic-endpoint</td>
         </tr>
         <tr>
-          <td>TopicEndpointDetails</td>
-          <td>yes</td>
-          <td>yes</td>
-          <td>may harm broker if many topic-endpoints</td>
-        </tr>
-        <tr>
-          <td>BridgeRemote</td>
-          <td>yes</td>
-          <td>yes</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>BridgeDetail</td>
-          <td>yes</td>
-          <td>yes</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>RestConsumer</td>
-          <td>yes</td>
-          <td>yes</td>
-          <td>may harm broker if many rest consumers</td>
-        </tr>
-        <tr>
-          <td>RdpInfo</td>
-          <td>yes</td>
-          <td>yes</td>
-          <td>may harm broker if many rest delivery points</td>
-        </tr>
-        <tr>
-          <td>RdpIStats</td>
-          <td>yes</td>
-          <td>yes</td>
-          <td>may harm broker if many rest delivery points</td>
-        </tr>
-        <tr>
-          <td>MqttSession</td>
-          <td>yes</td>
-          <td>yes</td>
-          <td>may harm broker if many mqtt sessions</td>
-        </tr>
-        {{ if .IsHWBroker -}}
-        <tr>
-          <td>Alarm (only for Hardware brokers)</td>
+          <td>Version</td>
+          <td>no</td>
           <td>no</td>
           <td>no</td>
           <td>dont harm broker</td>
         </tr>
         <tr>
-          <td>Environment (only for Hardware brokers)</td>
-          <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>Hardware (only for Hardware brokers)</td>
-          <td>no</td>
-          <td>no</td>
-          <td>dont harm broker</td>
-        </tr>
-        <tr>
-          <td>InterfaceHW (only for Hardware brokers)</td>
-          <td>no</td>
+          <td>Vpn</td>
           <td>yes</td>
+          <td>no</td>
+          <td>no</td>
           <td>dont harm broker</td>
         </tr>
         <tr>
-          <td>Raid (only for Hardware brokers)</td>
+          <td>VpnReplication</td>
+          <td>yes</td>
           <td>no</td>
           <td>no</td>
           <td>dont harm broker</td>
         </tr>
-        {{- end -}}
+        <tr>
+          <td>VpnSpool</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>no</td>
+          <td>dont harm broker</td>
+        </tr>
+        <tr>
+          <td>VpnStats</td>
+          <td>yes</td>
+          <td>no</td>
+          <td>no</td>
+          <td>has a very small performance down site</td>
+        </tr>
       </table>
       <br>
       </p>
