@@ -34,6 +34,7 @@ var (
 	variableLabelsBridgeDetail       = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name"}
 	variableLabelsBridgeDetailRemote = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name", "remote_vpn_name", "remote_router", "compressed", "ssl", "remote_queue_name"}
 	variableLabelsBridgeStats        = []string{"vpn_name", "bridge_name", "remote_router_name", "remote_vpn_name"}
+	variableLabelsBridgeClientCert   = []string{"vpn_name", "bridge_name", "connected_remote_router", "common_name"}
 	variableLabelsConfigSyncTable    = []string{"table_name"}
 	variableLabelsStorageElement     = []string{"path", "device_name", "element_name"}
 	variableLabelsDisk               = []string{"path", "device_name"}
@@ -461,6 +462,11 @@ var MetricDesc = map[string]Descriptions{
 		"bridge_detail_remote_connection_state":            NewSemDesc("bridge_detail_remote_connection_state", NoSempV2Ready, "Bridge Remote Connection Current Status (0-Down, 1-Up)", variableLabelsBridgeDetailRemote),
 		"bridge_detail_remote_last_conn_failure_reason":    NewSemDesc("bridge_detail_remote_last_conn_failure_reason", NoSempV2Ready, "Bridge Remote Last Connection Failure Reason (0-Bridge disabled ,1-No remote message-vpns configured, 2-SMF service is disabled, 3-Msg Backbone is disabled, 4-Local message-vpn is disabled, 5-Active-Standby Role Mismatch, 6-Invalid Active-Standby Role, 7-Redundancy Disabled, 8-Not active, 9-Replication standby, 10-Remote message-vpns disabled, 11-Enforce-trusted-common-name but empty trust-common-name list, 12-SSL transport used but cipher-suite list is empty, 13-Authentication Scheme is Client-Certificate but no certificate is configured, 14-Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL, 15-Basic Authentication Scheme used but Basic Client Username not configured, 16-Cluster Down, 17-Cluster Link Down, 18-N/A)", variableLabelsBridgeDetailRemote),
 		"bridge_detail_remote_queue_bind_state":            NewSemDesc("bridge_detail_remote_queue_bind_state", NoSempV2Ready, "Bridge Remote Queue Bind Status (0-Down, 1-Up)", variableLabelsBridgeDetailRemote),
+	},
+	"BridgeClientCert": {
+		"bridge_client_cert_configured":                   NewSemDesc("bridge_client_cert_configured", NoSempV2Ready, "Whether a client certificate is configured and parseable for the bridge (0-No, 1-Yes).", variableLabelsBridgeClientCert),
+		"bridge_client_cert_expiry_timestamp_seconds":     NewSemDesc("bridge_client_cert_expiry_timestamp_seconds", NoSempV2Ready, "Bridge client certificate notAfter as a Unix timestamp (seconds).", variableLabelsBridgeClientCert),
+		"bridge_client_cert_not_before_timestamp_seconds": NewSemDesc("bridge_client_cert_not_before_timestamp_seconds", NoSempV2Ready, "Bridge client certificate notBefore as a Unix timestamp (seconds).", variableLabelsBridgeClientCert),
 	},
 	"VpnSpool": {
 		"vpn_spool_quota_bytes":                 NewSemDesc("vpn_spool_quota_bytes", NoSempV2Ready, "Spool configured max disk usage.", variableLabelsVpn),
