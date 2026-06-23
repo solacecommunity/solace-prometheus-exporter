@@ -2,6 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
+	"fmt"
 	"solace_exporter/internal/semp/types"
 	"strconv"
 
@@ -10,7 +11,7 @@ import (
 
 // GetClientMessageSpoolStatsSemp1 Get some statistics for each individual client of all VPNs
 // This can result in heavy system load for lots of clients
-func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, itemFilter string) (float64, error) {
+func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, itemFilter string, sempPageSize int64) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -64,7 +65,8 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 	}
 
 	var page = 1
-	for command := "<rpc><show><client><name>" + itemFilter + "</name><message-spool-stats/></client></show></rpc>"; command != ""; {
+	var lastClientName = ""
+	for command := fmt.Sprintf("<rpc><show><client><name>"+itemFilter+"</name><message-spool-stats/><count/><num-elements>%d</num-elements></client></show></rpc>", sempPageSize); command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientMessageSpoolStatsSemp1", page)
 		page++
 
@@ -95,6 +97,11 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 		command = target.MoreCookie.RPC
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
+			clientKey := client.MsgVpnName + "___" + client.ClientName
+			if clientKey == lastClientName {
+				continue
+			}
+			lastClientName = clientKey
 			ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["client_flows_ingress"], prometheus.GaugeValue, client.FlowsIngress, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile)
 			ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["client_flows_egress"], prometheus.GaugeValue, client.FlowsEgress, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile)
 
