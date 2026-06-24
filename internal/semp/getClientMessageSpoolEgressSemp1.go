@@ -2,6 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -17,7 +18,7 @@ import (
 // itemFilter is the broker-side client-name wildcard (passed verbatim into
 // <name>); the broker handles the wildcard. There is no VPN or endpoint-name
 // filter at the SEMP level for `show client ... message-spool egress`.
-func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, itemFilter string) (float64, error) {
+func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, itemFilter string, sempPageSize int64) (float64, error) {
 	type Data struct {
 		RPC struct {
 			Show struct {
@@ -53,7 +54,8 @@ func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, i
 	}
 
 	var page = 1
-	for command := "<rpc><show><client><name>" + itemFilter + "</name><message-spool/><egress/><connected/></client></show></rpc>"; command != ""; {
+	var lastClientName = ""
+	for command := fmt.Sprintf("<rpc><show><client><name>"+itemFilter+"</name><message-spool/><egress/><connected/><count/><num-elements>%d</num-elements></client></show></rpc>", sempPageSize); command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientMessageSpoolEgressSemp1", page)
 		page++
 		if err != nil {
@@ -77,6 +79,11 @@ func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, i
 		}
 		command = target.MoreCookie.RPC
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
+			clientKey := client.MsgVpnName + "___" + client.ClientName
+			if clientKey == lastClientName {
+				continue
+			}
+			lastClientName = clientKey
 			clientIDStr := strconv.FormatUint(uint64(client.ClientID), 10)
 			clientIP := strings.Split(client.ClientAddress, ":")[0]
 			for _, flow := range client.MessageSpool.FlowsToClient.Flow {
