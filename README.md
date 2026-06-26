@@ -87,6 +87,7 @@ Please read the [Contribution Guide](CONTRIBUTING.MD) for our code of conduct an
 ## 📚 Resources
 * Video: [Integrating Prometheus and Grafana with Solace](https://youtu.be/72Wz5rrStAU?t=35)
 * Blog: [How to Use OAuth with solace-prometheus-exporter](https://dev.to/pascalre/securing-solace-metrics-how-to-use-oauth-with-solace-prometheus-exporter-2i6l)
+* Blog: [Your Solace Prometheus Exporter Deserves a Better Pipeline](https://dev.to/pascalre/your-solace-prometheus-exporter-deserves-a-better-pipeline-3i6i)
 
 ## License
 Distributed under [MIT](LICENSE).
