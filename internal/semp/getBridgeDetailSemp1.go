@@ -28,6 +28,17 @@ func (semp *Semp) GetBridgeDetailSemp1(ch chan<- PrometheusMetric, vpnFilter str
 							QueueOperationalState           string  `xml:"queue-operational-state"`
 							Redundancy                      string  `xml:"redundancy"`
 							ConnectionUptimeInSeconds       float64 `xml:"connection-uptime-in-seconds"`
+                            Authentication                  struct {
+                                AuthScheme                     string `xml:"auth-scheme"`
+                                Basic struct {
+                                    ClientUsername              string  `xml:"client-username"`
+                                    PasswordConfigured          string  `xml:"password-configured"`
+                                } `xml:"basic"`
+                                ClientCertificate struct {
+                                    CertificateFile             string  `xml:"certificate-file"`
+                                    UsingServerCertificate      bool    `xml:"using-server-certificate"`
+                                } `xml:"client-certificate"`
+                            } `xml:"authentication"`
 							LocalQueueName                  string  `xml:"local-queue-name"`
 							RemoteMessageVPNList            struct {
 								RemoteMessageVPN []struct {
@@ -111,6 +122,7 @@ func (semp *Semp) GetBridgeDetailSemp1(ch chan<- PrometheusMetric, vpnFilter str
             ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_queue_operational_state"], prometheus.GaugeValue, encodeMetricMulti(bridge.QueueOperationalState, []string{"NotApplicable", "Bound", "Unbound"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName)
             ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup", "static", "none"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName)
             ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName)
+            ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_authentication_scheme"], prometheus.GaugeValue, encodeMetricMulti(bridge.Authentication.AuthScheme, []string{"NotApplicable", "Basic", "Client-Certificate", "TLS-PSK"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName, bridge.Authentication.Basic.ClientUsername, bridge.Authentication.ClientCertificate.CertificateFile)
             for _, remoteVpn := range bridge.RemoteMessageVPNList.RemoteMessageVPN {
                 remoteVpnName := remoteVpn.VpnName
                 remoteRouter := remoteVpn.RouterName

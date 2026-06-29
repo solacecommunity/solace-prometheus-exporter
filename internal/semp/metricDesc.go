@@ -32,6 +32,7 @@ var (
 	variableLabelsBridge             = []string{"vpn_name", "bridge_name"}
 	variableLabelsBridgeRemote       = []string{"vpn_name", "bridge_name", "remote_vpn_name", "remote_router"}
 	variableLabelsBridgeDetail       = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name"}
+	variableLabelsBridgeDetailAuth   = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name", "client_username", "certificate_file"}
 	variableLabelsBridgeDetailRemote = []string{"vpn_name", "bridge_name", "connected_remote_vpn_name", "connected_remote_router", "local_queue_name", "remote_vpn_name", "remote_router", "compressed", "ssl", "remote_queue_name"}
 	variableLabelsBridgeStats        = []string{"vpn_name", "bridge_name", "remote_router_name", "remote_vpn_name"}
 	variableLabelsBridgeClientCert   = []string{"vpn_name", "bridge_name", "connected_remote_router", "common_name"}
@@ -458,6 +459,7 @@ var MetricDesc = map[string]Descriptions{
 		"bridge_detail_queue_operational_state":            NewSemDesc("bridge_detail_queue_operational_state", NoSempV2Ready, "Queue Ops State (0-NotApplicable, 1-Bound, 2-Unbound)", variableLabelsBridgeDetail),
 		"bridge_detail_redundancy":                         NewSemDesc("bridge_detail_redundancy", NoSempV2Ready, "Bridge Redundancy (0-NotApplicable, 1-auto, 2-primary, 3-backup, 4-static, 5-none)", variableLabelsBridgeDetail),
 		"bridge_detail_connection_uptime_in_seconds":       NewSemDesc("bridge_detail_connection_uptime_in_seconds", NoSempV2Ready, "Connection Uptime (s)", variableLabelsBridgeDetail),
+		"bridge_detail_authentication_scheme":             NewSemDesc("bridge_detail_authentication_scheme", NoSempV2Ready, "Bridge Authentication Scheme (NotApplicable, Basic, Client-Certificate, TLS-PSK)", variableLabelsBridgeDetailAuth),
 		"bridge_detail_remote_admin_state":                 NewSemDesc("bridge_detail_remote_admin_state", NoSempV2Ready, "Bridge Remote Administrative State (0-Enabled 1-Disabled, 2--, 3-N/A)", variableLabelsBridgeDetailRemote),
 		"bridge_detail_remote_connection_state":            NewSemDesc("bridge_detail_remote_connection_state", NoSempV2Ready, "Bridge Remote Connection Current Status (0-Down, 1-Up)", variableLabelsBridgeDetailRemote),
 		"bridge_detail_remote_last_conn_failure_reason":    NewSemDesc("bridge_detail_remote_last_conn_failure_reason", NoSempV2Ready, "Bridge Remote Last Connection Failure Reason (0-Bridge disabled ,1-No remote message-vpns configured, 2-SMF service is disabled, 3-Msg Backbone is disabled, 4-Local message-vpn is disabled, 5-Active-Standby Role Mismatch, 6-Invalid Active-Standby Role, 7-Redundancy Disabled, 8-Not active, 9-Replication standby, 10-Remote message-vpns disabled, 11-Enforce-trusted-common-name but empty trust-common-name list, 12-SSL transport used but cipher-suite list is empty, 13-Authentication Scheme is Client-Certificate but no certificate is configured, 14-Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL, 15-Basic Authentication Scheme used but Basic Client Username not configured, 16-Cluster Down, 17-Cluster Link Down, 18-N/A)", variableLabelsBridgeDetailRemote),
@@ -637,13 +639,20 @@ var MetricDesc = map[string]Descriptions{
 		"binds":             NewSemDesc("topic_endpoint_binds", NoSempV2Ready, "Number of clients bound to topic-endpoint.", variableLabelsVpnTopicEndpoint),
 	},
 	"TopicEndpointStats": {
-		"total_bytes_spooled":              NewSemDesc("topic_endpoint_byte_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages in bytes.", variableLabelsVpnTopicEndpoint),
-		"total_messages_spooled":           NewSemDesc("topic_endpoint_msg_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages.", variableLabelsVpnTopicEndpoint),
-		"messages_redelivered":             NewSemDesc("topic_endpoint_msg_redelivered", NoSempV2Ready, "Topic Endpoint total msg redeliveries.", variableLabelsVpnTopicEndpoint),
-		"messages_transport_retransmitted": NewSemDesc("topic_endpoint_msg_retransmitted", NoSempV2Ready, "Topic Endpoint total msg retransmitted on transport.", variableLabelsVpnTopicEndpoint),
-		"spool_usage_exceeded":             NewSemDesc("topic_endpoint_msg_spool_usage_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the spool usage.", variableLabelsVpnTopicEndpoint),
-		"max_message_size_exceeded":        NewSemDesc("topic_endpoint_msg_max_msg_size_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the max message size.", variableLabelsVpnTopicEndpoint),
-		"total_deleted_messages":           NewSemDesc("topic_endpoint_msg_total_deleted", NoSempV2Ready, "Topic Endpoint total number that was deleted.", variableLabelsVpnTopicEndpoint),
+		"total_bytes_spooled":                  NewSemDesc("topic_endpoint_byte_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages in bytes.", variableLabelsVpnTopicEndpoint),
+		"total_messages_spooled":               NewSemDesc("topic_endpoint_msg_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages.", variableLabelsVpnTopicEndpoint),
+		"messages_redelivered":                 NewSemDesc("topic_endpoint_msg_redelivered", NoSempV2Ready, "Topic Endpoint total msg redeliveries.", variableLabelsVpnTopicEndpoint),
+		"messages_transport_retransmitted":     NewSemDesc("topic_endpoint_msg_retransmitted", NoSempV2Ready, "Topic Endpoint total msg retransmitted on transport.", variableLabelsVpnTopicEndpoint),
+		"spool_usage_exceeded":                 NewSemDesc("topic_endpoint_msg_spool_usage_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the spool usage.", variableLabelsVpnTopicEndpoint),
+		"max_message_size_exceeded":            NewSemDesc("topic_endpoint_msg_max_msg_size_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the max message size.", variableLabelsVpnTopicEndpoint),
+		"total_deleted_messages":               NewSemDesc("topic_endpoint_msg_total_deleted", NoSempV2Ready, "Topic Endpoint total number that was deleted.", variableLabelsVpnTopicEndpoint),
+        "messages_shutdown_discarded":          NewSemDesc("topic_endpoint_msg_shutdown_discarded", NoSempV2Ready, "Topic Endpoint total number of messages discarded due to spool shutdown.", variableLabelsVpnTopicEndpoint),
+        "messages_ttl_discarded":               NewSemDesc("topic_endpoint_msg_ttl_discarded", NoSempV2Ready, "Topic Endpoint total number of messages discarded due to ttl expiry.", variableLabelsVpnTopicEndpoint),
+        "messages_ttl_dmq":                     NewSemDesc("topic_endpoint_msg_ttl_dmq", NoSempV2Ready, "Topic Endpoint total number of messages delivered to dmq due to ttl expiry.", variableLabelsVpnTopicEndpoint),
+        "messages_ttl_dmq_failed":              NewSemDesc("topic_endpoint_msg_ttl_dmq_failed", NoSempV2Ready, "Topic Endpoint total number of messages that failed delivery to dmq due to ttl expiry.", variableLabelsVpnTopicEndpoint),
+        "messages_max_redelivered_discarded":   NewSemDesc("topic_endpoint_msg_max_redelivered_discarded", NoSempV2Ready, "Topic Endpoint total number of messages discarded due to exceeded max redelivery.", variableLabelsVpnTopicEndpoint),
+        "messages_max_redelivered_dmq":         NewSemDesc("topic_endpoint_msg_max_redelivered_dmq", NoSempV2Ready, "Topic Endpoint total number of messages delivered to dmq due to exceeded max redelivery.", variableLabelsVpnTopicEndpoint),
+        "messages_max_redelivered_dmq_failed":  NewSemDesc("topic_endpoint_msg_max_redelivered_dmq_failed", NoSempV2Ready, "Topic Endpoint total number of messages failed delivery to dmq due to exceeded max redelivery.", variableLabelsVpnTopicEndpoint),
 	},
 	"ClusterLinks": {
 		"enabled":     NewSemDesc("cluster_link_enabled", NoSempV2Ready, "Cluster link is enabled.", variableLabelsClusterLink),
