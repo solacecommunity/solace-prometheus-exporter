@@ -20,7 +20,21 @@ type ExporterAuthConfig struct {
 	Password string `json:"-"`
 }
 
-// Config Collection of configs
+// oAuthTokenCache holds the shared, mutable OAuth client-credentials token so it can be reused across scrape
+// requests instead of being fetched for every request. It is referenced by pointer from Config so that a per-request
+// Config copy (see Config.Clone) shares the SAME cache (keeping the token warm) without copying the mutex.
+type oAuthTokenCache struct {
+	mu     sync.RWMutex
+	token  string
+	expiry time.Time
+}
+
+// Config Collection of configs.
+//
+// The per-request scrape fields (ScrapeURI, Username, Password, Timeout) are mutated per HTTP request in the
+// dynamic (/solace) handler. To keep concurrent scrapes from clobbering each other's credentials, every request
+// works on its own Config.Clone(); the shared base Config is never mutated after startup. The only intentionally
+// shared mutable state is oAuthToken (a pointer), so the OAuth token cache stays warm across requests.
 type Config struct {
 	ListenAddr              string
 	EnableTLS               bool
@@ -45,11 +59,18 @@ type Config struct {
 	OAuthClientSecret       string
 	OAuthClientScope        string
 	OAuthIssuer             string
-	oAuthAccessToken        string
-	oAuthTokenExpiry        time.Time
-	oAuthTokenMutex         sync.RWMutex
+	oAuthToken              *oAuthTokenCache
 	authType                AuthType
 	ExporterAuth            ExporterAuthConfig
+}
+
+// Clone returns a shallow copy of the Config that is safe to mutate per request. Scalar fields (ScrapeURI,
+// Username, Password, Timeout, ...) are copied by value so that overriding them on the clone does NOT affect the
+// shared base Config or any other in-flight request. The oAuthToken cache is shared by pointer on purpose, so the
+// OAuth token obtained by one request is reused by the others.
+func (conf *Config) Clone() *Config {
+	c := *conf
+	return &c
 }
 
 const (
@@ -71,7 +92,7 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	var cfg *ini.File
 	var err error
 
-	conf := &Config{}
+	conf := &Config{oAuthToken: &oAuthTokenCache{}}
 
 	if len(configFile) > 0 {
 		opts := ini.LoadOptions{
@@ -155,16 +176,22 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	conf.Username = parseConfigStringOptional(cfg, "solace", "username", "SOLACE_USERNAME", "admin")
 	conf.Password = parseConfigStringOptional(cfg, "solace", "password", "SOLACE_PASSWORD", "admin")
 
-	if (len(conf.Username) == 0 || len(conf.Password) == 0) && (len(conf.OAuthClientID) == 0 || len(conf.OAuthClientSecret) == 0 || len(conf.OAuthTokenURL) == 0 || len(conf.OAuthClientScope) == 0) {
-		return nil, nil, errors.New("either basic auth (username+password) or OAuth (oAuthClientID+oAuthClientSecret+oAuthTokenURL+oAuthClientScope) must be configured")
+	anyOAuth := len(conf.OAuthClientID) > 0 || len(conf.OAuthClientSecret) > 0 || len(conf.OAuthTokenURL) > 0 || len(conf.OAuthClientScope) > 0
+	allOAuth := len(conf.OAuthClientID) > 0 && len(conf.OAuthClientSecret) > 0 && len(conf.OAuthTokenURL) > 0 && len(conf.OAuthClientScope) > 0
+
+	// If any OAuth field is set the user intends OAuth, so require all of them instead of silently falling back to
+	// the default admin/admin basic credentials (which would then 401 in a confusing way).
+	if anyOAuth && !allOAuth {
+		return nil, nil, errors.New("incomplete OAuth configuration: oAuthClientID, oAuthClientSecret, oAuthTokenURL and oAuthClientScope must all be set")
 	}
 
-	if len(conf.Username) > 0 && len(conf.Password) > 0 {
-		conf.authType = AuthTypeBasic
-	}
-
-	if len(conf.OAuthClientID) > 0 && len(conf.OAuthClientSecret) > 0 && len(conf.OAuthTokenURL) > 0 && len(conf.OAuthClientScope) > 0 {
+	switch {
+	case allOAuth:
 		conf.authType = AuthTypeOAuth
+	case len(conf.Username) > 0 && len(conf.Password) > 0:
+		conf.authType = AuthTypeBasic
+	default:
+		return nil, nil, errors.New("either basic auth (username+password) or OAuth (oAuthClientID+oAuthClientSecret+oAuthTokenURL+oAuthClientScope) must be configured")
 	}
 
 	if conf.ParallelSempConnections < 1 {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"os"
 	"solace_exporter/internal/exporter"
 	"solace_exporter/internal/web"
@@ -75,7 +76,7 @@ func main() {
 		if conf.PrefetchInterval.Seconds() > 0 {
 			var asyncFetcher = exporter.NewAsyncFetcher(context.Background(), urlPath, dataSource, conf, logger, sempConnections)
 			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
-				doHandleAsync(w, r, asyncFetcher)
+				doHandleAsync(w, r, asyncFetcher, conf)
 			})
 		} else {
 			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
@@ -88,37 +89,12 @@ func main() {
 	}
 
 	http.HandleFunc("/solace", func(w http.ResponseWriter, r *http.Request) {
-		var err = r.ParseForm()
-		if err != nil {
+		if err := r.ParseForm(); err != nil {
 			logger.Error("Can not parse the request parameter", "err", err)
 			return
 		}
 
-		var dataSource []exporter.DataSource
-		for key, values := range r.Form {
-			if strings.HasPrefix(key, "m.") {
-				for _, value := range values {
-					parts := strings.Split(value, "|")
-					if len(parts) < 2 {
-						logger.Error("One or two | expected. Use VPN wildcard | Item wildcard | Optional metric filter for v2 apis", "key", key, "value", value)
-					} else {
-						var metricFilter []string
-						if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {
-							metricFilter = strings.Split(parts[2], ",")
-						}
-
-						dataSource = append(dataSource, exporter.DataSource{
-							Name:         strings.TrimPrefix(key, "m."),
-							VpnFilter:    parts[0],
-							ItemFilter:   parts[1],
-							MetricFilter: metricFilter,
-						})
-					}
-				}
-			}
-		}
-
-		doHandle(w, r, dataSource, conf, logger)
+		doHandle(w, r, parseDataSources(r.Form, logger), conf, logger)
 	})
 
 	endpointViews := make([]web.EndpointView, 0, len(endpoints))
@@ -156,10 +132,12 @@ func main() {
 	}
 }
 
-func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporter.AsyncFetcher) string {
+func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporter.AsyncFetcher, conf *exporter.Config) string {
 	registry := prometheus.NewRegistry()
 	registry.MustRegister(asyncFetcher)
-	handler := promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
+	// Protect prefetch endpoints with the same exporter auth as the synchronous handlers (they previously served
+	// metrics unauthenticated even when SOLACE_EXPORTER_AUTH_* was configured).
+	handler := web.WrapWithAuth(promhttp.HandlerFor(registry, promhttp.HandlerOpts{}), conf.ExporterAuth)
 	handler.ServeHTTP(w, r)
 
 	return w.Header().Get("status")
@@ -170,43 +148,14 @@ func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.Data
 	if dataSource == nil {
 		handler = promhttp.Handler()
 	} else {
-		// Exporter for endpoint
-		username := r.FormValue("username")
-		if len(username) == 0 {
-			username = r.Header.Get("x-solace-broker-username")
-		}
-		password := r.FormValue("password")
-		if len(password) == 0 {
-			password = r.Header.Get("x-solace-broker-password")
-		}
-		scrapeURI := r.FormValue("scrapeURI")
-		if len(scrapeURI) == 0 {
-			scrapeURI = r.Header.Get("x-solace-broker-scrapeuri")
-		}
-		timeout := r.FormValue("timeout")
-		if len(timeout) == 0 {
-			timeout = r.Header.Get("x-solace-broker-timeout")
-		}
-		if len(username) > 0 {
-			conf.Username = username
-		}
-		if len(password) > 0 {
-			conf.Password = password
-		}
-		if len(scrapeURI) > 0 {
-			conf.ScrapeURI = scrapeURI
-		}
-		if len(timeout) > 0 {
-			var err error
-			conf.Timeout, err = time.ParseDuration(timeout)
-			if err != nil {
-				logger.Error("Per HTTP given timeout parameter is not valid", "err", err, "timeout", timeout)
-			}
-		}
+		// Each request scrapes a broker whose credentials / scrapeURI come from the request itself. We therefore
+		// work on a per-request Config copy so that concurrent scrapes can NOT overwrite each other's credentials
+		// on a shared Config (which caused broker-wide SEMP 401s).
+		reqConf := resolveRequestConfig(r, conf, logger)
 
-		logger.Info("handle http request", "dataSource", logDataSource(dataSource), "scrapeURI", conf.ScrapeURI)
+		logger.Info("handle http request", "dataSource", logDataSource(dataSource), "scrapeURI", reqConf.ScrapeURI)
 
-		exp := exporter.NewExporter(r.Context(), logger, conf, &dataSource)
+		exp := exporter.NewExporter(r.Context(), logger, reqConf, &dataSource)
 		registry := prometheus.NewRegistry()
 		registry.MustRegister(exp)
 		handler = promhttp.HandlerFor(registry, promhttp.HandlerOpts{})
@@ -215,4 +164,79 @@ func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.Data
 
 	securedHandler.ServeHTTP(w, r)
 	return w.Header().Get("status")
+}
+
+// parseDataSources builds the list of scrape targets from the request form. Each `m.<Name>` parameter holds
+// `vpnFilter|itemFilter[|metricFilter,...]`; entries with fewer than two `|`-separated parts are skipped with a log.
+func parseDataSources(form url.Values, logger *slog.Logger) []exporter.DataSource {
+	var dataSource []exporter.DataSource
+	for key, values := range form {
+		if !strings.HasPrefix(key, "m.") {
+			continue
+		}
+		for _, value := range values {
+			parts := strings.Split(value, "|")
+			if len(parts) < 2 {
+				logger.Error("One or two | expected. Use VPN wildcard | Item wildcard | Optional metric filter for v2 apis", "key", key, "value", value)
+				continue
+			}
+
+			var metricFilter []string
+			if len(parts) == 3 && len(strings.TrimSpace(parts[2])) > 0 {
+				metricFilter = strings.Split(parts[2], ",")
+			}
+
+			dataSource = append(dataSource, exporter.DataSource{
+				Name:         strings.TrimPrefix(key, "m."),
+				VpnFilter:    parts[0],
+				ItemFilter:   parts[1],
+				MetricFilter: metricFilter,
+			})
+		}
+	}
+	return dataSource
+}
+
+// resolveRequestConfig returns a per-request copy of conf with the credentials, scrape URI and timeout overridden
+// from the request. For each value the form parameter wins, then the x-solace-broker-* header, otherwise the value
+// configured on the base Config is kept. The shared base conf is never mutated, so concurrent requests are fully
+// isolated from one another.
+func resolveRequestConfig(r *http.Request, conf *exporter.Config, logger *slog.Logger) *exporter.Config {
+	reqConf := conf.Clone()
+
+	if username := firstNonEmpty(r.FormValue("username"), r.Header.Get("x-solace-broker-username")); username != "" {
+		reqConf.Username = username
+	}
+	if password := firstNonEmpty(r.FormValue("password"), r.Header.Get("x-solace-broker-password")); password != "" {
+		reqConf.Password = password
+	}
+	if scrapeURI := firstNonEmpty(r.FormValue("scrapeURI"), r.Header.Get("x-solace-broker-scrapeuri")); scrapeURI != "" {
+		reqConf.ScrapeURI = scrapeURI
+	}
+	if timeout := firstNonEmpty(r.FormValue("timeout"), r.Header.Get("x-solace-broker-timeout")); timeout != "" {
+		parsed, err := time.ParseDuration(timeout)
+		switch {
+		case err != nil:
+			// Keep the configured timeout instead of silently disabling it (an invalid value used to zero it).
+			logger.Error("Per HTTP given timeout parameter is not valid", "err", err, "timeout", timeout)
+		case parsed <= 0:
+			// A non-positive timeout means "no timeout" for http.Client; a hung broker could then pin a scrape
+			// (and a SEMP connection slot) forever. Keep the configured timeout instead.
+			logger.Error("Per HTTP given timeout must be positive; keeping configured timeout", "timeout", timeout)
+		default:
+			reqConf.Timeout = parsed
+		}
+	}
+
+	return reqConf
+}
+
+// firstNonEmpty returns the first non-empty string of the given values, or "" if all are empty.
+func firstNonEmpty(values ...string) string {
+	for _, v := range values {
+		if len(v) > 0 {
+			return v
+		}
+	}
+	return ""
 }

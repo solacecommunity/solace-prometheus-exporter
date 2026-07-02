@@ -12,7 +12,7 @@ import (
 // CollectPrometheusMetric fetches the stats from configured Solace location and delivers them
 // as Prometheus metrics. It implements prometheus.Collector.
 func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
-	var up float64 = 1
+	var up float64 // set per dataSource in the switch below before it is read
 	var err error
 	var vpnName string
 
@@ -153,6 +153,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 		case "QueueStats", "QueueStatsV1":
 			up, err = e.semp.GetQueueStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
 		case "QueueStatsV2":
+			up = 0 // reset before getVpnName so its failure isn't reported with the previous datasource's up value
 			vpnName, err = e.getVpnName(dataSource.VpnFilter)
 			if err == nil {
 				up, err = e.semp.GetQueueStatsSemp2(ch, vpnName, dataSource.ItemFilter, dataSource.MetricFilter)
@@ -208,8 +209,15 @@ func (e *Exporter) Collect(pch chan<- prometheus.Metric) {
 	wg.Add(1)
 
 	collectWorker := func() {
+		defer wg.Done()
+		// A malformed/unexpected broker reply must not crash the whole exporter (all brokers). Recover, log, and
+		// let this scrape simply report fewer metrics.
+		defer func() {
+			if r := recover(); r != nil {
+				e.logger.Error("recovered from panic while scraping broker", "panic", r, "scrapeURI", e.config.ScrapeURI)
+			}
+		}()
 		e.CollectPrometheusMetric(ch)
-		wg.Done()
 	}
 	go collectWorker()
 
