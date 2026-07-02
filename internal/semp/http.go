@@ -20,7 +20,9 @@ func (semp *Semp) postHTTP(uri string, _ string, body string, logName string, pa
 		return nil, err
 	}
 
-	semp.httpRequestVisitor(req)
+	if semp.httpRequestVisitor != nil {
+		semp.httpRequestVisitor(req)
+	}
 
 	resp, err := semp.httpClient.Do(req)
 	if err != nil {
@@ -48,12 +50,17 @@ func (semp *Semp) getHTTPbytes(uri string, _ string, logName string, page int) (
 		return nil, err
 	}
 
-	semp.httpRequestVisitor(req)
+	if semp.httpRequestVisitor != nil {
+		semp.httpRequestVisitor(req)
+	}
 
 	resp, err := semp.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
+	// Always close the body: previously it was only closed on the >=500 path, leaking a connection on every
+	// successful SEMP v2 page.
+	defer func() { _ = resp.Body.Close() }()
 
 	var queryDuration = time.Since(start)
 	if semp.logBrokerToSlowWarnings && (page > 1 && queryDuration > longQuery) || (page == 1 && queryDuration > longQueryFirstSempV2) {
@@ -63,7 +70,6 @@ func (semp *Semp) getHTTPbytes(uri string, _ string, logName string, page int) (
 	semp.logger.Debug("Scraped "+logName, "page", page, "duration", queryDuration)
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 500 {
-		_ = resp.Body.Close()
 		return nil, fmt.Errorf("HTTP status %d (%s)", resp.StatusCode, http.StatusText(resp.StatusCode))
 	}
 
