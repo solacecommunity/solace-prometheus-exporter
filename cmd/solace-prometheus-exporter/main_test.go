@@ -10,15 +10,17 @@ import (
 	"time"
 )
 
-func TestDoHandleHeaderOverride(t *testing.T) {
+// TestResolveRequestConfig verifies that per-request credentials/scrapeURI/timeout are resolved with the correct
+// precedence (form value > x-solace-broker-* header > configured base value) AND that the shared base Config is
+// never mutated - which is the fix for the broker-wide SEMP 401 storm.
+func TestResolveRequestConfig(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	dataSource := []exporter.DataSource{{Name: "test"}}
 
 	tests := []struct {
 		name              string
 		queryParams       map[string]string
 		headers           map[string]string
-		initialConf       *exporter.Config
+		base              exporter.Config
 		expectedUsername  string
 		expectedPassword  string
 		expectedScrapeURI string
@@ -32,7 +34,7 @@ func TestDoHandleHeaderOverride(t *testing.T) {
 				"x-solace-broker-scrapeuri": "http://header-uri",
 				"x-solace-broker-timeout":   "10s",
 			},
-			initialConf:       &exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
+			base:              exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
 			expectedUsername:  "header-user",
 			expectedPassword:  "header-pass",
 			expectedScrapeURI: "http://header-uri",
@@ -52,7 +54,7 @@ func TestDoHandleHeaderOverride(t *testing.T) {
 				"x-solace-broker-scrapeuri": "http://header-uri",
 				"x-solace-broker-timeout":   "10s",
 			},
-			initialConf:       &exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
+			base:              exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
 			expectedUsername:  "form-user",
 			expectedPassword:  "form-pass",
 			expectedScrapeURI: "http://form-uri",
@@ -61,11 +63,20 @@ func TestDoHandleHeaderOverride(t *testing.T) {
 		{
 			name:              "Fallback to config",
 			headers:           map[string]string{},
-			initialConf:       &exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
+			base:              exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
 			expectedUsername:  "conf-user",
 			expectedPassword:  "conf-pass",
 			expectedScrapeURI: "http://conf-uri",
 			expectedTimeout:   5 * time.Second,
+		},
+		{
+			name:              "Invalid timeout keeps configured timeout",
+			queryParams:       map[string]string{"timeout": "not-a-duration"},
+			base:              exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 7 * time.Second},
+			expectedUsername:  "conf-user",
+			expectedPassword:  "conf-pass",
+			expectedScrapeURI: "http://conf-uri",
+			expectedTimeout:   7 * time.Second,
 		},
 	}
 
@@ -83,31 +94,55 @@ func TestDoHandleHeaderOverride(t *testing.T) {
 			for k, v := range tt.headers {
 				req.Header.Set(k, v)
 			}
-			rr := httptest.NewRecorder()
 
-			// Create a new config to avoid copying the mutex
-			conf := exporter.Config{
-				Username:  tt.initialConf.Username,
-				Password:  tt.initialConf.Password,
-				ScrapeURI: tt.initialConf.ScrapeURI,
-				Timeout:   tt.initialConf.Timeout,
-				// copy other fields if necessary for doHandle
-				ExporterAuth: tt.initialConf.ExporterAuth,
-			}
-			// We need to pass a pointer to conf because doHandle modifies it.
-			doHandle(rr, req, dataSource, &conf, logger)
+			base := tt.base // keep a copy of the original to detect mutation
+			reqConf := resolveRequestConfig(req, &base, logger)
 
-			if conf.Username != tt.expectedUsername {
-				t.Errorf("Username: expected %s, got %s", tt.expectedUsername, conf.Username)
+			if reqConf.Username != tt.expectedUsername {
+				t.Errorf("Username: expected %s, got %s", tt.expectedUsername, reqConf.Username)
 			}
-			if conf.Password != tt.expectedPassword {
-				t.Errorf("Password: expected %s, got %s", tt.expectedPassword, conf.Password)
+			if reqConf.Password != tt.expectedPassword {
+				t.Errorf("Password: expected %s, got %s", tt.expectedPassword, reqConf.Password)
 			}
-			if conf.ScrapeURI != tt.expectedScrapeURI {
-				t.Errorf("ScrapeURI: expected %s, got %s", tt.expectedScrapeURI, conf.ScrapeURI)
+			if reqConf.ScrapeURI != tt.expectedScrapeURI {
+				t.Errorf("ScrapeURI: expected %s, got %s", tt.expectedScrapeURI, reqConf.ScrapeURI)
 			}
-			if conf.Timeout != tt.expectedTimeout {
-				t.Errorf("Timeout: expected %v, got %v", tt.expectedTimeout, conf.Timeout)
+			if reqConf.Timeout != tt.expectedTimeout {
+				t.Errorf("Timeout: expected %v, got %v", tt.expectedTimeout, reqConf.Timeout)
+			}
+
+			// The shared base Config must NOT be mutated by request resolution.
+			if base.Username != tt.base.Username || base.Password != tt.base.Password ||
+				base.ScrapeURI != tt.base.ScrapeURI || base.Timeout != tt.base.Timeout {
+				t.Errorf("base Config was mutated: got %+v, want %+v",
+					struct {
+						U, P, S string
+						T       time.Duration
+					}{base.Username, base.Password, base.ScrapeURI, base.Timeout},
+					struct {
+						U, P, S string
+						T       time.Duration
+					}{tt.base.Username, tt.base.Password, tt.base.ScrapeURI, tt.base.Timeout})
+			}
+		})
+	}
+}
+
+func TestFirstNonEmpty(t *testing.T) {
+	tests := []struct {
+		name   string
+		values []string
+		want   string
+	}{
+		{"all empty", []string{"", ""}, ""},
+		{"first wins", []string{"a", "b"}, "a"},
+		{"skip empty", []string{"", "b", "c"}, "b"},
+		{"none", nil, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := firstNonEmpty(tt.values...); got != tt.want {
+				t.Errorf("firstNonEmpty(%v) = %q, want %q", tt.values, got, tt.want)
 			}
 		})
 	}

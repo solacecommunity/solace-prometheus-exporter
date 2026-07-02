@@ -8,6 +8,7 @@ import (
 	"os"
 	"solace_exporter/internal/semp"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -74,12 +75,12 @@ func TestNewAsyncFetcher(t *testing.T) {
 	t.Parallel()
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-	// state variable
-	state := 0
+	// state variable (read by the mock server goroutine, written by the test goroutine)
+	var state atomic.Int32
 
 	// setup a mock webserver
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch state {
+		switch state.Load() {
 		case 0:
 			// That return an ok response for: getQueueDetailsSemp1
 			w.WriteHeader(http.StatusOK)
@@ -147,14 +148,14 @@ func TestNewAsyncFetcher(t *testing.T) {
 
 	checkUp(1.0)
 
-	state = 1
+	state.Store(1)
 	time.Sleep(2500 * time.Millisecond) // Wait for the 2sec timeout and fetch
-	state = 2
+	state.Store(2)
 	time.Sleep(500 * time.Millisecond)
 	// expect solace_up to be 0
 	checkUp(0.0)
 
-	state = 3
+	state.Store(3)
 	time.Sleep(1000 * time.Millisecond)
 	// expect solace_up to be 1
 	checkUp(1.0)

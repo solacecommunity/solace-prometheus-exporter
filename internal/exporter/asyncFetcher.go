@@ -80,6 +80,12 @@ func readMetrics(f *AsyncFetcher) {
 
 	go func() {
 		defer close(metricsChan)
+		// A malformed/unexpected broker reply must not crash the exporter process; recover and log instead.
+		defer func() {
+			if r := recover(); r != nil {
+				f.logger.Error("recovered from panic while scraping broker (async)", "panic", r)
+			}
+		}()
 		f.exporter.CollectPrometheusMetric(metricsChan)
 	}()
 

@@ -79,7 +79,11 @@ func (semp *Semp) GetMemorySemp1(ch chan<- PrometheusMetric) (float64, error) {
 
 	ch <- semp.NewMetric(MetricDesc["Memory"]["system_memory_physical_usage_percent"], prometheus.GaugeValue, target.RPC.Show.Memory.PhysicalUsagePercent)
 	ch <- semp.NewMetric(MetricDesc["Memory"]["system_memory_subscription_usage_percent"], prometheus.GaugeValue, target.RPC.Show.Memory.SubscriptionUsagePercent)
-	ch <- semp.NewMetric(MetricDesc["Memory"]["system_nab_buffer_load_factor"], prometheus.GaugeValue, target.RPC.Show.Memory.SlotInfos.SlotInfo[0].NabBufLoadFactor)
+	// SlotInfo may be empty on software/cloud brokers or malformed replies; guard the index to avoid a panic that
+	// would crash the whole exporter for every broker.
+	if slotInfos := target.RPC.Show.Memory.SlotInfos.SlotInfo; len(slotInfos) > 0 {
+		ch <- semp.NewMetric(MetricDesc["Memory"]["system_nab_buffer_load_factor"], prometheus.GaugeValue, slotInfos[0].NabBufLoadFactor)
+	}
 
 	return 1, nil
 }
