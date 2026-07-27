@@ -150,7 +150,7 @@ corresponding environment variable:
 | Environment variable                | Config key                | Default        | Description |
 |-------------------------------------|---------------------------|----------------|-------------|
 | `SOLACE_LISTEN_ADDR`                | `listenAddr`              | `0.0.0.0:9628` | Address the exporter listens on. |
-| `SOLACE_SCRAPE_URI`                 | `scrapeUri`               | *(required)*   | Base URI of the broker's SEMP interface, e.g. `http://localhost:8080`. |
+| `SOLACE_SCRAPE_URI`                 | `scrapeURI`               | *(required)*   | Base URI of the broker's SEMP interface, e.g. `http://localhost:8080`. |
 | `SOLACE_USERNAME`                   | `username`                | `admin`        | Basic Auth username for SEMP requests. |
 | `SOLACE_PASSWORD`                   | `password`                | `admin`        | Basic Auth password for SEMP requests. |
 | `SOLACE_DEFAULT_VPN`                | `defaultVpn`              | `default`      | Message VPN used for SEMP v2 targets when the VPN filter is `*`. |

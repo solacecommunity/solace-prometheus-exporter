@@ -210,7 +210,8 @@ func resolveRequestConfig(r *http.Request, conf *exporter.Config, logger *slog.L
 	if password := firstNonEmpty(r.FormValue("password"), r.Header.Get("x-solace-broker-password")); password != "" {
 		reqConf.Password = password
 	}
-	if scrapeURI := firstNonEmpty(r.FormValue("scrapeURI"), r.Header.Get("x-solace-broker-scrapeuri")); scrapeURI != "" {
+	// Accept both scrapeURI (canonical) and scrapeUri so the URL parameter matches either historical spelling.
+	if scrapeURI := firstNonEmpty(r.FormValue("scrapeURI"), r.FormValue("scrapeUri"), r.Header.Get("x-solace-broker-scrapeuri")); scrapeURI != "" {
 		reqConf.ScrapeURI = scrapeURI
 	}
 	if timeout := firstNonEmpty(r.FormValue("timeout"), r.Header.Get("x-solace-broker-timeout")); timeout != "" {
