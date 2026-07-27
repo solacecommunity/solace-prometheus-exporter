@@ -29,12 +29,16 @@ The Solace Prometheus Exporter can be configured using four methods (in order of
 | `SOLACE_PKCS12_FILE`                | `pkcs12File`              | -              | Path to the server certificate (including intermediates and CA's certificate)                                                                                                                               |
 | `SOLACE_PKCS12_PASS`                | `pkcs12Pass`              | -              | Password to decrypt PKCS12 file                                                                                                                                                                             |
 | `SOLACE_PRIVATE_KEY`                | `privateKey`              | -              | Path to the private key pem file                                                                                                                                                                            |
-| `SOLACE_SCRAPE_URI`                 | `scrapeUri`               | -              | URI on which to scrape Solace broker                                                                                                                                                                        |
+| `SOLACE_SCRAPE_URI`                 | `scrapeURI`               | -              | URI on which to scrape Solace broker                                                                                                                                                                        |
 | `SOLACE_SERVER_CERT`                | `certificate`             | -              | Path to the server certificate (including intermediates and CA's certificate)                                                                                                                               |
 | `SOLACE_SEMP_PAGE_SIZE`             | `sempPageSize`            | `100`          | Number of elements per SEMP v1 paging request                                                                                                                                                               |
 | `SOLACE_SSL_VERIFY`                 | `sslVerify`               | `false`        | Flag that enables SSL certificate verification for the scrape URI                                                                                                                                           |
 | `SOLACE_TIMEOUT`                    | `timeout`                 | `5s`           | Timeout for HTTP scrape requests to Solace broker                                                                                                                                                           |
 | `SOLACE_USERNAME`                   | `username`                | `admin`        | Basic Auth username for HTTP scrape requests to Solace broker                                                                                                                                               |
+
+> **Note:** Config file keys in the `[solace]` section are matched case-insensitively, so historically diverging
+> spellings remain interchangeable — for example `scrapeURI` and `scrapeUri` (and the `scrapeURI`/`scrapeUri` URL
+> parameter) all resolve to the same setting.
 
 ## 🧩 Modular Endpoints
 The `/solace` endpoint allows you to granularly define which metrics to collect using HTTP GET parameters. This is the recommended way to optimize performance and reduce broker load.

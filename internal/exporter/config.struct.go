@@ -317,7 +317,7 @@ func parseConfigString(cfg *ini.File, iniSection string, iniKey string, envKey s
 	}
 
 	if cfg != nil {
-		s := cfg.Section(iniSection).Key(iniKey).String()
+		s := iniKeyValue(cfg, iniSection, iniKey)
 		if len(s) > 0 {
 			return s, nil
 		}
@@ -334,11 +334,33 @@ func parseConfigStringOptional(cfg *ini.File, iniSection string, iniKey string, 
 	}
 
 	if cfg != nil {
-		s := cfg.Section(iniSection).Key(iniKey).String()
+		s := iniKeyValue(cfg, iniSection, iniKey)
 		if len(s) > 0 {
 			return s
 		}
 	}
 
 	return defaultValue
+}
+
+// iniKeyValue returns the value of iniKey in iniSection, matching the key name case-insensitively. This keeps
+// historically diverging spellings interchangeable (for example scrapeUri and scrapeURI) without breaking existing
+// config files. It returns the value of the first non-empty matching key.
+func iniKeyValue(cfg *ini.File, iniSection string, iniKey string) string {
+	section := cfg.Section(iniSection)
+	if section.HasKey(iniKey) {
+		if v := section.Key(iniKey).String(); len(v) > 0 {
+			return v
+		}
+	}
+
+	for _, key := range section.Keys() {
+		if strings.EqualFold(key.Name(), iniKey) {
+			if v := key.String(); len(v) > 0 {
+				return v
+			}
+		}
+	}
+
+	return ""
 }
