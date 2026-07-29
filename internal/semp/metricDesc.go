@@ -348,7 +348,7 @@ var MetricDesc = map[string]Descriptions{
 	"Hardware": {
 		"operational_power_supplies":      NewSemDesc("operational_power_supplies", NoSempV2Ready, "Number of operational power supplies", nil),
 		"fibre_channel_operational_state": NewSemDesc("fibre_channel_operational_state", NoSempV2Ready, "Fibre channel operational state 0-Link Down 1-Online", variableLabelsHardwareFC),
-		"fibre_channel_state":             NewSemDesc("fibre_channel_state", NoSempV2Ready, "Fibre channel state 0-Link Down 1-Link Up, 2-Link Up Loop", variableLabelsHardwareFC),
+		"fibre_channel_state":             NewSemDesc("fibre_channel_state", NoSempV2Ready, "Fibre channel state 0-Link Down 1-Link Up, 2-Link Up Loop, 3-Link Up NPort", variableLabelsHardwareFC),
 		"external_disk_lun_state":         NewSemDesc("external_disk_lun_state", NoSempV2Ready, "External Disk LUN state 0-Offline 1-Ready", variableLabelsHardwareLUN),
 		"adb_operational_state":           NewSemDesc("adb_operational_state", NoSempV2Ready, "ADB Operational State, -1,0-Not OK 1-OK", nil),
 		"adb_flash_card_state":            NewSemDesc("adb_flash_card_state", NoSempV2Ready, "ADB Flash Card State, -1,0-Not OK 1-OK", nil),

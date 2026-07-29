@@ -74,7 +74,7 @@ func (semp *Semp) GetHardwareSemp1(ch chan<- PrometheusMetric) (float64, error) 
 		case "Host Bus Adapter Blade":
 			for _, FC := range slot.FibreChannel {
 				ch <- semp.NewMetric(MetricDesc["Hardware"]["fibre_channel_operational_state"], prometheus.GaugeValue, encodeMetricMulti(FC.OperationalState, []string{"Linkdown", "Online"}), FC.Number)
-				ch <- semp.NewMetric(MetricDesc["Hardware"]["fibre_channel_state"], prometheus.GaugeValue, encodeMetricMulti(FC.State, []string{"Link Down", "Link Up - F_Port (fabric via point-to-point)", "Link Up - Loop (private loop)"}), FC.Number)
+				ch <- semp.NewMetric(MetricDesc["Hardware"]["fibre_channel_state"], prometheus.GaugeValue, encodeMetricMulti(FC.State, []string{"Link Down", "Link Up - F_Port (fabric via point-to-point)", "Link Up - Loop (private loop)", "Link Up - N_Port to N_Port (direct nport connection)"}), FC.Number)
 			}
 			for _, LUN := range slot.ExternalDiskLun {
 				State := "Ready"
