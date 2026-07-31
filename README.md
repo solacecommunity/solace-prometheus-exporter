@@ -58,6 +58,8 @@ http://localhost:9628/solace-std
   endpoints with Basic Auth.
 * **Multi-broker friendly** &mdash; override the target broker, credentials and timeout per request via URL
   parameters or `x-solace-broker-*` headers, so one exporter can front many brokers.
+* **Secret management** &mdash; plug in HashiCorp Vault (or a future backend) via `SECRET_BACKEND`; any credential
+  field accepts a `vault:<path>#<field>` reference while plain text values pass through unchanged.
 * **Async prefetch** &mdash; optionally poll the broker on a fixed interval and serve cached metrics, smoothing out
   load on slow brokers or very large result sets.
 * **Cloud-native** &mdash; small static binary, `scratch`-based container image, and a
@@ -119,6 +121,7 @@ so one exporter instance can be reused as a generic proxy in front of many broke
 | `password`    | `x-solace-broker-password`  | Broker Basic Auth password |
 | `scrapeURI`   | `x-solace-broker-scrapeuri` | Broker SEMP base URI |
 | `timeout`     | `x-solace-broker-timeout`   | Per-request timeout (e.g. `10s`) |
+| `secretBackend` | `x-solace-secret-backend` | `none` to skip vault resolution (plain text) |
 
 ## Configuration
 
@@ -161,6 +164,7 @@ corresponding environment variable:
 | `SOLACE_PARALLEL_SEMP_CONNECTIONS`  | `parallelSempConnections` | `1`            | Maximum concurrent SEMP connections to the broker (Solace advises ≤10 per second). |
 | `PREFETCH_INTERVAL`                 | `prefetchInterval`        | `0s`           | If > 0, configured endpoints are fetched asynchronously on this interval and served from cache. |
 | `SOLACE_LOG_BROKER_IS_SLOW_WARNING` | `logBrokerToSlowWarnings` | `true`         | Log a warning when a SEMP query takes unusually long. |
+| `SECRET_BACKEND`                    | `secretBackend`           | -              | Secret backend: `hashicorp` for HashiCorp Vault; unset or `none` = ignore vault resolution. See [`docs/CONFIG.md`](docs/CONFIG.md#-secret-management). |
 
 #### Serving over TLS
 
