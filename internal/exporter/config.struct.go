@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -11,8 +12,18 @@ import (
 	"sync"
 	"time"
 
+	"solace_exporter/internal/secret"
+
 	"gopkg.in/ini.v1"
 )
+
+// secretResolveTimeout bounds how long ResolveSecrets waits on the secret backend at startup. Kept separate from
+// Config.Timeout (per-scrape SEMP calls) since this only delays startup, not a live scrape.
+const secretResolveTimeout = 30 * time.Second
+
+// defaultSecretCacheTTL is how long a resolved *static* (non-leased) Vault secret is cached before being
+// re-read, unless overridden via secretCacheTTL / SECRET_CACHE_TTL. Set to 0 to disable caching for those.
+const defaultSecretCacheTTL = 60 * time.Second
 
 type ExporterAuthConfig struct {
 	Scheme   string
@@ -29,12 +40,9 @@ type oAuthTokenCache struct {
 	expiry time.Time
 }
 
-// Config Collection of configs.
-//
-// The per-request scrape fields (ScrapeURI, Username, Password, Timeout) are mutated per HTTP request in the
-// dynamic (/solace) handler. To keep concurrent scrapes from clobbering each other's credentials, every request
-// works on its own Config.Clone(); the shared base Config is never mutated after startup. The only intentionally
-// shared mutable state is oAuthToken (a pointer), so the OAuth token cache stays warm across requests.
+// Config Collection of configs. Per-request scrape fields (ScrapeURI, Username, Password, Timeout) are
+// overridden on a Config.Clone() per request, so concurrent scrapes never clobber each other's credentials.
+// oAuthToken is the one intentionally shared (pointer) field, keeping the OAuth token cache warm across requests.
 type Config struct {
 	ListenAddr              string
 	EnableTLS               bool
@@ -62,15 +70,71 @@ type Config struct {
 	oAuthToken              *oAuthTokenCache
 	authType                AuthType
 	ExporterAuth            ExporterAuthConfig
+	SecretBackend           string
+	SecretCacheTTL          time.Duration
 }
 
-// Clone returns a shallow copy of the Config that is safe to mutate per request. Scalar fields (ScrapeURI,
-// Username, Password, Timeout, ...) are copied by value so that overriding them on the clone does NOT affect the
-// shared base Config or any other in-flight request. The oAuthToken cache is shared by pointer on purpose, so the
-// OAuth token obtained by one request is reused by the others.
+// Clone returns a shallow copy of Config safe to mutate per request. Scalar fields are copied by value; oAuthToken
+// is shared by pointer on purpose so the cached OAuth token is reused across requests.
 func (conf *Config) Clone() *Config {
 	c := *conf
 	return &c
+}
+
+// ResolveSecrets resolves any "vault:<path>#<field>" references among the static credential fields in place;
+// non-vault values pass through unchanged. Call once at startup right after ParseConfig -- not safe to call
+// concurrently with reads of these fields. ctx is bounded internally to secretResolveTimeout.
+func (conf *Config) ResolveSecrets(ctx context.Context, resolver *secret.Resolver) error {
+	ctx, cancel := context.WithTimeout(ctx, secretResolveTimeout)
+	defer cancel()
+
+	fields := []struct {
+		name string
+		val  *string
+	}{
+		{"username", &conf.Username},
+		{"password", &conf.Password},
+		{"exporterAuthUsername", &conf.ExporterAuth.Username},
+		{"exporterAuthPassword", &conf.ExporterAuth.Password},
+		{"oAuthClientSecret", &conf.OAuthClientSecret},
+		{"pkcs12Pass", &conf.Pkcs12Pass},
+	}
+
+	for _, f := range fields {
+		resolved, err := resolver.Resolve(ctx, *f.val)
+		if err != nil {
+			return fmt.Errorf("resolving %s: %w", f.name, err)
+		}
+		*f.val = resolved
+	}
+
+	// Determine auth type AFTER vault resolution so that vault-backed
+	// username/password/oAuthClientSecret are checked against their
+	// actual values, not the raw "vault:..." references.
+	return conf.DetermineAuthType()
+}
+
+// DetermineAuthType sets conf.authType based on the resolved credential
+// fields. It must be called after ResolveSecrets (or after manually
+// setting the credential fields) so that vault refs have been resolved.
+func (conf *Config) DetermineAuthType() error {
+	anyOAuth := len(conf.OAuthClientID) > 0 || len(conf.OAuthClientSecret) > 0 || len(conf.OAuthTokenURL) > 0 || len(conf.OAuthClientScope) > 0
+	allOAuth := len(conf.OAuthClientID) > 0 && len(conf.OAuthClientSecret) > 0 && len(conf.OAuthTokenURL) > 0 && len(conf.OAuthClientScope) > 0
+
+	if anyOAuth && !allOAuth {
+		return errors.New("incomplete OAuth configuration: oAuthClientID, oAuthClientSecret, oAuthTokenURL and oAuthClientScope must all be set")
+	}
+
+	switch {
+	case allOAuth:
+		conf.authType = AuthTypeOAuth
+	case len(conf.Username) > 0 && len(conf.Password) > 0:
+		conf.authType = AuthTypeBasic
+	default:
+		return errors.New("either basic auth (username+password) or OAuth (oAuthClientID+oAuthClientSecret+oAuthTokenURL+oAuthClientScope) must be configured")
+	}
+
+	return nil
 }
 
 const (
@@ -175,23 +239,17 @@ func ParseConfig(configFile string) (map[string][]DataSource, *Config, error) {
 	conf.OAuthIssuer = parseConfigStringOptional(cfg, "solace", "oAuthIssuer", "SOLACE_OAUTH_ISSUER", "")
 	conf.Username = parseConfigStringOptional(cfg, "solace", "username", "SOLACE_USERNAME", "admin")
 	conf.Password = parseConfigStringOptional(cfg, "solace", "password", "SOLACE_PASSWORD", "admin")
-
-	anyOAuth := len(conf.OAuthClientID) > 0 || len(conf.OAuthClientSecret) > 0 || len(conf.OAuthTokenURL) > 0 || len(conf.OAuthClientScope) > 0
-	allOAuth := len(conf.OAuthClientID) > 0 && len(conf.OAuthClientSecret) > 0 && len(conf.OAuthTokenURL) > 0 && len(conf.OAuthClientScope) > 0
-
-	// If any OAuth field is set the user intends OAuth, so require all of them instead of silently falling back to
-	// the default admin/admin basic credentials (which would then 401 in a confusing way).
-	if anyOAuth && !allOAuth {
-		return nil, nil, errors.New("incomplete OAuth configuration: oAuthClientID, oAuthClientSecret, oAuthTokenURL and oAuthClientScope must all be set")
+	conf.SecretBackend = parseConfigStringOptional(cfg, "solace", "secretBackend", "SECRET_BACKEND", "")
+	conf.SecretCacheTTL, err = parseConfigDurationOptional(cfg, "solace", "secretCacheTTL", "SECRET_CACHE_TTL", defaultSecretCacheTTL)
+	if err != nil {
+		return nil, nil, err
 	}
 
-	switch {
-	case allOAuth:
-		conf.authType = AuthTypeOAuth
-	case len(conf.Username) > 0 && len(conf.Password) > 0:
-		conf.authType = AuthTypeBasic
-	default:
-		return nil, nil, errors.New("either basic auth (username+password) or OAuth (oAuthClientID+oAuthClientSecret+oAuthTokenURL+oAuthClientScope) must be configured")
+	// Fails fast on missing/incomplete credentials, same as before vault support existed -- this only checks
+	// presence/shape, so it works on raw "vault:..." refs too. ResolveSecrets calls DetermineAuthType again after
+	// resolution, since a ref that resolves to an empty value would pass this check but must still be caught.
+	if err := conf.DetermineAuthType(); err != nil {
+		return nil, nil, err
 	}
 
 	if conf.ParallelSempConnections < 1 {

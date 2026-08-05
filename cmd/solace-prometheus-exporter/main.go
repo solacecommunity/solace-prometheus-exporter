@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
 	"solace_exporter/internal/exporter"
+	"solace_exporter/internal/secret"
 	"solace_exporter/internal/web"
 	"strings"
 	"time"
@@ -19,6 +21,10 @@ import (
 	promVersion "github.com/prometheus/common/version"
 	"golang.org/x/sync/semaphore"
 )
+
+// secretResolveRequestTimeout bounds how long a request waits on the secret backend for per-request credentials.
+// Kept separate from Config.Timeout, which is the per-call SEMP scrape timeout, not a whole-request budget.
+const secretResolveRequestTimeout = 5 * time.Second
 
 func logDataSource(dataSources []exporter.DataSource) string {
 	dS := make([]string, len(dataSources))
@@ -53,6 +59,23 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Owns the lifetime of background work started during setup (currently the Vault token renewal loop), so it is
+	// cancelable instead of pinned to context.Background().
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Builds the secret backend (SECRET_BACKEND env var or config key) and resolves any "vault:<path>#<field>"
+	// references in conf. Only errors on a genuinely broken backend setup.
+	secretResolver, err := secret.NewResolverFromConfig(ctx, conf.SecretBackend, conf.SecretCacheTTL, logger)
+	if err != nil {
+		logger.Error("Error initializing secret resolver", "err", err)
+		os.Exit(1)
+	}
+	if err := conf.ResolveSecrets(ctx, secretResolver); err != nil {
+		logger.Error("Error resolving vault-backed config", "err", err)
+		os.Exit(1)
+	}
+
 	logger.Info("Starting solace_prometheus_exporter")
 	logger.Info("Build context", "context", promVersion.BuildContext())
 
@@ -65,7 +88,7 @@ func main() {
 
 	// Configure endpoints
 	http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
-		doHandle(w, r, nil, conf, logger)
+		doHandle(w, r, nil, conf, secretResolver, logger)
 	})
 
 	// A broker has only max 10 semp connections that can be served in parallel.
@@ -80,7 +103,7 @@ func main() {
 			})
 		} else {
 			http.HandleFunc("/"+urlPath, func(w http.ResponseWriter, r *http.Request) {
-				doHandle(w, r, dataSource, conf, logger)
+				doHandle(w, r, dataSource, conf, secretResolver, logger)
 			})
 		}
 	}
@@ -94,7 +117,7 @@ func main() {
 			return
 		}
 
-		doHandle(w, r, parseDataSources(r.Form, logger), conf, logger)
+		doHandle(w, r, parseDataSources(r.Form, logger), conf, secretResolver, logger)
 	})
 
 	endpointViews := make([]web.EndpointView, 0, len(endpoints))
@@ -143,15 +166,19 @@ func doHandleAsync(w http.ResponseWriter, r *http.Request, asyncFetcher *exporte
 	return w.Header().Get("status")
 }
 
-func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf *exporter.Config, logger *slog.Logger) string {
+func doHandle(w http.ResponseWriter, r *http.Request, dataSource []exporter.DataSource, conf *exporter.Config, secretResolver *secret.Resolver, logger *slog.Logger) string {
 	var handler http.Handler
 	if dataSource == nil {
 		handler = promhttp.Handler()
 	} else {
-		// Each request scrapes a broker whose credentials / scrapeURI come from the request itself. We therefore
-		// work on a per-request Config copy so that concurrent scrapes can NOT overwrite each other's credentials
-		// on a shared Config (which caused broker-wide SEMP 401s).
-		reqConf := resolveRequestConfig(r, conf, logger)
+		// Each request scrapes a broker whose credentials/scrapeURI come from the request itself, so we work on a
+		// per-request Config copy -- a shared Config here previously caused broker-wide SEMP 401s.
+		reqConf, err := resolveRequestConfig(r, conf, secretResolver, logger)
+		if err != nil {
+			logger.Error("Error resolving per-request broker credentials", "err", err)
+			http.Error(w, "internal error resolving broker credentials", http.StatusInternalServerError)
+			return "500"
+		}
 
 		logger.Info("handle http request", "dataSource", logDataSource(dataSource), "scrapeURI", reqConf.ScrapeURI)
 
@@ -197,23 +224,12 @@ func parseDataSources(form url.Values, logger *slog.Logger) []exporter.DataSourc
 	return dataSource
 }
 
-// resolveRequestConfig returns a per-request copy of conf with the credentials, scrape URI and timeout overridden
-// from the request. For each value the form parameter wins, then the x-solace-broker-* header, otherwise the value
-// configured on the base Config is kept. The shared base conf is never mutated, so concurrent requests are fully
-// isolated from one another.
-func resolveRequestConfig(r *http.Request, conf *exporter.Config, logger *slog.Logger) *exporter.Config {
+// resolveRequestConfig returns a per-request copy of conf with credentials, scrape URI and timeout overridden
+// from the request (form param, then x-solace-broker-* header, else the base Config value); conf itself is never
+// mutated. Username/password are resolved through resolver (skip via secretBackend=none), bounded by r.Context() and secretResolveRequestTimeout.
+func resolveRequestConfig(r *http.Request, conf *exporter.Config, resolver *secret.Resolver, logger *slog.Logger) (*exporter.Config, error) {
 	reqConf := conf.Clone()
 
-	if username := firstNonEmpty(r.FormValue("username"), r.Header.Get("x-solace-broker-username")); username != "" {
-		reqConf.Username = username
-	}
-	if password := firstNonEmpty(r.FormValue("password"), r.Header.Get("x-solace-broker-password")); password != "" {
-		reqConf.Password = password
-	}
-	// Accept both scrapeURI (canonical) and scrapeUri so the URL parameter matches either historical spelling.
-	if scrapeURI := firstNonEmpty(r.FormValue("scrapeURI"), r.FormValue("scrapeUri"), r.Header.Get("x-solace-broker-scrapeuri")); scrapeURI != "" {
-		reqConf.ScrapeURI = scrapeURI
-	}
 	if timeout := firstNonEmpty(r.FormValue("timeout"), r.Header.Get("x-solace-broker-timeout")); timeout != "" {
 		parsed, err := time.ParseDuration(timeout)
 		switch {
@@ -229,7 +245,39 @@ func resolveRequestConfig(r *http.Request, conf *exporter.Config, logger *slog.L
 		}
 	}
 
-	return reqConf
+	ctx, cancel := context.WithTimeout(r.Context(), secretResolveRequestTimeout)
+	defer cancel()
+
+	secretBackend := strings.ToLower(strings.TrimSpace(firstNonEmpty(r.FormValue("secretBackend"), r.Header.Get("x-solace-secret-backend"))))
+	resolve := secretBackend != "none"
+
+	if username := firstNonEmpty(r.FormValue("username"), r.Header.Get("x-solace-broker-username")); username != "" {
+		if resolve {
+			resolved, err := resolver.Resolve(ctx, username)
+			if err != nil {
+				return nil, fmt.Errorf("resolving username: %w", err)
+			}
+			reqConf.Username = resolved
+		} else {
+			reqConf.Username = username
+		}
+	}
+	if password := firstNonEmpty(r.FormValue("password"), r.Header.Get("x-solace-broker-password")); password != "" {
+		if resolve {
+			resolved, err := resolver.Resolve(ctx, password)
+			if err != nil {
+				return nil, fmt.Errorf("resolving password: %w", err)
+			}
+			reqConf.Password = resolved
+		} else {
+			reqConf.Password = password
+		}
+	}
+	if scrapeURI := firstNonEmpty(r.FormValue("scrapeURI"), r.FormValue("scrapeUri"), r.Header.Get("x-solace-broker-scrapeuri")); scrapeURI != "" {
+		reqConf.ScrapeURI = scrapeURI
+	}
+
+	return reqConf, nil
 }
 
 // firstNonEmpty returns the first non-empty string of the given values, or "" if all are empty.

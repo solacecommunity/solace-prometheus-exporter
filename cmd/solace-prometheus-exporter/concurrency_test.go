@@ -64,6 +64,7 @@ func newMockBroker(t *testing.T, idx int) *mockBroker {
 func TestConcurrentScrapesDoNotLeakCredentials(t *testing.T) {
 	t.Parallel()
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	resolver := newTestResolver(t)
 
 	const numBrokers = 8
 	brokers := make([]*mockBroker, numBrokers)
@@ -96,7 +97,7 @@ func TestConcurrentScrapesDoNotLeakCredentials(t *testing.T) {
 
 				req := httptest.NewRequest(http.MethodPost, "/solace", strings.NewReader(form.Encode()))
 				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-				doHandle(httptest.NewRecorder(), req, dataSource, base, logger)
+				doHandle(httptest.NewRecorder(), req, dataSource, base, resolver, logger)
 			}(brokers[i])
 		}
 	}

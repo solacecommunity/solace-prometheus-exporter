@@ -15,6 +15,7 @@ import (
 // never mutated - which is the fix for the broker-wide SEMP 401 storm.
 func TestResolveRequestConfig(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	resolver := newTestResolver(t)
 
 	tests := []struct {
 		name              string
@@ -78,6 +79,45 @@ func TestResolveRequestConfig(t *testing.T) {
 			expectedScrapeURI: "http://conf-uri",
 			expectedTimeout:   7 * time.Second,
 		},
+		{
+			name: "secretBackend=none skips vault resolution",
+			queryParams: map[string]string{
+				"username":      "vault:secret/data/solace#username",
+				"password":      "vault:secret/data/solace#password",
+				"secretBackend": "none",
+			},
+			base:              exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
+			expectedUsername:  "vault:secret/data/solace#username",
+			expectedPassword:  "vault:secret/data/solace#password",
+			expectedScrapeURI: "http://conf-uri",
+			expectedTimeout:   5 * time.Second,
+		},
+		{
+			name: "secretBackend via header skips vault resolution",
+			headers: map[string]string{
+				"x-solace-broker-username": "vault:secret/data/solace#username",
+				"x-solace-broker-password": "vault:secret/data/solace#password",
+				"x-solace-secret-backend":  "none",
+			},
+			base:              exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
+			expectedUsername:  "vault:secret/data/solace#username",
+			expectedPassword:  "vault:secret/data/solace#password",
+			expectedScrapeURI: "http://conf-uri",
+			expectedTimeout:   5 * time.Second,
+		},
+		{
+			name: "secretBackend=none with plain text passthrough",
+			queryParams: map[string]string{
+				"username":      "myuser",
+				"password":      "mypass",
+				"secretBackend": "none",
+			},
+			base:              exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
+			expectedUsername:  "myuser",
+			expectedPassword:  "mypass",
+			expectedScrapeURI: "http://conf-uri",
+			expectedTimeout:   5 * time.Second,
+		},
 	}
 
 	for i := range tests {
@@ -96,7 +136,10 @@ func TestResolveRequestConfig(t *testing.T) {
 			}
 
 			base := tt.base // keep a copy of the original to detect mutation
-			reqConf := resolveRequestConfig(req, &base, logger)
+			reqConf, err := resolveRequestConfig(req, &base, resolver, logger)
+			if err != nil {
+				t.Fatalf("resolveRequestConfig: unexpected error: %v", err)
+			}
 
 			if reqConf.Username != tt.expectedUsername {
 				t.Errorf("Username: expected %s, got %s", tt.expectedUsername, reqConf.Username)

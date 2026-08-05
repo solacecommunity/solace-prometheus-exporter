@@ -9,8 +9,7 @@ import (
 )
 
 // clearSolaceEnv removes all SOLACE_* / PREFETCH_INTERVAL env vars so a test starts from a known state, restoring
-// them via t.Cleanup so tests stay independent of the ambient environment. It uses os.LookupEnv so a variable that
-// was unset is restored to unset (not to an empty string), avoiding state leaking across tests.
+// them via t.Cleanup afterward (using os.LookupEnv so an unset var is restored to unset, not empty).
 func clearSolaceEnv(t *testing.T) {
 	t.Helper()
 	for _, kv := range os.Environ() {
@@ -39,6 +38,9 @@ func TestParseConfigBasicAuthFromEnv(t *testing.T) {
 	endpoints, conf, err := ParseConfig("")
 	if err != nil {
 		t.Fatalf("ParseConfig error: %v", err)
+	}
+	if err := conf.DetermineAuthType(); err != nil {
+		t.Fatalf("DetermineAuthType error: %v", err)
 	}
 	if conf.authType != AuthTypeBasic {
 		t.Errorf("authType = %v, want AuthTypeBasic", conf.authType)
@@ -73,6 +75,9 @@ func TestParseConfigOAuthFromEnv(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ParseConfig error: %v", err)
 	}
+	if err := conf.DetermineAuthType(); err != nil {
+		t.Fatalf("DetermineAuthType error: %v", err)
+	}
 	if conf.authType != AuthTypeOAuth {
 		t.Errorf("authType = %v, want AuthTypeOAuth", conf.authType)
 	}
@@ -84,7 +89,7 @@ func TestParseConfigOAuthFromEnv(t *testing.T) {
 func TestParseConfigPartialOAuthFails(t *testing.T) {
 	clearSolaceEnv(t)
 	t.Setenv("SOLACE_SCRAPE_URI", "http://broker:8080")
-	// Only some OAuth fields set: this must fail loudly rather than silently using default admin/admin basic auth.
+	// Only some OAuth fields set: ParseConfig must fail loudly instead of silently falling back to admin/admin.
 	t.Setenv("SOLACE_OAUTH_TOKEN_URL", "http://idp/token")
 	t.Setenv("SOLACE_OAUTH_CLIENT_ID", "cid")
 	// missing SOLACE_OAUTH_CLIENT_SECRET and SOLACE_OAUTH_CLIENT_SCOPE

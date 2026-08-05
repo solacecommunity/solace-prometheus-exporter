@@ -29,6 +29,7 @@ func scrapeUp(t *testing.T, body string) string {
 func TestDoHandleEndToEnd(t *testing.T) {
 	t.Parallel()
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	resolver := newTestResolver(t)
 
 	broker := newMockBroker(t, 42) // expects user-42 / pass-42
 	base := &exporter.Config{Username: "wrong-base", Password: "wrong-base", Timeout: 5 * time.Second, DefaultVpn: "default"}
@@ -42,7 +43,7 @@ func TestDoHandleEndToEnd(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/solace", strings.NewReader(form.Encode()))
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 		rr := httptest.NewRecorder()
-		doHandle(rr, req, ds, base, logger)
+		doHandle(rr, req, ds, base, resolver, logger)
 		return rr.Body.String()
 	}
 
@@ -64,6 +65,7 @@ func TestDoHandleEndToEnd(t *testing.T) {
 func TestDoHandleExporterAuthProtectsEndpoint(t *testing.T) {
 	t.Parallel()
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	resolver := newTestResolver(t)
 	broker := newMockBroker(t, 7)
 
 	base := &exporter.Config{
@@ -83,7 +85,7 @@ func TestDoHandleExporterAuthProtectsEndpoint(t *testing.T) {
 
 	// Without exporter credentials -> 401.
 	rr := httptest.NewRecorder()
-	doHandle(rr, newReq(), ds, base, logger)
+	doHandle(rr, newReq(), ds, base, resolver, logger)
 	if rr.Code != http.StatusUnauthorized {
 		t.Errorf("without exporter auth: status = %d, want 401", rr.Code)
 	}
@@ -92,7 +94,7 @@ func TestDoHandleExporterAuthProtectsEndpoint(t *testing.T) {
 	rr = httptest.NewRecorder()
 	req := newReq()
 	req.SetBasicAuth("scrape-user", "scrape-pass")
-	doHandle(rr, req, ds, base, logger)
+	doHandle(rr, req, ds, base, resolver, logger)
 	if rr.Code != http.StatusOK {
 		t.Errorf("with exporter auth: status = %d, want 200", rr.Code)
 	}
