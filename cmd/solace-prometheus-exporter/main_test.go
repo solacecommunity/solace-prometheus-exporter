@@ -18,14 +18,15 @@ func TestResolveRequestConfig(t *testing.T) {
 	resolver := newTestResolver(t)
 
 	tests := []struct {
-		name              string
-		queryParams       map[string]string
-		headers           map[string]string
-		base              exporter.Config
-		expectedUsername  string
-		expectedPassword  string
-		expectedScrapeURI string
-		expectedTimeout   time.Duration
+		name               string
+		queryParams        map[string]string
+		headers            map[string]string
+		base               exporter.Config
+		expectedUsername   string
+		expectedPassword   string
+		expectedScrapeURI  string
+		expectedTimeout    time.Duration
+		expectedIsHWBroker bool
 	}{
 		{
 			name: "Header override",
@@ -118,6 +119,68 @@ func TestResolveRequestConfig(t *testing.T) {
 			expectedScrapeURI: "http://conf-uri",
 			expectedTimeout:   5 * time.Second,
 		},
+		{
+			name:               "isHWBroker param opens hardware-only targets",
+			queryParams:        map[string]string{"isHWBroker": "true"},
+			base:               exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
+			expectedUsername:   "conf-user",
+			expectedPassword:   "conf-pass",
+			expectedScrapeURI:  "http://conf-uri",
+			expectedTimeout:    5 * time.Second,
+			expectedIsHWBroker: true,
+		},
+		{
+			// Header casing does not matter, so the all-lowercase param spelling must work too.
+			name:               "lowercase ishwbroker param alias opens hardware-only targets",
+			queryParams:        map[string]string{"ishwbroker": "true"},
+			base:               exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
+			expectedUsername:   "conf-user",
+			expectedPassword:   "conf-pass",
+			expectedScrapeURI:  "http://conf-uri",
+			expectedTimeout:    5 * time.Second,
+			expectedIsHWBroker: true,
+		},
+		{
+			name:               "isHWBroker header opens hardware-only targets",
+			headers:            map[string]string{"x-solace-broker-ishwbroker": "true"},
+			base:               exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second},
+			expectedUsername:   "conf-user",
+			expectedPassword:   "conf-pass",
+			expectedScrapeURI:  "http://conf-uri",
+			expectedTimeout:    5 * time.Second,
+			expectedIsHWBroker: true,
+		},
+		{
+			// The override must work in both directions, so one exporter configured for appliances can also scrape
+			// software brokers.
+			name:               "isHWBroker param can turn a hardware base off",
+			queryParams:        map[string]string{"isHWBroker": "false"},
+			base:               exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second, IsHWBroker: true},
+			expectedUsername:   "conf-user",
+			expectedPassword:   "conf-pass",
+			expectedScrapeURI:  "http://conf-uri",
+			expectedTimeout:    5 * time.Second,
+			expectedIsHWBroker: false,
+		},
+		{
+			name:               "invalid isHWBroker keeps configured value",
+			queryParams:        map[string]string{"isHWBroker": "not-a-bool"},
+			base:               exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second, IsHWBroker: true},
+			expectedUsername:   "conf-user",
+			expectedPassword:   "conf-pass",
+			expectedScrapeURI:  "http://conf-uri",
+			expectedTimeout:    5 * time.Second,
+			expectedIsHWBroker: true,
+		},
+		{
+			name:               "absent isHWBroker falls back to config",
+			base:               exporter.Config{Username: "conf-user", Password: "conf-pass", ScrapeURI: "http://conf-uri", Timeout: 5 * time.Second, IsHWBroker: true},
+			expectedUsername:   "conf-user",
+			expectedPassword:   "conf-pass",
+			expectedScrapeURI:  "http://conf-uri",
+			expectedTimeout:    5 * time.Second,
+			expectedIsHWBroker: true,
+		},
 	}
 
 	for i := range tests {
@@ -153,19 +216,25 @@ func TestResolveRequestConfig(t *testing.T) {
 			if reqConf.Timeout != tt.expectedTimeout {
 				t.Errorf("Timeout: expected %v, got %v", tt.expectedTimeout, reqConf.Timeout)
 			}
+			if reqConf.IsHWBroker != tt.expectedIsHWBroker {
+				t.Errorf("IsHWBroker: expected %v, got %v", tt.expectedIsHWBroker, reqConf.IsHWBroker)
+			}
 
 			// The shared base Config must NOT be mutated by request resolution.
 			if base.Username != tt.base.Username || base.Password != tt.base.Password ||
-				base.ScrapeURI != tt.base.ScrapeURI || base.Timeout != tt.base.Timeout {
+				base.ScrapeURI != tt.base.ScrapeURI || base.Timeout != tt.base.Timeout ||
+				base.IsHWBroker != tt.base.IsHWBroker {
 				t.Errorf("base Config was mutated: got %+v, want %+v",
 					struct {
 						U, P, S string
 						T       time.Duration
-					}{base.Username, base.Password, base.ScrapeURI, base.Timeout},
+						H       bool
+					}{base.Username, base.Password, base.ScrapeURI, base.Timeout, base.IsHWBroker},
 					struct {
 						U, P, S string
 						T       time.Duration
-					}{tt.base.Username, tt.base.Password, tt.base.ScrapeURI, tt.base.Timeout})
+						H       bool
+					}{tt.base.Username, tt.base.Password, tt.base.ScrapeURI, tt.base.Timeout, tt.base.IsHWBroker})
 			}
 		})
 	}

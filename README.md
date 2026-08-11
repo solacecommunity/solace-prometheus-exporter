@@ -51,13 +51,13 @@ http://localhost:9628/solace-std
 * **SEMP v1 and SEMP v2** &mdash; over 40 scrape targets covering system, VPN, queue, client, bridge, RDP and
   hardware statistics.
 * **Software and appliance brokers** &mdash; hardware-only targets (disk, RAID, environment, alarms) are enabled
-  with a single `isHWBroker` flag.
+  with a single `isHWBroker` flag, settable globally or per request.
 * **Flexible authentication** &mdash; Basic Auth or OAuth 2.0 client-credentials to the broker, with an optional
   issuer-prefixed bearer token.
 * **TLS everywhere** &mdash; serve metrics over HTTPS (PEM or PKCS#12) and optionally protect the exporter's own
   endpoints with Basic Auth.
-* **Multi-broker friendly** &mdash; override the target broker, credentials and timeout per request via URL
-  parameters or `x-solace-broker-*` headers, so one exporter can front many brokers.
+* **Multi-broker friendly** &mdash; override the target broker, credentials, timeout and broker type per request via
+  URL parameters or `x-solace-broker-*` headers, so one exporter can front many brokers.
 * **Secret management** &mdash; plug in HashiCorp Vault (or a future backend) via `SECRET_BACKEND`; any credential
   field accepts a `vault:<path>#<field>` reference while plain text values pass through unchanged.
 * **Async prefetch** &mdash; optionally poll the broker on a fixed interval and serve cached metrics, smoothing out
@@ -112,7 +112,7 @@ and the SEMP CLI command each one maps to.
 
 ### Per-request broker overrides
 
-For the four connection fields below, the value is resolved as **URL parameter → HTTP header → configured value**,
+For the connection fields below, the value is resolved as **URL parameter → HTTP header → configured value**,
 so one exporter instance can be reused as a generic proxy in front of many brokers:
 
 | URL parameter | HTTP header                 | Overrides            |
@@ -122,6 +122,10 @@ so one exporter instance can be reused as a generic proxy in front of many broke
 | `scrapeURI`   | `x-solace-broker-scrapeuri` | Broker SEMP base URI |
 | `timeout`     | `x-solace-broker-timeout`   | Per-request timeout (e.g. `10s`) |
 | `secretBackend` | `x-solace-secret-backend` | `none` to skip vault resolution (plain text) |
+| `isHWBroker`  | `x-solace-broker-ishwbroker` | Broker type (`true`/`false`), gating hardware-only targets |
+
+These overrides do not apply to endpoints served from an async prefetch cache (`prefetchInterval`), which scrape on a
+timer with no request in scope.
 
 ## Configuration
 
