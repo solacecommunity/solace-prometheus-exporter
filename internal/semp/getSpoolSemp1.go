@@ -16,6 +16,8 @@ func (semp *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (float64, error) {
 			Show struct {
 				Spool struct {
 					Info struct {
+						ConfigStatus                    string  `xml:"config-status"`
+						OperationalStatus               string  `xml:"operational-status"`
 						MessageCountUtilPercentage      string  `xml:"message-count-utilization-percentage"`
 						QuotaDiskUsage                  float64 `xml:"max-disk-usage"`
 						QuotaMsgCount                   string  `xml:"max-message-count"`
@@ -99,6 +101,9 @@ func (semp *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (float64, error) {
 		)
 		return 0, err
 	}
+
+	ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_config_status"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Spool.Info.ConfigStatus, []string{"Disabled", "Enabled (Primary)", "Enabled (Backup)"}))
+	ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_operational_status"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Spool.Info.OperationalStatus, []string{"AD-Unknown", "AD-NotReady", "AD-Disabled", "AD-Activating", "AD-Active", "AD-Standby"}))
 
 	ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_quota_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.QuotaDiskUsage*1048576.0))
 	// MaxMsgCount is in the form "100M"
