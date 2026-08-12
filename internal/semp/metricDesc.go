@@ -162,6 +162,8 @@ var MetricDesc = map[string]Descriptions{
 		"system_clock_detail_ntp_server_reachable":        NewSemDesc("system_clock_detail_ntp_server_reachable", NoSempV2Ready, "Clock NTP Server Reachable? (0-no, 1-yes).", variableLabelsClockNTPAddr),
 	},
 	"Spool": {
+	    "system_spool_config_status":                       NewSemDesc("system_spool_config_status", NoSempV2Ready, "Spool config status (0-Disabled, 1-Enabled (Primary), 2-Enabled (Backup), -1-Undefined).", nil),
+        "system_spool_operational_status":                  NewSemDesc("system_spool_operational_status", NoSempV2Ready, "Spool operational status (0-AD-Unknown, 1-AD-NotReady, 2-AD-Disabled, 3-AD-Activating, 4-AD-Active, 5-AD-Standby, -1-Undefined).", nil),
 		"system_spool_quota_bytes":                         NewSemDesc("system_spool_quota_bytes", NoSempV2Ready, "Spool configured max disk usage.", nil),
 		"system_spool_quota_msgs":                          NewSemDesc("system_spool_quota_msgs", NoSempV2Ready, "Spool configured max number of messages.", nil),
 		"system_spool_disk_partition_usage_active_percent": NewSemDesc("system_spool_disk_partition_usage_active_percent", NoSempV2Ready, "Total disk usage in percent.", nil),
