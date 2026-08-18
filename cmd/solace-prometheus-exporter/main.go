@@ -10,6 +10,7 @@ import (
 	"solace_exporter/internal/exporter"
 	"solace_exporter/internal/secret"
 	"solace_exporter/internal/web"
+	"strconv"
 	"strings"
 	"time"
 
@@ -224,9 +225,9 @@ func parseDataSources(form url.Values, logger *slog.Logger) []exporter.DataSourc
 	return dataSource
 }
 
-// resolveRequestConfig returns a per-request copy of conf with credentials, scrape URI and timeout overridden
-// from the request (form param, then x-solace-broker-* header, else the base Config value); conf itself is never
-// mutated. Username/password are resolved through resolver (skip via secretBackend=none), bounded by r.Context() and secretResolveRequestTimeout.
+// resolveRequestConfig returns a per-request copy of conf with credentials, scrape URI, timeout and broker type
+// overridden from the request (form param, then x-solace-broker-* header, else the base Config value); conf itself is
+// never mutated. Username/password are resolved through resolver (skip via secretBackend=none), bounded by r.Context() and secretResolveRequestTimeout.
 func resolveRequestConfig(r *http.Request, conf *exporter.Config, resolver *secret.Resolver, logger *slog.Logger) (*exporter.Config, error) {
 	reqConf := conf.Clone()
 
@@ -242,6 +243,17 @@ func resolveRequestConfig(r *http.Request, conf *exporter.Config, resolver *secr
 			logger.Error("Per HTTP given timeout must be positive; keeping configured timeout", "timeout", timeout)
 		default:
 			reqConf.Timeout = parsed
+		}
+	}
+
+	if isHWBroker := firstNonEmpty(r.FormValue("isHWBroker"), r.FormValue("ishwbroker"), r.Header.Get("x-solace-broker-ishwbroker")); isHWBroker != "" {
+		parsed, err := strconv.ParseBool(isHWBroker)
+		if err != nil {
+			// Keep the configured value: defaulting to false would silently gate off hardware-only scrape targets
+			// and report them as scrape errors.
+			logger.Error("Per HTTP given isHWBroker parameter is not valid", "err", err, "isHWBroker", isHWBroker)
+		} else {
+			reqConf.IsHWBroker = parsed
 		}
 	}
 

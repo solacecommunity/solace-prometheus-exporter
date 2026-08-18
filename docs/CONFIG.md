@@ -40,7 +40,8 @@ The Solace Prometheus Exporter can be configured using four methods (in order of
 
 > **Note:** Config file keys in the `[solace]` section are matched case-insensitively, so historically diverging
 > spellings remain interchangeable — for example `scrapeURI` and `scrapeUri` (and the `scrapeURI`/`scrapeUri` URL
-> parameter) all resolve to the same setting.
+> parameter) all resolve to the same setting. The `isHWBroker` URL parameter likewise accepts the all-lowercase
+> `ishwbroker` spelling, matching its case-insensitive header.
 
 ## 🧩 Modular Endpoints
 The `/solace` endpoint allows you to granularly define which metrics to collect using HTTP GET parameters. This is the recommended way to optimize performance and reduce broker load.
@@ -55,8 +56,14 @@ You can overwrite the broker configuration dynamically for each request. This is
 | `scrapeURI`   | `x-solace-broker-scrapeuri` | URI of the Solace broker                                                                        |
 | `timeout`     | `x-solace-broker-timeout`   | Timeout for the request (e.g. `10s`)                                                            |
 | `secretBackend` | `x-solace-secret-backend` | *(unset)* uses the global `SECRET_BACKEND`; `none` skips vault resolution (plain text).         |   
+| `isHWBroker`  | `x-solace-broker-ishwbroker` | `true`/`false`. Overrides the `isHWBroker` setting, so a single exporter can scrape both appliances and software brokers. An unparsable value keeps the configured setting. |
 
 **Priority**: URL Parameter > HTTP Header > Configuration File / Environment Variable.
+
+> **Note:** These per-request overrides apply to the `/solace` endpoint and to config-file endpoints served
+> synchronously. They have no effect when `prefetchInterval` is set: prefetching scrapes on a timer with no request in
+> scope, so those endpoints always use the broker configuration from the config file. Mixing broker types behind one
+> exporter therefore requires the synchronous path.
 
 ### Parameter Syntax
 Each parameter key must be a **scrape target** (see list below) prefixed by `m.`. The value consists of **2–3 parts**, delimited by a pipe `|`:
