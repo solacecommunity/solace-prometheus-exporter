@@ -9,6 +9,7 @@ import (
 	"os"
 	"solace_exporter/internal/exporter"
 	"solace_exporter/internal/secret"
+	"solace_exporter/internal/version"
 	"solace_exporter/internal/web"
 	"strconv"
 	"strings"
@@ -79,6 +80,12 @@ func main() {
 
 	logger.Info("Starting solace_prometheus_exporter")
 	logger.Info("Build context", "context", promVersion.BuildContext())
+	logger.Info("Build info", "version", version.Version, "commit", version.Commit, "buildDate", version.BuildDate)
+
+	// Registered on the default registry, which is what /metrics serves. The per-request registries built in
+	// doHandle deliberately do not get this collector: they are created once per scrape of /solace and of every
+	// configured endpoint, so registering there would repeat the same constant series on every endpoint.
+	prometheus.MustRegister(version.NewCollector())
 
 	logger.Info("Scraping",
 		"listenAddr", conf.GetListenURI(),
