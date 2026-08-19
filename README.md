@@ -72,7 +72,7 @@ Once running, the exporter serves the following HTTP endpoints:
 | Endpoint                | Description                                                                                       |
 |-------------------------|---------------------------------------------------------------------------------------------------|
 | `/`                     | Landing page listing all configured endpoints.                                                    |
-| `/metrics`              | The exporter's own process metrics (Go runtime and standard Prometheus metrics).                  |
+| `/metrics`              | The exporter's own process metrics (Go runtime, standard Prometheus metrics and `solace_exporter_build_info`). |
 | `/solace`               | The modular endpoint. Scrape targets are supplied as `m.<Target>` GET parameters (see below).     |
 | `/<alias>`              | One handler per `[endpoint.<alias>]` section defined in the config file.                           |
 
@@ -248,6 +248,35 @@ target:
 
 In addition, every scrape emits a `solace_up{error, endpoint}` gauge (`1` when the target scraped successfully, `0`
 otherwise) so you can alert on broker or target-level failures.
+
+### Build information
+
+`/metrics` exposes the version of the exporter itself as a constant-`1` info metric:
+
+```
+solace_exporter_build_info{version="1.4.2", commit="abc1234", build_date="2026-08-01"} 1
+```
+
+The labels are baked into the binary at link time by the release pipeline, so the metric identifies the exact
+image that produced your data. Binaries built outside the pipeline report `version="dev"` with `commit` and
+`build_date` set to `"unknown"`, which makes an unreleased build obvious at a glance.
+
+It is registered on the default registry, so it is served on `/metrics` but not on the alias endpoints (whose
+per-scrape registries hold broker metrics only). Add `/metrics` as its own scrape job if you want the version in
+Prometheus. Join it onto broker series with:
+
+```promql
+solace_up * on (instance) group_left(version, commit) solace_exporter_build_info
+```
+
+To set the values for a local build, pass them to `make`:
+
+```bash
+make build VERSION=1.4.2 COMMIT=abc1234 BUILD_DATE=2026-08-01
+```
+
+Without overrides `make build` derives them from the current git checkout (`git describe --tags --always --dirty`).
+`docker build` accepts the same values as `--build-arg VERSION=... --build-arg COMMIT=... --build-arg BUILD_DATE=...`.
 
 > **Metric collisions:** some metrics (for example `solace_client_slow_subscriber`) are produced by more than one
 > target with different label sets. Avoid enabling colliding targets in the same scrape, or Prometheus will reject

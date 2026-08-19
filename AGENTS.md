@@ -37,6 +37,7 @@ internal/semp/                    SEMP access layer
   semp.desc.struct.go             Desc, Descriptions, V2Result, field-selection helpers
   prometheusMetric.struct.go      PrometheusMetric wrapper (dedupe key, cardinality checks)
   http.go / helper.go / types/    HTTP verbs, filter escaping, shared XML types
+internal/version/                 Link-time build metadata + the solace_exporter_build_info collector
 internal/web/                     Index page handler/template + exporter Basic Auth wrapper
 configs/                          Sample INI config (also baked into the Docker image)
 docs/CONFIG.md                    Full settings + scrape-target reference
@@ -53,7 +54,11 @@ test/                             Captured SEMP fixtures (test/data) and an OAut
 * **Errors:** wrap with `%w` (`fmt.Errorf("...: %w", err)`); return early. Config parsing returns
   `(..., *Config, error)` and fails fast on invalid/incomplete input.
 * **Metrics namespace:** every metric name is prefixed with `solace_` — this is applied once in
-  `NewSemDesc` (do not repeat the prefix in call sites).
+  `NewSemDesc` (do not repeat the prefix in call sites). The one exception is `internal/version`, which describes
+  the exporter process rather than a broker and therefore spells out `solace_exporter_build_info` directly.
+* **Build metadata:** `internal/version.{Version,Commit,BuildDate}` are set via `-ldflags -X` by the `Makefile`
+  and by `Dockerfile` build args that `.github/workflows/publish.yml` fills in. Never hardcode a version in
+  source; change the injection point instead.
 * **Value types:** pick `prometheus.CounterValue` for monotonic counters and `prometheus.GaugeValue` for gauges
   when emitting via `semp.NewMetric`.
 * **No magic values:** durations, page sizes and channel capacities are named constants (`longQuery`,
@@ -63,7 +68,8 @@ test/                             Captured SEMP fixtures (test/data) and an OAut
 
 ## 4. Scrape Handlers & SEMP Access
 
-* **Handler wiring (`main.go`):** `/metrics` serves process metrics; `/solace` parses `m.<Target>` GET params into
+* **Handler wiring (`main.go`):** `/metrics` serves process metrics plus `solace_exporter_build_info` (registered
+  on the default registry only, so the constant series is not repeated on every alias endpoint); `/solace` parses `m.<Target>` GET params into
   `[]exporter.DataSource`; each `[endpoint.<alias>]` config section becomes its own handler. Every handler is
   wrapped with `web.WrapWithAuth` (exporter Basic Auth). When `prefetchInterval > 0`, alias handlers are served by
   an `AsyncFetcher` from cache instead of scraping inline.
