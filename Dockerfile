@@ -10,10 +10,27 @@ COPY . .
 
 RUN go get -d -v ./... \
  && go install -v ./... \
- && go test -short ./... \
- && go build \
+ && go test -short ./...
+
+# Declared after the dependency/test layer on purpose: COMMIT changes on every commit, and an ARG referenced by a
+# RUN is part of that layer's cache key -- declaring it earlier would re-run the whole test suite for a metadata-only
+# rebuild. The defaults keep a plain `docker build` honest; only the pipeline passes real values.
+ARG VERSION=dev
+ARG COMMIT=unknown
+ARG BUILD_DATE=unknown
+
+# internal/version backs the solace_exporter_build_info metric; prometheus/common/version backs the "Build context"
+# startup log line. Both are fed from the same three build args so they can never disagree.
+RUN LDFLAGS="-s -w -extldflags '-static'"; \
+    LDFLAGS="$LDFLAGS -X solace_exporter/internal/version.Version=${VERSION}"; \
+    LDFLAGS="$LDFLAGS -X solace_exporter/internal/version.Commit=${COMMIT}"; \
+    LDFLAGS="$LDFLAGS -X solace_exporter/internal/version.BuildDate=${BUILD_DATE}"; \
+    LDFLAGS="$LDFLAGS -X github.com/prometheus/common/version.Version=${VERSION}"; \
+    LDFLAGS="$LDFLAGS -X github.com/prometheus/common/version.Revision=${COMMIT}"; \
+    LDFLAGS="$LDFLAGS -X github.com/prometheus/common/version.BuildDate=${BUILD_DATE}"; \
+    go build \
     -a \
-    -ldflags '-s -w -extldflags "-static"' \
+    -ldflags "$LDFLAGS" \
     -o /bin/solace_prometheus_exporter \
     ./cmd/solace-prometheus-exporter
 
