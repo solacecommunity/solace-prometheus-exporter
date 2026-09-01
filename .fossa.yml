@@ -1,0 +1,25 @@
+version: 3
+
+project:
+  locator: solacecommunity_solace-prometheus-exporter
+  id: solacecommunity_solace-prometheus-exporter
+  name: solace-prometheus-exporter
+  teams: []
+  labels:
+    - go
+
+vendoredDependencies:
+  forceRescans: false
+  scanMethod: CLILicenseScan
+  licenseScanPathFilters:
+    exclude:
+      - "./.git"
+      - "./.github"
+
+paths:
+  exclude:
+    - ./.git
+    - ./.github
+
+telemetry:
+  scope: full
