@@ -53,6 +53,7 @@ jobs:
               "repository": "${{ github.event.repository.name }}",
               "dev": {
                 "sha": "${{ github.sha }}",
-                "version": "${{ github.ref_name }}"
+                "version": "${{ github.ref_name }}",
+                "image_tag": "latest"
               }
             }
