@@ -4,6 +4,7 @@ on:
     branches: [master]
   push:
     branches: [master]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,9 +25,15 @@ jobs:
     needs: sca_scan
     # The manifest records what landed on the default branch, so it must never
     # be written from a PR run -- the scan still runs, the write does not.
+    #
+    # workflow_dispatch is allowed so this repo can be merged with a skip-ci
+    # commit (which suppresses every workflow on that push, including the
+    # release/publish one) and then have the scan and manifest write triggered
+    # by hand. The default-branch check still applies, so dispatching against
+    # any other ref scans without writing.
     if: >-
       needs.sca_scan.result == 'success'
-      && github.event_name == 'push'
+      && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
       && github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     permissions:
