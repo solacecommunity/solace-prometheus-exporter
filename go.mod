@@ -1,6 +1,6 @@
 module solace_exporter
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
@@ -8,7 +8,7 @@ require (
 	github.com/prometheus/client_golang v1.24.1
 	github.com/prometheus/common v0.70.1
 	golang.org/x/oauth2 v0.36.0
-	golang.org/x/sync v0.22.0
+	golang.org/x/sync v0.23.0
 	gopkg.in/ini.v1 v1.67.3
 )
 
