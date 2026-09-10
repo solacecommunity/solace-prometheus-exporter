@@ -13,6 +13,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          # `git describe` below needs the full tag history; the default shallow clone has none.
+          fetch-depth: 0
+
+      - name: Resolve build metadata
+        id: build
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            version="${GITHUB_REF_NAME}"
+          else
+            version="$(git describe --tags --always --dirty 2>/dev/null || echo dev)"
+          fi
+          # Strip the leading "v" of the git tag so the metric reads version="1.4.2", matching `make build`.
+          version="${version#v}"
+          {
+            echo "version=${version}"
+            echo "commit=$(git rev-parse --short HEAD)"
+            echo "build_date=$(date -u +%Y-%m-%d)"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Docker meta
         id: meta
@@ -36,3 +56,8 @@ jobs:
         with:
           push: ${{ GitHub.event_name != 'pull_request' || contains(GitHub.head_ref, 'feature') }}
           tags: ${{ steps.meta.outputs.tags }}
+          # Baked into the binary via -ldflags and served as solace_exporter_build_info on /metrics.
+          build-args: |
+            VERSION=${{ steps.build.outputs.version }}
+            COMMIT=${{ steps.build.outputs.commit }}
+            BUILD_DATE=${{ steps.build.outputs.build_date }}

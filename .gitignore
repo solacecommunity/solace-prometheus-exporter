@@ -10,3 +10,4 @@ solace_prometheus_exporter
 vendor
 reports
 bin/
+solace-prometheus-exporter
