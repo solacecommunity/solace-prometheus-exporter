@@ -5,22 +5,22 @@ const (
 )
 
 var (
-	variableLabelsUp                 = []string{"error", "endpoint"}
-	variableLabelsEnvironment        = []string{"sensor_name"}
-	variableLabelsHardwareFC         = []string{"channel_number"}
-	variableLabelsHardwareLUN        = []string{"lun_number"}
-	variableLabelsRedundancy         = []string{"mate_name"}
-	variableLabelsRedundancyHW       = []string{"mate_name"}
-	variableLabelsReplication        = []string{"mate_name"}
-	variableLabelsVpn                = []string{"vpn_name"}
-	variableLabelsClientInfo         = []string{"vpn_name", "client_name", "client_address"}
-	variableLabelsClientProfile      = []string{"vpn_name", "client_profile"}
-	variableLabelsClientSlowSub      = []string{"vpn_name", "client_name", "client_address", "client_username"}
-	variableLabelsVpnClient          = []string{"vpn_name", "client_name"}
-	variableLabelsVpnClientUser      = []string{"vpn_name", "client_name", "client_username"}
-	variableLabelsVpnClientDetail    = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile"}
-	variableLabelsVpnClientFlow          = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
-	variableLabelsVpnClientEndpointBind  = []string{
+	variableLabelsUp                    = []string{"error", "endpoint"}
+	variableLabelsEnvironment           = []string{"sensor_name"}
+	variableLabelsHardwareFC            = []string{"channel_number"}
+	variableLabelsHardwareLUN           = []string{"lun_number"}
+	variableLabelsRedundancy            = []string{"mate_name"}
+	variableLabelsRedundancyHW          = []string{"mate_name"}
+	variableLabelsReplication           = []string{"mate_name"}
+	variableLabelsVpn                   = []string{"vpn_name"}
+	variableLabelsClientInfo            = []string{"vpn_name", "client_name", "client_address"}
+	variableLabelsClientProfile         = []string{"vpn_name", "client_profile"}
+	variableLabelsClientSlowSub         = []string{"vpn_name", "client_name", "client_address", "client_username"}
+	variableLabelsVpnClient             = []string{"vpn_name", "client_name"}
+	variableLabelsVpnClientUser         = []string{"vpn_name", "client_name", "client_username"}
+	variableLabelsVpnClientDetail       = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile"}
+	variableLabelsVpnClientFlow         = []string{"vpn_name", "client_name", "client_username", "client_profile", "acl_profile", "flow_id"}
+	variableLabelsVpnClientEndpointBind = []string{
 		"vpn_name", "client_name", "client_address",
 		"client_id", "client_username", "original_client_username",
 		"user", "description", "software_version", "platform",
@@ -112,11 +112,11 @@ var MetricDesc = map[string]Descriptions{
 		"system_memory_physical_usage_percent":     NewSemDesc("system_memory_physical_usage_percent", NoSempV2Ready, "Physical memory usage percent.", nil),
 		"system_memory_subscription_usage_percent": NewSemDesc("system_memory_subscription_usage_percent", NoSempV2Ready, "Subscription memory usage percent.", nil),
 		"system_nab_buffer_load_factor":            NewSemDesc("system_nab_buffer_load_factor", NoSempV2Ready, "NAB buffer load factor.", nil),
-		"system_memory_physical_total_kb":            NewSemDesc("system_memory_physical_total_kb", NoSempV2Ready, "Physical memory total in KB.", variableLabelsMemory),
-		"system_memory_physical_used_kb":            NewSemDesc("system_memory_physical_used_kb", NoSempV2Ready, "Physical memory used in KB.", variableLabelsMemory),
-		"system_memory_physical_free_kb":            NewSemDesc("system_memory_physical_free_kb", NoSempV2Ready, "Physical memory free in KB.", variableLabelsMemory),
-		"system_memory_physical_buffers_kb":            NewSemDesc("system_memory_physical_buffers_kb", NoSempV2Ready, "Physical memory buffers in KB.", variableLabelsMemory),
-		"system_memory_physical_cached_kb":            NewSemDesc("system_memory_physical_cached_kb", NoSempV2Ready, "Physical memory caches in KB.", variableLabelsMemory),
+		"system_memory_physical_total_kb":          NewSemDesc("system_memory_physical_total_kb", NoSempV2Ready, "Physical memory total in KB.", variableLabelsMemory),
+		"system_memory_physical_used_kb":           NewSemDesc("system_memory_physical_used_kb", NoSempV2Ready, "Physical memory used in KB.", variableLabelsMemory),
+		"system_memory_physical_free_kb":           NewSemDesc("system_memory_physical_free_kb", NoSempV2Ready, "Physical memory free in KB.", variableLabelsMemory),
+		"system_memory_physical_buffers_kb":        NewSemDesc("system_memory_physical_buffers_kb", NoSempV2Ready, "Physical memory buffers in KB.", variableLabelsMemory),
+		"system_memory_physical_cached_kb":         NewSemDesc("system_memory_physical_cached_kb", NoSempV2Ready, "Physical memory caches in KB.", variableLabelsMemory),
 	},
 	// SEMPv1: show interface <interface-name>
 	"Interface": {
@@ -158,12 +158,12 @@ var MetricDesc = map[string]Descriptions{
 		"system_reload_required":                 NewSemDesc("system_reload_required", NoSempV2Ready, "1 if a system reload is required.", nil),
 	},
 	"ClockDetail": {
-		"system_clock_detail_admin_state":                 NewSemDesc("system_clock_detail_admin_state", NoSempV2Ready, "Clock Admin state. 0 = disabled, 1 = enabled.", variableLabelsClockPro),
-		"system_clock_detail_ntp_server_reachable":        NewSemDesc("system_clock_detail_ntp_server_reachable", NoSempV2Ready, "Clock NTP Server Reachable? (0-no, 1-yes).", variableLabelsClockNTPAddr),
+		"system_clock_detail_admin_state":          NewSemDesc("system_clock_detail_admin_state", NoSempV2Ready, "Clock Admin state. 0 = disabled, 1 = enabled.", variableLabelsClockPro),
+		"system_clock_detail_ntp_server_reachable": NewSemDesc("system_clock_detail_ntp_server_reachable", NoSempV2Ready, "Clock NTP Server Reachable? (0-no, 1-yes).", variableLabelsClockNTPAddr),
 	},
 	"Spool": {
-	    "system_spool_config_status":                       NewSemDesc("system_spool_config_status", NoSempV2Ready, "Spool config status (0-Disabled, 1-Enabled (Primary), 2-Enabled (Backup), -1-Undefined).", nil),
-        "system_spool_operational_status":                  NewSemDesc("system_spool_operational_status", NoSempV2Ready, "Spool operational status (0-AD-Unknown, 1-AD-NotReady, 2-AD-Disabled, 3-AD-Activating, 4-AD-Active, 5-AD-Standby, -1-Undefined).", nil),
+		"system_spool_config_status":                       NewSemDesc("system_spool_config_status", NoSempV2Ready, "Spool config status (0-Disabled, 1-Enabled (Primary), 2-Enabled (Backup), -1-Undefined).", nil),
+		"system_spool_operational_status":                  NewSemDesc("system_spool_operational_status", NoSempV2Ready, "Spool operational status (0-AD-Unknown, 1-AD-NotReady, 2-AD-Disabled, 3-AD-Activating, 4-AD-Active, 5-AD-Standby, -1-Undefined).", nil),
 		"system_spool_quota_bytes":                         NewSemDesc("system_spool_quota_bytes", NoSempV2Ready, "Spool configured max disk usage.", nil),
 		"system_spool_quota_msgs":                          NewSemDesc("system_spool_quota_msgs", NoSempV2Ready, "Spool configured max number of messages.", nil),
 		"system_spool_disk_partition_usage_active_percent": NewSemDesc("system_spool_disk_partition_usage_active_percent", NoSempV2Ready, "Total disk usage in percent.", nil),
@@ -339,12 +339,12 @@ var MetricDesc = map[string]Descriptions{
 		"system_redundancy_hw_adb_hello": NewSemDesc("system_redundancy_hw_adb_hello", NoSempV2Ready, "Is adb link connected? (0-no, 1-yes).", variableLabelsRedundancyHW),
 	},
 	"Environment": {
-		"system_chassis_fan_speed_rpm": NewSemDesc("system_chassis_fan_speed_rpm", NoSempV2Ready, "Chassis Fan Speed (RPM)", variableLabelsEnvironment),
+		"system_chassis_fan_speed_rpm":        NewSemDesc("system_chassis_fan_speed_rpm", NoSempV2Ready, "Chassis Fan Speed (RPM)", variableLabelsEnvironment),
 		"system_chassis_fan_speed_rpm_status": NewSemDesc("system_chassis_fan_speed_rpm_status", NoSempV2Ready, "Chassis Fan Speed (RPM) Status (0-Fail, 1-OK, 2-Warining, -1-Undefined)", variableLabelsEnvironment),
-		"system_cpu_thermal_margin":    NewSemDesc("system_cpu_thermal_margin", NoSempV2Ready, "CPU thermal headroom (Degrees C, larger negative values are better.)", variableLabelsEnvironment),
-		"system_voltage":    NewSemDesc("system_voltage", NoSempV2Ready, "Mainboard Voltage (Volts, close to volts values in sensor name are better.)", variableLabelsEnvironment),
-		"system_voltage_status":    NewSemDesc("system_voltage_status", NoSempV2Ready, "Mainboard Voltage (0-Fail, 1-OK, 2-Warining, -1-Undefined).", variableLabelsEnvironment),
-		"system_nab_core_temperature":  NewSemDesc("system_nab_core_temperature", NoSempV2Ready, "NAB core temperature (Degrees C).", variableLabelsEnvironment),
+		"system_cpu_thermal_margin":           NewSemDesc("system_cpu_thermal_margin", NoSempV2Ready, "CPU thermal headroom (Degrees C, larger negative values are better.)", variableLabelsEnvironment),
+		"system_voltage":                      NewSemDesc("system_voltage", NoSempV2Ready, "Mainboard Voltage (Volts, close to volts values in sensor name are better.)", variableLabelsEnvironment),
+		"system_voltage_status":               NewSemDesc("system_voltage_status", NoSempV2Ready, "Mainboard Voltage (0-Fail, 1-OK, 2-Warining, -1-Undefined).", variableLabelsEnvironment),
+		"system_nab_core_temperature":         NewSemDesc("system_nab_core_temperature", NoSempV2Ready, "NAB core temperature (Degrees C).", variableLabelsEnvironment),
 		"system_nab_core_temperature_status":  NewSemDesc("system_nab_core_temperature_status", NoSempV2Ready, "NAB core temperature Status (0-Fail, 1-OK, 2-Warining, -1-Undefined).", variableLabelsEnvironment),
 	},
 	"Hardware": {
@@ -461,7 +461,7 @@ var MetricDesc = map[string]Descriptions{
 		"bridge_detail_queue_operational_state":            NewSemDesc("bridge_detail_queue_operational_state", NoSempV2Ready, "Queue Ops State (0-NotApplicable, 1-Bound, 2-Unbound)", variableLabelsBridgeDetail),
 		"bridge_detail_redundancy":                         NewSemDesc("bridge_detail_redundancy", NoSempV2Ready, "Bridge Redundancy (0-NotApplicable, 1-auto, 2-primary, 3-backup, 4-static, 5-none)", variableLabelsBridgeDetail),
 		"bridge_detail_connection_uptime_in_seconds":       NewSemDesc("bridge_detail_connection_uptime_in_seconds", NoSempV2Ready, "Connection Uptime (s)", variableLabelsBridgeDetail),
-		"bridge_detail_authentication_scheme":             NewSemDesc("bridge_detail_authentication_scheme", NoSempV2Ready, "Bridge Authentication Scheme (NotApplicable, Basic, Client-Certificate, TLS-PSK)", variableLabelsBridgeDetailAuth),
+		"bridge_detail_authentication_scheme":              NewSemDesc("bridge_detail_authentication_scheme", NoSempV2Ready, "Bridge Authentication Scheme (NotApplicable, Basic, Client-Certificate, TLS-PSK)", variableLabelsBridgeDetailAuth),
 		"bridge_detail_remote_admin_state":                 NewSemDesc("bridge_detail_remote_admin_state", NoSempV2Ready, "Bridge Remote Administrative State (0-Enabled 1-Disabled, 2--, 3-N/A)", variableLabelsBridgeDetailRemote),
 		"bridge_detail_remote_connection_state":            NewSemDesc("bridge_detail_remote_connection_state", NoSempV2Ready, "Bridge Remote Connection Current Status (0-Down, 1-Up)", variableLabelsBridgeDetailRemote),
 		"bridge_detail_remote_last_conn_failure_reason":    NewSemDesc("bridge_detail_remote_last_conn_failure_reason", NoSempV2Ready, "Bridge Remote Last Connection Failure Reason (0-Bridge disabled ,1-No remote message-vpns configured, 2-SMF service is disabled, 3-Msg Backbone is disabled, 4-Local message-vpn is disabled, 5-Active-Standby Role Mismatch, 6-Invalid Active-Standby Role, 7-Redundancy Disabled, 8-Not active, 9-Replication standby, 10-Remote message-vpns disabled, 11-Enforce-trusted-common-name but empty trust-common-name list, 12-SSL transport used but cipher-suite list is empty, 13-Authentication Scheme is Client-Certificate but no certificate is configured, 14-Client-Certificate Authentication Scheme used but not all Remote Message VPNs use SSL, 15-Basic Authentication Scheme used but Basic Client Username not configured, 16-Cluster Down, 17-Cluster Link Down, 18-N/A)", variableLabelsBridgeDetailRemote),
@@ -641,20 +641,20 @@ var MetricDesc = map[string]Descriptions{
 		"binds":             NewSemDesc("topic_endpoint_binds", NoSempV2Ready, "Number of clients bound to topic-endpoint.", variableLabelsVpnTopicEndpoint),
 	},
 	"TopicEndpointStats": {
-		"total_bytes_spooled":                  NewSemDesc("topic_endpoint_byte_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages in bytes.", variableLabelsVpnTopicEndpoint),
-		"total_messages_spooled":               NewSemDesc("topic_endpoint_msg_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages.", variableLabelsVpnTopicEndpoint),
-		"messages_redelivered":                 NewSemDesc("topic_endpoint_msg_redelivered", NoSempV2Ready, "Topic Endpoint total msg redeliveries.", variableLabelsVpnTopicEndpoint),
-		"messages_transport_retransmitted":     NewSemDesc("topic_endpoint_msg_retransmitted", NoSempV2Ready, "Topic Endpoint total msg retransmitted on transport.", variableLabelsVpnTopicEndpoint),
-		"spool_usage_exceeded":                 NewSemDesc("topic_endpoint_msg_spool_usage_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the spool usage.", variableLabelsVpnTopicEndpoint),
-		"max_message_size_exceeded":            NewSemDesc("topic_endpoint_msg_max_msg_size_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the max message size.", variableLabelsVpnTopicEndpoint),
-		"total_deleted_messages":               NewSemDesc("topic_endpoint_msg_total_deleted", NoSempV2Ready, "Topic Endpoint total number that was deleted.", variableLabelsVpnTopicEndpoint),
-        "messages_shutdown_discarded":          NewSemDesc("topic_endpoint_msg_shutdown_discarded", NoSempV2Ready, "Topic Endpoint total number of messages discarded due to spool shutdown.", variableLabelsVpnTopicEndpoint),
-        "messages_ttl_discarded":               NewSemDesc("topic_endpoint_msg_ttl_discarded", NoSempV2Ready, "Topic Endpoint total number of messages discarded due to ttl expiry.", variableLabelsVpnTopicEndpoint),
-        "messages_ttl_dmq":                     NewSemDesc("topic_endpoint_msg_ttl_dmq", NoSempV2Ready, "Topic Endpoint total number of messages delivered to dmq due to ttl expiry.", variableLabelsVpnTopicEndpoint),
-        "messages_ttl_dmq_failed":              NewSemDesc("topic_endpoint_msg_ttl_dmq_failed", NoSempV2Ready, "Topic Endpoint total number of messages that failed delivery to dmq due to ttl expiry.", variableLabelsVpnTopicEndpoint),
-        "messages_max_redelivered_discarded":   NewSemDesc("topic_endpoint_msg_max_redelivered_discarded", NoSempV2Ready, "Topic Endpoint total number of messages discarded due to exceeded max redelivery.", variableLabelsVpnTopicEndpoint),
-        "messages_max_redelivered_dmq":         NewSemDesc("topic_endpoint_msg_max_redelivered_dmq", NoSempV2Ready, "Topic Endpoint total number of messages delivered to dmq due to exceeded max redelivery.", variableLabelsVpnTopicEndpoint),
-        "messages_max_redelivered_dmq_failed":  NewSemDesc("topic_endpoint_msg_max_redelivered_dmq_failed", NoSempV2Ready, "Topic Endpoint total number of messages failed delivery to dmq due to exceeded max redelivery.", variableLabelsVpnTopicEndpoint),
+		"total_bytes_spooled":                 NewSemDesc("topic_endpoint_byte_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages in bytes.", variableLabelsVpnTopicEndpoint),
+		"total_messages_spooled":              NewSemDesc("topic_endpoint_msg_spooled", NoSempV2Ready, "Topic Endpoint spool total of all spooled messages.", variableLabelsVpnTopicEndpoint),
+		"messages_redelivered":                NewSemDesc("topic_endpoint_msg_redelivered", NoSempV2Ready, "Topic Endpoint total msg redeliveries.", variableLabelsVpnTopicEndpoint),
+		"messages_transport_retransmitted":    NewSemDesc("topic_endpoint_msg_retransmitted", NoSempV2Ready, "Topic Endpoint total msg retransmitted on transport.", variableLabelsVpnTopicEndpoint),
+		"spool_usage_exceeded":                NewSemDesc("topic_endpoint_msg_spool_usage_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the spool usage.", variableLabelsVpnTopicEndpoint),
+		"max_message_size_exceeded":           NewSemDesc("topic_endpoint_msg_max_msg_size_exceeded", NoSempV2Ready, "Topic Endpoint total number of messages exceeded the max message size.", variableLabelsVpnTopicEndpoint),
+		"total_deleted_messages":              NewSemDesc("topic_endpoint_msg_total_deleted", NoSempV2Ready, "Topic Endpoint total number that was deleted.", variableLabelsVpnTopicEndpoint),
+		"messages_shutdown_discarded":         NewSemDesc("topic_endpoint_msg_shutdown_discarded", NoSempV2Ready, "Topic Endpoint total number of messages discarded due to spool shutdown.", variableLabelsVpnTopicEndpoint),
+		"messages_ttl_discarded":              NewSemDesc("topic_endpoint_msg_ttl_discarded", NoSempV2Ready, "Topic Endpoint total number of messages discarded due to ttl expiry.", variableLabelsVpnTopicEndpoint),
+		"messages_ttl_dmq":                    NewSemDesc("topic_endpoint_msg_ttl_dmq", NoSempV2Ready, "Topic Endpoint total number of messages delivered to dmq due to ttl expiry.", variableLabelsVpnTopicEndpoint),
+		"messages_ttl_dmq_failed":             NewSemDesc("topic_endpoint_msg_ttl_dmq_failed", NoSempV2Ready, "Topic Endpoint total number of messages that failed delivery to dmq due to ttl expiry.", variableLabelsVpnTopicEndpoint),
+		"messages_max_redelivered_discarded":  NewSemDesc("topic_endpoint_msg_max_redelivered_discarded", NoSempV2Ready, "Topic Endpoint total number of messages discarded due to exceeded max redelivery.", variableLabelsVpnTopicEndpoint),
+		"messages_max_redelivered_dmq":        NewSemDesc("topic_endpoint_msg_max_redelivered_dmq", NoSempV2Ready, "Topic Endpoint total number of messages delivered to dmq due to exceeded max redelivery.", variableLabelsVpnTopicEndpoint),
+		"messages_max_redelivered_dmq_failed": NewSemDesc("topic_endpoint_msg_max_redelivered_dmq_failed", NoSempV2Ready, "Topic Endpoint total number of messages failed delivery to dmq due to exceeded max redelivery.", variableLabelsVpnTopicEndpoint),
 	},
 	"ClusterLinks": {
 		"enabled":     NewSemDesc("cluster_link_enabled", NoSempV2Ready, "Cluster link is enabled.", variableLabelsClusterLink),
@@ -731,5 +731,47 @@ var MetricDesc = map[string]Descriptions{
 		"mqtt_session_info":           NewSemDesc("mqtt_session_info", NoSempV2Ready, "Static information and flags regarding the MQTT session. Value is always 1.", variableLabelsMqttSessionInfo),
 		"mqtt_session_subscriptions":  NewSemDesc("mqtt_session_subscriptions", NoSempV2Ready, "Number of subscriptions for the MQTT session.", variableLabelsMqttSession),
 		"mqtt_session_uptime_seconds": NewSemDesc("mqtt_session_uptime_seconds", NoSempV2Ready, "Uptime of the MQTT session in seconds.", variableLabelsMqttSession),
+	},
+	// SEMPv1: show stats client detail
+	"StatsClientDetail": {
+		// Msg-Rate current (per-second). Map keys mirror the SEMP element names; metric names use plural base units.
+		"current_ingress_rate_per_second":               NewSemDesc("system_current_ingress_messages_per_second", NoSempV2Ready, "Current client ingress rate in messages per second (all types: persistent, non-persistent and direct).", nil),
+		"current_egress_rate_per_second":                NewSemDesc("system_current_egress_messages_per_second", NoSempV2Ready, "Current client egress rate in messages per second (all types: persistent, non-persistent and direct).", nil),
+		"current_ingress_persistent_rate_per_second":    NewSemDesc("system_current_ingress_persistent_messages_per_second", NoSempV2Ready, "Current client ingress rate in messages per second (persistent only).", nil),
+		"current_egress_persistent_rate_per_second":     NewSemDesc("system_current_egress_persistent_messages_per_second", NoSempV2Ready, "Current client egress rate in messages per second (persistent only).", nil),
+		"current_ingress_nonpersistent_rate_per_second": NewSemDesc("system_current_ingress_nonpersistent_messages_per_second", NoSempV2Ready, "Current client ingress rate in messages per second (non-persistent only).", nil),
+		"current_egress_nonpersistent_rate_per_second":  NewSemDesc("system_current_egress_nonpersistent_messages_per_second", NoSempV2Ready, "Current client egress rate in messages per second (non-persistent only).", nil),
+		"current_ingress_direct_rate_per_second":        NewSemDesc("system_current_ingress_direct_messages_per_second", NoSempV2Ready, "Current client ingress rate in messages per second (direct only).", nil),
+		"current_egress_direct_rate_per_second":         NewSemDesc("system_current_egress_direct_messages_per_second", NoSempV2Ready, "Current client egress rate in messages per second (direct only).", nil),
+
+		// Msg-Rate average (per-minute). Per-minute mirrors what the broker reports; see docs/CONFIG.md.
+		"average_ingress_rate_per_minute":               NewSemDesc("system_average_ingress_messages_per_minute", NoSempV2Ready, "Average client ingress rate in messages per minute (all types: persistent, non-persistent and direct).", nil),
+		"average_egress_rate_per_minute":                NewSemDesc("system_average_egress_messages_per_minute", NoSempV2Ready, "Average client egress rate in messages per minute (all types: persistent, non-persistent and direct).", nil),
+		"average_ingress_persistent_rate_per_minute":    NewSemDesc("system_average_ingress_persistent_messages_per_minute", NoSempV2Ready, "Average client ingress rate in messages per minute (persistent only).", nil),
+		"average_egress_persistent_rate_per_minute":     NewSemDesc("system_average_egress_persistent_messages_per_minute", NoSempV2Ready, "Average client egress rate in messages per minute (persistent only).", nil),
+		"average_ingress_nonpersistent_rate_per_minute": NewSemDesc("system_average_ingress_nonpersistent_messages_per_minute", NoSempV2Ready, "Average client ingress rate in messages per minute (non-persistent only).", nil),
+		"average_egress_nonpersistent_rate_per_minute":  NewSemDesc("system_average_egress_nonpersistent_messages_per_minute", NoSempV2Ready, "Average client egress rate in messages per minute (non-persistent only).", nil),
+		"average_ingress_direct_rate_per_minute":        NewSemDesc("system_average_ingress_direct_messages_per_minute", NoSempV2Ready, "Average client ingress rate in messages per minute (direct only).", nil),
+		"average_egress_direct_rate_per_minute":         NewSemDesc("system_average_egress_direct_messages_per_minute", NoSempV2Ready, "Average client egress rate in messages per minute (direct only).", nil),
+
+		// Byte-Rate current (per-second)
+		"current_ingress_byte_rate_per_second":               NewSemDesc("system_current_ingress_bytes_per_second", NoSempV2Ready, "Current client ingress rate in bytes per second (all types: persistent, non-persistent and direct).", nil),
+		"current_egress_byte_rate_per_second":                NewSemDesc("system_current_egress_bytes_per_second", NoSempV2Ready, "Current client egress rate in bytes per second (all types: persistent, non-persistent and direct).", nil),
+		"current_ingress_persistent_byte_rate_per_second":    NewSemDesc("system_current_ingress_persistent_bytes_per_second", NoSempV2Ready, "Current client ingress rate in bytes per second (persistent only).", nil),
+		"current_egress_persistent_byte_rate_per_second":     NewSemDesc("system_current_egress_persistent_bytes_per_second", NoSempV2Ready, "Current client egress rate in bytes per second (persistent only).", nil),
+		"current_ingress_nonpersistent_byte_rate_per_second": NewSemDesc("system_current_ingress_nonpersistent_bytes_per_second", NoSempV2Ready, "Current client ingress rate in bytes per second (non-persistent only).", nil),
+		"current_egress_nonpersistent_byte_rate_per_second":  NewSemDesc("system_current_egress_nonpersistent_bytes_per_second", NoSempV2Ready, "Current client egress rate in bytes per second (non-persistent only).", nil),
+		"current_ingress_direct_byte_rate_per_second":        NewSemDesc("system_current_ingress_direct_bytes_per_second", NoSempV2Ready, "Current client ingress rate in bytes per second (direct only).", nil),
+		"current_egress_direct_byte_rate_per_second":         NewSemDesc("system_current_egress_direct_bytes_per_second", NoSempV2Ready, "Current client egress rate in bytes per second (direct only).", nil),
+
+		// Byte-Rate average (per-minute)
+		"average_ingress_byte_rate_per_minute":               NewSemDesc("system_average_ingress_bytes_per_minute", NoSempV2Ready, "Average client ingress rate in bytes per minute (all types: persistent, non-persistent and direct).", nil),
+		"average_egress_byte_rate_per_minute":                NewSemDesc("system_average_egress_bytes_per_minute", NoSempV2Ready, "Average client egress rate in bytes per minute (all types: persistent, non-persistent and direct).", nil),
+		"average_ingress_persistent_byte_rate_per_minute":    NewSemDesc("system_average_ingress_persistent_bytes_per_minute", NoSempV2Ready, "Average client ingress rate in bytes per minute (persistent only).", nil),
+		"average_egress_persistent_byte_rate_per_minute":     NewSemDesc("system_average_egress_persistent_bytes_per_minute", NoSempV2Ready, "Average client egress rate in bytes per minute (persistent only).", nil),
+		"average_ingress_nonpersistent_byte_rate_per_minute": NewSemDesc("system_average_ingress_nonpersistent_bytes_per_minute", NoSempV2Ready, "Average client ingress rate in bytes per minute (non-persistent only).", nil),
+		"average_egress_nonpersistent_byte_rate_per_minute":  NewSemDesc("system_average_egress_nonpersistent_bytes_per_minute", NoSempV2Ready, "Average client egress rate in bytes per minute (non-persistent only).", nil),
+		"average_ingress_direct_byte_rate_per_minute":        NewSemDesc("system_average_ingress_direct_bytes_per_minute", NoSempV2Ready, "Average client ingress rate in bytes per minute (direct only).", nil),
+		"average_egress_direct_byte_rate_per_minute":         NewSemDesc("system_average_egress_direct_bytes_per_minute", NoSempV2Ready, "Average client egress rate in bytes per minute (direct only).", nil),
 	},
 }
