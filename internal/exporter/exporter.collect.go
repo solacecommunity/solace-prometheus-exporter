@@ -100,7 +100,7 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			}
 		case "ClockDetail", "ClockDetailV1":
 			if e.config.IsHWBroker {
-			    up, err = e.semp.GetClockDetailSemp1(ch)
+				up, err = e.semp.GetClockDetailSemp1(ch)
 			} else {
 				up = 0
 				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
@@ -174,6 +174,8 @@ func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
 			up, err = e.semp.GetRdpInfoSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
 		case "MqttSession":
 			up, err = e.semp.GetMqttSessionSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
+		case "StatsClientDetail", "StatsClientDetailV1":
+			up, err = e.semp.GetStatsClientDetailSemp1(ch)
 		default:
 			up = 0
 			err = errors.New("Unknown scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
