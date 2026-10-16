@@ -27,6 +27,7 @@ func (semp *Semp) GetVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string, semp
 						TotalLocalUniqueSubscriptions  float64 `xml:"total-local-unique-subscriptions"`
 						TotalRemoteUniqueSubscriptions float64 `xml:"total-remote-unique-subscriptions"`
 						TotalUniqueSubscriptions       float64 `xml:"total-unique-subscriptions"`
+						MaxSubscriptionsEffective      float64 `xml:"max-subscriptions-effective"`
 						Connections                    float64 `xml:"connections"`
 					} `xml:"vpn"`
 				} `xml:"message-vpn"`
@@ -79,6 +80,7 @@ func (semp *Semp) GetVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string, semp
             ch <- semp.NewMetric(MetricDesc["Vpn"]["vpn_total_local_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalLocalUniqueSubscriptions, vpn.Name)
             ch <- semp.NewMetric(MetricDesc["Vpn"]["vpn_total_remote_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalRemoteUniqueSubscriptions, vpn.Name)
             ch <- semp.NewMetric(MetricDesc["Vpn"]["vpn_total_unique_subscriptions"], prometheus.GaugeValue, vpn.TotalUniqueSubscriptions, vpn.Name)
+            ch <- semp.NewMetric(MetricDesc["Vpn"]["vpn_max_subscriptions_effective"], prometheus.GaugeValue, vpn.MaxSubscriptionsEffective, vpn.Name)
         }
 		_ = body.Close()
     }

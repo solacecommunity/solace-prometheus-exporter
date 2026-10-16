@@ -402,6 +402,7 @@ var MetricDesc = map[string]Descriptions{
 		"vpn_total_local_unique_subscriptions":  NewSemDesc("vpn_total_local_unique_subscriptions", NoSempV2Ready, "Total unique local subscriptions count", variableLabelsVpn),
 		"vpn_total_remote_unique_subscriptions": NewSemDesc("vpn_total_remote_unique_subscriptions", NoSempV2Ready, "Total unique remote subscriptions count", variableLabelsVpn),
 		"vpn_total_unique_subscriptions":        NewSemDesc("vpn_total_unique_subscriptions", NoSempV2Ready, "Total unique subscriptions count", variableLabelsVpn),
+		"vpn_max_subscriptions_effective":       NewSemDesc("vpn_max_subscriptions_effective", NoSempV2Ready, "Effective maximum subscriptions of this VPN", variableLabelsVpn),
 	},
 	"VpnReplication": {
 		"vpn_replication_admin_state":                  NewSemDesc("vpn_replication_admin_state", NoSempV2Ready, "Replication Admin Status (0-shutdown, 1-enabled, 2-n/a)", variableLabelsVpn),
