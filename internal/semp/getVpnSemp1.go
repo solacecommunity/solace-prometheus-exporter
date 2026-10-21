@@ -39,7 +39,7 @@ func (semp *Semp) GetVpnSemp1(ch chan<- PrometheusMetric, vpnFilter string, semp
 
     var page = 1
     var lastVpnName = ""
-	for command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize); command != ""; {
+	for command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize); command != ""; {
         body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "VpnSemp1", page)
         page++
 
