@@ -1,8 +1,0 @@
-{
-  "sca_scanning": {
-    "fossa": {
-      "policy": { "mode": "REPORT" },
-      "vulnerability": { "mode": "REPORT" }
-    }
-  }
-}
