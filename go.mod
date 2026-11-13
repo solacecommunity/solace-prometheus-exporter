@@ -7,7 +7,7 @@ require (
 	github.com/hashicorp/vault/api v1.23.0
 	github.com/prometheus/client_golang v1.25.0
 	github.com/prometheus/common v0.73.1
-	golang.org/x/oauth2 v0.37.0
+	golang.org/x/oauth2 v0.38.0
 	golang.org/x/sync v0.24.0
 	gopkg.in/ini.v1 v1.67.3
 )
