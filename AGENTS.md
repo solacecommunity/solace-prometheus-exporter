@@ -16,7 +16,8 @@ structure and invariants a change should respect. Read it alongside [`CONTRIBUTI
 * **Concurrency:** `golang.org/x/sync/semaphore` bounds concurrent SEMP connections.
 * **SEMP transport:** standard `net/http`, `encoding/xml` (SEMP v1), `encoding/json` (SEMP v2).
 * **Build & CI:** [`Makefile`](Makefile), multi-stage [`Dockerfile`](Dockerfile) producing a `scratch` image,
-  GitHub Actions running `golangci-lint`, `go mod tidy` checks and `go test`.
+  GitHub Actions running `golangci-lint`, `go mod tidy` checks and `go test`. Dependabot minor/patch PRs are
+  auto-merged after a green pipeline (`.github/workflows/dependabot-auto-merge.yml`, called from `test.yml`).
 
 ## 2. Project Structure
 
