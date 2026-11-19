@@ -1,0 +1,55 @@
+---
+# Merges Dependabot pull requests for minor and patch updates.
+#
+# This workflow is not triggered on its own: test.yml calls it as its last job, with `needs` on every
+# test job. It therefore only runs after lint, unit tests and the OAuth E2E test have all succeeded.
+# `master` has no required status checks, so GitHub's native auto-merge (`gh pr merge --auto`) would
+# merge immediately without waiting for CI; gating on `needs` is what makes "green pipeline" a hard
+# precondition here. Major updates are left open for manual review.
+name: Dependabot auto-merge
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  auto-merge:
+    name: Merge minor/patch update
+    runs-on: ubuntu-latest
+    # Defense in depth: test.yml already filters on this, but this workflow must never act on other PRs.
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]' }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      - name: Merge pull request
+        if: >-
+          ${{ steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
+              steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          DEPENDENCIES: ${{ steps.metadata.outputs.dependency-names }}
+        run: |
+          set -euo pipefail
+          echo "Merging ${DEPENDENCIES} (${UPDATE_TYPE})"
+          # Squash keeps master's one-commit-per-PR history. Pinning the head SHA makes the merge fail
+          # if Dependabot pushed a newer commit than the one this pipeline tested.
+          gh pr merge "$PR_URL" --squash --match-head-commit "$HEAD_SHA"
+
+      - name: Skip major update
+        if: >-
+          ${{ steps.metadata.outputs.update-type != 'version-update:semver-minor' &&
+              steps.metadata.outputs.update-type != 'version-update:semver-patch' }}
+        env:
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          DEPENDENCIES: ${{ steps.metadata.outputs.dependency-names }}
+        run: echo "::notice::Not auto-merging ${DEPENDENCIES} (${UPDATE_TYPE}), manual review required."

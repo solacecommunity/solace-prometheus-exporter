@@ -402,7 +402,8 @@ make lint           # golangci-lint run
 Unit tests are table-driven against captured SEMP payloads under [`test/data`](test/data). An OAuth end-to-end
 suite (Keycloak + a Solace broker + a scrape check) is defined in
 [`test/oauth/docker-compose.yaml`](test/oauth) and runs in CI. Continuous integration lints, checks `go mod tidy`,
-runs the tests and publishes the Docker image.
+runs the tests and publishes the Docker image. Dependabot pull requests with minor or patch updates are
+squash-merged automatically once the whole test pipeline is green; major updates stay open for manual review.
 
 ## Contributing
 
