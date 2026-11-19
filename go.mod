@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/kingpin/v2 v2.4.0
 	github.com/hashicorp/vault/api v1.23.0
 	github.com/prometheus/client_golang v1.25.0
-	github.com/prometheus/common v0.73.1
+	github.com/prometheus/common v0.74.0
 	golang.org/x/oauth2 v0.38.0
 	golang.org/x/sync v0.24.0
 	gopkg.in/ini.v1 v1.68.0
@@ -28,10 +28,10 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
-	github.com/pandatix/go-abnf v0.5.3 // indirect
+	github.com/pandatix/go-abnf v0.5.5 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	golang.org/x/crypto v0.58.0 // indirect
-	golang.org/x/net v0.61.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.12.0 // indirect
 )
