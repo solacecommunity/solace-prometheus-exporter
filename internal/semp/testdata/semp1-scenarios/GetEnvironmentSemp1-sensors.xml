@@ -1,0 +1,20 @@
+<rpc-reply semp-version="soltr/10_0"><rpc><show><environment>
+<mainboard><sensors>
+<sensor><type>Fan speed</type><name>Chassis Fan 1</name><value>5123.6</value><unit>RPM</unit><status>OK</status></sensor>
+<sensor><type>Fan speed</type><name>Chassis Fan 2</name><value>N/A</value><unit>RPM</unit><status>Fail</status></sensor>
+<sensor><type>Fan speed</type><name>CPU Fan</name><value>4000</value><unit>RPM</unit><status>OK</status></sensor>
+<sensor><type>Temperature</type><name>CPU1 Therm Margin</name><value>-41.6</value><unit>C</unit><status>OK</status></sensor>
+<sensor><type>Temperature</type><name>Board Temp</name><value>30</value><unit>C</unit><status>OK</status></sensor>
+<sensor><type>Voltage</type><name>BB +12.0V</name><value>12.13</value><unit>V</unit><status>Warning</status></sensor>
+<sensor><type>Voltage</type><name>BB +3.3V</name><value>bad</value><unit>V</unit><status>Unknown</status></sensor>
+</sensors></mainboard>
+<slots>
+<slot><slot-number>1</slot-number><card-type>Network Acceleration Blade</card-type><sensors>
+<sensor><type>Temperature</type><name>NPU Core Temp</name><value>55.5</value><unit>C</unit><status>OK</status></sensor>
+<sensor><type>Temperature</type><name>Other Temp</name><value>40</value><unit>C</unit><status>OK</status></sensor>
+</sensors></slot>
+<slot><slot-number>2</slot-number><card-type>Assured Delivery Blade</card-type><sensors>
+<sensor><type>Temperature</type><name>NPU Core Temp</name><value>99</value><unit>C</unit><status>OK</status></sensor>
+</sensors></slot>
+</slots>
+</environment></show></rpc><execute-result code="ok"/></rpc-reply>

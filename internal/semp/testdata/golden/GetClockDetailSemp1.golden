@@ -1,0 +1,24 @@
+## ok
+request[1]: POST /SEMP <rpc><show><clock><detail/></clock></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_clock_detail_admin_state{clock_protocol="1"} gauge 1
+metric: solace_system_clock_detail_ntp_server_reachable{clock_ntp_addr="3"} gauge 1
+## paged
+request[1]: POST /SEMP <rpc><show><clock><detail/></clock></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_clock_detail_admin_state{clock_protocol="1"} gauge 1
+metric: solace_system_clock_detail_ntp_server_reachable{clock_ntp_addr="3"} gauge 1
+## http-500
+request[1]: POST /SEMP <rpc><show><clock><detail/></clock></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><clock><detail/></clock></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><clock><detail/></clock></show></rpc>
+up: 0
+err: unexpected result: golden failure

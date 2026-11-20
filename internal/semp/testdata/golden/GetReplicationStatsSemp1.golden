@@ -1,0 +1,66 @@
+## ok
+request[1]: POST /SEMP <rpc><show><replication><stats/></replication></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_replication_ack_prop_msgs_rx{mate_name="1"} counter 13
+metric: solace_system_replication_async_msgs_queued_to_standby{mate_name="1"} counter 6
+metric: solace_system_replication_bridge_admin_state{mate_name="1"} gauge -1
+metric: solace_system_replication_bridge_state{mate_name="1"} gauge -1
+metric: solace_system_replication_msgs_rx_from_active{mate_name="1"} counter 12
+metric: solace_system_replication_msgs_tx_to_standby{mate_name="1"} counter 10
+metric: solace_system_replication_out_of_seq_rx{mate_name="1"} counter 15
+metric: solace_system_replication_promoted_msgs_queued_to_standby{mate_name="1"} counter 7
+metric: solace_system_replication_pruned_locally_consumed_msgs{mate_name="1"} counter 8
+metric: solace_system_replication_rec_req_from_standby{mate_name="1"} counter 11
+metric: solace_system_replication_recon_req_tx{mate_name="1"} counter 14
+metric: solace_system_replication_sync_msgs_queued_to_standby_as_async{mate_name="1"} counter 5
+metric: solace_system_replication_sync_msgs_queued_to_standby{mate_name="1"} counter 4
+metric: solace_system_replication_transitions_to_ineligible{mate_name="1"} counter 9
+metric: solace_system_replication_xa_req_fail_commit{mate_name="1"} counter 23
+metric: solace_system_replication_xa_req_fail_prepare{mate_name="1"} counter 22
+metric: solace_system_replication_xa_req_fail_rollback{mate_name="1"} counter 24
+metric: solace_system_replication_xa_req_fail{mate_name="1"} counter 21
+metric: solace_system_replication_xa_req_success_commit{mate_name="1"} counter 19
+metric: solace_system_replication_xa_req_success_prepare{mate_name="1"} counter 18
+metric: solace_system_replication_xa_req_success_rollback{mate_name="1"} counter 20
+metric: solace_system_replication_xa_req_success{mate_name="1"} counter 17
+metric: solace_system_replication_xa_req{mate_name="1"} counter 16
+## paged
+request[1]: POST /SEMP <rpc><show><replication><stats/></replication></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_replication_ack_prop_msgs_rx{mate_name="1"} counter 13
+metric: solace_system_replication_async_msgs_queued_to_standby{mate_name="1"} counter 6
+metric: solace_system_replication_bridge_admin_state{mate_name="1"} gauge -1
+metric: solace_system_replication_bridge_state{mate_name="1"} gauge -1
+metric: solace_system_replication_msgs_rx_from_active{mate_name="1"} counter 12
+metric: solace_system_replication_msgs_tx_to_standby{mate_name="1"} counter 10
+metric: solace_system_replication_out_of_seq_rx{mate_name="1"} counter 15
+metric: solace_system_replication_promoted_msgs_queued_to_standby{mate_name="1"} counter 7
+metric: solace_system_replication_pruned_locally_consumed_msgs{mate_name="1"} counter 8
+metric: solace_system_replication_rec_req_from_standby{mate_name="1"} counter 11
+metric: solace_system_replication_recon_req_tx{mate_name="1"} counter 14
+metric: solace_system_replication_sync_msgs_queued_to_standby_as_async{mate_name="1"} counter 5
+metric: solace_system_replication_sync_msgs_queued_to_standby{mate_name="1"} counter 4
+metric: solace_system_replication_transitions_to_ineligible{mate_name="1"} counter 9
+metric: solace_system_replication_xa_req_fail_commit{mate_name="1"} counter 23
+metric: solace_system_replication_xa_req_fail_prepare{mate_name="1"} counter 22
+metric: solace_system_replication_xa_req_fail_rollback{mate_name="1"} counter 24
+metric: solace_system_replication_xa_req_fail{mate_name="1"} counter 21
+metric: solace_system_replication_xa_req_success_commit{mate_name="1"} counter 19
+metric: solace_system_replication_xa_req_success_prepare{mate_name="1"} counter 18
+metric: solace_system_replication_xa_req_success_rollback{mate_name="1"} counter 20
+metric: solace_system_replication_xa_req_success{mate_name="1"} counter 17
+metric: solace_system_replication_xa_req{mate_name="1"} counter 16
+## http-500
+request[1]: POST /SEMP <rpc><show><replication><stats/></replication></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><replication><stats/></replication></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><replication><stats/></replication></show></rpc>
+up: 0
+err: unexpected result: golden failure

@@ -1,0 +1,22 @@
+<rpc-reply semp-version="soltr/10_0"><rpc><show><bridge><bridges><bridge><bridge-name>br-ok</bridge-name><local-vpn-name>vpnA</local-vpn-name><connected-remote-router-name>remote-1</connected-remote-router-name><client-certificate><certificate-chain><certificate-content>        Version: 3 (0x2)
+        Serial Number:
+            4a:89:b4:f7:6e:70:a0:54:f0:00:35:7f:5f:61:e6:44:f5:90:75:80
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer:
+            O=Example Org
+            OU=Example OU
+            CN=Example Sub CA
+        Validity
+            Not Before: Jun 11 13:16:49 2026 GMT
+            Not After : Sep  9 13:17:19 2026 GMT
+        Subject:
+            C=DE
+            O=Example Org
+            OU=Example: bridges
+            CN=bridge.example-env.example.com
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+</certificate-content><certificate-content>intermediate</certificate-content></certificate-chain></client-certificate></bridge><bridge><bridge-name>br-nocert</bridge-name><local-vpn-name>vpnA</local-vpn-name><connected-remote-router-name></connected-remote-router-name><client-certificate><certificate-chain></certificate-chain></client-certificate></bridge><bridge><bridge-name>br-baddates</bridge-name><local-vpn-name>vpnB</local-vpn-name><connected-remote-router-name>remote-2</connected-remote-router-name><client-certificate><certificate-chain><certificate-content>Version: 3
+  Subject:
+    CN=no-dates.example.com
+</certificate-content></certificate-chain></client-certificate></bridge></bridges></bridge></show></rpc><execute-result code="ok"/></rpc-reply>

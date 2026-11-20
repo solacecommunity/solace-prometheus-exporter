@@ -3,6 +3,7 @@ package semp
 import (
 	"fmt"
 	"net/url"
+	"sort"
 	"strings"
 )
 
@@ -16,6 +17,10 @@ func mapItems(items []string, translateMap map[string]string) ([]string, error) 
 		validItems = append(validItems, key, rawItem)
 	}
 
+	// translateMap is iterated in random order; sort so the error text, which becomes the error label of
+	// solace_up, is stable across scrapes instead of creating a new series each time.
+	sort.Strings(validItems)
+
 	for _, item := range items {
 		if translatedItem, ok := translateMap[item]; ok {
 			translated = append(translated, translatedItem)
@@ -23,7 +28,7 @@ func mapItems(items []string, translateMap map[string]string) ([]string, error) 
 			translated = append(translated, item)
 		} else {
 			return nil, fmt.Errorf(
-				"item \"%s\" is not valid. Pleaee choose from: %s",
+				"item \"%s\" is not valid. Please choose from: %s",
 				item,
 				strings.Join(validItems, ","),
 			)

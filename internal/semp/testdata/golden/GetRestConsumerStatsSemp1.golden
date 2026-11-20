@@ -1,0 +1,75 @@
+## ok
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>item*</rest-consumer-name><stats></stats><count/><num-elements>7</num-elements></message-vpn></show></rpc>
+up: 1
+err: <nil>
+metric: solace_rdp_http_request_messages_sent_connection_closed_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 18
+metric: solace_rdp_http_request_messages_sent_connection_closed_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 6
+metric: solace_rdp_http_request_messages_sent_outstanding_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} gauge 17
+metric: solace_rdp_http_request_messages_sent_outstanding_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} gauge 5
+metric: solace_rdp_http_request_messages_sent_timed_out_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 19
+metric: solace_rdp_http_request_messages_sent_timed_out_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 7
+metric: solace_rdp_http_request_messages_sent_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 16
+metric: solace_rdp_http_request_messages_sent_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 4
+metric: solace_rdp_http_request_sent_bytes_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 23
+metric: solace_rdp_http_request_sent_bytes_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 11
+metric: solace_rdp_http_response_messages_received_error_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 22
+metric: solace_rdp_http_response_messages_received_error_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 10
+metric: solace_rdp_http_response_messages_received_successful_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 21
+metric: solace_rdp_http_response_messages_received_successful_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 9
+metric: solace_rdp_http_response_messages_received_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 20
+metric: solace_rdp_http_response_messages_received_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 8
+metric: solace_rdp_http_response_received_bytes_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 24
+metric: solace_rdp_http_response_received_bytes_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 12
+## paged
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>item*</rest-consumer-name><stats></stats><count/><num-elements>7</num-elements></message-vpn></show></rpc>
+request[2]: POST /SEMP <rpc><show><golden-page-2/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_rdp_http_request_messages_sent_connection_closed_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 18
+metric: solace_rdp_http_request_messages_sent_connection_closed_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 18
+metric: solace_rdp_http_request_messages_sent_connection_closed_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 6
+metric: solace_rdp_http_request_messages_sent_connection_closed_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 6
+metric: solace_rdp_http_request_messages_sent_outstanding_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} gauge 17
+metric: solace_rdp_http_request_messages_sent_outstanding_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} gauge 17
+metric: solace_rdp_http_request_messages_sent_outstanding_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} gauge 5
+metric: solace_rdp_http_request_messages_sent_outstanding_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} gauge 5
+metric: solace_rdp_http_request_messages_sent_timed_out_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 19
+metric: solace_rdp_http_request_messages_sent_timed_out_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 19
+metric: solace_rdp_http_request_messages_sent_timed_out_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 7
+metric: solace_rdp_http_request_messages_sent_timed_out_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 7
+metric: solace_rdp_http_request_messages_sent_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 16
+metric: solace_rdp_http_request_messages_sent_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 16
+metric: solace_rdp_http_request_messages_sent_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 4
+metric: solace_rdp_http_request_messages_sent_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 4
+metric: solace_rdp_http_request_sent_bytes_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 23
+metric: solace_rdp_http_request_sent_bytes_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 23
+metric: solace_rdp_http_request_sent_bytes_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 11
+metric: solace_rdp_http_request_sent_bytes_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 11
+metric: solace_rdp_http_response_messages_received_error_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 22
+metric: solace_rdp_http_response_messages_received_error_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 22
+metric: solace_rdp_http_response_messages_received_error_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 10
+metric: solace_rdp_http_response_messages_received_error_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 10
+metric: solace_rdp_http_response_messages_received_successful_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 21
+metric: solace_rdp_http_response_messages_received_successful_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 21
+metric: solace_rdp_http_response_messages_received_successful_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 9
+metric: solace_rdp_http_response_messages_received_successful_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 9
+metric: solace_rdp_http_response_messages_received_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 20
+metric: solace_rdp_http_response_messages_received_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 20
+metric: solace_rdp_http_response_messages_received_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 8
+metric: solace_rdp_http_response_messages_received_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 8
+metric: solace_rdp_http_response_received_bytes_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 24
+metric: solace_rdp_http_response_received_bytes_total{vpn_name="15",rdp_name="14",rest_consumer_name="13"} counter 24
+metric: solace_rdp_http_response_received_bytes_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 12
+metric: solace_rdp_http_response_received_bytes_total{vpn_name="3",rdp_name="2",rest_consumer_name="1"} counter 12
+## http-500
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>item*</rest-consumer-name><stats></stats><count/><num-elements>7</num-elements></message-vpn></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>item*</rest-consumer-name><stats></stats><count/><num-elements>7</num-elements></message-vpn></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>item*</rest-consumer-name><stats></stats><count/><num-elements>7</num-elements></message-vpn></show></rpc>
+up: 0
+err: unexpected result: golden failure

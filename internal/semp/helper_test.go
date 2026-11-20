@@ -129,3 +129,16 @@ func TestQueryEscape(t *testing.T) {
 		})
 	}
 }
+
+func TestMapItemsErrorListsValidItemsInStableOrder(t *testing.T) {
+	t.Parallel()
+	translateMap := map[string]string{"metric_b": "fieldB", "metric_a": "fieldA", "metric_c": "fieldC"}
+	want := `item "nope" is not valid. Please choose from: fieldA,fieldB,fieldC,metric_a,metric_b,metric_c`
+
+	for i := 0; i < 20; i++ { // map iteration order differs between runs
+		_, err := mapItems([]string{"nope"}, translateMap)
+		if err == nil || err.Error() != want {
+			t.Fatalf("err = %v, want %q", err, want)
+		}
+	}
+}
