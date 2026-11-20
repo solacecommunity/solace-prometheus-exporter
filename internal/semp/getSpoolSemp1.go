@@ -106,10 +106,12 @@ func (semp *Semp) GetSpoolSemp1(ch chan<- PrometheusMetric) (float64, error) {
 	ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_operational_status"], prometheus.GaugeValue, encodeMetricMulti(target.RPC.Show.Spool.Info.OperationalStatus, []string{"AD-Unknown", "AD-NotReady", "AD-Disabled", "AD-Activating", "AD-Active", "AD-Standby"}))
 
 	ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_quota_bytes"], prometheus.GaugeValue, math.Round(target.RPC.Show.Spool.Info.QuotaDiskUsage*1048576.0))
-	// MaxMsgCount is in the form "100M"
-	s1 := target.RPC.Show.Spool.Info.QuotaMsgCount[:len(target.RPC.Show.Spool.Info.QuotaMsgCount)-1]
-	if value, err := strconv.ParseFloat(s1, 64); err == nil {
-		ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_quota_msgs"], prometheus.GaugeValue, value*1000000)
+	// MaxMsgCount is in the form "100M". Brokers that omit it must not panic the scrape: the metric is skipped,
+	// exactly like an unparsable value.
+	if quotaMsgCount := target.RPC.Show.Spool.Info.QuotaMsgCount; len(quotaMsgCount) > 0 {
+		if value, err := strconv.ParseFloat(quotaMsgCount[:len(quotaMsgCount)-1], 64); err == nil {
+			ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_quota_msgs"], prometheus.GaugeValue, value*1000000)
+		}
 	}
 	if value, err := strconv.ParseFloat(target.RPC.Show.Spool.Info.ActiveDiskPartitionUsage, 64); err == nil {
 		ch <- semp.NewMetric(MetricDesc["Spool"]["system_spool_disk_partition_usage_active_percent"], prometheus.GaugeValue, math.Round(value))
