@@ -216,25 +216,9 @@ func runScenarioOn(t *testing.T, title string, isHWBroker bool, call getterCall,
 		fmt.Fprintf(&sb, "request[%d]: %s\n", i+1, req)
 	}
 	fmt.Fprintf(&sb, "up: %s\n", strconv.FormatFloat(up, 'g', -1, 64))
-	fmt.Fprintf(&sb, "err: %s\n", normalizeErr(err))
+	fmt.Fprintf(&sb, "err: %v\n", err)
 	sb.WriteString(renderMetrics(ch))
 	return sb.String()
-}
-
-// normalizeErr renders err for the golden file. mapItems lists the valid metric-filter items in map iteration
-// order, which is random; the list is sorted here so the golden file is stable.
-func normalizeErr(err error) string {
-	if err == nil {
-		return "<nil>"
-	}
-	msg := err.Error()
-	const marker = "choose from: "
-	if i := strings.Index(msg, marker); i >= 0 {
-		items := strings.Split(msg[i+len(marker):], ",")
-		sort.Strings(items)
-		msg = msg[:i+len(marker)] + strings.Join(items, ",")
-	}
-	return msg
 }
 
 // renderMetrics serializes metrics sorted by name. The sort is stable, so the emission order of metrics sharing a
