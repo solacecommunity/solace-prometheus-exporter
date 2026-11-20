@@ -1,0 +1,72 @@
+## software-broker
+request[1]: POST /SEMP <rpc><show><message-spool><detail/></message-spool></show ></rpc>
+up: 1
+err: <nil>
+metric: solace_system_spool_config_status gauge 1
+metric: solace_system_spool_defrag_estimated_frag_percent gauge 0
+metric: solace_system_spool_defrag_estimated_recoverable_space gauge 0
+metric: solace_system_spool_defrag_schedule_enabled gauge 0
+metric: solace_system_spool_defrag_threshold_enabled gauge 0
+metric: solace_system_spool_defrag_threshold_frag_percent gauge 0
+metric: solace_system_spool_defrag_threshold_usage_percent gauge 0
+metric: solace_system_spool_egress_flows_active gauge 0
+metric: solace_system_spool_egress_flows_browser gauge 0
+metric: solace_system_spool_egress_flows_count gauge 0
+metric: solace_system_spool_egress_flows_inactive gauge 0
+metric: solace_system_spool_egress_flows_quota gauge 0
+metric: solace_system_spool_endpoints_dte gauge 0
+metric: solace_system_spool_endpoints_queue gauge 0
+metric: solace_system_spool_endpoints_quota gauge 0
+metric: solace_system_spool_ingress_flows_count gauge 0
+metric: solace_system_spool_ingress_flows_quota gauge 0
+metric: solace_system_spool_messages_currently_spooled_adb gauge 0
+metric: solace_system_spool_messages_currently_spooled_disk gauge 0
+metric: solace_system_spool_messages_total_disk_usage_bytes gauge 0
+metric: solace_system_spool_operational_status gauge 4
+metric: solace_system_spool_queue_topic_subscriptions_quota gauge 0
+metric: solace_system_spool_queue_topic_subscriptions_used gauge 0
+metric: solace_system_spool_quota_bytes gauge 1.048576e+09
+metric: solace_system_spool_sync_status gauge -1
+metric: solace_system_spool_transacted_sessions_quota gauge 0
+metric: solace_system_spool_transacted_sessions_used gauge 0
+metric: solace_system_spool_transactions_quota gauge 0
+metric: solace_system_spool_transactions_used gauge 0
+metric: solace_system_spool_usage_adb_bytes gauge 0
+metric: solace_system_spool_usage_bytes gauge 0
+metric: solace_system_spool_usage_msgs gauge 0
+## hardware-broker
+request[1]: POST /SEMP <rpc><show><message-spool><detail/></message-spool></show ></rpc>
+up: 1
+err: <nil>
+metric: solace_system_spool_config_status gauge 1
+metric: solace_system_spool_defrag_estimated_frag_percent gauge 0
+metric: solace_system_spool_defrag_estimated_recoverable_space gauge 0
+metric: solace_system_spool_defrag_schedule_enabled gauge 0
+metric: solace_system_spool_defrag_threshold_enabled gauge 0
+metric: solace_system_spool_defrag_threshold_frag_percent gauge 0
+metric: solace_system_spool_defrag_threshold_usage_percent gauge 0
+metric: solace_system_spool_egress_flows_active gauge 0
+metric: solace_system_spool_egress_flows_browser gauge 0
+metric: solace_system_spool_egress_flows_count gauge 0
+metric: solace_system_spool_egress_flows_inactive gauge 0
+metric: solace_system_spool_egress_flows_quota gauge 0
+metric: solace_system_spool_endpoints_dte gauge 0
+metric: solace_system_spool_endpoints_queue gauge 0
+metric: solace_system_spool_endpoints_quota gauge 0
+metric: solace_system_spool_ingress_flows_count gauge 0
+metric: solace_system_spool_ingress_flows_quota gauge 0
+metric: solace_system_spool_messages_currently_spooled_adb gauge 0
+metric: solace_system_spool_messages_currently_spooled_disk gauge 0
+metric: solace_system_spool_messages_total_disk_usage_bytes gauge 0
+metric: solace_system_spool_operational_status gauge 4
+metric: solace_system_spool_queue_topic_subscriptions_quota gauge 0
+metric: solace_system_spool_queue_topic_subscriptions_used gauge 0
+metric: solace_system_spool_quota_bytes gauge 1.048576e+09
+metric: solace_system_spool_sync_status gauge -1
+metric: solace_system_spool_transacted_sessions_quota gauge 0
+metric: solace_system_spool_transacted_sessions_used gauge 0
+metric: solace_system_spool_transactions_quota gauge 0
+metric: solace_system_spool_transactions_used gauge 0
+metric: solace_system_spool_usage_adb_bytes gauge 0
+metric: solace_system_spool_usage_bytes gauge 0
+metric: solace_system_spool_usage_msgs gauge 0
