@@ -186,3 +186,18 @@ func compareGolden(t *testing.T, name, got string) {
 		t.Errorf("output differs from %s (run with -update after an intended change)\n--- got ---\n%s", path, got)
 	}
 }
+
+// TestEveryScrapeTargetIsCharacterized keeps dispatchTargets in sync with the registry, so a newly registered target
+// cannot escape the dispatch golden test.
+func TestEveryScrapeTargetIsCharacterized(t *testing.T) {
+	t.Parallel()
+	listed := make(map[string]bool, len(dispatchTargets))
+	for _, name := range dispatchTargets {
+		listed[name] = true
+	}
+	for name := range scrapeTargets {
+		if !listed[name] {
+			t.Errorf("scrape target %q is registered but missing from dispatchTargets", name)
+		}
+	}
+}
