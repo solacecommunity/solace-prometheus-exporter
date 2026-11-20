@@ -46,122 +46,155 @@ const (
 
 type getterCall func(s *Semp, ch chan<- PrometheusMetric) (float64, error)
 
-// semp1Getters maps each fixture name (testdata/semp1/<name>.xml) to a call with fixed filter arguments.
-var semp1Getters = map[string]getterCall{
-	"GetAlarmSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetAlarmSemp1(ch) },
-	"GetBridgeClientCertSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetBridgeClientCertSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+// filterArgs are the VPN and item filters handed to a getter (ignored by getters without filters).
+type filterArgs struct {
+	vpn  string
+	item string
+}
+
+var goldenFilters = filterArgs{vpn: goldenVpnFilter, item: goldenItemFilter}
+
+// semp1Getter calls one SEMP v1 getter with the given filters and the fixed page size.
+type semp1Getter func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error)
+
+func (g semp1Getter) with(f filterArgs) getterCall {
+	return func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return g(s, ch, f) }
+}
+
+// semp1Getters maps each fixture name (testdata/semp1/<name>.xml) to its getter.
+var semp1Getters = map[string]semp1Getter{
+	"GetAlarmSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) { return s.GetAlarmSemp1(ch) },
+	"GetBridgeClientCertSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetBridgeClientCertSemp1(ch, f.vpn, f.item, goldenPageSize)
 	},
-	"GetBridgeDetailSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetBridgeDetailSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetBridgeDetailSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetBridgeDetailSemp1(ch, f.vpn, f.item, goldenPageSize)
 	},
-	"GetBridgeRemoteSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetBridgeRemoteSemp1(ch, goldenVpnFilter, goldenItemFilter)
+	"GetBridgeRemoteSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetBridgeRemoteSemp1(ch, f.vpn, f.item)
 	},
-	"GetBridgeSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetBridgeSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetBridgeSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetBridgeSemp1(ch, f.vpn, f.item, goldenPageSize)
 	},
-	"GetBridgeStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetBridgeStatsSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetBridgeStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetBridgeStatsSemp1(ch, f.vpn, f.item, goldenPageSize)
 	},
-	"GetClientConnectionStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetClientConnectionStatsSemp1(ch, goldenItemFilter)
+	"GetClientConnectionStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetClientConnectionStatsSemp1(ch, f.item)
 	},
-	"GetClientMessageSpoolEgressSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetClientMessageSpoolEgressSemp1(ch, goldenItemFilter)
+	"GetClientMessageSpoolEgressSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetClientMessageSpoolEgressSemp1(ch, f.item)
 	},
-	"GetClientMessageSpoolStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetClientMessageSpoolStatsSemp1(ch, goldenItemFilter, goldenPageSize)
+	"GetClientMessageSpoolStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetClientMessageSpoolStatsSemp1(ch, f.item, goldenPageSize)
 	},
-	"GetClientProfileSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetClientProfileSemp1(ch, goldenVpnFilter)
+	"GetClientProfileSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetClientProfileSemp1(ch, f.vpn)
 	},
-	"GetClientSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetClientSemp1(ch, goldenVpnFilter, goldenItemFilter)
+	"GetClientSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetClientSemp1(ch, f.vpn, f.item)
 	},
-	"GetClientSlowSubscriberSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetClientSlowSubscriberSemp1(ch, goldenVpnFilter, goldenItemFilter)
+	"GetClientSlowSubscriberSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetClientSlowSubscriberSemp1(ch, f.vpn, f.item)
 	},
-	"GetClientStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetClientStatsSemp1(ch, goldenItemFilter, goldenPageSize)
+	"GetClientStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetClientStatsSemp1(ch, f.item, goldenPageSize)
 	},
-	"GetClockDetailSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetClockDetailSemp1(ch) },
-	"GetClusterLinksSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetClusterLinksSemp1(ch, goldenVpnFilter, goldenItemFilter)
+	"GetClockDetailSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetClockDetailSemp1(ch)
 	},
-	"GetConfigSyncRouterSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
+	"GetClusterLinksSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetClusterLinksSemp1(ch, f.vpn, f.item)
+	},
+	"GetConfigSyncRouterSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
 		return s.GetConfigSyncRouterSemp1(ch)
 	},
-	"GetConfigSyncSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetConfigSyncSemp1(ch) },
-	"GetConfigSyncVpnSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetConfigSyncVpnSemp1(ch, goldenVpnFilter, goldenPageSize)
+	"GetConfigSyncSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetConfigSyncSemp1(ch)
 	},
-	"GetDiskSemp1":             func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetDiskSemp1(ch) },
-	"GetEnvironmentSemp1":      func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetEnvironmentSemp1(ch) },
-	"GetGlobalStatsSemp1":      func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetGlobalStatsSemp1(ch) },
-	"GetGlobalSystemInfoSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetGlobalSystemInfoSemp1(ch) },
-	"GetHardwareSemp1":         func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetHardwareSemp1(ch) },
-	"GetHealthSemp1":           func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetHealthSemp1(ch) },
-	"GetInterfaceHWSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetInterfaceHWSemp1(ch, goldenItemFilter)
+	"GetConfigSyncVpnSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetConfigSyncVpnSemp1(ch, f.vpn, goldenPageSize)
 	},
-	"GetInterfaceSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetInterfaceSemp1(ch, goldenItemFilter)
+	"GetDiskSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) { return s.GetDiskSemp1(ch) },
+	"GetEnvironmentSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetEnvironmentSemp1(ch)
 	},
-	"GetMemorySemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetMemorySemp1(ch) },
-	"GetMqttSessionSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetMqttSessionSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetGlobalStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetGlobalStatsSemp1(ch)
 	},
-	"GetQueueDetailsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetQueueDetailsSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetGlobalSystemInfoSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetGlobalSystemInfoSemp1(ch)
 	},
-	"GetQueueRatesSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetQueueRatesSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetHardwareSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetHardwareSemp1(ch)
 	},
-	"GetQueueStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetQueueStatsSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetHealthSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) { return s.GetHealthSemp1(ch) },
+	"GetInterfaceHWSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetInterfaceHWSemp1(ch, f.item)
 	},
-	"GetRaidSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetRaidSemp1(ch) },
-	"GetRdpInfoSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetRdpInfoSemp1(ch, goldenVpnFilter, goldenItemFilter)
+	"GetInterfaceSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetInterfaceSemp1(ch, f.item)
 	},
-	"GetRdpStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetRdpStatsSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetMemorySemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) { return s.GetMemorySemp1(ch) },
+	"GetMqttSessionSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetMqttSessionSemp1(ch, f.vpn, f.item, goldenPageSize)
 	},
-	"GetRedundancySemp1":       func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetRedundancySemp1(ch) },
-	"GetReplicationStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetReplicationStatsSemp1(ch) },
-	"GetRestConsumerStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetRestConsumerStatsSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetQueueDetailsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetQueueDetailsSemp1(ch, f.vpn, f.item, goldenPageSize)
 	},
-	"GetSpoolSemp1":      func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetSpoolSemp1(ch) },
-	"GetSpoolStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetSpoolStatsSemp1(ch) },
-	"GetStatsClientDetailSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
+	"GetQueueRatesSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetQueueRatesSemp1(ch, f.vpn, f.item, goldenPageSize)
+	},
+	"GetQueueStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetQueueStatsSemp1(ch, f.vpn, f.item, goldenPageSize)
+	},
+	"GetRaidSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) { return s.GetRaidSemp1(ch) },
+	"GetRdpInfoSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetRdpInfoSemp1(ch, f.vpn, f.item)
+	},
+	"GetRdpStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetRdpStatsSemp1(ch, f.vpn, f.item, goldenPageSize)
+	},
+	"GetRedundancySemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetRedundancySemp1(ch)
+	},
+	"GetReplicationStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetReplicationStatsSemp1(ch)
+	},
+	"GetRestConsumerStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetRestConsumerStatsSemp1(ch, f.vpn, f.item, goldenPageSize)
+	},
+	"GetSpoolSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) { return s.GetSpoolSemp1(ch) },
+	"GetSpoolStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetSpoolStatsSemp1(ch)
+	},
+	"GetStatsClientDetailSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
 		return s.GetStatsClientDetailSemp1(ch)
 	},
-	"GetStorageElementSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetStorageElementSemp1(ch, goldenItemFilter)
+	"GetStorageElementSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetStorageElementSemp1(ch, f.item)
 	},
-	"GetTopicEndpointDetailsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetTopicEndpointDetailsSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetTopicEndpointDetailsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetTopicEndpointDetailsSemp1(ch, f.vpn, f.item, goldenPageSize)
 	},
-	"GetTopicEndpointRatesSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetTopicEndpointRatesSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetTopicEndpointRatesSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetTopicEndpointRatesSemp1(ch, f.vpn, f.item, goldenPageSize)
 	},
-	"GetTopicEndpointStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetTopicEndpointStatsSemp1(ch, goldenVpnFilter, goldenItemFilter, goldenPageSize)
+	"GetTopicEndpointStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetTopicEndpointStatsSemp1(ch, f.vpn, f.item, goldenPageSize)
 	},
-	"GetVersionSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) { return s.GetVersionSemp1(ch) },
-	"GetVpnReplicationSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetVpnReplicationSemp1(ch, goldenVpnFilter)
+	"GetVersionSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) { return s.GetVersionSemp1(ch) },
+	"GetVpnReplicationSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetVpnReplicationSemp1(ch, f.vpn)
 	},
-	"GetVpnSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetVpnSemp1(ch, goldenVpnFilter, goldenPageSize)
+	"GetVpnSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetVpnSemp1(ch, f.vpn, goldenPageSize)
 	},
-	"GetVpnSpoolSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetVpnSpoolSemp1(ch, goldenVpnFilter, goldenPageSize)
+	"GetVpnSpoolSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetVpnSpoolSemp1(ch, f.vpn, goldenPageSize)
 	},
-	"GetVpnStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric) (float64, error) {
-		return s.GetVpnStatsSemp1(ch, goldenVpnFilter, goldenPageSize)
+	"GetVpnStatsSemp1": func(s *Semp, ch chan<- PrometheusMetric, f filterArgs) (float64, error) {
+		return s.GetVpnStatsSemp1(ch, f.vpn, goldenPageSize)
 	},
 }
 
@@ -266,7 +299,8 @@ func TestGoldenSemp1Getters(t *testing.T) {
 		t.Fatalf("%d fixtures but %d getters registered: every fixture needs a getter call and vice versa", len(fixtures), len(semp1Getters))
 	}
 
-	for name, call := range semp1Getters {
+	for name, getter := range semp1Getters {
+		call := getter.with(goldenFilters)
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			raw, err := os.ReadFile(filepath.Join("testdata", "semp1", name+".xml"))
@@ -315,10 +349,11 @@ func TestGoldenSemp1Scenarios(t *testing.T) {
 	for _, file := range files {
 		base := strings.TrimSuffix(filepath.Base(file), ".xml")
 		getter, _, _ := strings.Cut(base, "-")
-		call, ok := semp1Getters[getter]
+		g, ok := semp1Getters[getter]
 		if !ok {
 			t.Fatalf("%s: no getter %q registered", file, getter)
 		}
+		call := g.with(goldenFilters)
 		t.Run(base, func(t *testing.T) {
 			t.Parallel()
 			raw, err := os.ReadFile(file)
