@@ -38,12 +38,15 @@ internal/semp/                    SEMP access layer
   semp.desc.struct.go             Desc, Descriptions, V2Result, field-selection helpers
   prometheusMetric.struct.go      PrometheusMetric wrapper (dedupe key, cardinality checks)
   http.go / helper.go / types/    HTTP verbs, filter escaping, shared XML types
+  semp1fixture/                   Generator for the synthetic SEMP v1 replies of the golden tests
+  testdata/                       Golden-test data: synthetic replies, realistic scenarios, golden files
 internal/version/                 Link-time build metadata + the solace_exporter_build_info collector
 internal/web/                     Index page handler/template + exporter Basic Auth wrapper
 configs/                          Sample INI config (also baked into the Docker image)
 docs/CONFIG.md                    Full settings + scrape-target reference
 examples/                         Grafana dashboards and an NGINX reverse-proxy Helm chart
 test/                             Captured SEMP fixtures (test/data) and an OAuth e2e stack (test/oauth)
+tools/semp1fixtures/              CLI behind `go generate ./internal/semp` (regenerates the synthetic replies)
 ```
 
 ## 3. Coding Standards & Conventions
@@ -106,8 +109,8 @@ To add or extend a target:
    hardware/software specific.
 4. **Document it** by adding a row to the "Supported Scrape Targets" table in `docs/CONFIG.md`, the table in
    `internal/web/templates/index.html`, and the metric groups table in `README.md`.
-5. **Test it** by registering the getter in `semp1Getters` (`internal/semp/golden_test.go`), adding a reply fixture
-   under `internal/semp/testdata/semp1/` and generating its golden file (see §6).
+5. **Test it** by registering the getter in `semp1Getters` (`internal/semp/golden_test.go`), running
+   `go generate ./internal/semp` to create its synthetic reply and then generating its golden file (see §6).
 
 To add a new named endpoint, no code change is needed — add an `[endpoint.<name>]` section to the config file.
 
@@ -119,10 +122,15 @@ To add a new named endpoint, no code change is needed — add an `[endpoint.<nam
 * **Golden (characterization) tests:** `internal/semp/golden_test.go` runs every SEMP getter against a fake broker
   (happy path, paged reply, HTTP error, malformed body, failed execute-result) and compares the SEMP requests sent,
   the `(up, err)` result and every emitted metric with `internal/semp/testdata/golden/*.golden`. Replies live in
-  `testdata/semp1/` (synthetic, one unique number per field) and `testdata/semp1-scenarios/` (hand-written, realistic
-  values for string-dependent branches). Metric names, help texts and labels are pinned in
+  `testdata/semp1/` (synthetic, one unique number per field, generated from the getters' reply structs by
+  `go generate ./internal/semp`; a test fails if they are outdated) and `testdata/semp1-scenarios/` (hand-written,
+  realistic values for string-dependent branches). Metric names, help texts and labels are pinned in
   `testdata/golden/metric_descriptions.golden`. A diff in a golden file is a behaviour change: only regenerate with
   `go test ./internal/semp -run TestGolden -update` when the change is intended, and review the diff.
+* **Where test data lives:** `test/data/` holds payloads captured from real brokers (with the `curl` command that
+  produced them) and is shared by hand-written unit tests and docs. `internal/<package>/testdata/` holds data
+  generated for or by tests of that package (Go convention; ignored by `go build`): synthetic replies, scenarios and
+  golden files.
 * **Static checks:** `make vet` and `make lint` (golangci-lint) must pass. CI also runs `go mod tidy` and fails if
   `go.mod`/`go.sum` change, so run `go mod tidy` after touching dependencies.
 * **End-to-end:** `test/oauth/docker-compose.yaml` spins up Keycloak + a Solace broker + a scrape check to exercise
