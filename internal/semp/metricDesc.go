@@ -251,8 +251,8 @@ var MetricDesc = map[string]Descriptions{
 		"system_spool_stats_total_ttl_exceeded_discard_messages":      NewSemDesc("system_spool_stats_total_ttl_exceeded_discard_messages", NoSempV2Ready, "Total messages discarded due to TTL exceeded.", nil),
 		// Ingress counters
 		"system_spool_stats_ingress_messages":                       NewSemDesc("system_spool_stats_ingress_messages", NoSempV2Ready, "Total ingress messages.", nil),
-		"system_spool_stats_ingress_messages_promoted":              NewSemDesc("system_spool_stats_ingress_messages_promoted", NoSempV2Ready, "Ingress messages promoted. Message sent as non-persistent but received as persistent.", nil),
-		"system_spool_stats_ingress_messages_demoted":               NewSemDesc("system_spool_stats_ingress_messages_demoted", NoSempV2Ready, "Ingress messages demoted. Message sent as persistent but received as non-persistent.", nil),
+		"system_spool_stats_ingress_messages_promoted":              NewSemDesc("system_spool_stats_ingress_messages_promoted", NoSempV2Ready, "Ingress messages promoted. Message published as direct and received by a queue or topic endpoint as non-persistent.", nil),
+		"system_spool_stats_ingress_messages_demoted":               NewSemDesc("system_spool_stats_ingress_messages_demoted", NoSempV2Ready, "Ingress messages demoted. Message published as persistent and received by a client topic subscription as direct.", nil),
 		"system_spool_stats_promoted_messages_replicated":           NewSemDesc("system_spool_stats_promoted_messages_replicated", NoSempV2Ready, "Promoted messages replicated.", nil),
 		"system_spool_stats_ingress_messages_async_replicated":      NewSemDesc("system_spool_stats_ingress_messages_async_replicated", NoSempV2Ready, "Ingress messages async replicated.", nil),
 		"system_spool_stats_ingress_messages_sync_replicated":       NewSemDesc("system_spool_stats_ingress_messages_sync_replicated", NoSempV2Ready, "Ingress messages sync replicated.", nil),
