@@ -48,7 +48,9 @@ test/                             Captured SEMP fixtures (test/data) and an OAut
 
 ## 3. Coding Standards & Conventions
 
-* **Formatting/linting:** code must be `gofmt`-clean and pass `golangci-lint run` (`make lint`). Keep imports
+* **Formatting/linting:** code must be `gofmt`-clean and pass `golangci-lint run` (`make lint`); the
+  [`.golangci.yml`](.golangci.yml) enables the `gofmt` and `goimports` formatters, so unformatted code fails CI. Fix it
+  locally with `golangci-lint fmt`. Keep imports
   grouped (stdlib, then third-party) and use tabs for indentation.
 * **Logging:** use the injected `*slog.Logger` with key/value pairs (`logger.Error("msg", "err", err, "broker",
   uri)`), not `fmt`/`log`. Do not `panic` in a scrape path (see §7).
