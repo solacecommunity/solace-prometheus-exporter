@@ -1,0 +1,18 @@
+## software-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>item*</bridge-name-pattern><vpn-name-pattern>vpn*</vpn-name-pattern><client-certificate/><count/><num-elements>7</num-elements></bridge></show></rpc>
+up: 1
+err: <nil>
+metric: solace_bridge_client_cert_configured{vpn_name="vpnA",bridge_name="br-nocert",connected_remote_router="",common_name=""} gauge 0
+metric: solace_bridge_client_cert_configured{vpn_name="vpnA",bridge_name="br-ok",connected_remote_router="remote-1",common_name="bridge.example-env.example.com"} gauge 1
+metric: solace_bridge_client_cert_configured{vpn_name="vpnB",bridge_name="br-baddates",connected_remote_router="remote-2",common_name="no-dates.example.com"} gauge 0
+metric: solace_bridge_client_cert_expiry_timestamp_seconds{vpn_name="vpnA",bridge_name="br-ok",connected_remote_router="remote-1",common_name="bridge.example-env.example.com"} gauge 1.788959839e+09
+metric: solace_bridge_client_cert_not_before_timestamp_seconds{vpn_name="vpnA",bridge_name="br-ok",connected_remote_router="remote-1",common_name="bridge.example-env.example.com"} gauge 1.781183809e+09
+## hardware-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>item*</bridge-name-pattern><vpn-name-pattern>vpn*</vpn-name-pattern><client-certificate/><count/><num-elements>7</num-elements></bridge></show></rpc>
+up: 1
+err: <nil>
+metric: solace_bridge_client_cert_configured{vpn_name="vpnA",bridge_name="br-nocert",connected_remote_router="",common_name=""} gauge 0
+metric: solace_bridge_client_cert_configured{vpn_name="vpnA",bridge_name="br-ok",connected_remote_router="remote-1",common_name="bridge.example-env.example.com"} gauge 1
+metric: solace_bridge_client_cert_configured{vpn_name="vpnB",bridge_name="br-baddates",connected_remote_router="remote-2",common_name="no-dates.example.com"} gauge 0
+metric: solace_bridge_client_cert_expiry_timestamp_seconds{vpn_name="vpnA",bridge_name="br-ok",connected_remote_router="remote-1",common_name="bridge.example-env.example.com"} gauge 1.788959839e+09
+metric: solace_bridge_client_cert_not_before_timestamp_seconds{vpn_name="vpnA",bridge_name="br-ok",connected_remote_router="remote-1",common_name="bridge.example-env.example.com"} gauge 1.781183809e+09

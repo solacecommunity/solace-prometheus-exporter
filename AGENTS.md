@@ -106,7 +106,8 @@ To add or extend a target:
    hardware/software specific.
 4. **Document it** by adding a row to the "Supported Scrape Targets" table in `docs/CONFIG.md`, the table in
    `internal/web/templates/index.html`, and the metric groups table in `README.md`.
-5. **Test it** with a captured payload fixture under `test/data` and a table-driven test (see §6).
+5. **Test it** by registering the getter in `semp1Getters` (`internal/semp/golden_test.go`), adding a reply fixture
+   under `internal/semp/testdata/semp1/` and generating its golden file (see §6).
 
 To add a new named endpoint, no code change is needed — add an `[endpoint.<name>]` section to the config file.
 
@@ -114,8 +115,14 @@ To add a new named endpoint, no code change is needed — add an `[endpoint.<nam
 
 * **Run:** `make test` (`go test -short ./...`). Use `-short` to skip long/integration paths; `make test-coverage`
   writes an HTML report to `reports/`.
-* **Style:** table-driven tests decode fixtures under `test/data` (e.g. `semp1-vpn.txt`, `semp2-queue.txt`) and
-  assert emitted metrics; shared helpers live in `helper_test.go`. Add a fixture for every new getter.
+* **Style:** table-driven tests; shared helpers live in `helper_test.go`.
+* **Golden (characterization) tests:** `internal/semp/golden_test.go` runs every SEMP getter against a fake broker
+  (happy path, paged reply, HTTP error, malformed body, failed execute-result) and compares the SEMP requests sent,
+  the `(up, err)` result and every emitted metric with `internal/semp/testdata/golden/*.golden`. Replies live in
+  `testdata/semp1/` (synthetic, one unique number per field) and `testdata/semp1-scenarios/` (hand-written, realistic
+  values for string-dependent branches). Metric names, help texts and labels are pinned in
+  `testdata/golden/metric_descriptions.golden`. A diff in a golden file is a behaviour change: only regenerate with
+  `go test ./internal/semp -run TestGolden -update` when the change is intended, and review the diff.
 * **Static checks:** `make vet` and `make lint` (golangci-lint) must pass. CI also runs `go mod tidy` and fails if
   `go.mod`/`go.sum` change, so run `go mod tidy` after touching dependencies.
 * **End-to-end:** `test/oauth/docker-compose.yaml` spins up Keycloak + a Solace broker + a scrape check to exercise

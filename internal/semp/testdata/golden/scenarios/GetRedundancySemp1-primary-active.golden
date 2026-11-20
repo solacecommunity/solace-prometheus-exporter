@@ -1,0 +1,19 @@
+## software-broker
+request[1]: POST /SEMP <rpc><show><redundancy/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_redundancy_config{mate_name="mate-1"} gauge 1
+metric: solace_system_redundancy_local_active{mate_name="mate-1"} gauge 1
+metric: solace_system_redundancy_role{mate_name="mate-1"} gauge 1
+metric: solace_system_redundancy_up{mate_name="mate-1"} gauge 1
+## hardware-broker
+request[1]: POST /SEMP <rpc><show><redundancy/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_redundancy_config{mate_name="mate-1"} gauge 1
+metric: solace_system_redundancy_hw_adb_hello{mate_name="mate-1"} gauge 0
+metric: solace_system_redundancy_hw_adb_link{mate_name="mate-1"} gauge 1
+metric: solace_system_redundancy_hw_mode{mate_name="mate-1"} gauge 1
+metric: solace_system_redundancy_local_active{mate_name="mate-1"} gauge 1
+metric: solace_system_redundancy_role{mate_name="mate-1"} gauge 1
+metric: solace_system_redundancy_up{mate_name="mate-1"} gauge 1

@@ -1,0 +1,1 @@
+<rpc-reply semp-version="soltr/10_0VMR"><rpc><show><config-sync><status><admin-status>1</admin-status><oper-status>2</oper-status></status></config-sync></show></rpc>{{MORE_COOKIE}}<execute-result code="ok"/></rpc-reply>
