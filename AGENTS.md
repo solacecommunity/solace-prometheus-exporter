@@ -26,7 +26,8 @@ cmd/solace-prometheus-exporter/   Entry point: flag parsing, HTTP handler wiring
 internal/exporter/                Config, the Exporter collector, per-request config, HTTP client, auth, TLS, async prefetch
   config.struct.go                Config struct + ParseConfig (INI + env), endpoint alias parsing
   exporter.struct.go              Exporter type; wires a *semp.Semp per request
-  exporter.collect.go             CollectPrometheusMetric: the scrape-target dispatch switch + Collect()
+  scrapeTargets.go                Scrape-target registry: data source name(s) -> broker kind + SEMP getter call
+  exporter.collect.go             CollectPrometheusMetric (dispatch via the registry, solace_up) + Collect()
   exporter.describe.go            Describe() over the metric registry
   dataSource.struct.go            DataSource{Name, VpnFilter, ItemFilter, MetricFilter}
   auth.go / http.go / tlsServer.go  OAuth/basic visitor, HTTP client, HTTPS listener
@@ -78,9 +79,10 @@ test/                             Captured SEMP fixtures (test/data) and an OAut
   an `AsyncFetcher` from cache instead of scraping inline.
 * **Parameter grammar:** a `/solace` value is `vpnFilter|itemFilter[|metricFilter,...]`; fewer than two
   `|`-separated parts is skipped/rejected with a log. The metric filter (third part) is SEMP v2 only.
-* **Dispatch (`exporter.collect.go`):** `CollectPrometheusMetric` switches on `DataSource.Name`. Each target has a
-  bare name and a `...V1` alias mapped to the same getter (e.g. `"VpnStats", "VpnStatsV1"`). Hardware-only and
-  software-only targets are gated on `e.config.IsHWBroker` and emit an explanatory error otherwise.
+* **Dispatch (`scrapeTargets.go`, `exporter.collect.go`):** `CollectPrometheusMetric` looks up `DataSource.Name` in
+  the `scrapeTargets` registry. Each target is registered under its bare name and a `...V1` alias (e.g.
+  `"VpnStats", "VpnStatsV1"`) with a `brokerKind`: `softwareBrokerOnly` / `hardwareBrokerOnly` targets are gated on
+  `e.config.IsHWBroker` and emit an explanatory error otherwise, as do unknown names.
 * **SEMP v1 getters:** build an `<rpc><show>...</rpc>` command, `POST` it to `<brokerURI>/SEMP` via
   `semp.postHTTP`, decode XML into a local `Data` struct, check `ExecuteResult.Result == "ok"`, then emit metrics.
   Paged calls loop on `types.MoreCookie` using `<num-elements>` = `sempPageSize`.
@@ -103,9 +105,10 @@ To add or extend a target:
 2. **Implement the getter** as `internal/semp/getXxxSemp1.go` (or a `...Semp2.go`), following the pattern in §4:
    inner struct with `xml:`/`json:` tags, request, decode, result-code check, `ch <- semp.NewMetric(...)`, return
    `(up, err)`.
-3. **Wire the dispatch** by adding a `case "Xxx", "XxxV1":` to the switch in `exporter.collect.go`, passing the
-   relevant `dataSource` filters and `e.config.SempPageSize`. Gate on `IsHWBroker` if the target is
-   hardware/software specific.
+3. **Wire the dispatch** by adding a `targetRegistration` for `"Xxx", "XxxV1"` to `scrapeTargets` in
+   `scrapeTargets.go`, passing the relevant `DataSource` filters and `e.config.SempPageSize`. Use
+   `hardwareBrokerOnly` / `softwareBrokerOnly` if the target is broker-type specific, and add the names to
+   `dispatchTargets` in `dispatch_golden_test.go` (a test enforces this).
 4. **Document it** by adding a row to the "Supported Scrape Targets" table in `docs/CONFIG.md`, the table in
    `internal/web/templates/index.html`, and the metric groups table in `README.md`.
 5. **Test it** by registering the getter in `semp1Getters` (`internal/semp/golden_test.go`), adding a reply fixture
@@ -203,9 +206,10 @@ func (semp *Semp) GetMemorySemp1(ch chan<- PrometheusMetric) (float64, error) {
 ```
 
 ```go
-// internal/exporter/exporter.collect.go — inside the dispatch switch
-case "Memory", "MemoryV1":
-    up, err = e.semp.GetMemorySemp1(ch)
+// internal/exporter/scrapeTargets.go — inside the scrapeTargets registry
+{[]string{"Memory", "MemoryV1"}, scrapeTarget{anyBroker, func(e *Exporter, ch chan<- semp.PrometheusMetric, _ DataSource) (float64, error) {
+    return e.semp.GetMemorySemp1(ch)
+}}},
 ```
 
 Scrape it via `http://<host>:9628/solace?m.Memory=*|*`, or add `Memory = *|*` to an `[endpoint.<alias>]` section.
