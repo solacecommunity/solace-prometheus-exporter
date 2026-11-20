@@ -1,0 +1,30 @@
+## ok
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><vpn-name>vpn*</vpn-name><slow-subscriber/></client></show></rpc>
+up: 1
+err: <nil>
+metric: solace_client_slow_subscriber{vpn_name="4",client_name="3",client_address="1",client_username=""} gauge 1
+metric: solace_client_slow_subscriber{vpn_name="8",client_name="7",client_address="5",client_username=""} gauge 1
+metric: solace_client_slow_subscriber{vpn_name="8",client_name="7",client_address="5",client_username=""} gauge 1
+## paged
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><vpn-name>vpn*</vpn-name><slow-subscriber/></client></show></rpc>
+request[2]: POST /SEMP <rpc><show><golden-page-2/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_client_slow_subscriber{vpn_name="4",client_name="3",client_address="1",client_username=""} gauge 1
+metric: solace_client_slow_subscriber{vpn_name="4",client_name="3",client_address="1",client_username=""} gauge 1
+metric: solace_client_slow_subscriber{vpn_name="8",client_name="7",client_address="5",client_username=""} gauge 1
+metric: solace_client_slow_subscriber{vpn_name="8",client_name="7",client_address="5",client_username=""} gauge 1
+metric: solace_client_slow_subscriber{vpn_name="8",client_name="7",client_address="5",client_username=""} gauge 1
+metric: solace_client_slow_subscriber{vpn_name="8",client_name="7",client_address="5",client_username=""} gauge 1
+## http-500
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><vpn-name>vpn*</vpn-name><slow-subscriber/></client></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><vpn-name>vpn*</vpn-name><slow-subscriber/></client></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><vpn-name>vpn*</vpn-name><slow-subscriber/></client></show></rpc>
+up: 0
+err: unexpected result: golden failure

@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -25,31 +24,13 @@ func (semp *Semp) GetStorageElementSemp1(ch chan<- PrometheusMetric, storageElem
 				} `xml:"storage-element"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
-	command := "<rpc><show><storage-element><pattern>" + storageElementFilter + "</pattern></storage-element></show></rpc>"
-	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "StorageElementSemp1", 1)
-	if err != nil {
-		semp.logger.Error("Can't scrape StorageElementSemp1", "err", err, "broker", semp.brokerURI)
-		return -1, err
-	}
-	defer func() { _ = body.Close() }()
-	decoder := xml.NewDecoder(body)
+	command := "<rpc><show><storage-element><pattern>" + semp1Escape(storageElementFilter) + "</pattern></storage-element></show></rpc>"
 	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		semp.logger.Error("Can't decode Xml StorageElementSemp1", "err", err, "broker", semp.brokerURI)
-		return 0, err
-	}
-	if err := target.ExecuteResult.OK(); err != nil {
-		semp.logger.Error("unexpected result",
-			"command", command,
-			"result", target.ExecuteResult.Result,
-			"reason", target.ExecuteResult.Reason,
-			"broker", semp.brokerURI,
-		)
-		return 0, err
+	if up, err := semp.fetchSemp1(command, "StorageElementSemp1", 1, &target); err != nil {
+		return up, err
 	}
 
 	blockSize := 1024.0

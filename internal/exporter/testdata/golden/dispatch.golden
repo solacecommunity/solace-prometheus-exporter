@@ -1,0 +1,1493 @@
+## Version software-broker
+request[1]: POST /SEMP <rpc><show><version/></show></rpc>
+metric: solace_system_version_currentload 0
+metric: solace_system_version_uptime_totalsecs 0
+metric: solace_up{error="",endpoint="Version"} 1
+## Version hardware-broker
+request[1]: POST /SEMP <rpc><show><version/></show></rpc>
+metric: solace_system_version_currentload 0
+metric: solace_system_version_uptime_totalsecs 0
+metric: solace_up{error="",endpoint="Version"} 1
+## VersionV1 software-broker
+request[1]: POST /SEMP <rpc><show><version/></show></rpc>
+metric: solace_system_version_currentload 0
+metric: solace_system_version_uptime_totalsecs 0
+metric: solace_up{error="",endpoint="VersionV1"} 1
+## VersionV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><version/></show></rpc>
+metric: solace_system_version_currentload 0
+metric: solace_system_version_uptime_totalsecs 0
+metric: solace_up{error="",endpoint="VersionV1"} 1
+## Health software-broker
+request[1]: POST /SEMP <rpc><show><system><health/></system></show ></rpc>
+metric: solace_system_compute_latency_avg_seconds 0
+metric: solace_system_compute_latency_cur_seconds 0
+metric: solace_system_compute_latency_max_seconds 0
+metric: solace_system_compute_latency_min_seconds 0
+metric: solace_system_disk_latency_avg_seconds 0
+metric: solace_system_disk_latency_cur_seconds 0
+metric: solace_system_disk_latency_max_seconds 0
+metric: solace_system_disk_latency_min_seconds 0
+metric: solace_system_mate_link_latency_avg_seconds 0
+metric: solace_system_mate_link_latency_cur_seconds 0
+metric: solace_system_mate_link_latency_max_seconds 0
+metric: solace_system_mate_link_latency_min_seconds 0
+metric: solace_up{error="",endpoint="Health"} 1
+## Health hardware-broker
+metric: solace_up{error="Software only scrape target: "Health". Please check documentation for valid targets.",endpoint="Health"} 0
+## HealthV1 software-broker
+request[1]: POST /SEMP <rpc><show><system><health/></system></show ></rpc>
+metric: solace_system_compute_latency_avg_seconds 0
+metric: solace_system_compute_latency_cur_seconds 0
+metric: solace_system_compute_latency_max_seconds 0
+metric: solace_system_compute_latency_min_seconds 0
+metric: solace_system_disk_latency_avg_seconds 0
+metric: solace_system_disk_latency_cur_seconds 0
+metric: solace_system_disk_latency_max_seconds 0
+metric: solace_system_disk_latency_min_seconds 0
+metric: solace_system_mate_link_latency_avg_seconds 0
+metric: solace_system_mate_link_latency_cur_seconds 0
+metric: solace_system_mate_link_latency_max_seconds 0
+metric: solace_system_mate_link_latency_min_seconds 0
+metric: solace_up{error="",endpoint="HealthV1"} 1
+## HealthV1 hardware-broker
+metric: solace_up{error="Software only scrape target: "HealthV1". Please check documentation for valid targets.",endpoint="HealthV1"} 0
+## StorageElement software-broker
+request[1]: POST /SEMP <rpc><show><storage-element><pattern>itemY</pattern></storage-element></show></rpc>
+metric: solace_up{error="",endpoint="StorageElement"} 1
+## StorageElement hardware-broker
+metric: solace_up{error="Software only scrape target: "StorageElement". Please check documentation for valid targets.",endpoint="StorageElement"} 0
+## StorageElementV1 software-broker
+request[1]: POST /SEMP <rpc><show><storage-element><pattern>itemY</pattern></storage-element></show></rpc>
+metric: solace_up{error="",endpoint="StorageElementV1"} 1
+## StorageElementV1 hardware-broker
+metric: solace_up{error="Software only scrape target: "StorageElementV1". Please check documentation for valid targets.",endpoint="StorageElementV1"} 0
+## Disk software-broker
+metric: solace_up{error="Hardware only scrape target: "Disk". Please check documentation for valid targets.",endpoint="Disk"} 0
+## Disk hardware-broker
+request[1]: POST /SEMP <rpc><show><disk><detail/></disk></show></rpc>
+metric: solace_up{error="",endpoint="Disk"} 1
+## DiskV1 software-broker
+metric: solace_up{error="Hardware only scrape target: "DiskV1". Please check documentation for valid targets.",endpoint="DiskV1"} 0
+## DiskV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><disk><detail/></disk></show></rpc>
+metric: solace_up{error="",endpoint="DiskV1"} 1
+## Raid software-broker
+metric: solace_up{error="Hardware only scrape target: "Raid". Please check documentation for valid targets.",endpoint="Raid"} 0
+## Raid hardware-broker
+request[1]: POST /SEMP <rpc><show><disk></disk></show></rpc>
+metric: solace_system_raid_state -1
+metric: solace_system_reload_required 0
+metric: solace_up{error="",endpoint="Raid"} 1
+## RaidV1 software-broker
+metric: solace_up{error="Hardware only scrape target: "RaidV1". Please check documentation for valid targets.",endpoint="RaidV1"} 0
+## RaidV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><disk></disk></show></rpc>
+metric: solace_system_raid_state -1
+metric: solace_system_reload_required 0
+metric: solace_up{error="",endpoint="RaidV1"} 1
+## Memory software-broker
+request[1]: POST /SEMP <rpc><show><memory/></show></rpc>
+metric: solace_system_memory_physical_usage_percent 0
+metric: solace_system_memory_subscription_usage_percent 0
+metric: solace_up{error="",endpoint="Memory"} 1
+## Memory hardware-broker
+request[1]: POST /SEMP <rpc><show><memory/></show></rpc>
+metric: solace_system_memory_physical_usage_percent 0
+metric: solace_system_memory_subscription_usage_percent 0
+metric: solace_up{error="",endpoint="Memory"} 1
+## MemoryV1 software-broker
+request[1]: POST /SEMP <rpc><show><memory/></show></rpc>
+metric: solace_system_memory_physical_usage_percent 0
+metric: solace_system_memory_subscription_usage_percent 0
+metric: solace_up{error="",endpoint="MemoryV1"} 1
+## MemoryV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><memory/></show></rpc>
+metric: solace_system_memory_physical_usage_percent 0
+metric: solace_system_memory_subscription_usage_percent 0
+metric: solace_up{error="",endpoint="MemoryV1"} 1
+## Interface software-broker
+request[1]: POST /SEMP <rpc><show><interface><phy-interface>itemY</phy-interface></interface></show></rpc>
+metric: solace_up{error="",endpoint="Interface"} 1
+## Interface hardware-broker
+request[1]: POST /SEMP <rpc><show><interface><phy-interface>itemY</phy-interface></interface></show></rpc>
+metric: solace_up{error="",endpoint="Interface"} 1
+## InterfaceV1 software-broker
+request[1]: POST /SEMP <rpc><show><interface><phy-interface>itemY</phy-interface></interface></show></rpc>
+metric: solace_up{error="",endpoint="InterfaceV1"} 1
+## InterfaceV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><interface><phy-interface>itemY</phy-interface></interface></show></rpc>
+metric: solace_up{error="",endpoint="InterfaceV1"} 1
+## InterfaceHW software-broker
+metric: solace_up{error="Hardware only scrape target: "InterfaceHW". Please check documentation for valid targets.",endpoint="InterfaceHW"} 0
+## InterfaceHW hardware-broker
+request[1]: POST /SEMP <rpc><show><interface><phy-interface>itemY</phy-interface></interface></show></rpc>
+metric: solace_up{error="",endpoint="InterfaceHW"} 1
+## InterfaceHWV1 software-broker
+metric: solace_up{error="Hardware only scrape target: "InterfaceHWV1". Please check documentation for valid targets.",endpoint="InterfaceHWV1"} 0
+## InterfaceHWV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><interface><phy-interface>itemY</phy-interface></interface></show></rpc>
+metric: solace_up{error="",endpoint="InterfaceHWV1"} 1
+## GlobalStats software-broker
+request[1]: POST /SEMP <rpc><show><stats><client/></stats></show></rpc>
+metric: solace_system_rx_bytes_total 0
+metric: solace_system_rx_msgs_total 0
+metric: solace_system_total_clients_connected 0
+metric: solace_system_total_rx_discards 0
+metric: solace_system_total_tx_discards 0
+metric: solace_system_tx_bytes_total 0
+metric: solace_system_tx_msgs_total 0
+metric: solace_up{error="",endpoint="GlobalStats"} 1
+## GlobalStats hardware-broker
+request[1]: POST /SEMP <rpc><show><stats><client/></stats></show></rpc>
+metric: solace_system_rx_bytes_total 0
+metric: solace_system_rx_msgs_total 0
+metric: solace_system_total_clients_connected 0
+metric: solace_system_total_rx_discards 0
+metric: solace_system_total_tx_discards 0
+metric: solace_system_tx_bytes_total 0
+metric: solace_system_tx_msgs_total 0
+metric: solace_up{error="",endpoint="GlobalStats"} 1
+## GlobalStatsV1 software-broker
+request[1]: POST /SEMP <rpc><show><stats><client/></stats></show></rpc>
+metric: solace_system_rx_bytes_total 0
+metric: solace_system_rx_msgs_total 0
+metric: solace_system_total_clients_connected 0
+metric: solace_system_total_rx_discards 0
+metric: solace_system_total_tx_discards 0
+metric: solace_system_tx_bytes_total 0
+metric: solace_system_tx_msgs_total 0
+metric: solace_up{error="",endpoint="GlobalStatsV1"} 1
+## GlobalStatsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><stats><client/></stats></show></rpc>
+metric: solace_system_rx_bytes_total 0
+metric: solace_system_rx_msgs_total 0
+metric: solace_system_total_clients_connected 0
+metric: solace_system_total_rx_discards 0
+metric: solace_system_total_tx_discards 0
+metric: solace_system_tx_bytes_total 0
+metric: solace_system_tx_msgs_total 0
+metric: solace_up{error="",endpoint="GlobalStatsV1"} 1
+## GlobalSystemInfo software-broker
+request[1]: POST /SEMP <rpc><show><system/></show></rpc>
+metric: solace_system_cpu_cores 0
+metric: solace_system_memory_bytes 0
+metric: solace_system_message_spool_quota 0
+metric: solace_system_total_clients_quota 0
+metric: solace_system_uptime_seconds 0
+metric: solace_up{error="",endpoint="GlobalSystemInfo"} 1
+## GlobalSystemInfo hardware-broker
+request[1]: POST /SEMP <rpc><show><system/></show></rpc>
+metric: solace_system_cpu_cores 0
+metric: solace_system_memory_bytes 0
+metric: solace_system_message_spool_quota 0
+metric: solace_system_total_clients_quota 0
+metric: solace_system_uptime_seconds 0
+metric: solace_up{error="",endpoint="GlobalSystemInfo"} 1
+## GlobalSystemInfoV1 software-broker
+request[1]: POST /SEMP <rpc><show><system/></show></rpc>
+metric: solace_system_cpu_cores 0
+metric: solace_system_memory_bytes 0
+metric: solace_system_message_spool_quota 0
+metric: solace_system_total_clients_quota 0
+metric: solace_system_uptime_seconds 0
+metric: solace_up{error="",endpoint="GlobalSystemInfoV1"} 1
+## GlobalSystemInfoV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><system/></show></rpc>
+metric: solace_system_cpu_cores 0
+metric: solace_system_memory_bytes 0
+metric: solace_system_message_spool_quota 0
+metric: solace_system_total_clients_quota 0
+metric: solace_system_uptime_seconds 0
+metric: solace_up{error="",endpoint="GlobalSystemInfoV1"} 1
+## Spool software-broker
+request[1]: POST /SEMP <rpc><show><message-spool><detail/></message-spool></show ></rpc>
+metric: solace_system_spool_config_status -1
+metric: solace_system_spool_defrag_estimated_frag_percent 0
+metric: solace_system_spool_defrag_estimated_recoverable_space 0
+metric: solace_system_spool_defrag_schedule_enabled 0
+metric: solace_system_spool_defrag_threshold_enabled 0
+metric: solace_system_spool_defrag_threshold_frag_percent 0
+metric: solace_system_spool_defrag_threshold_usage_percent 0
+metric: solace_system_spool_egress_flows_active 0
+metric: solace_system_spool_egress_flows_browser 0
+metric: solace_system_spool_egress_flows_count 0
+metric: solace_system_spool_egress_flows_inactive 0
+metric: solace_system_spool_egress_flows_quota 0
+metric: solace_system_spool_endpoints_dte 0
+metric: solace_system_spool_endpoints_queue 0
+metric: solace_system_spool_endpoints_quota 0
+metric: solace_system_spool_ingress_flows_count 0
+metric: solace_system_spool_ingress_flows_quota 0
+metric: solace_system_spool_messages_currently_spooled_adb 0
+metric: solace_system_spool_messages_currently_spooled_disk 0
+metric: solace_system_spool_messages_total_disk_usage_bytes 0
+metric: solace_system_spool_operational_status -1
+metric: solace_system_spool_queue_topic_subscriptions_quota 0
+metric: solace_system_spool_queue_topic_subscriptions_used 0
+metric: solace_system_spool_quota_bytes 0
+metric: solace_system_spool_sync_status -1
+metric: solace_system_spool_transacted_sessions_quota 0
+metric: solace_system_spool_transacted_sessions_used 0
+metric: solace_system_spool_transactions_quota 0
+metric: solace_system_spool_transactions_used 0
+metric: solace_system_spool_usage_adb_bytes 0
+metric: solace_system_spool_usage_bytes 0
+metric: solace_system_spool_usage_msgs 0
+metric: solace_up{error="",endpoint="Spool"} 1
+## Spool hardware-broker
+request[1]: POST /SEMP <rpc><show><message-spool><detail/></message-spool></show ></rpc>
+metric: solace_system_spool_config_status -1
+metric: solace_system_spool_defrag_estimated_frag_percent 0
+metric: solace_system_spool_defrag_estimated_recoverable_space 0
+metric: solace_system_spool_defrag_schedule_enabled 0
+metric: solace_system_spool_defrag_threshold_enabled 0
+metric: solace_system_spool_defrag_threshold_frag_percent 0
+metric: solace_system_spool_defrag_threshold_usage_percent 0
+metric: solace_system_spool_egress_flows_active 0
+metric: solace_system_spool_egress_flows_browser 0
+metric: solace_system_spool_egress_flows_count 0
+metric: solace_system_spool_egress_flows_inactive 0
+metric: solace_system_spool_egress_flows_quota 0
+metric: solace_system_spool_endpoints_dte 0
+metric: solace_system_spool_endpoints_queue 0
+metric: solace_system_spool_endpoints_quota 0
+metric: solace_system_spool_ingress_flows_count 0
+metric: solace_system_spool_ingress_flows_quota 0
+metric: solace_system_spool_messages_currently_spooled_adb 0
+metric: solace_system_spool_messages_currently_spooled_disk 0
+metric: solace_system_spool_messages_total_disk_usage_bytes 0
+metric: solace_system_spool_operational_status -1
+metric: solace_system_spool_queue_topic_subscriptions_quota 0
+metric: solace_system_spool_queue_topic_subscriptions_used 0
+metric: solace_system_spool_quota_bytes 0
+metric: solace_system_spool_sync_status -1
+metric: solace_system_spool_transacted_sessions_quota 0
+metric: solace_system_spool_transacted_sessions_used 0
+metric: solace_system_spool_transactions_quota 0
+metric: solace_system_spool_transactions_used 0
+metric: solace_system_spool_usage_adb_bytes 0
+metric: solace_system_spool_usage_bytes 0
+metric: solace_system_spool_usage_msgs 0
+metric: solace_up{error="",endpoint="Spool"} 1
+## SpoolV1 software-broker
+request[1]: POST /SEMP <rpc><show><message-spool><detail/></message-spool></show ></rpc>
+metric: solace_system_spool_config_status -1
+metric: solace_system_spool_defrag_estimated_frag_percent 0
+metric: solace_system_spool_defrag_estimated_recoverable_space 0
+metric: solace_system_spool_defrag_schedule_enabled 0
+metric: solace_system_spool_defrag_threshold_enabled 0
+metric: solace_system_spool_defrag_threshold_frag_percent 0
+metric: solace_system_spool_defrag_threshold_usage_percent 0
+metric: solace_system_spool_egress_flows_active 0
+metric: solace_system_spool_egress_flows_browser 0
+metric: solace_system_spool_egress_flows_count 0
+metric: solace_system_spool_egress_flows_inactive 0
+metric: solace_system_spool_egress_flows_quota 0
+metric: solace_system_spool_endpoints_dte 0
+metric: solace_system_spool_endpoints_queue 0
+metric: solace_system_spool_endpoints_quota 0
+metric: solace_system_spool_ingress_flows_count 0
+metric: solace_system_spool_ingress_flows_quota 0
+metric: solace_system_spool_messages_currently_spooled_adb 0
+metric: solace_system_spool_messages_currently_spooled_disk 0
+metric: solace_system_spool_messages_total_disk_usage_bytes 0
+metric: solace_system_spool_operational_status -1
+metric: solace_system_spool_queue_topic_subscriptions_quota 0
+metric: solace_system_spool_queue_topic_subscriptions_used 0
+metric: solace_system_spool_quota_bytes 0
+metric: solace_system_spool_sync_status -1
+metric: solace_system_spool_transacted_sessions_quota 0
+metric: solace_system_spool_transacted_sessions_used 0
+metric: solace_system_spool_transactions_quota 0
+metric: solace_system_spool_transactions_used 0
+metric: solace_system_spool_usage_adb_bytes 0
+metric: solace_system_spool_usage_bytes 0
+metric: solace_system_spool_usage_msgs 0
+metric: solace_up{error="",endpoint="SpoolV1"} 1
+## SpoolV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><message-spool><detail/></message-spool></show ></rpc>
+metric: solace_system_spool_config_status -1
+metric: solace_system_spool_defrag_estimated_frag_percent 0
+metric: solace_system_spool_defrag_estimated_recoverable_space 0
+metric: solace_system_spool_defrag_schedule_enabled 0
+metric: solace_system_spool_defrag_threshold_enabled 0
+metric: solace_system_spool_defrag_threshold_frag_percent 0
+metric: solace_system_spool_defrag_threshold_usage_percent 0
+metric: solace_system_spool_egress_flows_active 0
+metric: solace_system_spool_egress_flows_browser 0
+metric: solace_system_spool_egress_flows_count 0
+metric: solace_system_spool_egress_flows_inactive 0
+metric: solace_system_spool_egress_flows_quota 0
+metric: solace_system_spool_endpoints_dte 0
+metric: solace_system_spool_endpoints_queue 0
+metric: solace_system_spool_endpoints_quota 0
+metric: solace_system_spool_ingress_flows_count 0
+metric: solace_system_spool_ingress_flows_quota 0
+metric: solace_system_spool_messages_currently_spooled_adb 0
+metric: solace_system_spool_messages_currently_spooled_disk 0
+metric: solace_system_spool_messages_total_disk_usage_bytes 0
+metric: solace_system_spool_operational_status -1
+metric: solace_system_spool_queue_topic_subscriptions_quota 0
+metric: solace_system_spool_queue_topic_subscriptions_used 0
+metric: solace_system_spool_quota_bytes 0
+metric: solace_system_spool_sync_status -1
+metric: solace_system_spool_transacted_sessions_quota 0
+metric: solace_system_spool_transacted_sessions_used 0
+metric: solace_system_spool_transactions_quota 0
+metric: solace_system_spool_transactions_used 0
+metric: solace_system_spool_usage_adb_bytes 0
+metric: solace_system_spool_usage_bytes 0
+metric: solace_system_spool_usage_msgs 0
+metric: solace_up{error="",endpoint="SpoolV1"} 1
+## SpoolStats software-broker
+request[1]: POST /SEMP <rpc><show><message-spool><stats/></message-spool></show></rpc>
+metric: solace_system_spool_stats_average_bind_rate_per_minute 0
+metric: solace_system_spool_stats_confirmed_delivered 0
+metric: solace_system_spool_stats_confirmed_delivered_cut_through 0
+metric: solace_system_spool_stats_confirmed_delivered_from_replication_mate 0
+metric: solace_system_spool_stats_confirmed_delivered_store_and_forward 0
+metric: solace_system_spool_stats_current_bind_rate_per_second 0
+metric: solace_system_spool_stats_destination_group_error 0
+metric: solace_system_spool_stats_discard_duplicate 0
+metric: solace_system_spool_stats_discard_errored_message 0
+metric: solace_system_spool_stats_discard_max_msg_size_exceeded 0
+metric: solace_system_spool_stats_discard_max_msg_usage_exceeded 0
+metric: solace_system_spool_stats_discard_no_destination 0
+metric: solace_system_spool_stats_discard_other 0
+metric: solace_system_spool_stats_discard_out_of_order 0
+metric: solace_system_spool_stats_discard_publisher_not_found 0
+metric: solace_system_spool_stats_discard_queue_endpoint_over_quota 0
+metric: solace_system_spool_stats_discard_queue_not_found 0
+metric: solace_system_spool_stats_discard_remote_router_spooling_not_supported 0
+metric: solace_system_spool_stats_discard_replay_log_over_quota 0
+metric: solace_system_spool_stats_discard_spool_file_limit_exceeded 0
+metric: solace_system_spool_stats_discard_spool_over_quota 0
+metric: solace_system_spool_stats_discard_spool_to_adb_fail 0
+metric: solace_system_spool_stats_discard_spool_to_disk_fail 0
+metric: solace_system_spool_stats_discard_spooling_not_ready 0
+metric: solace_system_spool_stats_egress_messages 0
+metric: solace_system_spool_stats_egress_messages_redelivered 0
+metric: solace_system_spool_stats_egress_messages_transport_retransmit 0
+metric: solace_system_spool_stats_ingress_messages 0
+metric: solace_system_spool_stats_ingress_messages_async_replicated 0
+metric: solace_system_spool_stats_ingress_messages_copied_to_replay_log 0
+metric: solace_system_spool_stats_ingress_messages_demoted 0
+metric: solace_system_spool_stats_ingress_messages_from_replication_mate 0
+metric: solace_system_spool_stats_ingress_messages_promoted 0
+metric: solace_system_spool_stats_ingress_messages_sync_replicated 0
+metric: solace_system_spool_stats_low_priority_msg_congestion_discard 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_discard_messages 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_to_dmq_failures 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_to_dmq_messages 0
+metric: solace_system_spool_stats_max_transaction_resources_exceeded 0
+metric: solace_system_spool_stats_max_transactions_exceeded 0
+metric: solace_system_spool_stats_no_local_delivery_discard 0
+metric: solace_system_spool_stats_not_compatible_with_forwarding_mode 0
+metric: solace_system_spool_stats_open_session 0
+metric: solace_system_spool_stats_open_session_max_sessions_exceeded 0
+metric: solace_system_spool_stats_open_session_other_failures 0
+metric: solace_system_spool_stats_open_session_success 0
+metric: solace_system_spool_stats_promoted_messages_replicated 0
+metric: solace_system_spool_stats_publish_acl_denied 0
+metric: solace_system_spool_stats_replayed_messages_acked 0
+metric: solace_system_spool_stats_replayed_messages_sent 0
+metric: solace_system_spool_stats_replays_failed 0
+metric: solace_system_spool_stats_replays_initiated 0
+metric: solace_system_spool_stats_replays_succeeded 0
+metric: solace_system_spool_stats_replication_is_standby_discard 0
+metric: solace_system_spool_stats_request_for_redelivery 0
+metric: solace_system_spool_stats_retrieve_from_adb 0
+metric: solace_system_spool_stats_retrieve_from_disk 0
+metric: solace_system_spool_stats_seq_num_already_assigned 0
+metric: solace_system_spool_stats_seq_num_messages_discarded 0
+metric: solace_system_spool_stats_seq_num_rollover 0
+metric: solace_system_spool_stats_sequenced_topic_matches 0
+metric: solace_system_spool_stats_smf_ttl_exceeded 0
+metric: solace_system_spool_stats_spool_shutdown_discard 0
+metric: solace_system_spool_stats_spooled_to_adb 0
+metric: solace_system_spool_stats_spooled_to_disk 0
+metric: solace_system_spool_stats_sync_replication_ineligible_discard 0
+metric: solace_system_spool_stats_total_deleted_messages 0
+metric: solace_system_spool_stats_total_discarded_egress_messages 0
+metric: solace_system_spool_stats_total_discarded_messages 0
+metric: solace_system_spool_stats_total_egress_selector_match_messages 0
+metric: solace_system_spool_stats_total_egress_selector_mismatch_messages 0
+metric: solace_system_spool_stats_total_guaranteed_message_cache_misses 0
+metric: solace_system_spool_stats_total_ingress_selector_match_messages 0
+metric: solace_system_spool_stats_total_ingress_selector_mismatch_messages 0
+metric: solace_system_spool_stats_total_ttl_exceeded_discard_messages 0
+metric: solace_system_spool_stats_total_ttl_expired_discard_messages 0
+metric: solace_system_spool_stats_total_ttl_expired_to_dmq_failures 0
+metric: solace_system_spool_stats_total_ttl_expired_to_dmq_messages 0
+metric: solace_system_spool_stats_transacted_messages_not_sequenced 0
+metric: solace_system_spool_stats_transactions 0
+metric: solace_system_spool_stats_transactions_commit 0
+metric: solace_system_spool_stats_transactions_fail 0
+metric: solace_system_spool_stats_transactions_msgs_consumed 0
+metric: solace_system_spool_stats_transactions_msgs_published 0
+metric: solace_system_spool_stats_transactions_msgs_retrieved_from_adb_or_disk 0
+metric: solace_system_spool_stats_transactions_msgs_spooled_to_adb 0
+metric: solace_system_spool_stats_transactions_rollback 0
+metric: solace_system_spool_stats_transactions_success 0
+metric: solace_system_spool_stats_user_profile_deny_guaranteed 0
+metric: solace_system_spool_stats_xa_max_transaction_resources_exceeded 0
+metric: solace_system_spool_stats_xa_max_transactions_exceeded 0
+metric: solace_system_spool_stats_xa_open_session 0
+metric: solace_system_spool_stats_xa_open_session_max_sessions_exceeded 0
+metric: solace_system_spool_stats_xa_open_session_other_failures 0
+metric: solace_system_spool_stats_xa_open_session_success 0
+metric: solace_system_spool_stats_xa_transaction_not_supported 0
+metric: solace_system_spool_stats_xa_transactions 0
+metric: solace_system_spool_stats_xa_transactions_fail 0
+metric: solace_system_spool_stats_xa_transactions_msgs_consumed 0
+metric: solace_system_spool_stats_xa_transactions_msgs_published 0
+metric: solace_system_spool_stats_xa_transactions_msgs_retrieved_from_adb_or_disk 0
+metric: solace_system_spool_stats_xa_transactions_msgs_spooled_to_adb 0
+metric: solace_system_spool_stats_xa_transactions_success 0
+metric: solace_up{error="",endpoint="SpoolStats"} 1
+## SpoolStats hardware-broker
+request[1]: POST /SEMP <rpc><show><message-spool><stats/></message-spool></show></rpc>
+metric: solace_system_spool_stats_average_bind_rate_per_minute 0
+metric: solace_system_spool_stats_confirmed_delivered 0
+metric: solace_system_spool_stats_confirmed_delivered_cut_through 0
+metric: solace_system_spool_stats_confirmed_delivered_from_replication_mate 0
+metric: solace_system_spool_stats_confirmed_delivered_store_and_forward 0
+metric: solace_system_spool_stats_current_bind_rate_per_second 0
+metric: solace_system_spool_stats_destination_group_error 0
+metric: solace_system_spool_stats_discard_duplicate 0
+metric: solace_system_spool_stats_discard_errored_message 0
+metric: solace_system_spool_stats_discard_max_msg_size_exceeded 0
+metric: solace_system_spool_stats_discard_max_msg_usage_exceeded 0
+metric: solace_system_spool_stats_discard_no_destination 0
+metric: solace_system_spool_stats_discard_other 0
+metric: solace_system_spool_stats_discard_out_of_order 0
+metric: solace_system_spool_stats_discard_publisher_not_found 0
+metric: solace_system_spool_stats_discard_queue_endpoint_over_quota 0
+metric: solace_system_spool_stats_discard_queue_not_found 0
+metric: solace_system_spool_stats_discard_remote_router_spooling_not_supported 0
+metric: solace_system_spool_stats_discard_replay_log_over_quota 0
+metric: solace_system_spool_stats_discard_spool_file_limit_exceeded 0
+metric: solace_system_spool_stats_discard_spool_over_quota 0
+metric: solace_system_spool_stats_discard_spool_to_adb_fail 0
+metric: solace_system_spool_stats_discard_spool_to_disk_fail 0
+metric: solace_system_spool_stats_discard_spooling_not_ready 0
+metric: solace_system_spool_stats_egress_messages 0
+metric: solace_system_spool_stats_egress_messages_redelivered 0
+metric: solace_system_spool_stats_egress_messages_transport_retransmit 0
+metric: solace_system_spool_stats_ingress_messages 0
+metric: solace_system_spool_stats_ingress_messages_async_replicated 0
+metric: solace_system_spool_stats_ingress_messages_copied_to_replay_log 0
+metric: solace_system_spool_stats_ingress_messages_demoted 0
+metric: solace_system_spool_stats_ingress_messages_from_replication_mate 0
+metric: solace_system_spool_stats_ingress_messages_promoted 0
+metric: solace_system_spool_stats_ingress_messages_sync_replicated 0
+metric: solace_system_spool_stats_low_priority_msg_congestion_discard 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_discard_messages 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_to_dmq_failures 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_to_dmq_messages 0
+metric: solace_system_spool_stats_max_transaction_resources_exceeded 0
+metric: solace_system_spool_stats_max_transactions_exceeded 0
+metric: solace_system_spool_stats_no_local_delivery_discard 0
+metric: solace_system_spool_stats_not_compatible_with_forwarding_mode 0
+metric: solace_system_spool_stats_open_session 0
+metric: solace_system_spool_stats_open_session_max_sessions_exceeded 0
+metric: solace_system_spool_stats_open_session_other_failures 0
+metric: solace_system_spool_stats_open_session_success 0
+metric: solace_system_spool_stats_promoted_messages_replicated 0
+metric: solace_system_spool_stats_publish_acl_denied 0
+metric: solace_system_spool_stats_replayed_messages_acked 0
+metric: solace_system_spool_stats_replayed_messages_sent 0
+metric: solace_system_spool_stats_replays_failed 0
+metric: solace_system_spool_stats_replays_initiated 0
+metric: solace_system_spool_stats_replays_succeeded 0
+metric: solace_system_spool_stats_replication_is_standby_discard 0
+metric: solace_system_spool_stats_request_for_redelivery 0
+metric: solace_system_spool_stats_retrieve_from_adb 0
+metric: solace_system_spool_stats_retrieve_from_disk 0
+metric: solace_system_spool_stats_seq_num_already_assigned 0
+metric: solace_system_spool_stats_seq_num_messages_discarded 0
+metric: solace_system_spool_stats_seq_num_rollover 0
+metric: solace_system_spool_stats_sequenced_topic_matches 0
+metric: solace_system_spool_stats_smf_ttl_exceeded 0
+metric: solace_system_spool_stats_spool_shutdown_discard 0
+metric: solace_system_spool_stats_spooled_to_adb 0
+metric: solace_system_spool_stats_spooled_to_disk 0
+metric: solace_system_spool_stats_sync_replication_ineligible_discard 0
+metric: solace_system_spool_stats_total_deleted_messages 0
+metric: solace_system_spool_stats_total_discarded_egress_messages 0
+metric: solace_system_spool_stats_total_discarded_messages 0
+metric: solace_system_spool_stats_total_egress_selector_match_messages 0
+metric: solace_system_spool_stats_total_egress_selector_mismatch_messages 0
+metric: solace_system_spool_stats_total_guaranteed_message_cache_misses 0
+metric: solace_system_spool_stats_total_ingress_selector_match_messages 0
+metric: solace_system_spool_stats_total_ingress_selector_mismatch_messages 0
+metric: solace_system_spool_stats_total_ttl_exceeded_discard_messages 0
+metric: solace_system_spool_stats_total_ttl_expired_discard_messages 0
+metric: solace_system_spool_stats_total_ttl_expired_to_dmq_failures 0
+metric: solace_system_spool_stats_total_ttl_expired_to_dmq_messages 0
+metric: solace_system_spool_stats_transacted_messages_not_sequenced 0
+metric: solace_system_spool_stats_transactions 0
+metric: solace_system_spool_stats_transactions_commit 0
+metric: solace_system_spool_stats_transactions_fail 0
+metric: solace_system_spool_stats_transactions_msgs_consumed 0
+metric: solace_system_spool_stats_transactions_msgs_published 0
+metric: solace_system_spool_stats_transactions_msgs_retrieved_from_adb_or_disk 0
+metric: solace_system_spool_stats_transactions_msgs_spooled_to_adb 0
+metric: solace_system_spool_stats_transactions_rollback 0
+metric: solace_system_spool_stats_transactions_success 0
+metric: solace_system_spool_stats_user_profile_deny_guaranteed 0
+metric: solace_system_spool_stats_xa_max_transaction_resources_exceeded 0
+metric: solace_system_spool_stats_xa_max_transactions_exceeded 0
+metric: solace_system_spool_stats_xa_open_session 0
+metric: solace_system_spool_stats_xa_open_session_max_sessions_exceeded 0
+metric: solace_system_spool_stats_xa_open_session_other_failures 0
+metric: solace_system_spool_stats_xa_open_session_success 0
+metric: solace_system_spool_stats_xa_transaction_not_supported 0
+metric: solace_system_spool_stats_xa_transactions 0
+metric: solace_system_spool_stats_xa_transactions_fail 0
+metric: solace_system_spool_stats_xa_transactions_msgs_consumed 0
+metric: solace_system_spool_stats_xa_transactions_msgs_published 0
+metric: solace_system_spool_stats_xa_transactions_msgs_retrieved_from_adb_or_disk 0
+metric: solace_system_spool_stats_xa_transactions_msgs_spooled_to_adb 0
+metric: solace_system_spool_stats_xa_transactions_success 0
+metric: solace_up{error="",endpoint="SpoolStats"} 1
+## SpoolStatsV1 software-broker
+request[1]: POST /SEMP <rpc><show><message-spool><stats/></message-spool></show></rpc>
+metric: solace_system_spool_stats_average_bind_rate_per_minute 0
+metric: solace_system_spool_stats_confirmed_delivered 0
+metric: solace_system_spool_stats_confirmed_delivered_cut_through 0
+metric: solace_system_spool_stats_confirmed_delivered_from_replication_mate 0
+metric: solace_system_spool_stats_confirmed_delivered_store_and_forward 0
+metric: solace_system_spool_stats_current_bind_rate_per_second 0
+metric: solace_system_spool_stats_destination_group_error 0
+metric: solace_system_spool_stats_discard_duplicate 0
+metric: solace_system_spool_stats_discard_errored_message 0
+metric: solace_system_spool_stats_discard_max_msg_size_exceeded 0
+metric: solace_system_spool_stats_discard_max_msg_usage_exceeded 0
+metric: solace_system_spool_stats_discard_no_destination 0
+metric: solace_system_spool_stats_discard_other 0
+metric: solace_system_spool_stats_discard_out_of_order 0
+metric: solace_system_spool_stats_discard_publisher_not_found 0
+metric: solace_system_spool_stats_discard_queue_endpoint_over_quota 0
+metric: solace_system_spool_stats_discard_queue_not_found 0
+metric: solace_system_spool_stats_discard_remote_router_spooling_not_supported 0
+metric: solace_system_spool_stats_discard_replay_log_over_quota 0
+metric: solace_system_spool_stats_discard_spool_file_limit_exceeded 0
+metric: solace_system_spool_stats_discard_spool_over_quota 0
+metric: solace_system_spool_stats_discard_spool_to_adb_fail 0
+metric: solace_system_spool_stats_discard_spool_to_disk_fail 0
+metric: solace_system_spool_stats_discard_spooling_not_ready 0
+metric: solace_system_spool_stats_egress_messages 0
+metric: solace_system_spool_stats_egress_messages_redelivered 0
+metric: solace_system_spool_stats_egress_messages_transport_retransmit 0
+metric: solace_system_spool_stats_ingress_messages 0
+metric: solace_system_spool_stats_ingress_messages_async_replicated 0
+metric: solace_system_spool_stats_ingress_messages_copied_to_replay_log 0
+metric: solace_system_spool_stats_ingress_messages_demoted 0
+metric: solace_system_spool_stats_ingress_messages_from_replication_mate 0
+metric: solace_system_spool_stats_ingress_messages_promoted 0
+metric: solace_system_spool_stats_ingress_messages_sync_replicated 0
+metric: solace_system_spool_stats_low_priority_msg_congestion_discard 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_discard_messages 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_to_dmq_failures 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_to_dmq_messages 0
+metric: solace_system_spool_stats_max_transaction_resources_exceeded 0
+metric: solace_system_spool_stats_max_transactions_exceeded 0
+metric: solace_system_spool_stats_no_local_delivery_discard 0
+metric: solace_system_spool_stats_not_compatible_with_forwarding_mode 0
+metric: solace_system_spool_stats_open_session 0
+metric: solace_system_spool_stats_open_session_max_sessions_exceeded 0
+metric: solace_system_spool_stats_open_session_other_failures 0
+metric: solace_system_spool_stats_open_session_success 0
+metric: solace_system_spool_stats_promoted_messages_replicated 0
+metric: solace_system_spool_stats_publish_acl_denied 0
+metric: solace_system_spool_stats_replayed_messages_acked 0
+metric: solace_system_spool_stats_replayed_messages_sent 0
+metric: solace_system_spool_stats_replays_failed 0
+metric: solace_system_spool_stats_replays_initiated 0
+metric: solace_system_spool_stats_replays_succeeded 0
+metric: solace_system_spool_stats_replication_is_standby_discard 0
+metric: solace_system_spool_stats_request_for_redelivery 0
+metric: solace_system_spool_stats_retrieve_from_adb 0
+metric: solace_system_spool_stats_retrieve_from_disk 0
+metric: solace_system_spool_stats_seq_num_already_assigned 0
+metric: solace_system_spool_stats_seq_num_messages_discarded 0
+metric: solace_system_spool_stats_seq_num_rollover 0
+metric: solace_system_spool_stats_sequenced_topic_matches 0
+metric: solace_system_spool_stats_smf_ttl_exceeded 0
+metric: solace_system_spool_stats_spool_shutdown_discard 0
+metric: solace_system_spool_stats_spooled_to_adb 0
+metric: solace_system_spool_stats_spooled_to_disk 0
+metric: solace_system_spool_stats_sync_replication_ineligible_discard 0
+metric: solace_system_spool_stats_total_deleted_messages 0
+metric: solace_system_spool_stats_total_discarded_egress_messages 0
+metric: solace_system_spool_stats_total_discarded_messages 0
+metric: solace_system_spool_stats_total_egress_selector_match_messages 0
+metric: solace_system_spool_stats_total_egress_selector_mismatch_messages 0
+metric: solace_system_spool_stats_total_guaranteed_message_cache_misses 0
+metric: solace_system_spool_stats_total_ingress_selector_match_messages 0
+metric: solace_system_spool_stats_total_ingress_selector_mismatch_messages 0
+metric: solace_system_spool_stats_total_ttl_exceeded_discard_messages 0
+metric: solace_system_spool_stats_total_ttl_expired_discard_messages 0
+metric: solace_system_spool_stats_total_ttl_expired_to_dmq_failures 0
+metric: solace_system_spool_stats_total_ttl_expired_to_dmq_messages 0
+metric: solace_system_spool_stats_transacted_messages_not_sequenced 0
+metric: solace_system_spool_stats_transactions 0
+metric: solace_system_spool_stats_transactions_commit 0
+metric: solace_system_spool_stats_transactions_fail 0
+metric: solace_system_spool_stats_transactions_msgs_consumed 0
+metric: solace_system_spool_stats_transactions_msgs_published 0
+metric: solace_system_spool_stats_transactions_msgs_retrieved_from_adb_or_disk 0
+metric: solace_system_spool_stats_transactions_msgs_spooled_to_adb 0
+metric: solace_system_spool_stats_transactions_rollback 0
+metric: solace_system_spool_stats_transactions_success 0
+metric: solace_system_spool_stats_user_profile_deny_guaranteed 0
+metric: solace_system_spool_stats_xa_max_transaction_resources_exceeded 0
+metric: solace_system_spool_stats_xa_max_transactions_exceeded 0
+metric: solace_system_spool_stats_xa_open_session 0
+metric: solace_system_spool_stats_xa_open_session_max_sessions_exceeded 0
+metric: solace_system_spool_stats_xa_open_session_other_failures 0
+metric: solace_system_spool_stats_xa_open_session_success 0
+metric: solace_system_spool_stats_xa_transaction_not_supported 0
+metric: solace_system_spool_stats_xa_transactions 0
+metric: solace_system_spool_stats_xa_transactions_fail 0
+metric: solace_system_spool_stats_xa_transactions_msgs_consumed 0
+metric: solace_system_spool_stats_xa_transactions_msgs_published 0
+metric: solace_system_spool_stats_xa_transactions_msgs_retrieved_from_adb_or_disk 0
+metric: solace_system_spool_stats_xa_transactions_msgs_spooled_to_adb 0
+metric: solace_system_spool_stats_xa_transactions_success 0
+metric: solace_up{error="",endpoint="SpoolStatsV1"} 1
+## SpoolStatsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><message-spool><stats/></message-spool></show></rpc>
+metric: solace_system_spool_stats_average_bind_rate_per_minute 0
+metric: solace_system_spool_stats_confirmed_delivered 0
+metric: solace_system_spool_stats_confirmed_delivered_cut_through 0
+metric: solace_system_spool_stats_confirmed_delivered_from_replication_mate 0
+metric: solace_system_spool_stats_confirmed_delivered_store_and_forward 0
+metric: solace_system_spool_stats_current_bind_rate_per_second 0
+metric: solace_system_spool_stats_destination_group_error 0
+metric: solace_system_spool_stats_discard_duplicate 0
+metric: solace_system_spool_stats_discard_errored_message 0
+metric: solace_system_spool_stats_discard_max_msg_size_exceeded 0
+metric: solace_system_spool_stats_discard_max_msg_usage_exceeded 0
+metric: solace_system_spool_stats_discard_no_destination 0
+metric: solace_system_spool_stats_discard_other 0
+metric: solace_system_spool_stats_discard_out_of_order 0
+metric: solace_system_spool_stats_discard_publisher_not_found 0
+metric: solace_system_spool_stats_discard_queue_endpoint_over_quota 0
+metric: solace_system_spool_stats_discard_queue_not_found 0
+metric: solace_system_spool_stats_discard_remote_router_spooling_not_supported 0
+metric: solace_system_spool_stats_discard_replay_log_over_quota 0
+metric: solace_system_spool_stats_discard_spool_file_limit_exceeded 0
+metric: solace_system_spool_stats_discard_spool_over_quota 0
+metric: solace_system_spool_stats_discard_spool_to_adb_fail 0
+metric: solace_system_spool_stats_discard_spool_to_disk_fail 0
+metric: solace_system_spool_stats_discard_spooling_not_ready 0
+metric: solace_system_spool_stats_egress_messages 0
+metric: solace_system_spool_stats_egress_messages_redelivered 0
+metric: solace_system_spool_stats_egress_messages_transport_retransmit 0
+metric: solace_system_spool_stats_ingress_messages 0
+metric: solace_system_spool_stats_ingress_messages_async_replicated 0
+metric: solace_system_spool_stats_ingress_messages_copied_to_replay_log 0
+metric: solace_system_spool_stats_ingress_messages_demoted 0
+metric: solace_system_spool_stats_ingress_messages_from_replication_mate 0
+metric: solace_system_spool_stats_ingress_messages_promoted 0
+metric: solace_system_spool_stats_ingress_messages_sync_replicated 0
+metric: solace_system_spool_stats_low_priority_msg_congestion_discard 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_discard_messages 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_to_dmq_failures 0
+metric: solace_system_spool_stats_max_redelivery_exceeded_to_dmq_messages 0
+metric: solace_system_spool_stats_max_transaction_resources_exceeded 0
+metric: solace_system_spool_stats_max_transactions_exceeded 0
+metric: solace_system_spool_stats_no_local_delivery_discard 0
+metric: solace_system_spool_stats_not_compatible_with_forwarding_mode 0
+metric: solace_system_spool_stats_open_session 0
+metric: solace_system_spool_stats_open_session_max_sessions_exceeded 0
+metric: solace_system_spool_stats_open_session_other_failures 0
+metric: solace_system_spool_stats_open_session_success 0
+metric: solace_system_spool_stats_promoted_messages_replicated 0
+metric: solace_system_spool_stats_publish_acl_denied 0
+metric: solace_system_spool_stats_replayed_messages_acked 0
+metric: solace_system_spool_stats_replayed_messages_sent 0
+metric: solace_system_spool_stats_replays_failed 0
+metric: solace_system_spool_stats_replays_initiated 0
+metric: solace_system_spool_stats_replays_succeeded 0
+metric: solace_system_spool_stats_replication_is_standby_discard 0
+metric: solace_system_spool_stats_request_for_redelivery 0
+metric: solace_system_spool_stats_retrieve_from_adb 0
+metric: solace_system_spool_stats_retrieve_from_disk 0
+metric: solace_system_spool_stats_seq_num_already_assigned 0
+metric: solace_system_spool_stats_seq_num_messages_discarded 0
+metric: solace_system_spool_stats_seq_num_rollover 0
+metric: solace_system_spool_stats_sequenced_topic_matches 0
+metric: solace_system_spool_stats_smf_ttl_exceeded 0
+metric: solace_system_spool_stats_spool_shutdown_discard 0
+metric: solace_system_spool_stats_spooled_to_adb 0
+metric: solace_system_spool_stats_spooled_to_disk 0
+metric: solace_system_spool_stats_sync_replication_ineligible_discard 0
+metric: solace_system_spool_stats_total_deleted_messages 0
+metric: solace_system_spool_stats_total_discarded_egress_messages 0
+metric: solace_system_spool_stats_total_discarded_messages 0
+metric: solace_system_spool_stats_total_egress_selector_match_messages 0
+metric: solace_system_spool_stats_total_egress_selector_mismatch_messages 0
+metric: solace_system_spool_stats_total_guaranteed_message_cache_misses 0
+metric: solace_system_spool_stats_total_ingress_selector_match_messages 0
+metric: solace_system_spool_stats_total_ingress_selector_mismatch_messages 0
+metric: solace_system_spool_stats_total_ttl_exceeded_discard_messages 0
+metric: solace_system_spool_stats_total_ttl_expired_discard_messages 0
+metric: solace_system_spool_stats_total_ttl_expired_to_dmq_failures 0
+metric: solace_system_spool_stats_total_ttl_expired_to_dmq_messages 0
+metric: solace_system_spool_stats_transacted_messages_not_sequenced 0
+metric: solace_system_spool_stats_transactions 0
+metric: solace_system_spool_stats_transactions_commit 0
+metric: solace_system_spool_stats_transactions_fail 0
+metric: solace_system_spool_stats_transactions_msgs_consumed 0
+metric: solace_system_spool_stats_transactions_msgs_published 0
+metric: solace_system_spool_stats_transactions_msgs_retrieved_from_adb_or_disk 0
+metric: solace_system_spool_stats_transactions_msgs_spooled_to_adb 0
+metric: solace_system_spool_stats_transactions_rollback 0
+metric: solace_system_spool_stats_transactions_success 0
+metric: solace_system_spool_stats_user_profile_deny_guaranteed 0
+metric: solace_system_spool_stats_xa_max_transaction_resources_exceeded 0
+metric: solace_system_spool_stats_xa_max_transactions_exceeded 0
+metric: solace_system_spool_stats_xa_open_session 0
+metric: solace_system_spool_stats_xa_open_session_max_sessions_exceeded 0
+metric: solace_system_spool_stats_xa_open_session_other_failures 0
+metric: solace_system_spool_stats_xa_open_session_success 0
+metric: solace_system_spool_stats_xa_transaction_not_supported 0
+metric: solace_system_spool_stats_xa_transactions 0
+metric: solace_system_spool_stats_xa_transactions_fail 0
+metric: solace_system_spool_stats_xa_transactions_msgs_consumed 0
+metric: solace_system_spool_stats_xa_transactions_msgs_published 0
+metric: solace_system_spool_stats_xa_transactions_msgs_retrieved_from_adb_or_disk 0
+metric: solace_system_spool_stats_xa_transactions_msgs_spooled_to_adb 0
+metric: solace_system_spool_stats_xa_transactions_success 0
+metric: solace_up{error="",endpoint="SpoolStatsV1"} 1
+## Redundancy software-broker
+request[1]: POST /SEMP <rpc><show><redundancy/></show></rpc>
+metric: solace_system_redundancy_config{mate_name=""} -1
+metric: solace_system_redundancy_local_active{mate_name=""} 0
+metric: solace_system_redundancy_role{mate_name=""} -1
+metric: solace_system_redundancy_up{mate_name=""} -1
+metric: solace_up{error="",endpoint="Redundancy"} 1
+## Redundancy hardware-broker
+request[1]: POST /SEMP <rpc><show><redundancy/></show></rpc>
+metric: solace_system_redundancy_config{mate_name=""} -1
+metric: solace_system_redundancy_hw_adb_hello{mate_name=""} 0
+metric: solace_system_redundancy_hw_adb_link{mate_name=""} 0
+metric: solace_system_redundancy_hw_mode{mate_name=""} -1
+metric: solace_system_redundancy_local_active{mate_name=""} 0
+metric: solace_system_redundancy_role{mate_name=""} -1
+metric: solace_system_redundancy_up{mate_name=""} -1
+metric: solace_up{error="",endpoint="Redundancy"} 1
+## RedundancyV1 software-broker
+request[1]: POST /SEMP <rpc><show><redundancy/></show></rpc>
+metric: solace_system_redundancy_config{mate_name=""} -1
+metric: solace_system_redundancy_local_active{mate_name=""} 0
+metric: solace_system_redundancy_role{mate_name=""} -1
+metric: solace_system_redundancy_up{mate_name=""} -1
+metric: solace_up{error="",endpoint="RedundancyV1"} 1
+## RedundancyV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><redundancy/></show></rpc>
+metric: solace_system_redundancy_config{mate_name=""} -1
+metric: solace_system_redundancy_hw_adb_hello{mate_name=""} 0
+metric: solace_system_redundancy_hw_adb_link{mate_name=""} 0
+metric: solace_system_redundancy_hw_mode{mate_name=""} -1
+metric: solace_system_redundancy_local_active{mate_name=""} 0
+metric: solace_system_redundancy_role{mate_name=""} -1
+metric: solace_system_redundancy_up{mate_name=""} -1
+metric: solace_up{error="",endpoint="RedundancyV1"} 1
+## Alarm software-broker
+metric: solace_up{error="Hardware only scrape target: "Alarm". Please check documentation for valid targets.",endpoint="Alarm"} 0
+## Alarm hardware-broker
+request[1]: POST /SEMP <rpc><show><alarm/></show></rpc>
+metric: solace_system_alarm 0
+metric: solace_up{error="",endpoint="Alarm"} 1
+## AlarmV1 software-broker
+metric: solace_up{error="Hardware only scrape target: "AlarmV1". Please check documentation for valid targets.",endpoint="AlarmV1"} 0
+## AlarmV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><alarm/></show></rpc>
+metric: solace_system_alarm 0
+metric: solace_up{error="",endpoint="AlarmV1"} 1
+## Environment software-broker
+metric: solace_up{error="Hardware only scrape target: "Environment". Please check documentation for valid targets.",endpoint="Environment"} 0
+## Environment hardware-broker
+request[1]: POST /SEMP <rpc><show><environment/></show></rpc>
+metric: solace_up{error="",endpoint="Environment"} 1
+## EnvironmentV1 software-broker
+metric: solace_up{error="Hardware only scrape target: "EnvironmentV1". Please check documentation for valid targets.",endpoint="EnvironmentV1"} 0
+## EnvironmentV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><environment/></show></rpc>
+metric: solace_up{error="",endpoint="EnvironmentV1"} 1
+## Hardware software-broker
+metric: solace_up{error="Hardware only scrape target: "Hardware". Please check documentation for valid targets.",endpoint="Hardware"} 0
+## Hardware hardware-broker
+request[1]: POST /SEMP <rpc><show><hardware><details/></hardware></show></rpc>
+metric: solace_operational_power_supplies 0
+metric: solace_up{error="",endpoint="Hardware"} 1
+## HardwareV1 software-broker
+metric: solace_up{error="Hardware only scrape target: "HardwareV1". Please check documentation for valid targets.",endpoint="HardwareV1"} 0
+## HardwareV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><hardware><details/></hardware></show></rpc>
+metric: solace_operational_power_supplies 0
+metric: solace_up{error="",endpoint="HardwareV1"} 1
+## ClockDetail software-broker
+metric: solace_up{error="Hardware only scrape target: "ClockDetail". Please check documentation for valid targets.",endpoint="ClockDetail"} 0
+## ClockDetail hardware-broker
+request[1]: POST /SEMP <rpc><show><clock><detail/></clock></show></rpc>
+metric: solace_system_clock_detail_admin_state{clock_protocol=""} 0
+metric: solace_system_clock_detail_ntp_server_reachable{clock_ntp_addr=""} 0
+metric: solace_up{error="",endpoint="ClockDetail"} 1
+## ClockDetailV1 software-broker
+metric: solace_up{error="Hardware only scrape target: "ClockDetailV1". Please check documentation for valid targets.",endpoint="ClockDetailV1"} 0
+## ClockDetailV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><clock><detail/></clock></show></rpc>
+metric: solace_system_clock_detail_admin_state{clock_protocol=""} 0
+metric: solace_system_clock_detail_ntp_server_reachable{clock_ntp_addr=""} 0
+metric: solace_up{error="",endpoint="ClockDetailV1"} 1
+## ReplicationStats software-broker
+request[1]: POST /SEMP <rpc><show><replication><stats/></replication></show></rpc>
+metric: solace_up{error="",endpoint="ReplicationStats"} 1
+## ReplicationStats hardware-broker
+request[1]: POST /SEMP <rpc><show><replication><stats/></replication></show></rpc>
+metric: solace_up{error="",endpoint="ReplicationStats"} 1
+## ReplicationStatsV1 software-broker
+request[1]: POST /SEMP <rpc><show><replication><stats/></replication></show></rpc>
+metric: solace_up{error="",endpoint="ReplicationStatsV1"} 1
+## ReplicationStatsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><replication><stats/></replication></show></rpc>
+metric: solace_up{error="",endpoint="ReplicationStatsV1"} 1
+## ConfigSyncRouter software-broker
+request[1]: POST /SEMP <rpc><show><config-sync><database/><router/></config-sync></show></rpc>
+metric: solace_up{error="",endpoint="ConfigSyncRouter"} 1
+## ConfigSyncRouter hardware-broker
+request[1]: POST /SEMP <rpc><show><config-sync><database/><router/></config-sync></show></rpc>
+metric: solace_up{error="",endpoint="ConfigSyncRouter"} 1
+## ConfigSyncRouterV1 software-broker
+request[1]: POST /SEMP <rpc><show><config-sync><database/><router/></config-sync></show></rpc>
+metric: solace_up{error="",endpoint="ConfigSyncRouterV1"} 1
+## ConfigSyncRouterV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><config-sync><database/><router/></config-sync></show></rpc>
+metric: solace_up{error="",endpoint="ConfigSyncRouterV1"} 1
+## ConfigSync software-broker
+request[1]: POST /SEMP <rpc><show><config-sync></config-sync></show></rpc>
+metric: solace_configsync_admin_state -1
+metric: solace_configsync_operational_state -1
+metric: solace_up{error="",endpoint="ConfigSync"} 1
+## ConfigSync hardware-broker
+request[1]: POST /SEMP <rpc><show><config-sync></config-sync></show></rpc>
+metric: solace_configsync_admin_state -1
+metric: solace_configsync_operational_state -1
+metric: solace_up{error="",endpoint="ConfigSync"} 1
+## ConfigSyncV1 software-broker
+request[1]: POST /SEMP <rpc><show><config-sync></config-sync></show></rpc>
+metric: solace_configsync_admin_state -1
+metric: solace_configsync_operational_state -1
+metric: solace_up{error="",endpoint="ConfigSyncV1"} 1
+## ConfigSyncV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><config-sync></config-sync></show></rpc>
+metric: solace_configsync_admin_state -1
+metric: solace_configsync_operational_state -1
+metric: solace_up{error="",endpoint="ConfigSyncV1"} 1
+## Vpn software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="Vpn"} 1
+## Vpn hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="Vpn"} 1
+## VpnV1 software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="VpnV1"} 1
+## VpnV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="VpnV1"} 1
+## VpnReplication software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><replication/></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="VpnReplication"} 1
+## VpnReplication hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><replication/></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="VpnReplication"} 1
+## VpnReplicationV1 software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><replication/></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="VpnReplicationV1"} 1
+## VpnReplicationV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><replication/></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="VpnReplicationV1"} 1
+## ConfigSyncVpn software-broker
+request[1]: POST /SEMP <rpc><show><config-sync><database/><message-vpn/><vpn-name>vpnX</vpn-name><count/><num-elements>11</num-elements></config-sync></show></rpc>
+metric: solace_up{error="",endpoint="ConfigSyncVpn"} 1
+## ConfigSyncVpn hardware-broker
+request[1]: POST /SEMP <rpc><show><config-sync><database/><message-vpn/><vpn-name>vpnX</vpn-name><count/><num-elements>11</num-elements></config-sync></show></rpc>
+metric: solace_up{error="",endpoint="ConfigSyncVpn"} 1
+## ConfigSyncVpnV1 software-broker
+request[1]: POST /SEMP <rpc><show><config-sync><database/><message-vpn/><vpn-name>vpnX</vpn-name><count/><num-elements>11</num-elements></config-sync></show></rpc>
+metric: solace_up{error="",endpoint="ConfigSyncVpnV1"} 1
+## ConfigSyncVpnV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><config-sync><database/><message-vpn/><vpn-name>vpnX</vpn-name><count/><num-elements>11</num-elements></config-sync></show></rpc>
+metric: solace_up{error="",endpoint="ConfigSyncVpnV1"} 1
+## Bridge software-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_bridges_max_num_local_bridges 0
+metric: solace_bridges_max_num_remote_bridges 0
+metric: solace_bridges_max_num_total_bridges 0
+metric: solace_bridges_max_num_total_remote_bridge_subscriptions 0
+metric: solace_bridges_num_local_bridges 0
+metric: solace_bridges_num_remote_bridges 0
+metric: solace_bridges_num_total_bridges 0
+metric: solace_bridges_num_total_remote_bridge_subscriptions 0
+metric: solace_up{error="",endpoint="Bridge"} 1
+## Bridge hardware-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_bridges_max_num_local_bridges 0
+metric: solace_bridges_max_num_remote_bridges 0
+metric: solace_bridges_max_num_total_bridges 0
+metric: solace_bridges_max_num_total_remote_bridge_subscriptions 0
+metric: solace_bridges_num_local_bridges 0
+metric: solace_bridges_num_remote_bridges 0
+metric: solace_bridges_num_total_bridges 0
+metric: solace_bridges_num_total_remote_bridge_subscriptions 0
+metric: solace_up{error="",endpoint="Bridge"} 1
+## BridgeV1 software-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_bridges_max_num_local_bridges 0
+metric: solace_bridges_max_num_remote_bridges 0
+metric: solace_bridges_max_num_total_bridges 0
+metric: solace_bridges_max_num_total_remote_bridge_subscriptions 0
+metric: solace_bridges_num_local_bridges 0
+metric: solace_bridges_num_remote_bridges 0
+metric: solace_bridges_num_total_bridges 0
+metric: solace_bridges_num_total_remote_bridge_subscriptions 0
+metric: solace_up{error="",endpoint="BridgeV1"} 1
+## BridgeV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_bridges_max_num_local_bridges 0
+metric: solace_bridges_max_num_remote_bridges 0
+metric: solace_bridges_max_num_total_bridges 0
+metric: solace_bridges_max_num_total_remote_bridge_subscriptions 0
+metric: solace_bridges_num_local_bridges 0
+metric: solace_bridges_num_remote_bridges 0
+metric: solace_bridges_num_total_bridges 0
+metric: solace_bridges_num_total_remote_bridge_subscriptions 0
+metric: solace_up{error="",endpoint="BridgeV1"} 1
+## BridgeRemote software-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern></bridge></show></rpc>
+metric: solace_bridges_max_num_local_bridges 0
+metric: solace_bridges_max_num_remote_bridges 0
+metric: solace_bridges_max_num_total_bridges 0
+metric: solace_bridges_max_num_total_remote_bridge_subscriptions 0
+metric: solace_bridges_num_local_bridges 0
+metric: solace_bridges_num_remote_bridges 0
+metric: solace_bridges_num_total_bridges 0
+metric: solace_bridges_num_total_remote_bridge_subscriptions 0
+metric: solace_up{error="",endpoint="BridgeRemote"} 1
+## BridgeRemote hardware-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern></bridge></show></rpc>
+metric: solace_bridges_max_num_local_bridges 0
+metric: solace_bridges_max_num_remote_bridges 0
+metric: solace_bridges_max_num_total_bridges 0
+metric: solace_bridges_max_num_total_remote_bridge_subscriptions 0
+metric: solace_bridges_num_local_bridges 0
+metric: solace_bridges_num_remote_bridges 0
+metric: solace_bridges_num_total_bridges 0
+metric: solace_bridges_num_total_remote_bridge_subscriptions 0
+metric: solace_up{error="",endpoint="BridgeRemote"} 1
+## BridgeRemoteV1 software-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern></bridge></show></rpc>
+metric: solace_bridges_max_num_local_bridges 0
+metric: solace_bridges_max_num_remote_bridges 0
+metric: solace_bridges_max_num_total_bridges 0
+metric: solace_bridges_max_num_total_remote_bridge_subscriptions 0
+metric: solace_bridges_num_local_bridges 0
+metric: solace_bridges_num_remote_bridges 0
+metric: solace_bridges_num_total_bridges 0
+metric: solace_bridges_num_total_remote_bridge_subscriptions 0
+metric: solace_up{error="",endpoint="BridgeRemoteV1"} 1
+## BridgeRemoteV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern></bridge></show></rpc>
+metric: solace_bridges_max_num_local_bridges 0
+metric: solace_bridges_max_num_remote_bridges 0
+metric: solace_bridges_max_num_total_bridges 0
+metric: solace_bridges_max_num_total_remote_bridge_subscriptions 0
+metric: solace_bridges_num_local_bridges 0
+metric: solace_bridges_num_remote_bridges 0
+metric: solace_bridges_num_total_bridges 0
+metric: solace_bridges_num_total_remote_bridge_subscriptions 0
+metric: solace_up{error="",endpoint="BridgeRemoteV1"} 1
+## BridgeDetail software-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><detail/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeDetail"} 1
+## BridgeDetail hardware-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><detail/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeDetail"} 1
+## BridgeDetailV1 software-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><detail/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeDetailV1"} 1
+## BridgeDetailV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><detail/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeDetailV1"} 1
+## BridgeClientCert software-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><client-certificate/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeClientCert"} 1
+## BridgeClientCert hardware-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><client-certificate/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeClientCert"} 1
+## BridgeClientCertV1 software-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><client-certificate/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeClientCertV1"} 1
+## BridgeClientCertV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><client-certificate/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeClientCertV1"} 1
+## VpnSpool software-broker
+request[1]: POST /SEMP <rpc><show><message-spool><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></message-spool></show></rpc>
+metric: solace_up{error="",endpoint="VpnSpool"} 1
+## VpnSpool hardware-broker
+request[1]: POST /SEMP <rpc><show><message-spool><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></message-spool></show></rpc>
+metric: solace_up{error="",endpoint="VpnSpool"} 1
+## VpnSpoolV1 software-broker
+request[1]: POST /SEMP <rpc><show><message-spool><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></message-spool></show></rpc>
+metric: solace_up{error="",endpoint="VpnSpoolV1"} 1
+## VpnSpoolV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><message-spool><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></message-spool></show></rpc>
+metric: solace_up{error="",endpoint="VpnSpoolV1"} 1
+## Client software-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><vpn-name>vpnX</vpn-name><connected/></client></show></rpc>
+metric: solace_up{error="",endpoint="Client"} 1
+## Client hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><vpn-name>vpnX</vpn-name><connected/></client></show></rpc>
+metric: solace_up{error="",endpoint="Client"} 1
+## ClientV1 software-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><vpn-name>vpnX</vpn-name><connected/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientV1"} 1
+## ClientV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><vpn-name>vpnX</vpn-name><connected/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientV1"} 1
+## ClientProfile software-broker
+request[1]: POST /SEMP <rpc><show><client-profile><name>*</name><vpn-name>vpnX</vpn-name><detail/></client-profile></show></rpc>
+metric: solace_up{error="",endpoint="ClientProfile"} 1
+## ClientProfile hardware-broker
+request[1]: POST /SEMP <rpc><show><client-profile><name>*</name><vpn-name>vpnX</vpn-name><detail/></client-profile></show></rpc>
+metric: solace_up{error="",endpoint="ClientProfile"} 1
+## ClientProfileV1 software-broker
+request[1]: POST /SEMP <rpc><show><client-profile><name>*</name><vpn-name>vpnX</vpn-name><detail/></client-profile></show></rpc>
+metric: solace_up{error="",endpoint="ClientProfileV1"} 1
+## ClientProfileV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><client-profile><name>*</name><vpn-name>vpnX</vpn-name><detail/></client-profile></show></rpc>
+metric: solace_up{error="",endpoint="ClientProfileV1"} 1
+## ClientSlowSubscriber software-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><vpn-name>vpnX</vpn-name><slow-subscriber/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientSlowSubscriber"} 1
+## ClientSlowSubscriber hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><vpn-name>vpnX</vpn-name><slow-subscriber/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientSlowSubscriber"} 1
+## ClientSlowSubscriberV1 software-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><vpn-name>vpnX</vpn-name><slow-subscriber/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientSlowSubscriberV1"} 1
+## ClientSlowSubscriberV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><vpn-name>vpnX</vpn-name><slow-subscriber/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientSlowSubscriberV1"} 1
+## ClientStats software-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><stats/><count/><num-elements>11</num-elements></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientStats"} 1
+## ClientStats hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><stats/><count/><num-elements>11</num-elements></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientStats"} 1
+## ClientStatsV1 software-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><stats/><count/><num-elements>11</num-elements></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientStatsV1"} 1
+## ClientStatsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><stats/><count/><num-elements>11</num-elements></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientStatsV1"} 1
+## ClientConnections software-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><connections/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientConnections"} 1
+## ClientConnections hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><connections/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientConnections"} 1
+## ClientConnectionsV1 software-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><connections/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientConnectionsV1"} 1
+## ClientConnectionsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><connections/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientConnectionsV1"} 1
+## ClientMessageSpoolStats software-broker
+request[1]: POST /SEMP <rpc><show><client><name>vpnX</name><message-spool-stats/><count/><num-elements>11</num-elements></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientMessageSpoolStats"} 1
+## ClientMessageSpoolStats hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>vpnX</name><message-spool-stats/><count/><num-elements>11</num-elements></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientMessageSpoolStats"} 1
+## ClientMessageSpoolStatsV1 software-broker
+request[1]: POST /SEMP <rpc><show><client><name>vpnX</name><message-spool-stats/><count/><num-elements>11</num-elements></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientMessageSpoolStatsV1"} 1
+## ClientMessageSpoolStatsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>vpnX</name><message-spool-stats/><count/><num-elements>11</num-elements></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientMessageSpoolStatsV1"} 1
+## ClientMessageSpoolEgress software-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><message-spool/><egress/><connected/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientMessageSpoolEgress"} 1
+## ClientMessageSpoolEgress hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><message-spool/><egress/><connected/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientMessageSpoolEgress"} 1
+## ClientMessageSpoolEgressV1 software-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><message-spool/><egress/><connected/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientMessageSpoolEgressV1"} 1
+## ClientMessageSpoolEgressV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><client><name>itemY</name><message-spool/><egress/><connected/></client></show></rpc>
+metric: solace_up{error="",endpoint="ClientMessageSpoolEgressV1"} 1
+## ClusterLinks software-broker
+request[1]: POST /SEMP <rpc><show><cluster><cluster-name-pattern>vpnX</cluster-name-pattern><link-name-pattern>itemY</link-name-pattern></cluster></show></rpc>
+metric: solace_up{error="",endpoint="ClusterLinks"} 1
+## ClusterLinks hardware-broker
+request[1]: POST /SEMP <rpc><show><cluster><cluster-name-pattern>vpnX</cluster-name-pattern><link-name-pattern>itemY</link-name-pattern></cluster></show></rpc>
+metric: solace_up{error="",endpoint="ClusterLinks"} 1
+## ClusterLinksV1 software-broker
+request[1]: POST /SEMP <rpc><show><cluster><cluster-name-pattern>vpnX</cluster-name-pattern><link-name-pattern>itemY</link-name-pattern></cluster></show></rpc>
+metric: solace_up{error="",endpoint="ClusterLinksV1"} 1
+## ClusterLinksV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><cluster><cluster-name-pattern>vpnX</cluster-name-pattern><link-name-pattern>itemY</link-name-pattern></cluster></show></rpc>
+metric: solace_up{error="",endpoint="ClusterLinksV1"} 1
+## VpnStats software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="VpnStats"} 1
+## VpnStats hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="VpnStats"} 1
+## VpnStatsV1 software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="VpnStatsV1"} 1
+## VpnStatsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="VpnStatsV1"} 1
+## BridgeStats software-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><stats/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeStats"} 1
+## BridgeStats hardware-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><stats/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeStats"} 1
+## BridgeStatsV1 software-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><stats/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeStatsV1"} 1
+## BridgeStatsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><bridge><bridge-name-pattern>itemY</bridge-name-pattern><vpn-name-pattern>vpnX</vpn-name-pattern><stats/><count/><num-elements>11</num-elements></bridge></show></rpc>
+metric: solace_up{error="",endpoint="BridgeStatsV1"} 1
+## QueueRates software-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><rates/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueRates"} 1
+## QueueRates hardware-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><rates/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueRates"} 1
+## QueueRatesV1 software-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><rates/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueRatesV1"} 1
+## QueueRatesV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><rates/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueRatesV1"} 1
+## QueueStats software-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueStats"} 1
+## QueueStats hardware-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueStats"} 1
+## QueueStatsV1 software-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueStatsV1"} 1
+## QueueStatsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueStatsV1"} 1
+## QueueStatsV2 software-broker
+request[1]: GET /SEMP/v2/monitor/msgVpns/vpnX/queues?count=100&where=queueName%3D%3DitemY
+metric: solace_up{error="",endpoint="QueueStatsV2"} 1
+## QueueStatsV2 hardware-broker
+request[1]: GET /SEMP/v2/monitor/msgVpns/vpnX/queues?count=100&where=queueName%3D%3DitemY
+metric: solace_up{error="",endpoint="QueueStatsV2"} 1
+## QueueDetails software-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueDetails"} 1
+## QueueDetails hardware-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueDetails"} 1
+## QueueDetailsV1 software-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueDetailsV1"} 1
+## QueueDetailsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><queue><name>itemY</name><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></queue></show></rpc>
+metric: solace_up{error="",endpoint="QueueDetailsV1"} 1
+## TopicEndpointRates software-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><rates/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointRates"} 1
+## TopicEndpointRates hardware-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><rates/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointRates"} 1
+## TopicEndpointRatesV1 software-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><rates/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointRatesV1"} 1
+## TopicEndpointRatesV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><rates/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointRatesV1"} 1
+## TopicEndpointStats software-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointStats"} 1
+## TopicEndpointStats hardware-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointStats"} 1
+## TopicEndpointStatsV1 software-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointStatsV1"} 1
+## TopicEndpointStatsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><stats/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointStatsV1"} 1
+## TopicEndpointDetails software-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointDetails"} 1
+## TopicEndpointDetails hardware-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointDetails"} 1
+## TopicEndpointDetailsV1 software-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointDetailsV1"} 1
+## TopicEndpointDetailsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>itemY</name><vpn-name>vpnX</vpn-name><detail/><count/><num-elements>11</num-elements></topic-endpoint></show></rpc>
+metric: solace_up{error="",endpoint="TopicEndpointDetailsV1"} 1
+## RestConsumerStats software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>itemY</rest-consumer-name><stats></stats><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="RestConsumerStats"} 1
+## RestConsumerStats hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>itemY</rest-consumer-name><stats></stats><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="RestConsumerStats"} 1
+## RestConsumerStatsV1 software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>itemY</rest-consumer-name><stats></stats><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="RestConsumerStatsV1"} 1
+## RestConsumerStatsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>itemY</rest-consumer-name><stats></stats><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="RestConsumerStatsV1"} 1
+## RdpStats software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>itemY</rdp-name><stats/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="RdpStats"} 1
+## RdpStats hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>itemY</rdp-name><stats/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="RdpStats"} 1
+## RdpStatsV1 software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>itemY</rdp-name><stats/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="RdpStatsV1"} 1
+## RdpStatsV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>itemY</rdp-name><stats/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="RdpStatsV1"} 1
+## RdpInfo software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>itemY</rdp-name></message-vpn></show></rpc>
+metric: solace_rdp_total_queue_bindings_configured 0
+metric: solace_rdp_total_queue_bindings_up 0
+metric: solace_rdp_total_rest_consumer_outgoing_connections_configured 0
+metric: solace_rdp_total_rest_consumer_outgoing_connections_up 0
+metric: solace_rdp_total_rest_consumers_configured 0
+metric: solace_rdp_total_rest_consumers_up 0
+metric: solace_rdp_total_rest_delivery_points_configured 0
+metric: solace_rdp_total_rest_delivery_points_up 0
+metric: solace_up{error="",endpoint="RdpInfo"} 1
+## RdpInfo hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>itemY</rdp-name></message-vpn></show></rpc>
+metric: solace_rdp_total_queue_bindings_configured 0
+metric: solace_rdp_total_queue_bindings_up 0
+metric: solace_rdp_total_rest_consumer_outgoing_connections_configured 0
+metric: solace_rdp_total_rest_consumer_outgoing_connections_up 0
+metric: solace_rdp_total_rest_consumers_configured 0
+metric: solace_rdp_total_rest_consumers_up 0
+metric: solace_rdp_total_rest_delivery_points_configured 0
+metric: solace_rdp_total_rest_delivery_points_up 0
+metric: solace_up{error="",endpoint="RdpInfo"} 1
+## RdpInfoV1 software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>itemY</rdp-name></message-vpn></show></rpc>
+metric: solace_rdp_total_queue_bindings_configured 0
+metric: solace_rdp_total_queue_bindings_up 0
+metric: solace_rdp_total_rest_consumer_outgoing_connections_configured 0
+metric: solace_rdp_total_rest_consumer_outgoing_connections_up 0
+metric: solace_rdp_total_rest_consumers_configured 0
+metric: solace_rdp_total_rest_consumers_up 0
+metric: solace_rdp_total_rest_delivery_points_configured 0
+metric: solace_rdp_total_rest_delivery_points_up 0
+metric: solace_up{error="",endpoint="RdpInfoV1"} 1
+## RdpInfoV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>itemY</rdp-name></message-vpn></show></rpc>
+metric: solace_rdp_total_queue_bindings_configured 0
+metric: solace_rdp_total_queue_bindings_up 0
+metric: solace_rdp_total_rest_consumer_outgoing_connections_configured 0
+metric: solace_rdp_total_rest_consumer_outgoing_connections_up 0
+metric: solace_rdp_total_rest_consumers_configured 0
+metric: solace_rdp_total_rest_consumers_up 0
+metric: solace_rdp_total_rest_delivery_points_configured 0
+metric: solace_rdp_total_rest_delivery_points_up 0
+metric: solace_up{error="",endpoint="RdpInfoV1"} 1
+## MqttSession software-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><mqtt/><mqtt-session/><client-id-pattern>itemY</client-id-pattern><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="MqttSession"} 1
+## MqttSession hardware-broker
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpnX</vpn-name><mqtt/><mqtt-session/><client-id-pattern>itemY</client-id-pattern><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_up{error="",endpoint="MqttSession"} 1
+## StatsClientDetail software-broker
+request[1]: POST /SEMP <rpc><show><stats><client><detail/></client></stats></show></rpc>
+metric: solace_system_average_egress_bytes_per_minute 0
+metric: solace_system_average_egress_direct_bytes_per_minute 0
+metric: solace_system_average_egress_direct_messages_per_minute 0
+metric: solace_system_average_egress_messages_per_minute 0
+metric: solace_system_average_egress_nonpersistent_bytes_per_minute 0
+metric: solace_system_average_egress_nonpersistent_messages_per_minute 0
+metric: solace_system_average_egress_persistent_bytes_per_minute 0
+metric: solace_system_average_egress_persistent_messages_per_minute 0
+metric: solace_system_average_ingress_bytes_per_minute 0
+metric: solace_system_average_ingress_direct_bytes_per_minute 0
+metric: solace_system_average_ingress_direct_messages_per_minute 0
+metric: solace_system_average_ingress_messages_per_minute 0
+metric: solace_system_average_ingress_nonpersistent_bytes_per_minute 0
+metric: solace_system_average_ingress_nonpersistent_messages_per_minute 0
+metric: solace_system_average_ingress_persistent_bytes_per_minute 0
+metric: solace_system_average_ingress_persistent_messages_per_minute 0
+metric: solace_system_current_egress_bytes_per_second 0
+metric: solace_system_current_egress_direct_bytes_per_second 0
+metric: solace_system_current_egress_direct_messages_per_second 0
+metric: solace_system_current_egress_messages_per_second 0
+metric: solace_system_current_egress_nonpersistent_bytes_per_second 0
+metric: solace_system_current_egress_nonpersistent_messages_per_second 0
+metric: solace_system_current_egress_persistent_bytes_per_second 0
+metric: solace_system_current_egress_persistent_messages_per_second 0
+metric: solace_system_current_ingress_bytes_per_second 0
+metric: solace_system_current_ingress_direct_bytes_per_second 0
+metric: solace_system_current_ingress_direct_messages_per_second 0
+metric: solace_system_current_ingress_messages_per_second 0
+metric: solace_system_current_ingress_nonpersistent_bytes_per_second 0
+metric: solace_system_current_ingress_nonpersistent_messages_per_second 0
+metric: solace_system_current_ingress_persistent_bytes_per_second 0
+metric: solace_system_current_ingress_persistent_messages_per_second 0
+metric: solace_up{error="",endpoint="StatsClientDetail"} 1
+## StatsClientDetail hardware-broker
+request[1]: POST /SEMP <rpc><show><stats><client><detail/></client></stats></show></rpc>
+metric: solace_system_average_egress_bytes_per_minute 0
+metric: solace_system_average_egress_direct_bytes_per_minute 0
+metric: solace_system_average_egress_direct_messages_per_minute 0
+metric: solace_system_average_egress_messages_per_minute 0
+metric: solace_system_average_egress_nonpersistent_bytes_per_minute 0
+metric: solace_system_average_egress_nonpersistent_messages_per_minute 0
+metric: solace_system_average_egress_persistent_bytes_per_minute 0
+metric: solace_system_average_egress_persistent_messages_per_minute 0
+metric: solace_system_average_ingress_bytes_per_minute 0
+metric: solace_system_average_ingress_direct_bytes_per_minute 0
+metric: solace_system_average_ingress_direct_messages_per_minute 0
+metric: solace_system_average_ingress_messages_per_minute 0
+metric: solace_system_average_ingress_nonpersistent_bytes_per_minute 0
+metric: solace_system_average_ingress_nonpersistent_messages_per_minute 0
+metric: solace_system_average_ingress_persistent_bytes_per_minute 0
+metric: solace_system_average_ingress_persistent_messages_per_minute 0
+metric: solace_system_current_egress_bytes_per_second 0
+metric: solace_system_current_egress_direct_bytes_per_second 0
+metric: solace_system_current_egress_direct_messages_per_second 0
+metric: solace_system_current_egress_messages_per_second 0
+metric: solace_system_current_egress_nonpersistent_bytes_per_second 0
+metric: solace_system_current_egress_nonpersistent_messages_per_second 0
+metric: solace_system_current_egress_persistent_bytes_per_second 0
+metric: solace_system_current_egress_persistent_messages_per_second 0
+metric: solace_system_current_ingress_bytes_per_second 0
+metric: solace_system_current_ingress_direct_bytes_per_second 0
+metric: solace_system_current_ingress_direct_messages_per_second 0
+metric: solace_system_current_ingress_messages_per_second 0
+metric: solace_system_current_ingress_nonpersistent_bytes_per_second 0
+metric: solace_system_current_ingress_nonpersistent_messages_per_second 0
+metric: solace_system_current_ingress_persistent_bytes_per_second 0
+metric: solace_system_current_ingress_persistent_messages_per_second 0
+metric: solace_up{error="",endpoint="StatsClientDetail"} 1
+## StatsClientDetailV1 software-broker
+request[1]: POST /SEMP <rpc><show><stats><client><detail/></client></stats></show></rpc>
+metric: solace_system_average_egress_bytes_per_minute 0
+metric: solace_system_average_egress_direct_bytes_per_minute 0
+metric: solace_system_average_egress_direct_messages_per_minute 0
+metric: solace_system_average_egress_messages_per_minute 0
+metric: solace_system_average_egress_nonpersistent_bytes_per_minute 0
+metric: solace_system_average_egress_nonpersistent_messages_per_minute 0
+metric: solace_system_average_egress_persistent_bytes_per_minute 0
+metric: solace_system_average_egress_persistent_messages_per_minute 0
+metric: solace_system_average_ingress_bytes_per_minute 0
+metric: solace_system_average_ingress_direct_bytes_per_minute 0
+metric: solace_system_average_ingress_direct_messages_per_minute 0
+metric: solace_system_average_ingress_messages_per_minute 0
+metric: solace_system_average_ingress_nonpersistent_bytes_per_minute 0
+metric: solace_system_average_ingress_nonpersistent_messages_per_minute 0
+metric: solace_system_average_ingress_persistent_bytes_per_minute 0
+metric: solace_system_average_ingress_persistent_messages_per_minute 0
+metric: solace_system_current_egress_bytes_per_second 0
+metric: solace_system_current_egress_direct_bytes_per_second 0
+metric: solace_system_current_egress_direct_messages_per_second 0
+metric: solace_system_current_egress_messages_per_second 0
+metric: solace_system_current_egress_nonpersistent_bytes_per_second 0
+metric: solace_system_current_egress_nonpersistent_messages_per_second 0
+metric: solace_system_current_egress_persistent_bytes_per_second 0
+metric: solace_system_current_egress_persistent_messages_per_second 0
+metric: solace_system_current_ingress_bytes_per_second 0
+metric: solace_system_current_ingress_direct_bytes_per_second 0
+metric: solace_system_current_ingress_direct_messages_per_second 0
+metric: solace_system_current_ingress_messages_per_second 0
+metric: solace_system_current_ingress_nonpersistent_bytes_per_second 0
+metric: solace_system_current_ingress_nonpersistent_messages_per_second 0
+metric: solace_system_current_ingress_persistent_bytes_per_second 0
+metric: solace_system_current_ingress_persistent_messages_per_second 0
+metric: solace_up{error="",endpoint="StatsClientDetailV1"} 1
+## StatsClientDetailV1 hardware-broker
+request[1]: POST /SEMP <rpc><show><stats><client><detail/></client></stats></show></rpc>
+metric: solace_system_average_egress_bytes_per_minute 0
+metric: solace_system_average_egress_direct_bytes_per_minute 0
+metric: solace_system_average_egress_direct_messages_per_minute 0
+metric: solace_system_average_egress_messages_per_minute 0
+metric: solace_system_average_egress_nonpersistent_bytes_per_minute 0
+metric: solace_system_average_egress_nonpersistent_messages_per_minute 0
+metric: solace_system_average_egress_persistent_bytes_per_minute 0
+metric: solace_system_average_egress_persistent_messages_per_minute 0
+metric: solace_system_average_ingress_bytes_per_minute 0
+metric: solace_system_average_ingress_direct_bytes_per_minute 0
+metric: solace_system_average_ingress_direct_messages_per_minute 0
+metric: solace_system_average_ingress_messages_per_minute 0
+metric: solace_system_average_ingress_nonpersistent_bytes_per_minute 0
+metric: solace_system_average_ingress_nonpersistent_messages_per_minute 0
+metric: solace_system_average_ingress_persistent_bytes_per_minute 0
+metric: solace_system_average_ingress_persistent_messages_per_minute 0
+metric: solace_system_current_egress_bytes_per_second 0
+metric: solace_system_current_egress_direct_bytes_per_second 0
+metric: solace_system_current_egress_direct_messages_per_second 0
+metric: solace_system_current_egress_messages_per_second 0
+metric: solace_system_current_egress_nonpersistent_bytes_per_second 0
+metric: solace_system_current_egress_nonpersistent_messages_per_second 0
+metric: solace_system_current_egress_persistent_bytes_per_second 0
+metric: solace_system_current_egress_persistent_messages_per_second 0
+metric: solace_system_current_ingress_bytes_per_second 0
+metric: solace_system_current_ingress_direct_bytes_per_second 0
+metric: solace_system_current_ingress_direct_messages_per_second 0
+metric: solace_system_current_ingress_messages_per_second 0
+metric: solace_system_current_ingress_nonpersistent_bytes_per_second 0
+metric: solace_system_current_ingress_nonpersistent_messages_per_second 0
+metric: solace_system_current_ingress_persistent_bytes_per_second 0
+metric: solace_system_current_ingress_persistent_messages_per_second 0
+metric: solace_up{error="",endpoint="StatsClientDetailV1"} 1
+## NoSuchTarget software-broker
+metric: solace_up{error="Unknown scrape target: "NoSuchTarget". Please check documentation for valid targets.",endpoint="NoSuchTarget"} 0
+## NoSuchTarget hardware-broker
+metric: solace_up{error="Unknown scrape target: "NoSuchTarget". Please check documentation for valid targets.",endpoint="NoSuchTarget"} 0
+## vpn software-broker
+metric: solace_up{error="Unknown scrape target: "vpn". Please check documentation for valid targets.",endpoint="vpn"} 0
+## vpn hardware-broker
+metric: solace_up{error="Unknown scrape target: "vpn". Please check documentation for valid targets.",endpoint="vpn"} 0
+## QueueStatsV2 wildcard vpn with defaultVpn
+request[1]: GET /SEMP/v2/monitor/msgVpns/defVpn/queues?count=100&where=queueName%3D%3Dq1&select=spooledMsgCount,queueName,msgVpnName
+metric: solace_up{error="",endpoint="QueueStatsV2"} 1
+## QueueStatsV2 wildcard vpn without defaultVpn
+metric: solace_up{error="can't scrape Semp2 As vpnFilter was an * given and the defaultVpn is not set in configuration",endpoint="QueueStatsV2"} 0
+## QueueStatsV2 failure after success
+request[1]: POST /SEMP <rpc><show><version/></show></rpc>
+metric: solace_system_version_currentload 0
+metric: solace_system_version_uptime_totalsecs 0
+metric: solace_up{error="",endpoint="Version"} 1
+metric: solace_up{error="can't scrape Semp2 As vpnFilter was an * given and the defaultVpn is not set in configuration",endpoint="QueueStatsV2"} 0
+## multiple targets
+request[1]: POST /SEMP <rpc><show><version/></show></rpc>
+request[2]: POST /SEMP <rpc><show><message-vpn><vpn-name>a</vpn-name><detail/><count/><num-elements>11</num-elements></message-vpn></show></rpc>
+metric: solace_system_version_currentload 0
+metric: solace_system_version_uptime_totalsecs 0
+metric: solace_up{error="",endpoint="Version"} 1
+metric: solace_up{error="",endpoint="Vpn"} 1
+metric: solace_up{error="Hardware only scrape target: "Disk". Please check documentation for valid targets.",endpoint="Disk"} 0
+## unreachable broker aborts remaining targets
+metric: solace_up{error="Post "http://127.0.0.1:PORT/SEMP": dial tcp 127.0.0.1:PORT: connect: connection refused",endpoint="global"} 0

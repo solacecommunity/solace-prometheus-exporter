@@ -1,0 +1,74 @@
+## ok
+request[1]: POST /SEMP <rpc><show><interface><phy-interface>item*</phy-interface></interface></show></rpc>
+up: 1
+err: <nil>
+metric: solace_network_ifhw_enabled{interface_name="1"} gauge -1
+metric: solace_network_ifhw_enabled{interface_name="9"} gauge -1
+metric: solace_network_ifhw_enabled{interface_name="9"} gauge -1
+metric: solace_network_ifhw_rx_bytes{interface_name="1"} counter 5
+metric: solace_network_ifhw_rx_bytes{interface_name="9"} counter 13
+metric: solace_network_ifhw_rx_bytes{interface_name="9"} counter 13
+metric: solace_network_ifhw_rx_packets{interface_name="1"} counter 4
+metric: solace_network_ifhw_rx_packets{interface_name="9"} counter 12
+metric: solace_network_ifhw_rx_packets{interface_name="9"} counter 12
+metric: solace_network_ifhw_state{interface_name="1"} gauge -1
+metric: solace_network_ifhw_state{interface_name="9"} gauge -1
+metric: solace_network_ifhw_state{interface_name="9"} gauge -1
+metric: solace_network_ifhw_tx_bytes{interface_name="1"} counter 7
+metric: solace_network_ifhw_tx_bytes{interface_name="9"} counter 15
+metric: solace_network_ifhw_tx_bytes{interface_name="9"} counter 15
+metric: solace_network_ifhw_tx_packets{interface_name="1"} counter 6
+metric: solace_network_ifhw_tx_packets{interface_name="9"} counter 14
+metric: solace_network_ifhw_tx_packets{interface_name="9"} counter 14
+metric: solace_network_lag_available_members{interface_name="1"} gauge 3
+metric: solace_network_lag_available_members{interface_name="9"} gauge 3
+metric: solace_network_lag_available_members{interface_name="9"} gauge 3
+metric: solace_network_lag_configured_members{interface_name="1"} gauge 3
+metric: solace_network_lag_configured_members{interface_name="9"} gauge 3
+metric: solace_network_lag_configured_members{interface_name="9"} gauge 3
+metric: solace_network_lag_operational_members{interface_name="1"} gauge 3
+metric: solace_network_lag_operational_members{interface_name="9"} gauge 3
+metric: solace_network_lag_operational_members{interface_name="9"} gauge 3
+## paged
+request[1]: POST /SEMP <rpc><show><interface><phy-interface>item*</phy-interface></interface></show></rpc>
+up: 1
+err: <nil>
+metric: solace_network_ifhw_enabled{interface_name="1"} gauge -1
+metric: solace_network_ifhw_enabled{interface_name="9"} gauge -1
+metric: solace_network_ifhw_enabled{interface_name="9"} gauge -1
+metric: solace_network_ifhw_rx_bytes{interface_name="1"} counter 5
+metric: solace_network_ifhw_rx_bytes{interface_name="9"} counter 13
+metric: solace_network_ifhw_rx_bytes{interface_name="9"} counter 13
+metric: solace_network_ifhw_rx_packets{interface_name="1"} counter 4
+metric: solace_network_ifhw_rx_packets{interface_name="9"} counter 12
+metric: solace_network_ifhw_rx_packets{interface_name="9"} counter 12
+metric: solace_network_ifhw_state{interface_name="1"} gauge -1
+metric: solace_network_ifhw_state{interface_name="9"} gauge -1
+metric: solace_network_ifhw_state{interface_name="9"} gauge -1
+metric: solace_network_ifhw_tx_bytes{interface_name="1"} counter 7
+metric: solace_network_ifhw_tx_bytes{interface_name="9"} counter 15
+metric: solace_network_ifhw_tx_bytes{interface_name="9"} counter 15
+metric: solace_network_ifhw_tx_packets{interface_name="1"} counter 6
+metric: solace_network_ifhw_tx_packets{interface_name="9"} counter 14
+metric: solace_network_ifhw_tx_packets{interface_name="9"} counter 14
+metric: solace_network_lag_available_members{interface_name="1"} gauge 3
+metric: solace_network_lag_available_members{interface_name="9"} gauge 3
+metric: solace_network_lag_available_members{interface_name="9"} gauge 3
+metric: solace_network_lag_configured_members{interface_name="1"} gauge 3
+metric: solace_network_lag_configured_members{interface_name="9"} gauge 3
+metric: solace_network_lag_configured_members{interface_name="9"} gauge 3
+metric: solace_network_lag_operational_members{interface_name="1"} gauge 3
+metric: solace_network_lag_operational_members{interface_name="9"} gauge 3
+metric: solace_network_lag_operational_members{interface_name="9"} gauge 3
+## http-500
+request[1]: POST /SEMP <rpc><show><interface><phy-interface>item*</phy-interface></interface></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><interface><phy-interface>item*</phy-interface></interface></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><interface><phy-interface>item*</phy-interface></interface></show></rpc>
+up: 0
+err: unexpected result: golden failure

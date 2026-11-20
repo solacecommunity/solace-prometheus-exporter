@@ -26,7 +26,8 @@ cmd/solace-prometheus-exporter/   Entry point: flag parsing, HTTP handler wiring
 internal/exporter/                Config, the Exporter collector, per-request config, HTTP client, auth, TLS, async prefetch
   config.struct.go                Config struct + ParseConfig (INI + env), endpoint alias parsing
   exporter.struct.go              Exporter type; wires a *semp.Semp per request
-  exporter.collect.go             CollectPrometheusMetric: the scrape-target dispatch switch + Collect()
+  scrapeTargets.go                Scrape-target registry: data source name(s) -> broker kind + SEMP getter call
+  exporter.collect.go             CollectPrometheusMetric (dispatch via the registry, solace_up) + Collect()
   exporter.describe.go            Describe() over the metric registry
   dataSource.struct.go            DataSource{Name, VpnFilter, ItemFilter, MetricFilter}
   auth.go / http.go / tlsServer.go  OAuth/basic visitor, HTTP client, HTTPS listener
@@ -38,17 +39,22 @@ internal/semp/                    SEMP access layer
   semp.desc.struct.go             Desc, Descriptions, V2Result, field-selection helpers
   prometheusMetric.struct.go      PrometheusMetric wrapper (dedupe key, cardinality checks)
   http.go / helper.go / types/    HTTP verbs, filter escaping, shared XML types
+  semp1fixture/                   Generator for the synthetic SEMP v1 replies of the golden tests
+  testdata/                       Golden-test data: synthetic replies, realistic scenarios, golden files
 internal/version/                 Link-time build metadata + the solace_exporter_build_info collector
 internal/web/                     Index page handler/template + exporter Basic Auth wrapper
 configs/                          Sample INI config (also baked into the Docker image)
 docs/CONFIG.md                    Full settings + scrape-target reference
 examples/                         Grafana dashboards and an NGINX reverse-proxy Helm chart
 test/                             Captured SEMP fixtures (test/data) and an OAuth e2e stack (test/oauth)
+tools/semp1fixtures/              CLI behind `go generate ./internal/semp` (regenerates the synthetic replies)
 ```
 
 ## 3. Coding Standards & Conventions
 
-* **Formatting/linting:** code must be `gofmt`-clean and pass `golangci-lint run` (`make lint`). Keep imports
+* **Formatting/linting:** code must be `gofmt`-clean and pass `golangci-lint run` (`make lint`); the
+  [`.golangci.yml`](.golangci.yml) enables the `gofmt` and `goimports` formatters, so unformatted code fails CI. Fix it
+  locally with `golangci-lint fmt`. Keep imports
   grouped (stdlib, then third-party) and use tabs for indentation.
 * **Logging:** use the injected `*slog.Logger` with key/value pairs (`logger.Error("msg", "err", err, "broker",
   uri)`), not `fmt`/`log`. Do not `panic` in a scrape path (see §7).
@@ -76,12 +82,15 @@ test/                             Captured SEMP fixtures (test/data) and an OAut
   an `AsyncFetcher` from cache instead of scraping inline.
 * **Parameter grammar:** a `/solace` value is `vpnFilter|itemFilter[|metricFilter,...]`; fewer than two
   `|`-separated parts is skipped/rejected with a log. The metric filter (third part) is SEMP v2 only.
-* **Dispatch (`exporter.collect.go`):** `CollectPrometheusMetric` switches on `DataSource.Name`. Each target has a
-  bare name and a `...V1` alias mapped to the same getter (e.g. `"VpnStats", "VpnStatsV1"`). Hardware-only and
-  software-only targets are gated on `e.config.IsHWBroker` and emit an explanatory error otherwise.
-* **SEMP v1 getters:** build an `<rpc><show>...</rpc>` command, `POST` it to `<brokerURI>/SEMP` via
-  `semp.postHTTP`, decode XML into a local `Data` struct, check `ExecuteResult.Result == "ok"`, then emit metrics.
-  Paged calls loop on `types.MoreCookie` using `<num-elements>` = `sempPageSize`.
+* **Dispatch (`scrapeTargets.go`, `exporter.collect.go`):** `CollectPrometheusMetric` looks up `DataSource.Name` in
+  the `scrapeTargets` registry. Each target is registered under its bare name and a `...V1` alias (e.g.
+  `"VpnStats", "VpnStatsV1"`) with a `brokerKind`: `softwareBrokerOnly` / `hardwareBrokerOnly` targets are gated on
+  `e.config.IsHWBroker` and emit an explanatory error otherwise, as do unknown names.
+* **SEMP v1 getters:** build an `<rpc><show>...</rpc>` command and let the shared helpers in `semp1Request.go` do
+  the request: `semp.fetchSemp1` POSTs it to `<brokerURI>/SEMP`, decodes the XML into a local `Data` struct (which
+  embeds `types.Reply` for `more-cookie`/`execute-result`), checks the execute-result and maps failures to the `up`
+  contract. Paged calls use `fetchSemp1Pages` with `<num-elements>` = `sempPageSize`; it follows the more-cookie
+  and hands every page to a callback that emits the metrics.
 * **SEMP v2 getters:** `GET` `<brokerURI>/SEMP/v2/monitor/...` via `semp.getHTTPbytes`, decode JSON, check
   `Meta.ResponseCode == 200`, follow `Meta.Paging.NextPageURI`. Field selection uses `select=`, filtering uses
   `where=`. Unlike v1, v2 does **not** support `*` wildcards.
@@ -99,14 +108,17 @@ To add or extend a target:
    new one, using `NewSemDesc(fqName, sempV2field, help, variableLabels)`, and register the block under a key in the
    `MetricDesc` map. Reuse an existing `variableLabels...` slice where the label set matches.
 2. **Implement the getter** as `internal/semp/getXxxSemp1.go` (or a `...Semp2.go`), following the pattern in §4:
-   inner struct with `xml:`/`json:` tags, request, decode, result-code check, `ch <- semp.NewMetric(...)`, return
-   `(up, err)`.
-3. **Wire the dispatch** by adding a `case "Xxx", "XxxV1":` to the switch in `exporter.collect.go`, passing the
-   relevant `dataSource` filters and `e.config.SempPageSize`. Gate on `IsHWBroker` if the target is
-   hardware/software specific.
+   inner struct with `xml:`/`json:` tags (embedding `types.Reply` for SEMP v1), `fetchSemp1`/`fetchSemp1Pages`,
+   `ch <- semp.NewMetric(...)`, return `(up, err)`.
+3. **Wire the dispatch** by adding `target("Xxx", anyBroker, byVpnAndItemPaged((*semp.Semp).GetXxxSemp1))` to
+   `scrapeTargets` in `scrapeTargets.go`: `target` also registers the `XxxV1` alias, the adapter (`noFilter`,
+   `byItem`, `byVpn`, `byVpnAndItem`, `...Paged`) passes the matching `DataSource` filters and
+   `e.config.SempPageSize`. Use `hardwareBrokerOnly` / `softwareBrokerOnly` if the target is broker-type specific,
+   and add the names to `dispatchTargets` in `dispatch_golden_test.go` (a test enforces this).
 4. **Document it** by adding a row to the "Supported Scrape Targets" table in `docs/CONFIG.md`, the table in
    `internal/web/templates/index.html`, and the metric groups table in `README.md`.
-5. **Test it** with a captured payload fixture under `test/data` and a table-driven test (see §6).
+5. **Test it** by registering the getter in `semp1Getters` (`internal/semp/golden_test.go`), running
+   `go generate ./internal/semp` to create its synthetic reply and then generating its golden file (see §6).
 
 To add a new named endpoint, no code change is needed — add an `[endpoint.<name>]` section to the config file.
 
@@ -114,8 +126,19 @@ To add a new named endpoint, no code change is needed — add an `[endpoint.<nam
 
 * **Run:** `make test` (`go test -short ./...`). Use `-short` to skip long/integration paths; `make test-coverage`
   writes an HTML report to `reports/`.
-* **Style:** table-driven tests decode fixtures under `test/data` (e.g. `semp1-vpn.txt`, `semp2-queue.txt`) and
-  assert emitted metrics; shared helpers live in `helper_test.go`. Add a fixture for every new getter.
+* **Style:** table-driven tests; shared helpers live in `helper_test.go`.
+* **Golden (characterization) tests:** `internal/semp/golden_test.go` runs every SEMP getter against a fake broker
+  (happy path, paged reply, HTTP error, malformed body, failed execute-result) and compares the SEMP requests sent,
+  the `(up, err)` result and every emitted metric with `internal/semp/testdata/golden/*.golden`. Replies live in
+  `testdata/semp1/` (synthetic, one unique number per field, generated from the getters' reply structs by
+  `go generate ./internal/semp`; a test fails if they are outdated) and `testdata/semp1-scenarios/` (hand-written,
+  realistic values for string-dependent branches). Metric names, help texts and labels are pinned in
+  `testdata/golden/metric_descriptions.golden`. A diff in a golden file is a behaviour change: only regenerate with
+  `go test ./internal/semp -run TestGolden -update` when the change is intended, and review the diff.
+* **Where test data lives:** `test/data/` holds payloads captured from real brokers (with the `curl` command that
+  produced them) and is shared by hand-written unit tests and docs. `internal/<package>/testdata/` holds data
+  generated for or by tests of that package (Go convention; ignored by `go build`): synthetic replies, scenarios and
+  golden files.
 * **Static checks:** `make vet` and `make lint` (golangci-lint) must pass. CI also runs `go mod tidy` and fails if
   `go.mod`/`go.sum` change, so run `go mod tidy` after touching dependencies.
 * **End-to-end:** `test/oauth/docker-compose.yaml` spins up Keycloak + a Solace broker + a scrape check to exercise
@@ -142,6 +165,9 @@ To add a new named endpoint, no code change is needed — add an `[endpoint.<nam
   refreshed, so stale series disappear. All prefetch endpoints honour the same exporter Basic Auth.
 * **Filters:** SEMP v1 supports `*` wildcards in VPN and item filters; SEMP v2 needs a concrete VPN (falling back to
   `defaultVpn` when the filter is `*`) and uses `where=`/`select=` query filters instead.
+* **Untrusted filters:** VPN/item filters come from the scrape request. In SEMP v1 commands always wrap them in
+  `semp1Escape(...)` and pass them as `%s` arguments, never inside a `fmt.Sprintf` format string;
+  `TestSemp1CommandsEscapeFilters` checks every getter registered in `semp1Getters`.
 
 ## 8. Example
 
@@ -168,23 +194,13 @@ func (semp *Semp) GetMemorySemp1(ch chan<- PrometheusMetric) (float64, error) {
                 } `xml:"memory"`
             } `xml:"show"`
         } `xml:"rpc"`
-        ExecuteResult types.ExecuteResult `xml:"execute-result"`
+        types.Reply // more-cookie and execute-result
     }
-
-    body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml",
-        "<rpc><show><memory/></show></rpc>", "MemorySemp1", 1)
-    if err != nil {
-        semp.logger.Error("Can't scrape MemorySemp1", "err", err, "broker", semp.brokerURI)
-        return -1, err // unrecoverable: broker unreachable
-    }
-    defer func() { _ = body.Close() }()
 
     var target Data
-    if err := xml.NewDecoder(body).Decode(&target); err != nil {
-        return 0, err
-    }
-    if target.ExecuteResult.Result != "ok" {
-        return 0, errors.New("unexpected result: see log for details")
+    // up is -1 if the broker is unreachable (aborts the remaining targets), 0 for a bad reply or failed result.
+    if up, err := semp.fetchSemp1("<rpc><show><memory/></show></rpc>", "MemorySemp1", 1, &target); err != nil {
+        return up, err
     }
 
     ch <- semp.NewMetric(MetricDesc["Memory"]["physical_memory_usage_percent"],
@@ -194,9 +210,8 @@ func (semp *Semp) GetMemorySemp1(ch chan<- PrometheusMetric) (float64, error) {
 ```
 
 ```go
-// internal/exporter/exporter.collect.go — inside the dispatch switch
-case "Memory", "MemoryV1":
-    up, err = e.semp.GetMemorySemp1(ch)
+// internal/exporter/scrapeTargets.go — inside the scrapeTargets registry
+target("Memory", anyBroker, noFilter((*semp.Semp).GetMemorySemp1)),
 ```
 
 Scrape it via `http://<host>:9628/solace?m.Memory=*|*`, or add `Memory = *|*` to an `[endpoint.<alias>]` section.

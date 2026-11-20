@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"strconv"
 	"strings"
 
@@ -14,7 +13,7 @@ import (
 // gauge per (client, endpoint) binding. A single client can be bound to multiple
 // endpoints, so each <flow> under <flows-to-client> becomes one series.
 //
-// itemFilter is the broker-side client-name wildcard (passed verbatim into
+// itemFilter is the broker-side client-name wildcard (XML-escaped into
 // <name>); the broker handles the wildcard. There is no VPN or endpoint-name
 // filter at the SEMP level for `show client ... message-spool egress`.
 func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, itemFilter string) (float64, error) {
@@ -48,31 +47,15 @@ func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, i
 				} `xml:"client"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
 	// The broker does not support paging (<count/><num-elements>) for
 	// `show client ... message-spool egress connected`, so this is a single request.
-	command := "<rpc><show><client><name>" + itemFilter + "</name><message-spool/><egress/><connected/></client></show></rpc>"
-	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientMessageSpoolEgressSemp1", 1)
-	if err != nil {
-		semp.logger.Error("Can't scrape ClientMessageSpoolEgressSemp1", "err", err, "broker", semp.brokerURI)
-		return -1, err
-	}
-	decoder := xml.NewDecoder(body)
+	command := "<rpc><show><client><name>" + semp1Escape(itemFilter) + "</name><message-spool/><egress/><connected/></client></show></rpc>"
 	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		semp.logger.Error("Can't decode ClientMessageSpoolEgressSemp1", "err", err, "broker", semp.brokerURI)
-		_ = body.Close()
-		return 0, err
-	}
-	if err := target.ExecuteResult.OK(); err != nil {
-		semp.logger.Error("unexpected result",
-			"command", command, "result", target.ExecuteResult.Result,
-			"reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
-		_ = body.Close()
-		return 0, err
+	if up, err := semp.fetchSemp1(command, "ClientMessageSpoolEgressSemp1", 1, &target); err != nil {
+		return up, err
 	}
 	for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 		clientIDStr := strconv.FormatUint(uint64(client.ClientID), 10)
@@ -91,6 +74,5 @@ func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, i
 			)
 		}
 	}
-	_ = body.Close()
 	return 1, nil
 }

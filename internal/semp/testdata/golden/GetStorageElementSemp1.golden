@@ -1,0 +1,38 @@
+## ok
+request[1]: POST /SEMP <rpc><show><storage-element><pattern>item*</pattern></storage-element></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_storage_avail_bytes{path="2",device_name="3",element_name="1"} gauge 6144
+metric: solace_system_storage_avail_bytes{path="9",device_name="10",element_name="8"} gauge 13312
+metric: solace_system_storage_avail_bytes{path="9",device_name="10",element_name="8"} gauge 13312
+metric: solace_system_storage_used_bytes{path="2",device_name="3",element_name="1"} gauge 5120
+metric: solace_system_storage_used_bytes{path="9",device_name="10",element_name="8"} gauge 12288
+metric: solace_system_storage_used_bytes{path="9",device_name="10",element_name="8"} gauge 12288
+metric: solace_system_storage_used_percent{path="2",device_name="3",element_name="1"} gauge 7
+metric: solace_system_storage_used_percent{path="9",device_name="10",element_name="8"} gauge 14
+metric: solace_system_storage_used_percent{path="9",device_name="10",element_name="8"} gauge 14
+## paged
+request[1]: POST /SEMP <rpc><show><storage-element><pattern>item*</pattern></storage-element></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_storage_avail_bytes{path="2",device_name="3",element_name="1"} gauge 6144
+metric: solace_system_storage_avail_bytes{path="9",device_name="10",element_name="8"} gauge 13312
+metric: solace_system_storage_avail_bytes{path="9",device_name="10",element_name="8"} gauge 13312
+metric: solace_system_storage_used_bytes{path="2",device_name="3",element_name="1"} gauge 5120
+metric: solace_system_storage_used_bytes{path="9",device_name="10",element_name="8"} gauge 12288
+metric: solace_system_storage_used_bytes{path="9",device_name="10",element_name="8"} gauge 12288
+metric: solace_system_storage_used_percent{path="2",device_name="3",element_name="1"} gauge 7
+metric: solace_system_storage_used_percent{path="9",device_name="10",element_name="8"} gauge 14
+metric: solace_system_storage_used_percent{path="9",device_name="10",element_name="8"} gauge 14
+## http-500
+request[1]: POST /SEMP <rpc><show><storage-element><pattern>item*</pattern></storage-element></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><storage-element><pattern>item*</pattern></storage-element></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><storage-element><pattern>item*</pattern></storage-element></show></rpc>
+up: 0
+err: unexpected result: golden failure

@@ -1,8 +1,10 @@
 package semp
 
 import (
+	"encoding/xml"
 	"fmt"
 	"net/url"
+	"sort"
 	"strings"
 )
 
@@ -16,6 +18,10 @@ func mapItems(items []string, translateMap map[string]string) ([]string, error) 
 		validItems = append(validItems, key, rawItem)
 	}
 
+	// translateMap is iterated in random order; sort so the error text, which becomes the error label of
+	// solace_up, is stable across scrapes instead of creating a new series each time.
+	sort.Strings(validItems)
+
 	for _, item := range items {
 		if translatedItem, ok := translateMap[item]; ok {
 			translated = append(translated, translatedItem)
@@ -23,7 +29,7 @@ func mapItems(items []string, translateMap map[string]string) ([]string, error) 
 			translated = append(translated, item)
 		} else {
 			return nil, fmt.Errorf(
-				"item \"%s\" is not valid. Pleaee choose from: %s",
+				"item \"%s\" is not valid. Please choose from: %s",
 				item,
 				strings.Join(validItems, ","),
 			)
@@ -44,4 +50,13 @@ func queryEscape(raw string) string {
 	}
 
 	return url.QueryEscape(raw)
+}
+
+// semp1Escape escapes a value, typically a VPN or item filter from the scrape request, for use as text content in a
+// SEMP v1 command, so it cannot close its element and alter the command. Well-formed XML text decodes to the same
+// value, so the broker receives exactly what it received before for every filter that was valid XML before.
+func semp1Escape(value string) string {
+	var sb strings.Builder
+	_ = xml.EscapeText(&sb, []byte(value)) // writing to a strings.Builder cannot fail
+	return sb.String()
 }

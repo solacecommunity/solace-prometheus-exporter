@@ -1,0 +1,17 @@
+<rpc-reply semp-version="soltr/10_0"><rpc><show><hardware>
+<power-redundancy><operational-power-supplies>2</operational-power-supplies></power-redundancy>
+<fabric>
+<slot><slot-number>1</slot-number><card-type>Host Bus Adapter Blade</card-type>
+<fibre-channel><number>1</number><operational-state>Online</operational-state><state>Link Up - N_Port to N_Port (direct nport connection)</state></fibre-channel>
+<fibre-channel><number>2</number><operational-state>Linkdown</operational-state><state>Link Down</state></fibre-channel>
+<external-disk-lun><number>0</number><state>Ready</state></external-disk-lun>
+<external-disk-lun><number>1</number><state>Not Ready</state></external-disk-lun>
+<external-disk-lun><number>2</number><state>Offline</state></external-disk-lun>
+</slot>
+<slot><slot-number>2</slot-number><card-type>Assured Delivery Blade</card-type>
+<operational-state-up>true</operational-state-up><flash-card-state>Ready</flash-card-state><power-module-state>Ok</power-module-state>
+<mate-link-1-state>Ok</mate-link-1-state><mate-link-2-state>No SFP Module</mate-link-2-state>
+</slot>
+<slot><slot-number>3</slot-number><card-type>Network Acceleration Blade</card-type></slot>
+</fabric>
+</hardware></show></rpc><execute-result code="ok"/></rpc-reply>

@@ -1,0 +1,62 @@
+## ok
+request[1]: POST /SEMP <rpc><show><client-profile><name>*</name><vpn-name>vpn*</vpn-name><detail/></client-profile></show></rpc>
+up: 1
+err: <nil>
+metric: solace_clientprofile_max_connections_per_username{vpn_name="11",client_profile="10"} gauge 13
+metric: solace_clientprofile_max_connections_per_username{vpn_name="11",client_profile="10"} gauge 13
+metric: solace_clientprofile_max_connections_per_username{vpn_name="2",client_profile="1"} gauge 4
+metric: solace_clientprofile_max_egress_flows{vpn_name="11",client_profile="10"} gauge 15
+metric: solace_clientprofile_max_egress_flows{vpn_name="11",client_profile="10"} gauge 15
+metric: solace_clientprofile_max_egress_flows{vpn_name="2",client_profile="1"} gauge 6
+metric: solace_clientprofile_max_endpoints_per_username{vpn_name="11",client_profile="10"} gauge 14
+metric: solace_clientprofile_max_endpoints_per_username{vpn_name="11",client_profile="10"} gauge 14
+metric: solace_clientprofile_max_endpoints_per_username{vpn_name="2",client_profile="1"} gauge 5
+metric: solace_clientprofile_max_ingress_flows{vpn_name="11",client_profile="10"} gauge 16
+metric: solace_clientprofile_max_ingress_flows{vpn_name="11",client_profile="10"} gauge 16
+metric: solace_clientprofile_max_ingress_flows{vpn_name="2",client_profile="1"} gauge 7
+metric: solace_clientprofile_max_subscriptions{vpn_name="11",client_profile="10"} gauge 18
+metric: solace_clientprofile_max_subscriptions{vpn_name="11",client_profile="10"} gauge 18
+metric: solace_clientprofile_max_subscriptions{vpn_name="2",client_profile="1"} gauge 9
+metric: solace_clientprofile_max_transacted_sessions{vpn_name="11",client_profile="10"} gauge 17
+metric: solace_clientprofile_max_transacted_sessions{vpn_name="11",client_profile="10"} gauge 17
+metric: solace_clientprofile_max_transacted_sessions{vpn_name="2",client_profile="1"} gauge 8
+metric: solace_clientprofile_num_users{vpn_name="11",client_profile="10"} gauge 12
+metric: solace_clientprofile_num_users{vpn_name="11",client_profile="10"} gauge 12
+metric: solace_clientprofile_num_users{vpn_name="2",client_profile="1"} gauge 3
+## paged
+request[1]: POST /SEMP <rpc><show><client-profile><name>*</name><vpn-name>vpn*</vpn-name><detail/></client-profile></show></rpc>
+up: 1
+err: <nil>
+metric: solace_clientprofile_max_connections_per_username{vpn_name="11",client_profile="10"} gauge 13
+metric: solace_clientprofile_max_connections_per_username{vpn_name="11",client_profile="10"} gauge 13
+metric: solace_clientprofile_max_connections_per_username{vpn_name="2",client_profile="1"} gauge 4
+metric: solace_clientprofile_max_egress_flows{vpn_name="11",client_profile="10"} gauge 15
+metric: solace_clientprofile_max_egress_flows{vpn_name="11",client_profile="10"} gauge 15
+metric: solace_clientprofile_max_egress_flows{vpn_name="2",client_profile="1"} gauge 6
+metric: solace_clientprofile_max_endpoints_per_username{vpn_name="11",client_profile="10"} gauge 14
+metric: solace_clientprofile_max_endpoints_per_username{vpn_name="11",client_profile="10"} gauge 14
+metric: solace_clientprofile_max_endpoints_per_username{vpn_name="2",client_profile="1"} gauge 5
+metric: solace_clientprofile_max_ingress_flows{vpn_name="11",client_profile="10"} gauge 16
+metric: solace_clientprofile_max_ingress_flows{vpn_name="11",client_profile="10"} gauge 16
+metric: solace_clientprofile_max_ingress_flows{vpn_name="2",client_profile="1"} gauge 7
+metric: solace_clientprofile_max_subscriptions{vpn_name="11",client_profile="10"} gauge 18
+metric: solace_clientprofile_max_subscriptions{vpn_name="11",client_profile="10"} gauge 18
+metric: solace_clientprofile_max_subscriptions{vpn_name="2",client_profile="1"} gauge 9
+metric: solace_clientprofile_max_transacted_sessions{vpn_name="11",client_profile="10"} gauge 17
+metric: solace_clientprofile_max_transacted_sessions{vpn_name="11",client_profile="10"} gauge 17
+metric: solace_clientprofile_max_transacted_sessions{vpn_name="2",client_profile="1"} gauge 8
+metric: solace_clientprofile_num_users{vpn_name="11",client_profile="10"} gauge 12
+metric: solace_clientprofile_num_users{vpn_name="11",client_profile="10"} gauge 12
+metric: solace_clientprofile_num_users{vpn_name="2",client_profile="1"} gauge 3
+## http-500
+request[1]: POST /SEMP <rpc><show><client-profile><name>*</name><vpn-name>vpn*</vpn-name><detail/></client-profile></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><client-profile><name>*</name><vpn-name>vpn*</vpn-name><detail/></client-profile></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><client-profile><name>*</name><vpn-name>vpn*</vpn-name><detail/></client-profile></show></rpc>
+up: 0
+err: unexpected result: golden failure

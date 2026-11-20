@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -31,32 +30,13 @@ func (semp *Semp) GetClusterLinksSemp1(ch chan<- PrometheusMetric, clusterFilter
 				} `xml:"cluster"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
-	command := "<rpc><show><cluster><cluster-name-pattern>" + clusterFilter + "</cluster-name-pattern><link-name-pattern>" + linkFilter + "</link-name-pattern></cluster></show></rpc>"
-	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClusterLinksSemp1", 1)
-	if err != nil {
-		semp.logger.Error("Can't scrape ClusterLinksSemp1", "err", err, "broker", semp.brokerURI)
-		return -1, err
-	}
-	defer func() { _ = body.Close() }()
-	decoder := xml.NewDecoder(body)
+	command := "<rpc><show><cluster><cluster-name-pattern>" + semp1Escape(clusterFilter) + "</cluster-name-pattern><link-name-pattern>" + semp1Escape(linkFilter) + "</link-name-pattern></cluster></show></rpc>"
 	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		semp.logger.Error("Can't decode Xml ClusterLinksSemp1", "err", err, "broker", semp.brokerURI)
-		return 0, err
-	}
-	if err := target.ExecuteResult.OK(); err != nil {
-		semp.logger.Error(
-			"unexpected result",
-			"command", command,
-			"result", target.ExecuteResult.Result,
-			"reason", target.ExecuteResult.Reason,
-			"broker", semp.brokerURI,
-		)
-		return 0, err
+	if up, err := semp.fetchSemp1(command, "ClusterLinksSemp1", 1, &target); err != nil {
+		return up, err
 	}
 
 	for _, cluster := range target.RPC.Show.Cluster.Clusters.Cluster {

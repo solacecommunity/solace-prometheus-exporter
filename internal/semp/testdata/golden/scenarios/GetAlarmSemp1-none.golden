@@ -1,0 +1,10 @@
+## software-broker
+request[1]: POST /SEMP <rpc><show><alarm/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_alarm gauge 0
+## hardware-broker
+request[1]: POST /SEMP <rpc><show><alarm/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_alarm gauge 0

@@ -1,0 +1,108 @@
+## ok
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>item*</rdp-name></message-vpn></show></rpc>
+up: 1
+err: <nil>
+metric: solace_rdp_blocked_conns_percent{vpn_name="10",rdp_name="9"} counter 17
+metric: solace_rdp_blocked_conns_percent{vpn_name="19",rdp_name="18"} counter 26
+metric: solace_rdp_blocked_conns_percent{vpn_name="19",rdp_name="18"} counter 26
+metric: solace_rdp_consumer_out_connections_configured{vpn_name="10",rdp_name="9"} counter 14
+metric: solace_rdp_consumer_out_connections_configured{vpn_name="19",rdp_name="18"} counter 23
+metric: solace_rdp_consumer_out_connections_configured{vpn_name="19",rdp_name="18"} counter 23
+metric: solace_rdp_consumer_out_connections_up{vpn_name="10",rdp_name="9"} counter 13
+metric: solace_rdp_consumer_out_connections_up{vpn_name="19",rdp_name="18"} counter 22
+metric: solace_rdp_consumer_out_connections_up{vpn_name="19",rdp_name="18"} counter 22
+metric: solace_rdp_enabled{vpn_name="10",rdp_name="9"} gauge 0
+metric: solace_rdp_enabled{vpn_name="19",rdp_name="18"} gauge 1
+metric: solace_rdp_enabled{vpn_name="19",rdp_name="18"} gauge 1
+metric: solace_rdp_operating_status{vpn_name="10",rdp_name="9"} gauge 1
+metric: solace_rdp_operating_status{vpn_name="19",rdp_name="18"} gauge 0
+metric: solace_rdp_operating_status{vpn_name="19",rdp_name="18"} gauge 0
+metric: solace_rdp_queue_bindings_configured{vpn_name="10",rdp_name="9"} counter 16
+metric: solace_rdp_queue_bindings_configured{vpn_name="19",rdp_name="18"} counter 25
+metric: solace_rdp_queue_bindings_configured{vpn_name="19",rdp_name="18"} counter 25
+metric: solace_rdp_queue_bindings_up{vpn_name="10",rdp_name="9"} counter 15
+metric: solace_rdp_queue_bindings_up{vpn_name="19",rdp_name="18"} counter 24
+metric: solace_rdp_queue_bindings_up{vpn_name="19",rdp_name="18"} counter 24
+metric: solace_rdp_total_queue_bindings_configured counter 8
+metric: solace_rdp_total_queue_bindings_up counter 7
+metric: solace_rdp_total_rest_consumer_outgoing_connections_configured counter 6
+metric: solace_rdp_total_rest_consumer_outgoing_connections_up counter 5
+metric: solace_rdp_total_rest_consumers_configured counter 4
+metric: solace_rdp_total_rest_consumers_up counter 3
+metric: solace_rdp_total_rest_delivery_points_configured counter 2
+metric: solace_rdp_total_rest_delivery_points_up counter 1
+## paged
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>item*</rdp-name></message-vpn></show></rpc>
+request[2]: POST /SEMP <rpc><show><golden-page-2/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_rdp_blocked_conns_percent{vpn_name="10",rdp_name="9"} counter 17
+metric: solace_rdp_blocked_conns_percent{vpn_name="10",rdp_name="9"} counter 17
+metric: solace_rdp_blocked_conns_percent{vpn_name="19",rdp_name="18"} counter 26
+metric: solace_rdp_blocked_conns_percent{vpn_name="19",rdp_name="18"} counter 26
+metric: solace_rdp_blocked_conns_percent{vpn_name="19",rdp_name="18"} counter 26
+metric: solace_rdp_blocked_conns_percent{vpn_name="19",rdp_name="18"} counter 26
+metric: solace_rdp_consumer_out_connections_configured{vpn_name="10",rdp_name="9"} counter 14
+metric: solace_rdp_consumer_out_connections_configured{vpn_name="10",rdp_name="9"} counter 14
+metric: solace_rdp_consumer_out_connections_configured{vpn_name="19",rdp_name="18"} counter 23
+metric: solace_rdp_consumer_out_connections_configured{vpn_name="19",rdp_name="18"} counter 23
+metric: solace_rdp_consumer_out_connections_configured{vpn_name="19",rdp_name="18"} counter 23
+metric: solace_rdp_consumer_out_connections_configured{vpn_name="19",rdp_name="18"} counter 23
+metric: solace_rdp_consumer_out_connections_up{vpn_name="10",rdp_name="9"} counter 13
+metric: solace_rdp_consumer_out_connections_up{vpn_name="10",rdp_name="9"} counter 13
+metric: solace_rdp_consumer_out_connections_up{vpn_name="19",rdp_name="18"} counter 22
+metric: solace_rdp_consumer_out_connections_up{vpn_name="19",rdp_name="18"} counter 22
+metric: solace_rdp_consumer_out_connections_up{vpn_name="19",rdp_name="18"} counter 22
+metric: solace_rdp_consumer_out_connections_up{vpn_name="19",rdp_name="18"} counter 22
+metric: solace_rdp_enabled{vpn_name="10",rdp_name="9"} gauge 0
+metric: solace_rdp_enabled{vpn_name="10",rdp_name="9"} gauge 0
+metric: solace_rdp_enabled{vpn_name="19",rdp_name="18"} gauge 1
+metric: solace_rdp_enabled{vpn_name="19",rdp_name="18"} gauge 1
+metric: solace_rdp_enabled{vpn_name="19",rdp_name="18"} gauge 1
+metric: solace_rdp_enabled{vpn_name="19",rdp_name="18"} gauge 1
+metric: solace_rdp_operating_status{vpn_name="10",rdp_name="9"} gauge 1
+metric: solace_rdp_operating_status{vpn_name="10",rdp_name="9"} gauge 1
+metric: solace_rdp_operating_status{vpn_name="19",rdp_name="18"} gauge 0
+metric: solace_rdp_operating_status{vpn_name="19",rdp_name="18"} gauge 0
+metric: solace_rdp_operating_status{vpn_name="19",rdp_name="18"} gauge 0
+metric: solace_rdp_operating_status{vpn_name="19",rdp_name="18"} gauge 0
+metric: solace_rdp_queue_bindings_configured{vpn_name="10",rdp_name="9"} counter 16
+metric: solace_rdp_queue_bindings_configured{vpn_name="10",rdp_name="9"} counter 16
+metric: solace_rdp_queue_bindings_configured{vpn_name="19",rdp_name="18"} counter 25
+metric: solace_rdp_queue_bindings_configured{vpn_name="19",rdp_name="18"} counter 25
+metric: solace_rdp_queue_bindings_configured{vpn_name="19",rdp_name="18"} counter 25
+metric: solace_rdp_queue_bindings_configured{vpn_name="19",rdp_name="18"} counter 25
+metric: solace_rdp_queue_bindings_up{vpn_name="10",rdp_name="9"} counter 15
+metric: solace_rdp_queue_bindings_up{vpn_name="10",rdp_name="9"} counter 15
+metric: solace_rdp_queue_bindings_up{vpn_name="19",rdp_name="18"} counter 24
+metric: solace_rdp_queue_bindings_up{vpn_name="19",rdp_name="18"} counter 24
+metric: solace_rdp_queue_bindings_up{vpn_name="19",rdp_name="18"} counter 24
+metric: solace_rdp_queue_bindings_up{vpn_name="19",rdp_name="18"} counter 24
+metric: solace_rdp_total_queue_bindings_configured counter 8
+metric: solace_rdp_total_queue_bindings_configured counter 8
+metric: solace_rdp_total_queue_bindings_up counter 7
+metric: solace_rdp_total_queue_bindings_up counter 7
+metric: solace_rdp_total_rest_consumer_outgoing_connections_configured counter 6
+metric: solace_rdp_total_rest_consumer_outgoing_connections_configured counter 6
+metric: solace_rdp_total_rest_consumer_outgoing_connections_up counter 5
+metric: solace_rdp_total_rest_consumer_outgoing_connections_up counter 5
+metric: solace_rdp_total_rest_consumers_configured counter 4
+metric: solace_rdp_total_rest_consumers_configured counter 4
+metric: solace_rdp_total_rest_consumers_up counter 3
+metric: solace_rdp_total_rest_consumers_up counter 3
+metric: solace_rdp_total_rest_delivery_points_configured counter 2
+metric: solace_rdp_total_rest_delivery_points_configured counter 2
+metric: solace_rdp_total_rest_delivery_points_up counter 1
+metric: solace_rdp_total_rest_delivery_points_up counter 1
+## http-500
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>item*</rdp-name></message-vpn></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>item*</rdp-name></message-vpn></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>item*</rdp-name></message-vpn></show></rpc>
+up: 0
+err: unexpected result: golden failure

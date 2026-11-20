@@ -1,0 +1,4 @@
+<rpc-reply semp-version="soltr/10_0"><rpc><show><message-spool><message-spool-info>
+<config-status>Enabled (Primary)</config-status><operational-status>AD-Active</operational-status>
+<max-disk-usage>1000</max-disk-usage>
+</message-spool-info></message-spool></show></rpc><execute-result code="ok"/></rpc-reply>

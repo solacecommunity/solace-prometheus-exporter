@@ -1,9 +1,8 @@
 package semp
 
 import (
-	"encoding/xml"
+	"fmt"
 	"math"
-    "fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -31,41 +30,12 @@ func (semp *Semp) GetTopicEndpointDetailsSemp1(ch chan<- PrometheusMetric, vpnFi
 				} `xml:"topic-endpoint"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
-	var page = 1
 	var lastTopicEndpointName = ""
-	for command := fmt.Sprintf("<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>%d</num-elements></topic-endpoint></show></rpc>", sempPageSize); command != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "TopicEndpointDetailsSemp1", page)
-		page++
-
-		if err != nil {
-			semp.logger.Error("Can't scrape TopicEndpointDetailsSemp1", "err", err, "broker", semp.brokerURI)
-			return -1, err
-		}
-		decoder := xml.NewDecoder(body)
-		var target Data
-		err = decoder.Decode(&target)
-		if err != nil {
-			semp.logger.Error("Can't decode TopicEndpointDetailsSemp1", "err", err, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-		if err := target.ExecuteResult.OK(); err != nil {
-			semp.logger.Error("unexpected result",
-				"command", command,
-				"result", target.ExecuteResult.Result,
-				"reason", target.ExecuteResult.Reason,
-				"broker", semp.brokerURI,
-			)
-			_ = body.Close()
-			return 0, err
-		}
-
-		command = target.MoreCookie.RPC
-
+	command := fmt.Sprintf("<rpc><show><topic-endpoint><name>%s</name><vpn-name>%s</vpn-name><detail/><count/><num-elements>%d</num-elements></topic-endpoint></show></rpc>", semp1Escape(itemFilter), semp1Escape(vpnFilter), sempPageSize)
+	return fetchSemp1Pages(semp, command, "TopicEndpointDetailsSemp1", func(target *Data) {
 		for _, topicEndpoint := range target.RPC.Show.TopicEndpoint.TopicEndpoints.TopicEndpoint {
 			topicEndpointKey := topicEndpoint.Info.MsgVpnName + "___" + topicEndpoint.TopicEndpointName
 			if topicEndpointKey == lastTopicEndpointName {
@@ -77,8 +47,5 @@ func (semp *Semp) GetTopicEndpointDetailsSemp1(ch chan<- PrometheusMetric, vpnFi
 			ch <- semp.NewMetric(MetricDesc["TopicEndpointDetails"]["spool_usage_msgs"], prometheus.GaugeValue, topicEndpoint.Info.SpooledMsgCount, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndpointName)
 			ch <- semp.NewMetric(MetricDesc["TopicEndpointDetails"]["binds"], prometheus.GaugeValue, topicEndpoint.Info.BindCount, topicEndpoint.Info.MsgVpnName, topicEndpoint.TopicEndpointName)
 		}
-		_ = body.Close()
-	}
-
-	return 1, nil
+	})
 }

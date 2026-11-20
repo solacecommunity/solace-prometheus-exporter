@@ -1,8 +1,7 @@
 package semp
 
 import (
-	"encoding/xml"
-    "fmt"
+	"fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -35,39 +34,13 @@ func (semp *Semp) GetMqttSessionSemp1(ch chan<- PrometheusMetric, vpnFilter stri
 				} `xml:"message-vpn"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
 	var lastSessionKey = ""
-	var page = 1
 
-	for command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><mqtt/><mqtt-session/><client-id-pattern>" + itemFilter + "</client-id-pattern><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize); command != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "MqttSessionSemp1", page)
-		page++
-
-		if err != nil {
-			semp.logger.Error("Can't scrape MqttSessionSemp1", "err", err, "broker", semp.brokerURI)
-			return -1, err
-		}
-
-		decoder := xml.NewDecoder(body)
-		var target Data
-		err = decoder.Decode(&target)
-		if err != nil {
-			semp.logger.Error("Can't decode MqttSessionSemp1", "err", err, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-
-		if err := target.ExecuteResult.OK(); err != nil {
-			semp.logger.Error("unexpected result", "command", command, "result", target.ExecuteResult.Result, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-
-		command = target.MoreCookie.RPC
-
+	command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>%s</vpn-name><mqtt/><mqtt-session/><client-id-pattern>%s</client-id-pattern><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", semp1Escape(vpnFilter), semp1Escape(itemFilter), sempPageSize)
+	return fetchSemp1Pages(semp, command, "MqttSessionSemp1", func(target *Data) {
 		for _, session := range target.RPC.Show.MessageVpn.Mqtt.MqttSessions.MqttSession {
 			sessionKey := session.MsgVpnName + "___" + session.ClientId
 			if sessionKey == lastSessionKey {
@@ -81,8 +54,5 @@ func (semp *Semp) GetMqttSessionSemp1(ch chan<- PrometheusMetric, vpnFilter stri
 			ch <- semp.NewMetric(MetricDesc["MqttSession"]["mqtt_session_subscriptions"], prometheus.GaugeValue, session.NumSubscriptions, session.MsgVpnName, session.ClientId, session.Owner)
 			ch <- semp.NewMetric(MetricDesc["MqttSession"]["mqtt_session_uptime_seconds"], prometheus.GaugeValue, uptimeSeconds, session.MsgVpnName, session.ClientId, session.Owner)
 		}
-		_ = body.Close()
-	}
-
-	return 1, nil
+	})
 }

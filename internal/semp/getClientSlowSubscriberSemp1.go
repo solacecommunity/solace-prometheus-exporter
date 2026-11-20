@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 	"strings"
 
@@ -26,49 +25,16 @@ func (semp *Semp) GetClientSlowSubscriberSemp1(ch chan<- PrometheusMetric, vpnFi
 				} `xml:"client"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
-	var page = 1
-	for command := "<rpc><show><client><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><slow-subscriber/></client></show></rpc>"; command != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientSlowSubscriberSemp1", page)
-		page++
-
-		if err != nil {
-			semp.logger.Error("Can't scrape ClientSlowSubscriberSemp1", "err", err, "broker", semp.brokerURI)
-			return -1, err
-		}
-
-		decoder := xml.NewDecoder(body)
-		var target Data
-		err = decoder.Decode(&target)
-		if err != nil {
-			semp.logger.Error("Can't decode ClientSlowSubscriberSemp1", "err", err, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-		if err := target.ExecuteResult.OK(); err != nil {
-			semp.logger.Error(
-				"unexpected result",
-				"command", command,
-				"result", target.ExecuteResult.Result,
-				"reason", target.ExecuteResult.Reason,
-				"broker", semp.brokerURI,
-			)
-			_ = body.Close()
-			return 0, err
-		}
-
-		command = target.MoreCookie.RPC
+	command := "<rpc><show><client><name>" + semp1Escape(itemFilter) + "</name><vpn-name>" + semp1Escape(vpnFilter) + "</vpn-name><slow-subscriber/></client></show></rpc>"
+	return fetchSemp1Pages(semp, command, "ClientSlowSubscriberSemp1", func(target *Data) {
 		const slowSubscriber float64 = 1.0
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientIP := strings.Split(client.ClientAddress, ":")[0]
 			ch <- semp.NewMetric(MetricDesc["ClientSlowSubscriber"]["client_slow_subscriber"], prometheus.GaugeValue, slowSubscriber, client.MsgVpnName, client.ClientName, clientIP, "")
 		}
-		_ = body.Close()
-	}
-
-	return 1, nil
+	})
 }
