@@ -30,7 +30,7 @@ func (semp *Semp) GetInterfaceSemp1(ch chan<- PrometheusMetric, interfaceFilter 
 		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
-	command := "<rpc><show><interface><phy-interface>" + interfaceFilter + "</phy-interface></interface></show></rpc>"
+	command := "<rpc><show><interface><phy-interface>" + semp1Escape(interfaceFilter) + "</phy-interface></interface></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "InterfaceSemp1", 1)
 	if err != nil {
 		semp.logger.Error("Can't scrape InterfaceSemp1", "err", err, "broker", semp.brokerURI)

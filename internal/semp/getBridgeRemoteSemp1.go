@@ -44,7 +44,7 @@ func (semp *Semp) GetBridgeRemoteSemp1(ch chan<- PrometheusMetric, vpnFilter str
 		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
-	command := "<rpc><show><bridge><bridge-name-pattern>" + itemFilter + "</bridge-name-pattern><vpn-name-pattern>" + vpnFilter + "</vpn-name-pattern></bridge></show></rpc>"
+	command := "<rpc><show><bridge><bridge-name-pattern>" + semp1Escape(itemFilter) + "</bridge-name-pattern><vpn-name-pattern>" + semp1Escape(vpnFilter) + "</vpn-name-pattern></bridge></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "BridgeRemoteSemp1", 1)
 	if err != nil {
 		semp.logger.Error("Can't scrape BridgeRemoteSemp1", "err", err, "broker", semp.brokerURI)

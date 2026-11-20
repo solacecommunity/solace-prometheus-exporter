@@ -14,7 +14,7 @@ import (
 // gauge per (client, endpoint) binding. A single client can be bound to multiple
 // endpoints, so each <flow> under <flows-to-client> becomes one series.
 //
-// itemFilter is the broker-side client-name wildcard (passed verbatim into
+// itemFilter is the broker-side client-name wildcard (XML-escaped into
 // <name>); the broker handles the wildcard. There is no VPN or endpoint-name
 // filter at the SEMP level for `show client ... message-spool egress`.
 func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, itemFilter string) (float64, error) {
@@ -53,7 +53,7 @@ func (semp *Semp) GetClientMessageSpoolEgressSemp1(ch chan<- PrometheusMetric, i
 
 	// The broker does not support paging (<count/><num-elements>) for
 	// `show client ... message-spool egress connected`, so this is a single request.
-	command := "<rpc><show><client><name>" + itemFilter + "</name><message-spool/><egress/><connected/></client></show></rpc>"
+	command := "<rpc><show><client><name>" + semp1Escape(itemFilter) + "</name><message-spool/><egress/><connected/></client></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientMessageSpoolEgressSemp1", 1)
 	if err != nil {
 		semp.logger.Error("Can't scrape ClientMessageSpoolEgressSemp1", "err", err, "broker", semp.brokerURI)

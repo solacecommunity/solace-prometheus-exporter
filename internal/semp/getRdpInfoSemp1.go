@@ -47,7 +47,7 @@ func (semp *Semp) GetRdpInfoSemp1(ch chan<- PrometheusMetric, vpnFilter string, 
 	}
 	var page = 1
 	var lastRdpName = ""
-	for command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>" + itemFilter + "</rdp-name></message-vpn></show></rpc>"; command != ""; {
+	for command := "<rpc><show><message-vpn><vpn-name>" + semp1Escape(vpnFilter) + "</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>" + semp1Escape(itemFilter) + "</rdp-name></message-vpn></show></rpc>"; command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "RdpInfoSemp1", page)
 		page++
 		if err != nil {
