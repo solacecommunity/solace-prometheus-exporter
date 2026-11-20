@@ -1,0 +1,30 @@
+## ok
+request[1]: POST /SEMP <rpc><show><system/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_cpu_cores gauge 4
+metric: solace_system_memory_bytes gauge 5.36870912e+09
+metric: solace_system_message_spool_quota gauge 3e+06
+metric: solace_system_total_clients_quota counter 2
+metric: solace_system_uptime_seconds counter 1
+## paged
+request[1]: POST /SEMP <rpc><show><system/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_cpu_cores gauge 4
+metric: solace_system_memory_bytes gauge 5.36870912e+09
+metric: solace_system_message_spool_quota gauge 3e+06
+metric: solace_system_total_clients_quota counter 2
+metric: solace_system_uptime_seconds counter 1
+## http-500
+request[1]: POST /SEMP <rpc><show><system/></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><system/></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><system/></show></rpc>
+up: 0
+err: unexpected result: golden failure

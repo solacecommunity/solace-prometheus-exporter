@@ -1,0 +1,74 @@
+## ok
+request[1]: POST /SEMP <rpc><show><cluster><cluster-name-pattern>vpn*</cluster-name-pattern><link-name-pattern>item*</link-name-pattern></cluster></show></rpc>
+up: 1
+err: <nil>
+metric: solace_cluster_link_enabled{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge -1
+metric: solace_cluster_link_enabled{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge -1
+metric: solace_cluster_link_enabled{cluster="1",node_name="2",remote_cluster="6",remote_node_name="7"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_operational{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge -1
+metric: solace_cluster_link_operational{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge -1
+metric: solace_cluster_link_operational{cluster="1",node_name="2",remote_cluster="6",remote_node_name="7"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_uptime{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge 10
+metric: solace_cluster_link_uptime{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge 10
+metric: solace_cluster_link_uptime{cluster="1",node_name="2",remote_cluster="6",remote_node_name="7"} gauge 5
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge 17
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge 17
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge 22
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge 22
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge 22
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge 22
+## paged
+request[1]: POST /SEMP <rpc><show><cluster><cluster-name-pattern>vpn*</cluster-name-pattern><link-name-pattern>item*</link-name-pattern></cluster></show></rpc>
+up: 1
+err: <nil>
+metric: solace_cluster_link_enabled{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge -1
+metric: solace_cluster_link_enabled{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge -1
+metric: solace_cluster_link_enabled{cluster="1",node_name="2",remote_cluster="6",remote_node_name="7"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_enabled{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_operational{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge -1
+metric: solace_cluster_link_operational{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge -1
+metric: solace_cluster_link_operational{cluster="1",node_name="2",remote_cluster="6",remote_node_name="7"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_operational{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge -1
+metric: solace_cluster_link_uptime{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge 10
+metric: solace_cluster_link_uptime{cluster="1",node_name="2",remote_cluster="11",remote_node_name="12"} gauge 10
+metric: solace_cluster_link_uptime{cluster="1",node_name="2",remote_cluster="6",remote_node_name="7"} gauge 5
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge 17
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="18",remote_node_name="19"} gauge 17
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge 22
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge 22
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge 22
+metric: solace_cluster_link_uptime{cluster="13",node_name="14",remote_cluster="23",remote_node_name="24"} gauge 22
+## http-500
+request[1]: POST /SEMP <rpc><show><cluster><cluster-name-pattern>vpn*</cluster-name-pattern><link-name-pattern>item*</link-name-pattern></cluster></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><cluster><cluster-name-pattern>vpn*</cluster-name-pattern><link-name-pattern>item*</link-name-pattern></cluster></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><cluster><cluster-name-pattern>vpn*</cluster-name-pattern><link-name-pattern>item*</link-name-pattern></cluster></show></rpc>
+up: 0
+err: unexpected result: golden failure

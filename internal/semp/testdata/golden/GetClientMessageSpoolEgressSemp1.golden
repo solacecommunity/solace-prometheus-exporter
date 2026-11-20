@@ -1,0 +1,38 @@
+## ok
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><message-spool/><egress/><connected/></client></show></rpc>
+up: 1
+err: <nil>
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="28",bind_name="27",bind_target="28=27"} gauge 29
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="28",bind_name="27",bind_target="28=27"} gauge 29
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="31",bind_name="30",bind_target="31=30"} gauge 32
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="31",bind_name="30",bind_target="31=30"} gauge 32
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="31",bind_name="30",bind_target="31=30"} gauge 32
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="31",bind_name="30",bind_target="31=30"} gauge 32
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="4",client_name="1",client_address="2",client_id="3",client_username="5",original_client_username="6",user="7",description="8",software_version="9",platform="10",bind_type="12",bind_name="11",bind_target="12=11"} gauge 13
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="4",client_name="1",client_address="2",client_id="3",client_username="5",original_client_username="6",user="7",description="8",software_version="9",platform="10",bind_type="15",bind_name="14",bind_target="15=14"} gauge 16
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="4",client_name="1",client_address="2",client_id="3",client_username="5",original_client_username="6",user="7",description="8",software_version="9",platform="10",bind_type="15",bind_name="14",bind_target="15=14"} gauge 16
+## paged
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><message-spool/><egress/><connected/></client></show></rpc>
+up: 1
+err: <nil>
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="28",bind_name="27",bind_target="28=27"} gauge 29
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="28",bind_name="27",bind_target="28=27"} gauge 29
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="31",bind_name="30",bind_target="31=30"} gauge 32
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="31",bind_name="30",bind_target="31=30"} gauge 32
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="31",bind_name="30",bind_target="31=30"} gauge 32
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="20",client_name="17",client_address="18",client_id="19",client_username="21",original_client_username="22",user="23",description="24",software_version="25",platform="26",bind_type="31",bind_name="30",bind_target="31=30"} gauge 32
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="4",client_name="1",client_address="2",client_id="3",client_username="5",original_client_username="6",user="7",description="8",software_version="9",platform="10",bind_type="12",bind_name="11",bind_target="12=11"} gauge 13
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="4",client_name="1",client_address="2",client_id="3",client_username="5",original_client_username="6",user="7",description="8",software_version="9",platform="10",bind_type="15",bind_name="14",bind_target="15=14"} gauge 16
+metric: solace_client_endpoint_egress_bind_time_seconds{vpn_name="4",client_name="1",client_address="2",client_id="3",client_username="5",original_client_username="6",user="7",description="8",software_version="9",platform="10",bind_type="15",bind_name="14",bind_target="15=14"} gauge 16
+## http-500
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><message-spool/><egress/><connected/></client></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><message-spool/><egress/><connected/></client></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><message-spool/><egress/><connected/></client></show></rpc>
+up: 0
+err: unexpected result: golden failure

@@ -1,0 +1,84 @@
+## ok
+request[1]: POST /SEMP <rpc><show><stats><client><detail/></client></stats></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_average_egress_bytes_per_minute gauge 26
+metric: solace_system_average_egress_direct_bytes_per_minute gauge 32
+metric: solace_system_average_egress_direct_messages_per_minute gauge 16
+metric: solace_system_average_egress_messages_per_minute gauge 10
+metric: solace_system_average_egress_nonpersistent_bytes_per_minute gauge 30
+metric: solace_system_average_egress_nonpersistent_messages_per_minute gauge 14
+metric: solace_system_average_egress_persistent_bytes_per_minute gauge 28
+metric: solace_system_average_egress_persistent_messages_per_minute gauge 12
+metric: solace_system_average_ingress_bytes_per_minute gauge 25
+metric: solace_system_average_ingress_direct_bytes_per_minute gauge 31
+metric: solace_system_average_ingress_direct_messages_per_minute gauge 15
+metric: solace_system_average_ingress_messages_per_minute gauge 9
+metric: solace_system_average_ingress_nonpersistent_bytes_per_minute gauge 29
+metric: solace_system_average_ingress_nonpersistent_messages_per_minute gauge 13
+metric: solace_system_average_ingress_persistent_bytes_per_minute gauge 27
+metric: solace_system_average_ingress_persistent_messages_per_minute gauge 11
+metric: solace_system_current_egress_bytes_per_second gauge 18
+metric: solace_system_current_egress_direct_bytes_per_second gauge 24
+metric: solace_system_current_egress_direct_messages_per_second gauge 8
+metric: solace_system_current_egress_messages_per_second gauge 2
+metric: solace_system_current_egress_nonpersistent_bytes_per_second gauge 22
+metric: solace_system_current_egress_nonpersistent_messages_per_second gauge 6
+metric: solace_system_current_egress_persistent_bytes_per_second gauge 20
+metric: solace_system_current_egress_persistent_messages_per_second gauge 4
+metric: solace_system_current_ingress_bytes_per_second gauge 17
+metric: solace_system_current_ingress_direct_bytes_per_second gauge 23
+metric: solace_system_current_ingress_direct_messages_per_second gauge 7
+metric: solace_system_current_ingress_messages_per_second gauge 1
+metric: solace_system_current_ingress_nonpersistent_bytes_per_second gauge 21
+metric: solace_system_current_ingress_nonpersistent_messages_per_second gauge 5
+metric: solace_system_current_ingress_persistent_bytes_per_second gauge 19
+metric: solace_system_current_ingress_persistent_messages_per_second gauge 3
+## paged
+request[1]: POST /SEMP <rpc><show><stats><client><detail/></client></stats></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_average_egress_bytes_per_minute gauge 26
+metric: solace_system_average_egress_direct_bytes_per_minute gauge 32
+metric: solace_system_average_egress_direct_messages_per_minute gauge 16
+metric: solace_system_average_egress_messages_per_minute gauge 10
+metric: solace_system_average_egress_nonpersistent_bytes_per_minute gauge 30
+metric: solace_system_average_egress_nonpersistent_messages_per_minute gauge 14
+metric: solace_system_average_egress_persistent_bytes_per_minute gauge 28
+metric: solace_system_average_egress_persistent_messages_per_minute gauge 12
+metric: solace_system_average_ingress_bytes_per_minute gauge 25
+metric: solace_system_average_ingress_direct_bytes_per_minute gauge 31
+metric: solace_system_average_ingress_direct_messages_per_minute gauge 15
+metric: solace_system_average_ingress_messages_per_minute gauge 9
+metric: solace_system_average_ingress_nonpersistent_bytes_per_minute gauge 29
+metric: solace_system_average_ingress_nonpersistent_messages_per_minute gauge 13
+metric: solace_system_average_ingress_persistent_bytes_per_minute gauge 27
+metric: solace_system_average_ingress_persistent_messages_per_minute gauge 11
+metric: solace_system_current_egress_bytes_per_second gauge 18
+metric: solace_system_current_egress_direct_bytes_per_second gauge 24
+metric: solace_system_current_egress_direct_messages_per_second gauge 8
+metric: solace_system_current_egress_messages_per_second gauge 2
+metric: solace_system_current_egress_nonpersistent_bytes_per_second gauge 22
+metric: solace_system_current_egress_nonpersistent_messages_per_second gauge 6
+metric: solace_system_current_egress_persistent_bytes_per_second gauge 20
+metric: solace_system_current_egress_persistent_messages_per_second gauge 4
+metric: solace_system_current_ingress_bytes_per_second gauge 17
+metric: solace_system_current_ingress_direct_bytes_per_second gauge 23
+metric: solace_system_current_ingress_direct_messages_per_second gauge 7
+metric: solace_system_current_ingress_messages_per_second gauge 1
+metric: solace_system_current_ingress_nonpersistent_bytes_per_second gauge 21
+metric: solace_system_current_ingress_nonpersistent_messages_per_second gauge 5
+metric: solace_system_current_ingress_persistent_bytes_per_second gauge 19
+metric: solace_system_current_ingress_persistent_messages_per_second gauge 3
+## http-500
+request[1]: POST /SEMP <rpc><show><stats><client><detail/></client></stats></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><stats><client><detail/></client></stats></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><stats><client><detail/></client></stats></show></rpc>
+up: 0
+err: unexpected result: golden failure
