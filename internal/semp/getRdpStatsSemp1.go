@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"fmt"
 	"solace_exporter/internal/semp/types"
 
@@ -37,40 +36,11 @@ func (semp *Semp) GetRdpStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 				} `xml:"message-vpn"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
-	var page = 1
 	var lastRdpName = ""
-	for command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>"+vpnFilter+"</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>"+itemFilter+"</rdp-name><stats/><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize); command != ""; {
-		semp.logger.Debug("RdpStatsSemp1", "vpnFilter", vpnFilter, "itemFilter", itemFilter)
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "RdpStatsSemp1", page)
-		page++
-		if err != nil {
-			semp.logger.Error("Can't scrape RdpStatsSemp1", "err", err, "broker", semp.brokerURI)
-			return -1, err
-		}
-		decoder := xml.NewDecoder(body)
-		var target Data
-		err = decoder.Decode(&target)
-		if err != nil {
-			semp.logger.Error("Can't decode Xml RdpStatsSemp1", "err", err, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-		if err := target.ExecuteResult.OK(); err != nil {
-			semp.logger.Error("unexpected result",
-				"command", command,
-				"result", target.ExecuteResult.Result,
-				"reason", target.ExecuteResult.Reason,
-				"broker", semp.brokerURI,
-			)
-			_ = body.Close()
-			return 0, err
-		}
-		semp.logger.Debug("Result of RdpStatsSemp1", "results", len(target.RPC.Show.MessageVpn.Rest.RestDeliveryPoints.RestDeliveryPoint), "page", page-1)
-		command = target.MoreCookie.RPC
-
+	command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>"+vpnFilter+"</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>"+itemFilter+"</rdp-name><stats/><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize)
+	return fetchSemp1Pages(semp, command, "RdpStatsSemp1", func(target *Data) {
 		for _, rdp := range target.RPC.Show.MessageVpn.Rest.RestDeliveryPoints.RestDeliveryPoint {
 			rdpKey := rdp.MsgVpnName + "___" + rdp.RdpName
 			if rdpKey == lastRdpName {
@@ -87,7 +57,5 @@ func (semp *Semp) GetRdpStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 			ch <- semp.NewMetric(MetricDesc["RdpStats"]["http_post_response_messages_received_error"], prometheus.CounterValue, rdp.Stats.RespMsgReceivedError, rdp.MsgVpnName, rdp.RdpName)
 			ch <- semp.NewMetric(MetricDesc["RdpStats"]["http_post_response_messages_received_successful"], prometheus.CounterValue, rdp.Stats.RespMsgReceivedSuccessful, rdp.MsgVpnName, rdp.RdpName)
 		}
-		_ = body.Close()
-	}
-	return 1, nil
+	})
 }

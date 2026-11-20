@@ -83,9 +83,11 @@ test/                             Captured SEMP fixtures (test/data) and an OAut
   the `scrapeTargets` registry. Each target is registered under its bare name and a `...V1` alias (e.g.
   `"VpnStats", "VpnStatsV1"`) with a `brokerKind`: `softwareBrokerOnly` / `hardwareBrokerOnly` targets are gated on
   `e.config.IsHWBroker` and emit an explanatory error otherwise, as do unknown names.
-* **SEMP v1 getters:** build an `<rpc><show>...</rpc>` command, `POST` it to `<brokerURI>/SEMP` via
-  `semp.postHTTP`, decode XML into a local `Data` struct, check `ExecuteResult.Result == "ok"`, then emit metrics.
-  Paged calls loop on `types.MoreCookie` using `<num-elements>` = `sempPageSize`.
+* **SEMP v1 getters:** build an `<rpc><show>...</rpc>` command and let the shared helpers in `semp1Request.go` do
+  the request: `semp.fetchSemp1` POSTs it to `<brokerURI>/SEMP`, decodes the XML into a local `Data` struct (which
+  embeds `types.Reply` for `more-cookie`/`execute-result`), checks the execute-result and maps failures to the `up`
+  contract. Paged calls use `fetchSemp1Pages` with `<num-elements>` = `sempPageSize`; it follows the more-cookie
+  and hands every page to a callback that emits the metrics.
 * **SEMP v2 getters:** `GET` `<brokerURI>/SEMP/v2/monitor/...` via `semp.getHTTPbytes`, decode JSON, check
   `Meta.ResponseCode == 200`, follow `Meta.Paging.NextPageURI`. Field selection uses `select=`, filtering uses
   `where=`. Unlike v1, v2 does **not** support `*` wildcards.
@@ -103,8 +105,8 @@ To add or extend a target:
    new one, using `NewSemDesc(fqName, sempV2field, help, variableLabels)`, and register the block under a key in the
    `MetricDesc` map. Reuse an existing `variableLabels...` slice where the label set matches.
 2. **Implement the getter** as `internal/semp/getXxxSemp1.go` (or a `...Semp2.go`), following the pattern in §4:
-   inner struct with `xml:`/`json:` tags, request, decode, result-code check, `ch <- semp.NewMetric(...)`, return
-   `(up, err)`.
+   inner struct with `xml:`/`json:` tags (embedding `types.Reply` for SEMP v1), `fetchSemp1`/`fetchSemp1Pages`,
+   `ch <- semp.NewMetric(...)`, return `(up, err)`.
 3. **Wire the dispatch** by adding a `targetRegistration` for `"Xxx", "XxxV1"` to `scrapeTargets` in
    `scrapeTargets.go`, passing the relevant `DataSource` filters and `e.config.SempPageSize`. Use
    `hardwareBrokerOnly` / `softwareBrokerOnly` if the target is broker-type specific, and add the names to
@@ -180,23 +182,13 @@ func (semp *Semp) GetMemorySemp1(ch chan<- PrometheusMetric) (float64, error) {
                 } `xml:"memory"`
             } `xml:"show"`
         } `xml:"rpc"`
-        ExecuteResult types.ExecuteResult `xml:"execute-result"`
+        types.Reply // more-cookie and execute-result
     }
-
-    body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml",
-        "<rpc><show><memory/></show></rpc>", "MemorySemp1", 1)
-    if err != nil {
-        semp.logger.Error("Can't scrape MemorySemp1", "err", err, "broker", semp.brokerURI)
-        return -1, err // unrecoverable: broker unreachable
-    }
-    defer func() { _ = body.Close() }()
 
     var target Data
-    if err := xml.NewDecoder(body).Decode(&target); err != nil {
-        return 0, err
-    }
-    if target.ExecuteResult.Result != "ok" {
-        return 0, errors.New("unexpected result: see log for details")
+    // up is -1 if the broker is unreachable (aborts the remaining targets), 0 for a bad reply or failed result.
+    if up, err := semp.fetchSemp1("<rpc><show><memory/></show></rpc>", "MemorySemp1", 1, &target); err != nil {
+        return up, err
     }
 
     ch <- semp.NewMetric(MetricDesc["Memory"]["physical_memory_usage_percent"],

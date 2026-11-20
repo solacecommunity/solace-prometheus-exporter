@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"fmt"
 	"solace_exporter/internal/semp/types"
 	"strconv"
@@ -60,42 +59,12 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 				} `xml:"client"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
-	var page = 1
 	var lastClientName = ""
-	for command := fmt.Sprintf("<rpc><show><client><name>"+itemFilter+"</name><message-spool-stats/><count/><num-elements>%d</num-elements></client></show></rpc>", sempPageSize); command != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientMessageSpoolStatsSemp1", page)
-		page++
-
-		if err != nil {
-			semp.logger.Error("Can't scrape ClientMessageSpoolStatsSemp1", "err", err, "broker", semp.brokerURI)
-			return -1, err
-		}
-		decoder := xml.NewDecoder(body)
-		var target Data
-		err = decoder.Decode(&target)
-		if err != nil {
-			semp.logger.Error("Can't decode ClientMessageSpoolStatsSemp1", "err", err, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-		if err := target.ExecuteResult.OK(); err != nil {
-			semp.logger.Error(
-				"unexpected result",
-				"command", command,
-				"result", target.ExecuteResult.Result,
-				"reason", target.ExecuteResult.Reason,
-				"broker", semp.brokerURI,
-			)
-			_ = body.Close()
-			return 0, err
-		}
-
-		command = target.MoreCookie.RPC
-
+	command := fmt.Sprintf("<rpc><show><client><name>"+itemFilter+"</name><message-spool-stats/><count/><num-elements>%d</num-elements></client></show></rpc>", sempPageSize)
+	return fetchSemp1Pages(semp, command, "ClientMessageSpoolStatsSemp1", func(target *Data) {
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientKey := client.MsgVpnName + "___" + client.ClientName
 			if clientKey == lastClientName {
@@ -134,9 +103,5 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 				ch <- semp.NewMetric(MetricDesc["ClientMessageSpoolStats"]["unacked_messages"], prometheus.CounterValue, egressFlow.UnackedMessages, client.MsgVpnName, client.ClientName, client.ClientUsername, client.ClientProfile, client.ACLProfile, flowIDStr)
 			}
 		}
-
-		_ = body.Close()
-	}
-
-	return 1, nil
+	})
 }

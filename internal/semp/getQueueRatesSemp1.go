@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"fmt"
 	"solace_exporter/internal/semp/types"
 
@@ -39,41 +38,12 @@ func (semp *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 				} `xml:"queue"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
-	var page = 1
 	var lastQueueName = ""
-	for command := fmt.Sprintf("<rpc><show><queue><name>"+itemFilter+"</name><vpn-name>"+vpnFilter+"</vpn-name><rates/><count/><num-elements>%d</num-elements></queue></show></rpc>", sempPageSize); command != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "QueueRatesSemp1", page)
-		page++
-
-		if err != nil {
-			semp.logger.Error("Can't scrape QueueRatesSemp1", "err", err, "broker", semp.brokerURI)
-			return -1, err
-		}
-		decoder := xml.NewDecoder(body)
-		var target Data
-		err = decoder.Decode(&target)
-		if err != nil {
-			semp.logger.Error("Can't decode QueueRatesSemp1", "err", err, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-		if err := target.ExecuteResult.OK(); err != nil {
-			semp.logger.Error("unexpected result",
-				"command", command,
-				"result", target.ExecuteResult.Result,
-				"reason", target.ExecuteResult.Reason,
-				"broker", semp.brokerURI,
-			)
-			_ = body.Close()
-			return 0, err
-		}
-
-		command = target.MoreCookie.RPC
-
+	command := fmt.Sprintf("<rpc><show><queue><name>"+itemFilter+"</name><vpn-name>"+vpnFilter+"</vpn-name><rates/><count/><num-elements>%d</num-elements></queue></show></rpc>", sempPageSize)
+	return fetchSemp1Pages(semp, command, "QueueRatesSemp1", func(target *Data) {
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
 			queueKey := queue.Info.MsgVpnName + "___" + queue.QueueName
 			if queueKey == lastQueueName {
@@ -89,8 +59,5 @@ func (semp *Semp) GetQueueRatesSemp1(ch chan<- PrometheusMetric, vpnFilter strin
 			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_rx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageRxByteRate, queue.Info.MsgVpnName, queue.QueueName)
 			ch <- semp.NewMetric(MetricDesc["QueueRates"]["queue_tx_byte_rate_avg"], prometheus.GaugeValue, queue.Rates.Qendpt.AverageTxByteRate, queue.Info.MsgVpnName, queue.QueueName)
 		}
-		_ = body.Close()
-	}
-
-	return 1, nil
+	})
 }

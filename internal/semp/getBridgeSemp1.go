@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"fmt"
 	"solace_exporter/internal/semp/types"
 
@@ -41,43 +40,12 @@ func (semp *Semp) GetBridgeSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 				} `xml:"bridge"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
-	var page = 1
 	var lastBridgeName = ""
-	for command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>"+itemFilter+"</bridge-name-pattern><vpn-name-pattern>"+vpnFilter+"</vpn-name-pattern><count/><num-elements>%d</num-elements></bridge></show></rpc>", sempPageSize); command != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "BridgeSemp1", page)
-		page++
-
-		if err != nil {
-			semp.logger.Error("Can't scrape BridgeSemp1", "err", err, "broker", semp.brokerURI)
-			return -1, err
-		}
-		defer func() { _ = body.Close() }()
-		decoder := xml.NewDecoder(body)
-		var target Data
-		err = decoder.Decode(&target)
-		if err != nil {
-			semp.logger.Error("Can't decode Xml BridgeSemp1", "err", err, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-		if err := target.ExecuteResult.OK(); err != nil {
-			semp.logger.Error(
-				"unexpected result",
-				"command", command,
-				"result", target.ExecuteResult.Result,
-				"reason", target.ExecuteResult.Reason,
-				"broker", semp.brokerURI,
-			)
-			return 0, err
-		}
-
-		semp.logger.Debug("Result of BridgeSemp1", "results", len(target.RPC.Show.Bridge.Bridges.Bridge), "page", page-1)
-		command = target.MoreCookie.RPC
-
+	command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>"+itemFilter+"</bridge-name-pattern><vpn-name-pattern>"+vpnFilter+"</vpn-name-pattern><count/><num-elements>%d</num-elements></bridge></show></rpc>", sempPageSize)
+	return fetchSemp1Pages(semp, command, "BridgeSemp1", func(target *Data) {
 		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalBridgesValue)
 		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_max_num_total_bridges"], prometheus.CounterValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalBridgesValue)
 		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_local_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumLocalBridgesValue)
@@ -111,7 +79,5 @@ func (semp *Semp) GetBridgeSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 			ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_redundancy"], prometheus.GaugeValue, encodeMetricMulti(bridge.Redundancy, []string{"NotApplicable", "auto", "primary", "backup", "static", "none"}), vpnName, bridgeName)
 			ch <- semp.NewMetric(MetricDesc["Bridge"]["bridge_connection_uptime_in_seconds"], prometheus.GaugeValue, bridge.ConnectionUptimeInSeconds, vpnName, bridgeName)
 		}
-		_ = body.Close()
-	}
-	return 1, nil
+	})
 }

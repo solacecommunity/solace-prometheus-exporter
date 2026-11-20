@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"fmt"
 	"solace_exporter/internal/semp/types"
 
@@ -58,43 +57,12 @@ func (semp *Semp) GetBridgeDetailSemp1(ch chan<- PrometheusMetric, vpnFilter str
 				} `xml:"bridge"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
-	var page = 1
 	var lastBridgeName = ""
-	for command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>"+itemFilter+"</bridge-name-pattern><vpn-name-pattern>"+vpnFilter+"</vpn-name-pattern><detail/><count/><num-elements>%d</num-elements></bridge></show></rpc>", sempPageSize); command != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "BridgeDetailSemp1", page)
-		page++
-
-		if err != nil {
-			semp.logger.Error("Can't scrape BridgeDetailSemp1", "err", err, "broker", semp.brokerURI)
-			return -1, err
-		}
-		defer func() { _ = body.Close() }()
-		decoder := xml.NewDecoder(body)
-		var target Data
-		err = decoder.Decode(&target)
-		if err != nil {
-			semp.logger.Error("Can't decode Xml BridgeDetailSemp1", "err", err, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-		if err := target.ExecuteResult.OK(); err != nil {
-			semp.logger.Error(
-				"unexpected result",
-				"command", command,
-				"result", target.ExecuteResult.Result,
-				"reason", target.ExecuteResult.Reason,
-				"broker", semp.brokerURI,
-			)
-			return 0, err
-		}
-
-		semp.logger.Debug("Result of BridgeDetailSemp1", "results", len(target.RPC.Show.Bridge.Bridges.Bridge), "page", page-1)
-		command = target.MoreCookie.RPC
-
+	command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>"+itemFilter+"</bridge-name-pattern><vpn-name-pattern>"+vpnFilter+"</vpn-name-pattern><detail/><count/><num-elements>%d</num-elements></bridge></show></rpc>", sempPageSize)
+	return fetchSemp1Pages(semp, command, "BridgeDetailSemp1", func(target *Data) {
 		opStates := []string{"Init", "Shutdown", "NoShutdown", "Prepare", "Prepare-WaitToConnect",
 			"Prepare-FetchingDNS", "NotReady", "NotReady-Connecting", "NotReady-Handshaking", "NotReady-WaitNext",
 			"NotReady-WaitReuse", "NotRead-WaitBridgeVersionMismatch", "NotReady-WaitCleanup", "Ready", "Ready-Subscribing",
@@ -138,7 +106,5 @@ func (semp *Semp) GetBridgeDetailSemp1(ch chan<- PrometheusMetric, vpnFilter str
 				ch <- semp.NewMetric(MetricDesc["BridgeDetail"]["bridge_detail_remote_queue_bind_state"], prometheus.GaugeValue, encodeMetricMulti(remoteVpn.QueueBindState, []string{"Down", "Up"}), vpnName, bridgeName, connectedRemoteVpnName, connectedRemoteRouter, localQueueName, remoteVpnName, remoteRouter, compressed, ssl, remoteQueueName)
 			}
 		}
-		_ = body.Close()
-	}
-	return 1, nil
+	})
 }

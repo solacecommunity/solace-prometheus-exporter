@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"fmt"
 	"regexp"
 	"strings"
@@ -34,43 +33,12 @@ func (semp *Semp) GetBridgeClientCertSemp1(ch chan<- PrometheusMetric, vpnFilter
 				} `xml:"bridge"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
-	var page = 1
 	var lastBridgeName = ""
-	for command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>"+itemFilter+"</bridge-name-pattern><vpn-name-pattern>"+vpnFilter+"</vpn-name-pattern><client-certificate/><count/><num-elements>%d</num-elements></bridge></show></rpc>", sempPageSize); command != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "BridgeClientCertSemp1", page)
-		page++
-
-		if err != nil {
-			semp.logger.Error("Can't scrape BridgeClientCertSemp1", "err", err, "broker", semp.brokerURI)
-			return -1, err
-		}
-		defer func() { _ = body.Close() }()
-		decoder := xml.NewDecoder(body)
-		var target Data
-		err = decoder.Decode(&target)
-		if err != nil {
-			semp.logger.Error("Can't decode Xml BridgeClientCertSemp1", "err", err, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-		if err := target.ExecuteResult.OK(); err != nil {
-			semp.logger.Error(
-				"unexpected result",
-				"command", command,
-				"result", target.ExecuteResult.Result,
-				"reason", target.ExecuteResult.Reason,
-				"broker", semp.brokerURI,
-			)
-			return 0, err
-		}
-
-		semp.logger.Debug("Result of BridgeClientCertSemp1", "results", len(target.RPC.Show.Bridge.Bridges.Bridge), "page", page-1)
-		command = target.MoreCookie.RPC
-
+	command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>"+itemFilter+"</bridge-name-pattern><vpn-name-pattern>"+vpnFilter+"</vpn-name-pattern><client-certificate/><count/><num-elements>%d</num-elements></bridge></show></rpc>", sempPageSize)
+	return fetchSemp1Pages(semp, command, "BridgeClientCertSemp1", func(target *Data) {
 		for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
 			bridgeName := bridge.BridgeName
 			vpnName := bridge.LocalVpnName
@@ -106,9 +74,7 @@ func (semp *Semp) GetBridgeClientCertSemp1(ch chan<- PrometheusMetric, vpnFilter
 				ch <- semp.NewMetric(MetricDesc["BridgeClientCert"]["bridge_client_cert_not_before_timestamp_seconds"], prometheus.GaugeValue, float64(notBefore.Unix()), vpnName, bridgeName, connectedRemoteRouter, commonName)
 			}
 		}
-		_ = body.Close()
-	}
-	return 1, nil
+	})
 }
 
 // openssl-text validity layout, e.g. "Sep  9 13:17:49 2026 GMT" (day is space-padded)

@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -42,39 +41,11 @@ func (semp *Semp) GetRdpInfoSemp1(ch chan<- PrometheusMetric, vpnFilter string, 
 				} `xml:"message-vpn"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
-	var page = 1
 	var lastRdpName = ""
-	for command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>" + itemFilter + "</rdp-name></message-vpn></show></rpc>"; command != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "RdpInfoSemp1", page)
-		page++
-		if err != nil {
-			semp.logger.Error("Can't scrape RdpInfoSemp1", "err", err, "broker", semp.brokerURI)
-			return -1, err
-		}
-		decoder := xml.NewDecoder(body)
-		var target Data
-		err = decoder.Decode(&target)
-		if err != nil {
-			semp.logger.Error("Can't decode Xml RdpInfoSemp1", "err", err, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-		if err := target.ExecuteResult.OK(); err != nil {
-			semp.logger.Error("unexpected result",
-				"command", command,
-				"result", target.ExecuteResult.Result,
-				"reason", target.ExecuteResult.Reason,
-				"broker", semp.brokerURI,
-			)
-			_ = body.Close()
-			return 0, err
-		}
-		semp.logger.Debug("Result of RdpInfoSemp1", "results", len(target.RPC.Show.MessageVpn.Rest.RestDeliveryPoints.RestDeliveryPoint), "page", page-1)
-		command = target.MoreCookie.RPC
-
+	command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>" + itemFilter + "</rdp-name></message-vpn></show></rpc>"
+	return fetchSemp1Pages(semp, command, "RdpInfoSemp1", func(target *Data) {
 		rdpTotals := target.RPC.Show.MessageVpn.Rest.RestDeliveryPoints.Totals
 		ch <- semp.NewMetric(MetricDesc["RdpTotals"]["total_rest_delivery_points_up"], prometheus.CounterValue, rdpTotals.TotalRdpsUp)
 		ch <- semp.NewMetric(MetricDesc["RdpTotals"]["total_rest_delivery_points_configured"], prometheus.CounterValue, rdpTotals.TotalRdpsConfigured)
@@ -97,7 +68,5 @@ func (semp *Semp) GetRdpInfoSemp1(ch chan<- PrometheusMetric, vpnFilter string, 
 			ch <- semp.NewMetric(MetricDesc["RdpInfo"]["queue_bindings_configured"], prometheus.CounterValue, rdp.QueueBindings, rdp.MsgVpnName, rdp.RdpName)
 			ch <- semp.NewMetric(MetricDesc["RdpInfo"]["blocked_conns_percent"], prometheus.CounterValue, rdp.BlockedConnsPerc, rdp.MsgVpnName, rdp.RdpName)
 		}
-		_ = body.Close()
-	}
-	return 1, nil
+	})
 }

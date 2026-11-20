@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"fmt"
 	"solace_exporter/internal/semp/types"
 
@@ -46,43 +45,12 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 				} `xml:"client"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		MoreCookie    types.MoreCookie    `xml:"more-cookie,omitempty"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
-	var page = 1
 	var lastClientName = ""
-	for command := fmt.Sprintf("<rpc><show><client><name>"+itemFilter+"</name><stats/><count/><num-elements>%d</num-elements></client></show></rpc>", sempPageSize); command != ""; {
-		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientStatsSemp1", page)
-		page++
-
-		if err != nil {
-			semp.logger.Error("Can't scrape ClientStatSemp1", "err", err, "broker", semp.brokerURI)
-			return -1, err
-		}
-		decoder := xml.NewDecoder(body)
-		var target Data
-		err = decoder.Decode(&target)
-		if err != nil {
-			semp.logger.Error("Can't decode ClientStatSemp1", "err", err, "broker", semp.brokerURI)
-			_ = body.Close()
-			return 0, err
-		}
-		if err := target.ExecuteResult.OK(); err != nil {
-			semp.logger.Error(
-				"unexpected result",
-				"command", command,
-				"result", target.ExecuteResult.Result,
-				"reason", target.ExecuteResult.Reason,
-				"broker", semp.brokerURI,
-			)
-			_ = body.Close()
-			return 0, err
-		}
-
-		semp.logger.Debug("Result of ClientStatSemp1", "results", len(target.RPC.Show.Client.PrimaryVirtualRouter.Client), "page", page-1)
-		command = target.MoreCookie.RPC
-
+	command := fmt.Sprintf("<rpc><show><client><name>"+itemFilter+"</name><stats/><count/><num-elements>%d</num-elements></client></show></rpc>", sempPageSize)
+	return fetchSemp1Pages(semp, command, "ClientStatsSemp1", func(target *Data) {
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientKey := client.MsgVpnName + "___" + client.ClientName
 			if clientKey == lastClientName {
@@ -96,10 +64,7 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 			ch <- semp.NewMetric(MetricDesc["ClientStats"]["client_tx_discarded_msgs_total"], prometheus.CounterValue, client.Stats.EgressDiscards.DiscardedTxMsgCount, client.MsgVpnName, client.ClientName, client.ClientUsername)
 			ch <- semp.NewMetric(MetricDesc["ClientStats"]["client_slow_subscriber"], prometheus.GaugeValue, encodeMetricBool(client.SlowSubscriber), client.MsgVpnName, client.ClientName, "", client.ClientUsername)
 		}
-		_ = body.Close()
-	}
-
-	return 1, nil
+	})
 }
 
 // Get some statistics for each individual client connections of all VPNs
@@ -149,34 +114,14 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 				} `xml:"client"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
 	command := "<rpc><show><client><name>" + itemFilter + "</name><connections/></client></show></rpc>"
 
-	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientConnectionStatsSemp1", 1)
-	if err != nil {
-		semp.logger.Error("Can't scrape GetClientConnectionStatsSemp1", "err", err, "broker", semp.brokerURI)
-		return -1, err
-	}
-	decoder := xml.NewDecoder(body)
 	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		semp.logger.Error("Can't decode GetClientConnectionStatsSemp1", "err", err, "broker", semp.brokerURI)
-		_ = body.Close()
-		return 0, err
-	}
-	if err := target.ExecuteResult.OK(); err != nil {
-		semp.logger.Error(
-			"unexpected result",
-			"command", command,
-			"result", target.ExecuteResult.Result,
-			"reason", target.ExecuteResult.Reason,
-			"broker", semp.brokerURI,
-		)
-		_ = body.Close()
-		return 0, err
+	if up, err := semp.fetchSemp1(command, "ClientConnectionStatsSemp1", 1, &target); err != nil {
+		return up, err
 	}
 
 	for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
@@ -211,8 +156,6 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 		ch <- semp.NewMetric(MetricDesc["ClientConnections"]["connection_fast_retransmit"], prometheus.CounterValue, client.Stats.FastRetransmits, client.MsgVpnName, client.ClientName)
 		ch <- semp.NewMetric(MetricDesc["ClientConnections"]["connection_timed_retransmit"], prometheus.CounterValue, client.Stats.TimedRetransmits, client.MsgVpnName, client.ClientName)
 	}
-
-	_ = body.Close()
 
 	return 1, nil
 }
