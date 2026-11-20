@@ -166,8 +166,8 @@ To add a new named endpoint, no code change is needed — add an `[endpoint.<nam
 * **Filters:** SEMP v1 supports `*` wildcards in VPN and item filters; SEMP v2 needs a concrete VPN (falling back to
   `defaultVpn` when the filter is `*`) and uses `where=`/`select=` query filters instead.
 * **Untrusted filters:** VPN/item filters come from the scrape request. In SEMP v1 commands always wrap them in
-  `semp1Escape(...)` and pass them as `%s` arguments, never inside a `fmt.Sprintf` format string; add new filtered
-  getters to `filteredSemp1Getters` in `semp1Escape_test.go`.
+  `semp1Escape(...)` and pass them as `%s` arguments, never inside a `fmt.Sprintf` format string;
+  `TestSemp1CommandsEscapeFilters` checks every getter registered in `semp1Getters`.
 
 ## 8. Example
 
