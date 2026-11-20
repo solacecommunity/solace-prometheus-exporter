@@ -2,7 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
-    "fmt"
+	"fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -80,7 +80,7 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 			return 0, err
 		}
 
-        semp.logger.Debug("Result of ClientStatSemp1", "results", len(target.RPC.Show.Client.PrimaryVirtualRouter.Client), "page", page-1)
+		semp.logger.Debug("Result of ClientStatSemp1", "results", len(target.RPC.Show.Client.PrimaryVirtualRouter.Client), "page", page-1)
 		command = target.MoreCookie.RPC
 
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
