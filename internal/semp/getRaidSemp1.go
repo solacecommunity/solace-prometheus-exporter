@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -29,31 +28,13 @@ func (semp *Semp) GetRaidSemp1(ch chan<- PrometheusMetric) (float64, error) {
 				} `xml:"disk"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
 	command := "<rpc><show><disk></disk></show></rpc>"
-	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "RaidSemp1", 1)
-	if err != nil {
-		semp.logger.Error("Can't scrape GetRaidSemp1", "err", err, "broker", semp.brokerURI)
-		return -1, err
-	}
-	defer func() { _ = body.Close() }()
-	decoder := xml.NewDecoder(body)
 	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		semp.logger.Error("Can't decode Xml GetRaidSemp1", "err", err, "broker", semp.brokerURI)
-		return 0, err
-	}
-	if err := target.ExecuteResult.OK(); err != nil {
-		semp.logger.Error("unexpected result",
-			"command", command,
-			"result", target.ExecuteResult.Result,
-			"reason", target.ExecuteResult.Reason,
-			"broker", semp.brokerURI,
-		)
-		return 0, err
+	if up, err := semp.fetchSemp1(command, "RaidSemp1", 1, &target); err != nil {
+		return up, err
 	}
 
 	for _, disk := range target.RPC.Show.Disk.DiskInfos.InternalDisks.DiskInfo {

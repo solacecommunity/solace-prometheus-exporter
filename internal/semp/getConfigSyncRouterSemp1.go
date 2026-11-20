@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -30,32 +29,13 @@ func (semp *Semp) GetConfigSyncRouterSemp1(ch chan<- PrometheusMetric) (float64,
 				} `xml:"config-sync"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
 	command := "<rpc><show><config-sync><database/><router/></config-sync></show></rpc>"
-	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ConfigSyncRouterSemp1", 1)
-	if err != nil {
-		semp.logger.Error("Can't scrape VpnSemp1", "err", err, "broker", semp.brokerURI)
-		return -1, err
-	}
-	defer func() { _ = body.Close() }()
-	decoder := xml.NewDecoder(body)
 	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		semp.logger.Error("Can't decode Xml ConfigSyncRouterSemp1", "err", err, "broker", semp.brokerURI)
-		return 0, err
-	}
-	if err := target.ExecuteResult.OK(); err != nil {
-		semp.logger.Error(
-			"unexpected result",
-			"command", command,
-			"result", target.ExecuteResult.Result,
-			"reason", target.ExecuteResult.Reason,
-			"broker", semp.brokerURI,
-		)
-		return 0, err
+	if up, err := semp.fetchSemp1(command, "ConfigSyncRouterSemp1", 1, &target); err != nil {
+		return up, err
 	}
 
 	for _, table := range target.RPC.Show.ConfigSync.Database.Local.Tables.Table {
