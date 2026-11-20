@@ -2,8 +2,8 @@ package semp
 
 import (
 	"encoding/xml"
+	"fmt"
 	"math"
-    "fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -37,7 +37,7 @@ func (semp *Semp) GetTopicEndpointDetailsSemp1(ch chan<- PrometheusMetric, vpnFi
 
 	var page = 1
 	var lastTopicEndpointName = ""
-	for command := fmt.Sprintf("<rpc><show><topic-endpoint><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>%d</num-elements></topic-endpoint></show></rpc>", sempPageSize); command != ""; {
+	for command := fmt.Sprintf("<rpc><show><topic-endpoint><name>"+itemFilter+"</name><vpn-name>"+vpnFilter+"</vpn-name><detail/><count/><num-elements>%d</num-elements></topic-endpoint></show></rpc>", sempPageSize); command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "TopicEndpointDetailsSemp1", page)
 		page++
 

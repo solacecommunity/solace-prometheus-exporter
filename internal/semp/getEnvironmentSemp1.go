@@ -78,17 +78,17 @@ func (semp *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (float64, erro
 			if value, err := strconv.ParseFloat(sensor.Value, 64); err == nil {
 				ch <- semp.NewMetric(MetricDesc["Environment"]["system_chassis_fan_speed_rpm"], prometheus.GaugeValue, math.Round(value), sensor.Name)
 			}
-            ch <- semp.NewMetric(MetricDesc["Environment"]["system_chassis_fan_speed_rpm_status"], prometheus.GaugeValue, encodeMetricMulti(sensor.Status, []string{"Fail", "OK", "Warning"}), sensor.Name)
+			ch <- semp.NewMetric(MetricDesc["Environment"]["system_chassis_fan_speed_rpm_status"], prometheus.GaugeValue, encodeMetricMulti(sensor.Status, []string{"Fail", "OK", "Warning"}), sensor.Name)
 		} else if sensor.Type == "Temperature" && strings.Contains(sensor.Name, "Therm Margin") {
 			if value, err := strconv.ParseFloat(sensor.Value, 64); err == nil {
 				ch <- semp.NewMetric(MetricDesc["Environment"]["system_cpu_thermal_margin"], prometheus.GaugeValue, math.Round(value), sensor.Name)
 			}
 		} else if sensor.Type == "Voltage" && strings.Contains(sensor.Name, "BB") {
-            if value, err := strconv.ParseFloat(sensor.Value, 64); err == nil {
-                ch <- semp.NewMetric(MetricDesc["Environment"]["system_voltage"], prometheus.GaugeValue, value, sensor.Name)
-            }
-            ch <- semp.NewMetric(MetricDesc["Environment"]["system_voltage_status"], prometheus.GaugeValue, encodeMetricMulti(sensor.Status, []string{"Fail", "OK", "Warning"}), sensor.Name)
-        }
+			if value, err := strconv.ParseFloat(sensor.Value, 64); err == nil {
+				ch <- semp.NewMetric(MetricDesc["Environment"]["system_voltage"], prometheus.GaugeValue, value, sensor.Name)
+			}
+			ch <- semp.NewMetric(MetricDesc["Environment"]["system_voltage_status"], prometheus.GaugeValue, encodeMetricMulti(sensor.Status, []string{"Fail", "OK", "Warning"}), sensor.Name)
+		}
 	}
 	for _, slot := range target.RPC.Show.Environment.Slots.Slot {
 		if slot.CardType == "Network Acceleration Blade" {
@@ -97,7 +97,7 @@ func (semp *Semp) GetEnvironmentSemp1(ch chan<- PrometheusMetric) (float64, erro
 					if value, err := strconv.ParseFloat(sensor.Value, 64); err == nil {
 						ch <- semp.NewMetric(MetricDesc["Environment"]["system_nab_core_temperature"], prometheus.GaugeValue, math.Round(value), sensor.Name)
 					}
-                    ch <- semp.NewMetric(MetricDesc["Environment"]["system_nab_core_temperature_status"], prometheus.GaugeValue, encodeMetricMulti(sensor.Status, []string{"Fail", "OK", "Warning"}), sensor.Name)
+					ch <- semp.NewMetric(MetricDesc["Environment"]["system_nab_core_temperature_status"], prometheus.GaugeValue, encodeMetricMulti(sensor.Status, []string{"Fail", "OK", "Warning"}), sensor.Name)
 				}
 			}
 		}

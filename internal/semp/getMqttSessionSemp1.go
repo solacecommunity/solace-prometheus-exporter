@@ -2,7 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
-    "fmt"
+	"fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -42,7 +42,7 @@ func (semp *Semp) GetMqttSessionSemp1(ch chan<- PrometheusMetric, vpnFilter stri
 	var lastSessionKey = ""
 	var page = 1
 
-	for command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><mqtt/><mqtt-session/><client-id-pattern>" + itemFilter + "</client-id-pattern><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize); command != ""; {
+	for command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>"+vpnFilter+"</vpn-name><mqtt/><mqtt-session/><client-id-pattern>"+itemFilter+"</client-id-pattern><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize); command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "MqttSessionSemp1", page)
 		page++
 

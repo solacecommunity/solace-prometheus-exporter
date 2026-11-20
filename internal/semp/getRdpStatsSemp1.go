@@ -2,7 +2,7 @@ package semp
 
 import (
 	"encoding/xml"
-    "fmt"
+	"fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -42,7 +42,7 @@ func (semp *Semp) GetRdpStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 	}
 	var page = 1
 	var lastRdpName = ""
-	for command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>" + itemFilter + "</rdp-name><stats/><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize); command != ""; {
+	for command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>"+vpnFilter+"</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>"+itemFilter+"</rdp-name><stats/><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize); command != ""; {
 		semp.logger.Debug("RdpStatsSemp1", "vpnFilter", vpnFilter, "itemFilter", itemFilter)
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "RdpStatsSemp1", page)
 		page++

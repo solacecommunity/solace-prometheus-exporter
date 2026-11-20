@@ -14,10 +14,10 @@ func (semp *Semp) GetClockDetailSemp1(ch chan<- PrometheusMetric) (float64, erro
 			Show struct {
 				Clock struct {
 					Detail struct {
-						Protocol            string  `xml:"protocol" optional:"yes"`
-						AdminState          bool    `xml:"admin-state" optional:"yes"`
-						NTPServerAddr       string  `xml:"ntp-server-address" optional:"yes"`
-						NTPServerReachable  bool    `xml:"ntp-server-reachable" optional:"yes"`
+						Protocol           string `xml:"protocol" optional:"yes"`
+						AdminState         bool   `xml:"admin-state" optional:"yes"`
+						NTPServerAddr      string `xml:"ntp-server-address" optional:"yes"`
+						NTPServerReachable bool   `xml:"ntp-server-reachable" optional:"yes"`
 					} `xml:"detail"`
 				} `xml:"clock"`
 			} `xml:"show"`

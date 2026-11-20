@@ -2,8 +2,8 @@ package semp
 
 import (
 	"encoding/xml"
+	"fmt"
 	"math"
-    "fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -39,66 +39,66 @@ func (semp *Semp) GetVpnSpoolSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
-    var page = 1
-    var lastVpnName = ""
-	for command := fmt.Sprintf("<rpc><show><message-spool><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>%d</num-elements></message-spool></show></rpc>", sempPageSize); command != ""; {
-        body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "VpnSpoolSemp1", page)
-        page++
+	var page = 1
+	var lastVpnName = ""
+	for command := fmt.Sprintf("<rpc><show><message-spool><vpn-name>"+vpnFilter+"</vpn-name><detail/><count/><num-elements>%d</num-elements></message-spool></show></rpc>", sempPageSize); command != ""; {
+		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "VpnSpoolSemp1", page)
+		page++
 
-        if err != nil {
-            semp.logger.Error("Can't scrape VpnSpoolSemp1", "err", err, "broker", semp.brokerURI)
-            return -1, err
-        }
-        defer func() { _ = body.Close() }()
-        decoder := xml.NewDecoder(body)
-        var target Data
-        err = decoder.Decode(&target)
-        if err != nil {
-            semp.logger.Error("Can't decode Xml VpnSpoolSemp1", "err", err, "broker", semp.brokerURI)
-            _ = body.Close()
-            return 0, err
-        }
-        if err := target.ExecuteResult.OK(); err != nil {
-            semp.logger.Error("unexpected result",
-                "command", command,
-                "result", target.ExecuteResult.Result,
-                "reason", target.ExecuteResult.Reason,
-                "broker", semp.brokerURI,
-            )
-            _ = body.Close()
-            return 0, err
-        }
+		if err != nil {
+			semp.logger.Error("Can't scrape VpnSpoolSemp1", "err", err, "broker", semp.brokerURI)
+			return -1, err
+		}
+		defer func() { _ = body.Close() }()
+		decoder := xml.NewDecoder(body)
+		var target Data
+		err = decoder.Decode(&target)
+		if err != nil {
+			semp.logger.Error("Can't decode Xml VpnSpoolSemp1", "err", err, "broker", semp.brokerURI)
+			_ = body.Close()
+			return 0, err
+		}
+		if err := target.ExecuteResult.OK(); err != nil {
+			semp.logger.Error("unexpected result",
+				"command", command,
+				"result", target.ExecuteResult.Result,
+				"reason", target.ExecuteResult.Reason,
+				"broker", semp.brokerURI,
+			)
+			_ = body.Close()
+			return 0, err
+		}
 
-        semp.logger.Debug("Result of VpnSpoolSemp1", "results", len(target.RPC.Show.MessageSpool.MessageVpn.Vpn), "page", page-1)
-        command = target.MoreCookie.RPC
+		semp.logger.Debug("Result of VpnSpoolSemp1", "results", len(target.RPC.Show.MessageSpool.MessageVpn.Vpn), "page", page-1)
+		command = target.MoreCookie.RPC
 
-        for _, vpn := range target.RPC.Show.MessageSpool.MessageVpn.Vpn {
+		for _, vpn := range target.RPC.Show.MessageSpool.MessageVpn.Vpn {
 			vpnKey := vpn.Name
 			if vpnKey == lastVpnName {
 				continue
 			}
 			lastVpnName = vpnKey
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_quota_bytes"], prometheus.GaugeValue, vpn.SpoolUsageMaxMb*1024*1024, vpn.Name)
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_bytes"], prometheus.GaugeValue, vpn.SpoolUsageCurrentMb*1024*1024, vpn.Name)
-            // it is possible to configure a VPN with zero spool, so we need to make sure we're not trying to divide by zero
-            if vpn.SpoolUsageMaxMb > 0 {
-                ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_pct"], prometheus.GaugeValue, math.Round((vpn.SpoolUsageCurrentMb/vpn.SpoolUsageMaxMb)*100), vpn.Name)
-            } else {
-                ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_pct"], prometheus.GaugeValue, -1, vpn.Name)
-            }
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_msgs"], prometheus.GaugeValue, vpn.SpooledMsgCount, vpn.Name)
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_endpoints"], prometheus.GaugeValue, vpn.CurrentEndpoints, vpn.Name)
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_endpoints"], prometheus.GaugeValue, vpn.MaximumEndpoints, vpn.Name)
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_egress_flows"], prometheus.GaugeValue, vpn.CurrentEgressFlows, vpn.Name)
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_egress_flows"], prometheus.GaugeValue, vpn.MaximumEgressFlows, vpn.Name)
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_ingress_flows"], prometheus.GaugeValue, vpn.CurrentIngressFlows, vpn.Name)
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_ingress_flows"], prometheus.GaugeValue, vpn.MaximumIngressFlows, vpn.Name)
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_transacted_sessions"], prometheus.GaugeValue, vpn.TransactedSessions, vpn.Name)
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_transacted_sessions"], prometheus.GaugeValue, vpn.MaxTransactedSessions, vpn.Name)
-            ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_transacted_msgs"], prometheus.GaugeValue, vpn.TransactiedMsgs, vpn.Name)
-        }
-        _ = body.Close()
-    }
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_quota_bytes"], prometheus.GaugeValue, vpn.SpoolUsageMaxMb*1024*1024, vpn.Name)
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_bytes"], prometheus.GaugeValue, vpn.SpoolUsageCurrentMb*1024*1024, vpn.Name)
+			// it is possible to configure a VPN with zero spool, so we need to make sure we're not trying to divide by zero
+			if vpn.SpoolUsageMaxMb > 0 {
+				ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_pct"], prometheus.GaugeValue, math.Round((vpn.SpoolUsageCurrentMb/vpn.SpoolUsageMaxMb)*100), vpn.Name)
+			} else {
+				ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_pct"], prometheus.GaugeValue, -1, vpn.Name)
+			}
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_usage_msgs"], prometheus.GaugeValue, vpn.SpooledMsgCount, vpn.Name)
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_endpoints"], prometheus.GaugeValue, vpn.CurrentEndpoints, vpn.Name)
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_endpoints"], prometheus.GaugeValue, vpn.MaximumEndpoints, vpn.Name)
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_egress_flows"], prometheus.GaugeValue, vpn.CurrentEgressFlows, vpn.Name)
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_egress_flows"], prometheus.GaugeValue, vpn.MaximumEgressFlows, vpn.Name)
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_ingress_flows"], prometheus.GaugeValue, vpn.CurrentIngressFlows, vpn.Name)
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_ingress_flows"], prometheus.GaugeValue, vpn.MaximumIngressFlows, vpn.Name)
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_transacted_sessions"], prometheus.GaugeValue, vpn.TransactedSessions, vpn.Name)
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_maximum_transacted_sessions"], prometheus.GaugeValue, vpn.MaxTransactedSessions, vpn.Name)
+			ch <- semp.NewMetric(MetricDesc["VpnSpool"]["vpn_spool_current_transacted_msgs"], prometheus.GaugeValue, vpn.TransactiedMsgs, vpn.Name)
+		}
+		_ = body.Close()
+	}
 
 	return 1, nil
 }
