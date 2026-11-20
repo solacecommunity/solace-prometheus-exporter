@@ -2,8 +2,8 @@ package semp
 
 import (
 	"encoding/xml"
+	"fmt"
 	"math"
-    "fmt"
 	"solace_exporter/internal/semp/types"
 
 	"github.com/prometheus/client_golang/prometheus"
