@@ -44,7 +44,7 @@ func (semp *Semp) GetBridgeSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 	}
 
 	var lastBridgeName = ""
-	command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>"+itemFilter+"</bridge-name-pattern><vpn-name-pattern>"+vpnFilter+"</vpn-name-pattern><count/><num-elements>%d</num-elements></bridge></show></rpc>", sempPageSize)
+	command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>%s</bridge-name-pattern><vpn-name-pattern>%s</vpn-name-pattern><count/><num-elements>%d</num-elements></bridge></show></rpc>", semp1Escape(itemFilter), semp1Escape(vpnFilter), sempPageSize)
 	return fetchSemp1Pages(semp, command, "BridgeSemp1", func(target *Data) {
 		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_num_total_bridges"], prometheus.GaugeValue, target.RPC.Show.Bridge.Bridges.NumTotalBridgesValue)
 		ch <- semp.NewMetric(MetricDesc["Bridge"]["bridges_max_num_total_bridges"], prometheus.CounterValue, target.RPC.Show.Bridge.Bridges.MaxNumTotalBridgesValue)

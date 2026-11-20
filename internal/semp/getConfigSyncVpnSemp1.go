@@ -34,7 +34,7 @@ func (semp *Semp) GetConfigSyncVpnSemp1(ch chan<- PrometheusMetric, vpnFilter st
 	}
 
 	var lastTableName = ""
-	command := fmt.Sprintf("<rpc><show><config-sync><database/><message-vpn/><vpn-name>"+vpnFilter+"</vpn-name><count/><num-elements>%d</num-elements></config-sync></show></rpc>", sempPageSize)
+	command := fmt.Sprintf("<rpc><show><config-sync><database/><message-vpn/><vpn-name>%s</vpn-name><count/><num-elements>%d</num-elements></config-sync></show></rpc>", semp1Escape(vpnFilter), sempPageSize)
 	return fetchSemp1Pages(semp, command, "ConfigSyncVpnSemp1", func(target *Data) {
 		for _, table := range target.RPC.Show.ConfigSync.Database.Local.Tables.Table {
 			tableKey := table.Name

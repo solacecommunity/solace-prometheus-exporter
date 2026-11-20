@@ -27,7 +27,7 @@ func (semp *Semp) GetStorageElementSemp1(ch chan<- PrometheusMetric, storageElem
 		types.Reply
 	}
 
-	command := "<rpc><show><storage-element><pattern>" + storageElementFilter + "</pattern></storage-element></show></rpc>"
+	command := "<rpc><show><storage-element><pattern>" + semp1Escape(storageElementFilter) + "</pattern></storage-element></show></rpc>"
 	var target Data
 	if up, err := semp.fetchSemp1(command, "StorageElementSemp1", 1, &target); err != nil {
 		return up, err

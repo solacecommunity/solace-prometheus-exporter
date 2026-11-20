@@ -51,7 +51,7 @@ func (semp *Semp) GetInterfaceHWSemp1(ch chan<- PrometheusMetric, interfaceFilte
 	command := "<rpc><show><interface>"
 	// * is an invalid HW interface filter, instead no filter shows all interfaces
 	if interfaceFilter != "*" {
-		command += "<phy-interface>" + interfaceFilter + "</phy-interface>"
+		command += "<phy-interface>" + semp1Escape(interfaceFilter) + "</phy-interface>"
 	}
 	command += "</interface></show></rpc>"
 

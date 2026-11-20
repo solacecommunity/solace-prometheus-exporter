@@ -37,7 +37,7 @@ func (semp *Semp) GetRestConsumerStatsSemp1(ch chan<- PrometheusMetric, vpnFilte
 	}
 
 	var lastConsumerName = ""
-	command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>"+vpnFilter+"</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>"+itemFilter+"</rest-consumer-name><stats></stats><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize)
+	command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>%s</vpn-name><rest></rest><rest-consumer></rest-consumer><rest-consumer-name>%s</rest-consumer-name><stats></stats><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", semp1Escape(vpnFilter), semp1Escape(itemFilter), sempPageSize)
 	return fetchSemp1Pages(semp, command, "RestConsumerStatsSemp1", func(target *Data) {
 		for _, consumerStats := range target.RPC.Show.MessageVpn.RestConsumerInfo.StatsInfo {
 			consumerKey := consumerStats.MsgVpnName + "___" + consumerStats.RdpName + "___" + consumerStats.RestConsumerName

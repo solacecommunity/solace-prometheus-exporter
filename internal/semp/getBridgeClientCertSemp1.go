@@ -37,7 +37,7 @@ func (semp *Semp) GetBridgeClientCertSemp1(ch chan<- PrometheusMetric, vpnFilter
 	}
 
 	var lastBridgeName = ""
-	command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>"+itemFilter+"</bridge-name-pattern><vpn-name-pattern>"+vpnFilter+"</vpn-name-pattern><client-certificate/><count/><num-elements>%d</num-elements></bridge></show></rpc>", sempPageSize)
+	command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>%s</bridge-name-pattern><vpn-name-pattern>%s</vpn-name-pattern><client-certificate/><count/><num-elements>%d</num-elements></bridge></show></rpc>", semp1Escape(itemFilter), semp1Escape(vpnFilter), sempPageSize)
 	return fetchSemp1Pages(semp, command, "BridgeClientCertSemp1", func(target *Data) {
 		for _, bridge := range target.RPC.Show.Bridge.Bridges.Bridge {
 			bridgeName := bridge.BridgeName

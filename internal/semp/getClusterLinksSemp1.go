@@ -33,7 +33,7 @@ func (semp *Semp) GetClusterLinksSemp1(ch chan<- PrometheusMetric, clusterFilter
 		types.Reply
 	}
 
-	command := "<rpc><show><cluster><cluster-name-pattern>" + clusterFilter + "</cluster-name-pattern><link-name-pattern>" + linkFilter + "</link-name-pattern></cluster></show></rpc>"
+	command := "<rpc><show><cluster><cluster-name-pattern>" + semp1Escape(clusterFilter) + "</cluster-name-pattern><link-name-pattern>" + semp1Escape(linkFilter) + "</link-name-pattern></cluster></show></rpc>"
 	var target Data
 	if up, err := semp.fetchSemp1(command, "ClusterLinksSemp1", 1, &target); err != nil {
 		return up, err

@@ -58,7 +58,7 @@ func (semp *Semp) GetVpnStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 	}
 
 	var lastVpnName = ""
-	command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>"+vpnFilter+"</vpn-name><stats/><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize)
+	command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>%s</vpn-name><stats/><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", semp1Escape(vpnFilter), sempPageSize)
 	return fetchSemp1Pages(semp, command, "VpnStatsSemp1", func(target *Data) {
 		for _, vpn := range target.RPC.Show.MessageVpn.Vpn {
 			vpnKey := vpn.Name

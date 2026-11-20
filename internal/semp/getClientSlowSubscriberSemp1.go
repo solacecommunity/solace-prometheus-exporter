@@ -28,7 +28,7 @@ func (semp *Semp) GetClientSlowSubscriberSemp1(ch chan<- PrometheusMetric, vpnFi
 		types.Reply
 	}
 
-	command := "<rpc><show><client><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><slow-subscriber/></client></show></rpc>"
+	command := "<rpc><show><client><name>" + semp1Escape(itemFilter) + "</name><vpn-name>" + semp1Escape(vpnFilter) + "</vpn-name><slow-subscriber/></client></show></rpc>"
 	return fetchSemp1Pages(semp, command, "ClientSlowSubscriberSemp1", func(target *Data) {
 		const slowSubscriber float64 = 1.0
 

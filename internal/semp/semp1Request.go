@@ -4,11 +4,21 @@ import (
 	"encoding/xml"
 	"errors"
 	"solace_exporter/internal/semp/types"
+	"strings"
 )
 
 // semp1Reply is a decoded SEMP v1 reply; reply structs satisfy it by embedding types.Reply.
 type semp1Reply interface {
 	SempReply() *types.Reply
+}
+
+// semp1Escape escapes a value, typically a VPN or item filter from the scrape request, for use as text content in a
+// SEMP v1 command, so it cannot close its element or inject further commands. Valid XML text decodes to the same
+// value, so the broker sees exactly what it saw before for every filter that was well-formed before.
+func semp1Escape(value string) string {
+	var sb strings.Builder
+	_ = xml.EscapeText(&sb, []byte(value)) // writing to a strings.Builder cannot fail
+	return sb.String()
 }
 
 // unexpectedResultError reports a SEMP v1 execute-result other than "ok". Its text ends up in the error label of

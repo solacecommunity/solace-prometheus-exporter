@@ -28,7 +28,7 @@ func (semp *Semp) GetClientSemp1(ch chan<- PrometheusMetric, vpnFilter string, i
 		types.Reply
 	}
 
-	command := "<rpc><show><client><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><connected/></client></show></rpc>"
+	command := "<rpc><show><client><name>" + semp1Escape(itemFilter) + "</name><vpn-name>" + semp1Escape(vpnFilter) + "</vpn-name><connected/></client></show></rpc>"
 	return fetchSemp1Pages(semp, command, "ClientSemp1", func(target *Data) {
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientIP := strings.Split(client.ClientAddress, ":")[0]

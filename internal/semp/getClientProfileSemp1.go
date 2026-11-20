@@ -31,7 +31,7 @@ func (semp *Semp) GetClientProfileSemp1(ch chan<- PrometheusMetric, vpnFilter st
 		types.Reply
 	}
 
-	command := "<rpc><show><client-profile><name>*</name><vpn-name>" + vpnFilter + "</vpn-name><detail/></client-profile></show></rpc>"
+	command := "<rpc><show><client-profile><name>*</name><vpn-name>" + semp1Escape(vpnFilter) + "</vpn-name><detail/></client-profile></show></rpc>"
 	var target Data
 	if up, err := semp.fetchSemp1(command, "DiskSemp1", 1, &target); err != nil {
 		return up, err

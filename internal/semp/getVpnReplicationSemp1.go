@@ -28,7 +28,7 @@ func (semp *Semp) GetVpnReplicationSemp1(ch chan<- PrometheusMetric, vpnFilter s
 		types.Reply
 	}
 
-	command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><replication/></message-vpn></show></rpc>"
+	command := "<rpc><show><message-vpn><vpn-name>" + semp1Escape(vpnFilter) + "</vpn-name><replication/></message-vpn></show></rpc>"
 	var target Data
 	if up, err := semp.fetchSemp1(command, "VpnReplicationSemp1", 1, &target); err != nil {
 		return up, err

@@ -42,7 +42,7 @@ func (semp *Semp) GetTopicEndpointRatesSemp1(ch chan<- PrometheusMetric, vpnFilt
 	}
 
 	var lastTopicEndpointName = ""
-	command := fmt.Sprintf("<rpc><show><topic-endpoint><name>"+itemFilter+"</name><vpn-name>"+vpnFilter+"</vpn-name><rates/><count/><num-elements>%d</num-elements></topic-endpoint></show></rpc>", sempPageSize)
+	command := fmt.Sprintf("<rpc><show><topic-endpoint><name>%s</name><vpn-name>%s</vpn-name><rates/><count/><num-elements>%d</num-elements></topic-endpoint></show></rpc>", semp1Escape(itemFilter), semp1Escape(vpnFilter), sempPageSize)
 	return fetchSemp1Pages(semp, command, "TopicEndpointRatesSemp1", func(target *Data) {
 		for _, topicEndpoint := range target.RPC.Show.TopicEndpoint.TopicEndpoints.TopicEndpoint {
 			topicEndpointKey := topicEndpoint.Info.MsgVpnName + "___" + topicEndpoint.TopicEndpointName

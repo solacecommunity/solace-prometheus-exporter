@@ -43,7 +43,7 @@ func (semp *Semp) GetBridgeRemoteSemp1(ch chan<- PrometheusMetric, vpnFilter str
 		types.Reply
 	}
 
-	command := "<rpc><show><bridge><bridge-name-pattern>" + itemFilter + "</bridge-name-pattern><vpn-name-pattern>" + vpnFilter + "</vpn-name-pattern></bridge></show></rpc>"
+	command := "<rpc><show><bridge><bridge-name-pattern>" + semp1Escape(itemFilter) + "</bridge-name-pattern><vpn-name-pattern>" + semp1Escape(vpnFilter) + "</vpn-name-pattern></bridge></show></rpc>"
 	var target Data
 	if up, err := semp.fetchSemp1(command, "BridgeRemoteSemp1", 1, &target); err != nil {
 		return up, err

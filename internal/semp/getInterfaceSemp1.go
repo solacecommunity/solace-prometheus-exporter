@@ -29,7 +29,7 @@ func (semp *Semp) GetInterfaceSemp1(ch chan<- PrometheusMetric, interfaceFilter 
 		types.Reply
 	}
 
-	command := "<rpc><show><interface><phy-interface>" + interfaceFilter + "</phy-interface></interface></show></rpc>"
+	command := "<rpc><show><interface><phy-interface>" + semp1Escape(interfaceFilter) + "</phy-interface></interface></show></rpc>"
 	var target Data
 	if up, err := semp.fetchSemp1(command, "InterfaceSemp1", 1, &target); err != nil {
 		return up, err

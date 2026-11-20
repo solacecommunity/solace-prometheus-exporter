@@ -39,7 +39,7 @@ func (semp *Semp) GetRdpStatsSemp1(ch chan<- PrometheusMetric, vpnFilter string,
 		types.Reply
 	}
 	var lastRdpName = ""
-	command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>"+vpnFilter+"</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>"+itemFilter+"</rdp-name><stats/><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", sempPageSize)
+	command := fmt.Sprintf("<rpc><show><message-vpn><vpn-name>%s</vpn-name><rest></rest><rest-delivery-point></rest-delivery-point><rdp-name>%s</rdp-name><stats/><count/><num-elements>%d</num-elements></message-vpn></show></rpc>", semp1Escape(vpnFilter), semp1Escape(itemFilter), sempPageSize)
 	return fetchSemp1Pages(semp, command, "RdpStatsSemp1", func(target *Data) {
 		for _, rdp := range target.RPC.Show.MessageVpn.Rest.RestDeliveryPoints.RestDeliveryPoint {
 			rdpKey := rdp.MsgVpnName + "___" + rdp.RdpName

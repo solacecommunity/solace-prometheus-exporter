@@ -63,7 +63,7 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 	}
 
 	var lastClientName = ""
-	command := fmt.Sprintf("<rpc><show><client><name>"+itemFilter+"</name><message-spool-stats/><count/><num-elements>%d</num-elements></client></show></rpc>", sempPageSize)
+	command := fmt.Sprintf("<rpc><show><client><name>%s</name><message-spool-stats/><count/><num-elements>%d</num-elements></client></show></rpc>", semp1Escape(itemFilter), sempPageSize)
 	return fetchSemp1Pages(semp, command, "ClientMessageSpoolStatsSemp1", func(target *Data) {
 		for _, client := range target.RPC.Show.Client.PrimaryVirtualRouter.Client {
 			clientKey := client.MsgVpnName + "___" + client.ClientName

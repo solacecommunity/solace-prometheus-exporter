@@ -35,7 +35,7 @@ func (semp *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter str
 	}
 
 	var lastQueueName = ""
-	command := fmt.Sprintf("<rpc><show><queue><name>"+itemFilter+"</name><vpn-name>"+vpnFilter+"</vpn-name><detail/><count/><num-elements>%d</num-elements></queue></show></rpc>", sempPageSize)
+	command := fmt.Sprintf("<rpc><show><queue><name>%s</name><vpn-name>%s</vpn-name><detail/><count/><num-elements>%d</num-elements></queue></show></rpc>", semp1Escape(itemFilter), semp1Escape(vpnFilter), sempPageSize)
 	return fetchSemp1Pages(semp, command, "QueueDetailsSemp1", func(target *Data) {
 		for _, queue := range target.RPC.Show.Queue.Queues.Queue {
 			queueKey := queue.Info.MsgVpnName + "___" + queue.QueueName
