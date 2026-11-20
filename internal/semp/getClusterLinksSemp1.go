@@ -34,7 +34,7 @@ func (semp *Semp) GetClusterLinksSemp1(ch chan<- PrometheusMetric, clusterFilter
 		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
-	command := "<rpc><show><cluster><cluster-name-pattern>" + clusterFilter + "</cluster-name-pattern><link-name-pattern>" + linkFilter + "</link-name-pattern></cluster></show></rpc>"
+	command := "<rpc><show><cluster><cluster-name-pattern>" + semp1Escape(clusterFilter) + "</cluster-name-pattern><link-name-pattern>" + semp1Escape(linkFilter) + "</link-name-pattern></cluster></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClusterLinksSemp1", 1)
 	if err != nil {
 		semp.logger.Error("Can't scrape ClusterLinksSemp1", "err", err, "broker", semp.brokerURI)

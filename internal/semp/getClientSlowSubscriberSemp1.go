@@ -31,7 +31,7 @@ func (semp *Semp) GetClientSlowSubscriberSemp1(ch chan<- PrometheusMetric, vpnFi
 	}
 
 	var page = 1
-	for command := "<rpc><show><client><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><slow-subscriber/></client></show></rpc>"; command != ""; {
+	for command := "<rpc><show><client><name>" + semp1Escape(itemFilter) + "</name><vpn-name>" + semp1Escape(vpnFilter) + "</vpn-name><slow-subscriber/></client></show></rpc>"; command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientSlowSubscriberSemp1", page)
 		page++
 

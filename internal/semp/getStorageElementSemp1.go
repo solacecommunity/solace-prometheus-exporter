@@ -28,7 +28,7 @@ func (semp *Semp) GetStorageElementSemp1(ch chan<- PrometheusMetric, storageElem
 		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
-	command := "<rpc><show><storage-element><pattern>" + storageElementFilter + "</pattern></storage-element></show></rpc>"
+	command := "<rpc><show><storage-element><pattern>" + semp1Escape(storageElementFilter) + "</pattern></storage-element></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "StorageElementSemp1", 1)
 	if err != nil {
 		semp.logger.Error("Can't scrape StorageElementSemp1", "err", err, "broker", semp.brokerURI)

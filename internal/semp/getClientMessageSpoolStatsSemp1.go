@@ -66,7 +66,7 @@ func (semp *Semp) GetClientMessageSpoolStatsSemp1(ch chan<- PrometheusMetric, it
 
 	var page = 1
 	var lastClientName = ""
-	for command := fmt.Sprintf("<rpc><show><client><name>"+itemFilter+"</name><message-spool-stats/><count/><num-elements>%d</num-elements></client></show></rpc>", sempPageSize); command != ""; {
+	for command := fmt.Sprintf("<rpc><show><client><name>%s</name><message-spool-stats/><count/><num-elements>%d</num-elements></client></show></rpc>", semp1Escape(itemFilter), sempPageSize); command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientMessageSpoolStatsSemp1", page)
 		page++
 

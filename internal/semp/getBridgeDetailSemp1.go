@@ -64,7 +64,7 @@ func (semp *Semp) GetBridgeDetailSemp1(ch chan<- PrometheusMetric, vpnFilter str
 
     var page = 1
 	var lastBridgeName = ""
-	for command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>" + itemFilter + "</bridge-name-pattern><vpn-name-pattern>" + vpnFilter + "</vpn-name-pattern><detail/><count/><num-elements>%d</num-elements></bridge></show></rpc>", sempPageSize); command != ""; {
+	for command := fmt.Sprintf("<rpc><show><bridge><bridge-name-pattern>%s</bridge-name-pattern><vpn-name-pattern>%s</vpn-name-pattern><detail/><count/><num-elements>%d</num-elements></bridge></show></rpc>", semp1Escape(itemFilter), semp1Escape(vpnFilter), sempPageSize); command != ""; {
         body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "BridgeDetailSemp1", page)
         page++
 

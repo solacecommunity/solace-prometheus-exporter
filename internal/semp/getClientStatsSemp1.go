@@ -52,7 +52,7 @@ func (semp *Semp) GetClientStatsSemp1(ch chan<- PrometheusMetric, itemFilter str
 
 	var page = 1
 	var lastClientName = ""
-	for command := fmt.Sprintf("<rpc><show><client><name>" + itemFilter + "</name><stats/><count/><num-elements>%d</num-elements></client></show></rpc>", sempPageSize); command != ""; {
+	for command := fmt.Sprintf("<rpc><show><client><name>%s</name><stats/><count/><num-elements>%d</num-elements></client></show></rpc>", semp1Escape(itemFilter), sempPageSize); command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientStatsSemp1", page)
 		page++
 
@@ -152,7 +152,7 @@ func (semp *Semp) GetClientConnectionStatsSemp1(ch chan<- PrometheusMetric, item
 		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
-	command := "<rpc><show><client><name>" + itemFilter + "</name><connections/></client></show></rpc>"
+	command := "<rpc><show><client><name>" + semp1Escape(itemFilter) + "</name><connections/></client></show></rpc>"
 
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ClientConnectionStatsSemp1", 1)
 	if err != nil {

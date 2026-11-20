@@ -29,7 +29,7 @@ func (semp *Semp) GetVpnReplicationSemp1(ch chan<- PrometheusMetric, vpnFilter s
 		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
-	command := "<rpc><show><message-vpn><vpn-name>" + vpnFilter + "</vpn-name><replication/></message-vpn></show></rpc>"
+	command := "<rpc><show><message-vpn><vpn-name>" + semp1Escape(vpnFilter) + "</vpn-name><replication/></message-vpn></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "VpnReplicationSemp1", 1)
 	if err != nil {
 		semp.logger.Error("Can't scrape VpnReplicationSemp1", "err", err, "broker", semp.brokerURI)

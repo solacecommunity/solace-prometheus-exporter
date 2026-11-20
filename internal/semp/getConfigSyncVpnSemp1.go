@@ -37,7 +37,7 @@ func (semp *Semp) GetConfigSyncVpnSemp1(ch chan<- PrometheusMetric, vpnFilter st
 
     var page = 1
 	var lastTableName = ""
-	for command := fmt.Sprintf("<rpc><show><config-sync><database/><message-vpn/><vpn-name>" + vpnFilter + "</vpn-name><count/><num-elements>%d</num-elements></config-sync></show></rpc>", sempPageSize); command != ""; {
+	for command := fmt.Sprintf("<rpc><show><config-sync><database/><message-vpn/><vpn-name>%s</vpn-name><count/><num-elements>%d</num-elements></config-sync></show></rpc>", semp1Escape(vpnFilter), sempPageSize); command != ""; {
         body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "ConfigSyncVpnSemp1", page)
         page++
 
