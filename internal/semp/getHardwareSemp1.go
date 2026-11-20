@@ -1,7 +1,6 @@
 package semp
 
 import (
-	"encoding/xml"
 	"solace_exporter/internal/semp/types"
 	"strings"
 
@@ -40,31 +39,13 @@ func (semp *Semp) GetHardwareSemp1(ch chan<- PrometheusMetric) (float64, error) 
 				} `xml:"hardware"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
 	command := "<rpc><show><hardware><details/></hardware></show></rpc>"
-	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "HardwareSemp1", 1)
-	if err != nil {
-		semp.logger.Error("Can't scrape HardwareSemp1", "err", err, "broker", semp.brokerURI)
-		return -1, err
-	}
-	defer func() { _ = body.Close() }()
-	decoder := xml.NewDecoder(body)
 	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		semp.logger.Error("Can't decode Xml HardwareSemp1", "err", err, "broker", semp.brokerURI)
-		return 0, err
-	}
-	if err := target.ExecuteResult.OK(); err != nil {
-		semp.logger.Error("unexpected result",
-			"command", command,
-			"result", target.ExecuteResult.Result,
-			"reason", target.ExecuteResult.Reason,
-			"broker", semp.brokerURI,
-		)
-		return 0, err
+	if up, err := semp.fetchSemp1(command, "HardwareSemp1", 1, &target); err != nil {
+		return up, err
 	}
 
 	ch <- semp.NewMetric(MetricDesc["Hardware"]["operational_power_supplies"], prometheus.GaugeValue, target.RPC.Show.Hardware.PowerRedundancy.OperationalPowerSupplies)
