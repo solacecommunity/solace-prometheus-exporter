@@ -1,0 +1,140 @@
+## ok
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><connections/></client></show></rpc>
+up: 1
+err: <nil>
+metric: solace_connection_advertised_window{vpn_name="2",client_name="1"} gauge 21
+metric: solace_connection_advertised_window{vpn_name="33",client_name="32"} gauge 52
+metric: solace_connection_advertised_window{vpn_name="33",client_name="32"} gauge 52
+metric: solace_connection_congestion_window{vpn_name="2",client_name="1"} gauge 24
+metric: solace_connection_congestion_window{vpn_name="33",client_name="32"} gauge 55
+metric: solace_connection_congestion_window{vpn_name="33",client_name="32"} gauge 55
+metric: solace_connection_fast_retransmit{vpn_name="2",client_name="1"} counter 27
+metric: solace_connection_fast_retransmit{vpn_name="33",client_name="32"} counter 58
+metric: solace_connection_fast_retransmit{vpn_name="33",client_name="32"} counter 58
+metric: solace_connection_is_ssl{vpn_name="2",client_name="1"} gauge 0
+metric: solace_connection_is_ssl{vpn_name="33",client_name="32"} gauge 1
+metric: solace_connection_is_ssl{vpn_name="33",client_name="32"} gauge 1
+metric: solace_connection_is_zip{vpn_name="2",client_name="1"} gauge 1
+metric: solace_connection_is_zip{vpn_name="33",client_name="32"} gauge 0
+metric: solace_connection_is_zip{vpn_name="33",client_name="32"} gauge 0
+metric: solace_connection_maximum_segment_size{vpn_name="2",client_name="1"} gauge 13
+metric: solace_connection_maximum_segment_size{vpn_name="33",client_name="32"} gauge 44
+metric: solace_connection_maximum_segment_size{vpn_name="33",client_name="32"} gauge 44
+metric: solace_connection_receive_queue_bytes{vpn_name="2",client_name="1"} gauge 6
+metric: solace_connection_receive_queue_bytes{vpn_name="33",client_name="32"} gauge 37
+metric: solace_connection_receive_queue_bytes{vpn_name="33",client_name="32"} gauge 37
+metric: solace_connection_receive_queue_segments{vpn_name="2",client_name="1"} gauge 8
+metric: solace_connection_receive_queue_segments{vpn_name="33",client_name="32"} gauge 39
+metric: solace_connection_receive_queue_segments{vpn_name="33",client_name="32"} gauge 39
+metric: solace_connection_received_bytes{vpn_name="2",client_name="1"} counter 15
+metric: solace_connection_received_bytes{vpn_name="33",client_name="32"} counter 46
+metric: solace_connection_received_bytes{vpn_name="33",client_name="32"} counter 46
+metric: solace_connection_received_outoforder{vpn_name="2",client_name="1"} counter 26
+metric: solace_connection_received_outoforder{vpn_name="33",client_name="32"} counter 57
+metric: solace_connection_received_outoforder{vpn_name="33",client_name="32"} counter 57
+metric: solace_connection_retransmit_milliseconds{vpn_name="2",client_name="1"} gauge 16
+metric: solace_connection_retransmit_milliseconds{vpn_name="33",client_name="32"} gauge 47
+metric: solace_connection_retransmit_milliseconds{vpn_name="33",client_name="32"} gauge 47
+metric: solace_connection_roundtrip_min_microseconds{vpn_name="2",client_name="1"} gauge 19
+metric: solace_connection_roundtrip_min_microseconds{vpn_name="33",client_name="32"} gauge 50
+metric: solace_connection_roundtrip_min_microseconds{vpn_name="33",client_name="32"} gauge 50
+metric: solace_connection_roundtrip_smth_microseconds{vpn_name="2",client_name="1"} gauge 17
+metric: solace_connection_roundtrip_smth_microseconds{vpn_name="33",client_name="32"} gauge 48
+metric: solace_connection_roundtrip_smth_microseconds{vpn_name="33",client_name="32"} gauge 48
+metric: solace_connection_roundtrip_var_microseconds{vpn_name="2",client_name="1"} gauge 20
+metric: solace_connection_roundtrip_var_microseconds{vpn_name="33",client_name="32"} gauge 51
+metric: solace_connection_roundtrip_var_microseconds{vpn_name="33",client_name="32"} gauge 51
+metric: solace_connection_send_queue_bytes{vpn_name="2",client_name="1"} gauge 7
+metric: solace_connection_send_queue_bytes{vpn_name="33",client_name="32"} gauge 38
+metric: solace_connection_send_queue_bytes{vpn_name="33",client_name="32"} gauge 38
+metric: solace_connection_send_queue_segments{vpn_name="2",client_name="1"} gauge 9
+metric: solace_connection_send_queue_segments{vpn_name="33",client_name="32"} gauge 40
+metric: solace_connection_send_queue_segments{vpn_name="33",client_name="32"} gauge 40
+metric: solace_connection_sent_bytes{vpn_name="2",client_name="1"} counter 14
+metric: solace_connection_sent_bytes{vpn_name="33",client_name="32"} counter 45
+metric: solace_connection_sent_bytes{vpn_name="33",client_name="32"} counter 45
+metric: solace_connection_slow_start_threshold{vpn_name="2",client_name="1"} gauge 25
+metric: solace_connection_slow_start_threshold{vpn_name="33",client_name="32"} gauge 56
+metric: solace_connection_slow_start_threshold{vpn_name="33",client_name="32"} gauge 56
+metric: solace_connection_timed_retransmit{vpn_name="2",client_name="1"} counter 28
+metric: solace_connection_timed_retransmit{vpn_name="33",client_name="32"} counter 59
+metric: solace_connection_timed_retransmit{vpn_name="33",client_name="32"} counter 59
+metric: solace_connection_transmit_window{vpn_name="2",client_name="1"} gauge 22
+metric: solace_connection_transmit_window{vpn_name="33",client_name="32"} gauge 53
+metric: solace_connection_transmit_window{vpn_name="33",client_name="32"} gauge 53
+## paged
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><connections/></client></show></rpc>
+up: 1
+err: <nil>
+metric: solace_connection_advertised_window{vpn_name="2",client_name="1"} gauge 21
+metric: solace_connection_advertised_window{vpn_name="33",client_name="32"} gauge 52
+metric: solace_connection_advertised_window{vpn_name="33",client_name="32"} gauge 52
+metric: solace_connection_congestion_window{vpn_name="2",client_name="1"} gauge 24
+metric: solace_connection_congestion_window{vpn_name="33",client_name="32"} gauge 55
+metric: solace_connection_congestion_window{vpn_name="33",client_name="32"} gauge 55
+metric: solace_connection_fast_retransmit{vpn_name="2",client_name="1"} counter 27
+metric: solace_connection_fast_retransmit{vpn_name="33",client_name="32"} counter 58
+metric: solace_connection_fast_retransmit{vpn_name="33",client_name="32"} counter 58
+metric: solace_connection_is_ssl{vpn_name="2",client_name="1"} gauge 0
+metric: solace_connection_is_ssl{vpn_name="33",client_name="32"} gauge 1
+metric: solace_connection_is_ssl{vpn_name="33",client_name="32"} gauge 1
+metric: solace_connection_is_zip{vpn_name="2",client_name="1"} gauge 1
+metric: solace_connection_is_zip{vpn_name="33",client_name="32"} gauge 0
+metric: solace_connection_is_zip{vpn_name="33",client_name="32"} gauge 0
+metric: solace_connection_maximum_segment_size{vpn_name="2",client_name="1"} gauge 13
+metric: solace_connection_maximum_segment_size{vpn_name="33",client_name="32"} gauge 44
+metric: solace_connection_maximum_segment_size{vpn_name="33",client_name="32"} gauge 44
+metric: solace_connection_receive_queue_bytes{vpn_name="2",client_name="1"} gauge 6
+metric: solace_connection_receive_queue_bytes{vpn_name="33",client_name="32"} gauge 37
+metric: solace_connection_receive_queue_bytes{vpn_name="33",client_name="32"} gauge 37
+metric: solace_connection_receive_queue_segments{vpn_name="2",client_name="1"} gauge 8
+metric: solace_connection_receive_queue_segments{vpn_name="33",client_name="32"} gauge 39
+metric: solace_connection_receive_queue_segments{vpn_name="33",client_name="32"} gauge 39
+metric: solace_connection_received_bytes{vpn_name="2",client_name="1"} counter 15
+metric: solace_connection_received_bytes{vpn_name="33",client_name="32"} counter 46
+metric: solace_connection_received_bytes{vpn_name="33",client_name="32"} counter 46
+metric: solace_connection_received_outoforder{vpn_name="2",client_name="1"} counter 26
+metric: solace_connection_received_outoforder{vpn_name="33",client_name="32"} counter 57
+metric: solace_connection_received_outoforder{vpn_name="33",client_name="32"} counter 57
+metric: solace_connection_retransmit_milliseconds{vpn_name="2",client_name="1"} gauge 16
+metric: solace_connection_retransmit_milliseconds{vpn_name="33",client_name="32"} gauge 47
+metric: solace_connection_retransmit_milliseconds{vpn_name="33",client_name="32"} gauge 47
+metric: solace_connection_roundtrip_min_microseconds{vpn_name="2",client_name="1"} gauge 19
+metric: solace_connection_roundtrip_min_microseconds{vpn_name="33",client_name="32"} gauge 50
+metric: solace_connection_roundtrip_min_microseconds{vpn_name="33",client_name="32"} gauge 50
+metric: solace_connection_roundtrip_smth_microseconds{vpn_name="2",client_name="1"} gauge 17
+metric: solace_connection_roundtrip_smth_microseconds{vpn_name="33",client_name="32"} gauge 48
+metric: solace_connection_roundtrip_smth_microseconds{vpn_name="33",client_name="32"} gauge 48
+metric: solace_connection_roundtrip_var_microseconds{vpn_name="2",client_name="1"} gauge 20
+metric: solace_connection_roundtrip_var_microseconds{vpn_name="33",client_name="32"} gauge 51
+metric: solace_connection_roundtrip_var_microseconds{vpn_name="33",client_name="32"} gauge 51
+metric: solace_connection_send_queue_bytes{vpn_name="2",client_name="1"} gauge 7
+metric: solace_connection_send_queue_bytes{vpn_name="33",client_name="32"} gauge 38
+metric: solace_connection_send_queue_bytes{vpn_name="33",client_name="32"} gauge 38
+metric: solace_connection_send_queue_segments{vpn_name="2",client_name="1"} gauge 9
+metric: solace_connection_send_queue_segments{vpn_name="33",client_name="32"} gauge 40
+metric: solace_connection_send_queue_segments{vpn_name="33",client_name="32"} gauge 40
+metric: solace_connection_sent_bytes{vpn_name="2",client_name="1"} counter 14
+metric: solace_connection_sent_bytes{vpn_name="33",client_name="32"} counter 45
+metric: solace_connection_sent_bytes{vpn_name="33",client_name="32"} counter 45
+metric: solace_connection_slow_start_threshold{vpn_name="2",client_name="1"} gauge 25
+metric: solace_connection_slow_start_threshold{vpn_name="33",client_name="32"} gauge 56
+metric: solace_connection_slow_start_threshold{vpn_name="33",client_name="32"} gauge 56
+metric: solace_connection_timed_retransmit{vpn_name="2",client_name="1"} counter 28
+metric: solace_connection_timed_retransmit{vpn_name="33",client_name="32"} counter 59
+metric: solace_connection_timed_retransmit{vpn_name="33",client_name="32"} counter 59
+metric: solace_connection_transmit_window{vpn_name="2",client_name="1"} gauge 22
+metric: solace_connection_transmit_window{vpn_name="33",client_name="32"} gauge 53
+metric: solace_connection_transmit_window{vpn_name="33",client_name="32"} gauge 53
+## http-500
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><connections/></client></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><connections/></client></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><client><name>item*</name><connections/></client></show></rpc>
+up: 0
+err: unexpected result: golden failure

@@ -1,0 +1,118 @@
+## ok
+request[1]: POST /SEMP <rpc><show><message-spool><detail/></message-spool></show ></rpc>
+up: 1
+err: <nil>
+metric: solace_system_spool_config_status gauge -1
+metric: solace_system_spool_defrag_estimated_frag_percent gauge 36
+metric: solace_system_spool_defrag_estimated_recoverable_space gauge 37
+metric: solace_system_spool_defrag_schedule_enabled gauge 1
+metric: solace_system_spool_defrag_threshold_enabled gauge 0
+metric: solace_system_spool_defrag_threshold_frag_percent gauge 34
+metric: solace_system_spool_defrag_threshold_usage_percent gauge 35
+metric: solace_system_spool_disk_partition_available{partition="38"} gauge 41
+metric: solace_system_spool_disk_partition_available{partition="44"} gauge 47
+metric: solace_system_spool_disk_partition_available{partition="44"} gauge 47
+metric: solace_system_spool_disk_partition_blocks{partition="38"} gauge 39
+metric: solace_system_spool_disk_partition_blocks{partition="44"} gauge 45
+metric: solace_system_spool_disk_partition_blocks{partition="44"} gauge 45
+metric: solace_system_spool_disk_partition_usage_active_percent gauge 8
+metric: solace_system_spool_disk_partition_usage_mate_percent gauge 9
+metric: solace_system_spool_disk_partition_use_percent{partition="38"} gauge 42
+metric: solace_system_spool_disk_partition_use_percent{partition="44"} gauge 48
+metric: solace_system_spool_disk_partition_use_percent{partition="44"} gauge 48
+metric: solace_system_spool_disk_partition_used{partition="38"} gauge 40
+metric: solace_system_spool_disk_partition_used{partition="44"} gauge 46
+metric: solace_system_spool_disk_partition_used{partition="44"} gauge 46
+metric: solace_system_spool_egress_flows_active gauge 16
+metric: solace_system_spool_egress_flows_browser gauge 18
+metric: solace_system_spool_egress_flows_count gauge 51
+metric: solace_system_spool_egress_flows_inactive gauge 17
+metric: solace_system_spool_egress_flows_quota gauge 15
+metric: solace_system_spool_endpoints_dte gauge 21
+metric: solace_system_spool_endpoints_queue gauge 20
+metric: solace_system_spool_endpoints_quota gauge 19
+metric: solace_system_spool_files_utilization_percent gauge 10
+metric: solace_system_spool_ingress_flows_count gauge 14
+metric: solace_system_spool_ingress_flows_quota gauge 13
+metric: solace_system_spool_message_count_utilization_percent gauge 3
+metric: solace_system_spool_messages_currently_spooled_adb gauge 28
+metric: solace_system_spool_messages_currently_spooled_disk gauge 29
+metric: solace_system_spool_messages_total_disk_usage_bytes gauge 2.8311552e+07
+metric: solace_system_spool_operational_status gauge -1
+metric: solace_system_spool_queue_topic_subscriptions_quota gauge 30
+metric: solace_system_spool_queue_topic_subscriptions_used gauge 31
+metric: solace_system_spool_quota_bytes gauge 4.194304e+06
+metric: solace_system_spool_sync_status gauge -1
+metric: solace_system_spool_transacted_session_utilisation_pct gauge 12
+metric: solace_system_spool_transacted_sessions_quota gauge 22
+metric: solace_system_spool_transacted_sessions_used gauge 23
+metric: solace_system_spool_transactions_quota gauge 24
+metric: solace_system_spool_transactions_used gauge 25
+metric: solace_system_spool_usage_adb_bytes gauge 2.7262976e+07
+metric: solace_system_spool_usage_bytes gauge 6.291456e+06
+metric: solace_system_spool_usage_msgs gauge 7
+## paged
+request[1]: POST /SEMP <rpc><show><message-spool><detail/></message-spool></show ></rpc>
+up: 1
+err: <nil>
+metric: solace_system_spool_config_status gauge -1
+metric: solace_system_spool_defrag_estimated_frag_percent gauge 36
+metric: solace_system_spool_defrag_estimated_recoverable_space gauge 37
+metric: solace_system_spool_defrag_schedule_enabled gauge 1
+metric: solace_system_spool_defrag_threshold_enabled gauge 0
+metric: solace_system_spool_defrag_threshold_frag_percent gauge 34
+metric: solace_system_spool_defrag_threshold_usage_percent gauge 35
+metric: solace_system_spool_disk_partition_available{partition="38"} gauge 41
+metric: solace_system_spool_disk_partition_available{partition="44"} gauge 47
+metric: solace_system_spool_disk_partition_available{partition="44"} gauge 47
+metric: solace_system_spool_disk_partition_blocks{partition="38"} gauge 39
+metric: solace_system_spool_disk_partition_blocks{partition="44"} gauge 45
+metric: solace_system_spool_disk_partition_blocks{partition="44"} gauge 45
+metric: solace_system_spool_disk_partition_usage_active_percent gauge 8
+metric: solace_system_spool_disk_partition_usage_mate_percent gauge 9
+metric: solace_system_spool_disk_partition_use_percent{partition="38"} gauge 42
+metric: solace_system_spool_disk_partition_use_percent{partition="44"} gauge 48
+metric: solace_system_spool_disk_partition_use_percent{partition="44"} gauge 48
+metric: solace_system_spool_disk_partition_used{partition="38"} gauge 40
+metric: solace_system_spool_disk_partition_used{partition="44"} gauge 46
+metric: solace_system_spool_disk_partition_used{partition="44"} gauge 46
+metric: solace_system_spool_egress_flows_active gauge 16
+metric: solace_system_spool_egress_flows_browser gauge 18
+metric: solace_system_spool_egress_flows_count gauge 51
+metric: solace_system_spool_egress_flows_inactive gauge 17
+metric: solace_system_spool_egress_flows_quota gauge 15
+metric: solace_system_spool_endpoints_dte gauge 21
+metric: solace_system_spool_endpoints_queue gauge 20
+metric: solace_system_spool_endpoints_quota gauge 19
+metric: solace_system_spool_files_utilization_percent gauge 10
+metric: solace_system_spool_ingress_flows_count gauge 14
+metric: solace_system_spool_ingress_flows_quota gauge 13
+metric: solace_system_spool_message_count_utilization_percent gauge 3
+metric: solace_system_spool_messages_currently_spooled_adb gauge 28
+metric: solace_system_spool_messages_currently_spooled_disk gauge 29
+metric: solace_system_spool_messages_total_disk_usage_bytes gauge 2.8311552e+07
+metric: solace_system_spool_operational_status gauge -1
+metric: solace_system_spool_queue_topic_subscriptions_quota gauge 30
+metric: solace_system_spool_queue_topic_subscriptions_used gauge 31
+metric: solace_system_spool_quota_bytes gauge 4.194304e+06
+metric: solace_system_spool_sync_status gauge -1
+metric: solace_system_spool_transacted_session_utilisation_pct gauge 12
+metric: solace_system_spool_transacted_sessions_quota gauge 22
+metric: solace_system_spool_transacted_sessions_used gauge 23
+metric: solace_system_spool_transactions_quota gauge 24
+metric: solace_system_spool_transactions_used gauge 25
+metric: solace_system_spool_usage_adb_bytes gauge 2.7262976e+07
+metric: solace_system_spool_usage_bytes gauge 6.291456e+06
+metric: solace_system_spool_usage_msgs gauge 7
+## http-500
+request[1]: POST /SEMP <rpc><show><message-spool><detail/></message-spool></show ></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><message-spool><detail/></message-spool></show ></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><message-spool><detail/></message-spool></show ></rpc>
+up: 0
+err: unexpected result: golden failure

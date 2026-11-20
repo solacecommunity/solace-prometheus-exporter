@@ -1,0 +1,69 @@
+## ok
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>item*</name><vpn-name>vpn*</vpn-name><rates/><count/><num-elements>7</num-elements></topic-endpoint></show></rpc>
+up: 1
+err: <nil>
+metric: solace_topic_endpoint_rx_byte_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 13
+metric: solace_topic_endpoint_rx_byte_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 3
+metric: solace_topic_endpoint_rx_byte_rate{vpn_name="12",topic_endpoint_name="11"} gauge 17
+metric: solace_topic_endpoint_rx_byte_rate{vpn_name="2",topic_endpoint_name="1"} gauge 7
+metric: solace_topic_endpoint_rx_msg_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 14
+metric: solace_topic_endpoint_rx_msg_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 4
+metric: solace_topic_endpoint_rx_msg_rate{vpn_name="12",topic_endpoint_name="11"} gauge 18
+metric: solace_topic_endpoint_rx_msg_rate{vpn_name="2",topic_endpoint_name="1"} gauge 8
+metric: solace_topic_endpoint_tx_byte_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 15
+metric: solace_topic_endpoint_tx_byte_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 5
+metric: solace_topic_endpoint_tx_byte_rate{vpn_name="12",topic_endpoint_name="11"} gauge 19
+metric: solace_topic_endpoint_tx_byte_rate{vpn_name="2",topic_endpoint_name="1"} gauge 9
+metric: solace_topic_endpoint_tx_msg_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 16
+metric: solace_topic_endpoint_tx_msg_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 6
+metric: solace_topic_endpoint_tx_msg_rate{vpn_name="12",topic_endpoint_name="11"} gauge 20
+metric: solace_topic_endpoint_tx_msg_rate{vpn_name="2",topic_endpoint_name="1"} gauge 10
+## paged
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>item*</name><vpn-name>vpn*</vpn-name><rates/><count/><num-elements>7</num-elements></topic-endpoint></show></rpc>
+request[2]: POST /SEMP <rpc><show><golden-page-2/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_topic_endpoint_rx_byte_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 13
+metric: solace_topic_endpoint_rx_byte_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 13
+metric: solace_topic_endpoint_rx_byte_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 3
+metric: solace_topic_endpoint_rx_byte_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 3
+metric: solace_topic_endpoint_rx_byte_rate{vpn_name="12",topic_endpoint_name="11"} gauge 17
+metric: solace_topic_endpoint_rx_byte_rate{vpn_name="12",topic_endpoint_name="11"} gauge 17
+metric: solace_topic_endpoint_rx_byte_rate{vpn_name="2",topic_endpoint_name="1"} gauge 7
+metric: solace_topic_endpoint_rx_byte_rate{vpn_name="2",topic_endpoint_name="1"} gauge 7
+metric: solace_topic_endpoint_rx_msg_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 14
+metric: solace_topic_endpoint_rx_msg_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 14
+metric: solace_topic_endpoint_rx_msg_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 4
+metric: solace_topic_endpoint_rx_msg_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 4
+metric: solace_topic_endpoint_rx_msg_rate{vpn_name="12",topic_endpoint_name="11"} gauge 18
+metric: solace_topic_endpoint_rx_msg_rate{vpn_name="12",topic_endpoint_name="11"} gauge 18
+metric: solace_topic_endpoint_rx_msg_rate{vpn_name="2",topic_endpoint_name="1"} gauge 8
+metric: solace_topic_endpoint_rx_msg_rate{vpn_name="2",topic_endpoint_name="1"} gauge 8
+metric: solace_topic_endpoint_tx_byte_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 15
+metric: solace_topic_endpoint_tx_byte_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 15
+metric: solace_topic_endpoint_tx_byte_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 5
+metric: solace_topic_endpoint_tx_byte_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 5
+metric: solace_topic_endpoint_tx_byte_rate{vpn_name="12",topic_endpoint_name="11"} gauge 19
+metric: solace_topic_endpoint_tx_byte_rate{vpn_name="12",topic_endpoint_name="11"} gauge 19
+metric: solace_topic_endpoint_tx_byte_rate{vpn_name="2",topic_endpoint_name="1"} gauge 9
+metric: solace_topic_endpoint_tx_byte_rate{vpn_name="2",topic_endpoint_name="1"} gauge 9
+metric: solace_topic_endpoint_tx_msg_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 16
+metric: solace_topic_endpoint_tx_msg_rate_avg{vpn_name="12",topic_endpoint_name="11"} gauge 16
+metric: solace_topic_endpoint_tx_msg_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 6
+metric: solace_topic_endpoint_tx_msg_rate_avg{vpn_name="2",topic_endpoint_name="1"} gauge 6
+metric: solace_topic_endpoint_tx_msg_rate{vpn_name="12",topic_endpoint_name="11"} gauge 20
+metric: solace_topic_endpoint_tx_msg_rate{vpn_name="12",topic_endpoint_name="11"} gauge 20
+metric: solace_topic_endpoint_tx_msg_rate{vpn_name="2",topic_endpoint_name="1"} gauge 10
+metric: solace_topic_endpoint_tx_msg_rate{vpn_name="2",topic_endpoint_name="1"} gauge 10
+## http-500
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>item*</name><vpn-name>vpn*</vpn-name><rates/><count/><num-elements>7</num-elements></topic-endpoint></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>item*</name><vpn-name>vpn*</vpn-name><rates/><count/><num-elements>7</num-elements></topic-endpoint></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>item*</name><vpn-name>vpn*</vpn-name><rates/><count/><num-elements>7</num-elements></topic-endpoint></show></rpc>
+up: 0
+err: unexpected result: golden failure

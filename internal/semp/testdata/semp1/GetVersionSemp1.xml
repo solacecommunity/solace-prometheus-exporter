@@ -1,0 +1,1 @@
+<rpc-reply semp-version="soltr/10_0VMR"><rpc><show><version><description>1</description><current-load>2</current-load><uptime><days>3</days><hours>4</hours><mins>5</mins><secs>6</secs><total-secs>7</total-secs></uptime></version></show></rpc>{{MORE_COOKIE}}<execute-result code="ok"/></rpc-reply>
