@@ -38,7 +38,7 @@ func (semp *Semp) GetQueueDetailsSemp1(ch chan<- PrometheusMetric, vpnFilter str
 
 	var lastQueueName = ""
 	var page = 1
-	for command := fmt.Sprintf("<rpc><show><queue><name>" + itemFilter + "</name><vpn-name>" + vpnFilter + "</vpn-name><detail/><count/><num-elements>%d</num-elements></queue></show></rpc>", sempPageSize); command != ""; {
+	for command := fmt.Sprintf("<rpc><show><queue><name>%s</name><vpn-name>%s</vpn-name><detail/><count/><num-elements>%d</num-elements></queue></show></rpc>", semp1Escape(itemFilter), semp1Escape(vpnFilter), sempPageSize); command != ""; {
 		body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "QueueDetailsSemp1", page)
 		page++
 

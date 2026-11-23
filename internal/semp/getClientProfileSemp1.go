@@ -32,7 +32,7 @@ func (semp *Semp) GetClientProfileSemp1(ch chan<- PrometheusMetric, vpnFilter st
 		ExecuteResult types.ExecuteResult `xml:"execute-result"`
 	}
 
-	command := "<rpc><show><client-profile><name>*</name><vpn-name>" + vpnFilter + "</vpn-name><detail/></client-profile></show></rpc>"
+	command := "<rpc><show><client-profile><name>*</name><vpn-name>" + semp1Escape(vpnFilter) + "</vpn-name><detail/></client-profile></show></rpc>"
 	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "DiskSemp1", 1)
 	if err != nil {
 		semp.logger.Error("Can't scrape ClientProfiles", "err", err, "broker", semp.brokerURI)
