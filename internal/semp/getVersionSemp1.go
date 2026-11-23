@@ -2,8 +2,6 @@ package semp
 
 import (
 	"bytes"
-	"encoding/xml"
-	"errors"
 	"fmt"
 	"solace_exporter/internal/semp/types"
 	"strconv"
@@ -30,26 +28,13 @@ func (semp *Semp) GetVersionSemp1(ch chan<- PrometheusMetric) (float64, error) {
 				} `xml:"version"`
 			} `xml:"show"`
 		} `xml:"rpc"`
-		ExecuteResult types.ExecuteResult `xml:"execute-result"`
+		types.Reply
 	}
 
 	command := "<rpc><show><version/></show></rpc>"
-	body, err := semp.postHTTP(semp.brokerURI+"/SEMP", "application/xml", command, "VersionSemp1", 1)
-	if err != nil {
-		semp.logger.Error("Can't scrape getVersionSemp1", "err", err, "broker", semp.brokerURI)
-		return -1, err
-	}
-	defer func() { _ = body.Close() }()
-	decoder := xml.NewDecoder(body)
 	var target Data
-	err = decoder.Decode(&target)
-	if err != nil {
-		semp.logger.Error("Can't decode Xml getVersionSemp1", "err", err, "broker", semp.brokerURI)
-		return 0, err
-	}
-	if target.ExecuteResult.Result != "ok" {
-		semp.logger.Error("Unexpected result for getVersionSemp1", "command", command, "result", target.ExecuteResult.Result, "reason", target.ExecuteResult.Reason, "broker", semp.brokerURI)
-		return 0, errors.New("unexpected result: " + target.ExecuteResult.Reason + ". see log for further details")
+	if up, err := semp.fetchSemp1(command, "VersionSemp1", 1, &target); err != nil {
+		return up, withLegacyResultErrorText(err)
 	}
 
 	// remember this for the label

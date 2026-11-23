@@ -9,199 +9,63 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// CollectPrometheusMetric fetches the stats from configured Solace location and delivers them
-// as Prometheus metrics. It implements prometheus.Collector.
+// CollectPrometheusMetric fetches the stats of every configured data source from the broker and delivers them as
+// metrics, followed by one solace_up metric per data source. An unrecoverable failure (up < 0, e.g. the broker is
+// unreachable) is reported once under endpoint "global" and skips the remaining data sources.
 func (e *Exporter) CollectPrometheusMetric(ch chan<- semp.PrometheusMetric) {
-	var up float64 // set per dataSource in the switch below before it is read
-	var err error
-	var vpnName string
-
 	for _, dataSource := range *e.dataSource {
-		switch dataSource.Name {
-		case "Version", "VersionV1":
-			up, err = e.semp.GetVersionSemp1(ch)
-		case "Health", "HealthV1":
-			if !e.config.IsHWBroker {
-				up, err = e.semp.GetHealthSemp1(ch)
-			} else {
-				up = 0
-				err = errors.New("Software only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				e.logger.Error("Software only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			}
-		case "StorageElement", "StorageElementV1":
-			if !e.config.IsHWBroker {
-				up, err = e.semp.GetStorageElementSemp1(ch, dataSource.ItemFilter)
-			} else {
-				up = 0
-				err = errors.New("Software only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				e.logger.Error("Software only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			}
-		case "Disk", "DiskV1":
-			if e.config.IsHWBroker {
-				up, err = e.semp.GetDiskSemp1(ch)
-			} else {
-				up = 0
-				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			}
-		case "Raid", "RaidV1":
-			if e.config.IsHWBroker {
-				up, err = e.semp.GetRaidSemp1(ch)
-			} else {
-				up = 0
-				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			}
-		case "Memory", "MemoryV1":
-			up, err = e.semp.GetMemorySemp1(ch)
-		case "Interface", "InterfaceV1":
-			up, err = e.semp.GetInterfaceSemp1(ch, dataSource.ItemFilter)
-		case "InterfaceHW", "InterfaceHWV1":
-			if e.config.IsHWBroker {
-				up, err = e.semp.GetInterfaceHWSemp1(ch, dataSource.ItemFilter)
-			} else {
-				up = 0
-				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			}
-		case "GlobalStats", "GlobalStatsV1":
-			up, err = e.semp.GetGlobalStatsSemp1(ch)
-		case "GlobalSystemInfo", "GlobalSystemInfoV1":
-			up, err = e.semp.GetGlobalSystemInfoSemp1(ch)
-		case "Spool", "SpoolV1":
-			up, err = e.semp.GetSpoolSemp1(ch)
-		case "SpoolStats", "SpoolStatsV1":
-			up, err = e.semp.GetSpoolStatsSemp1(ch)
-		case "Redundancy", "RedundancyV1":
-			up, err = e.semp.GetRedundancySemp1(ch)
-		case "Alarm", "AlarmV1":
-			if e.config.IsHWBroker {
-				up, err = e.semp.GetAlarmSemp1(ch)
-			} else {
-				up = 0
-				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			}
-		case "Environment", "EnvironmentV1":
-			if e.config.IsHWBroker {
-				up, err = e.semp.GetEnvironmentSemp1(ch)
-			} else {
-				up = 0
-				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			}
-		case "Hardware", "HardwareV1":
-			if e.config.IsHWBroker {
-				up, err = e.semp.GetHardwareSemp1(ch)
-			} else {
-				up = 0
-				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			}
-		case "ClockDetail", "ClockDetailV1":
-			if e.config.IsHWBroker {
-				up, err = e.semp.GetClockDetailSemp1(ch)
-			} else {
-				up = 0
-				err = errors.New("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-				e.logger.Error("Hardware only scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			}
-		case "ReplicationStats", "ReplicationStatsV1":
-			up, err = e.semp.GetReplicationStatsSemp1(ch)
-		case "ConfigSyncRouter", "ConfigSyncRouterV1":
-			up, err = e.semp.GetConfigSyncRouterSemp1(ch)
-		case "ConfigSync", "ConfigSyncV1":
-			up, err = e.semp.GetConfigSyncSemp1(ch)
-		case "Vpn", "VpnV1":
-			up, err = e.semp.GetVpnSemp1(ch, dataSource.VpnFilter, e.config.SempPageSize)
-		case "VpnReplication", "VpnReplicationV1":
-			up, err = e.semp.GetVpnReplicationSemp1(ch, dataSource.VpnFilter)
-		case "ConfigSyncVpn", "ConfigSyncVpnV1":
-			up, err = e.semp.GetConfigSyncVpnSemp1(ch, dataSource.VpnFilter, e.config.SempPageSize)
-		case "Bridge", "BridgeV1":
-			up, err = e.semp.GetBridgeSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "BridgeRemote", "BridgeRemoteV1":
-			up, err = e.semp.GetBridgeRemoteSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "BridgeDetail", "BridgeDetailV1":
-			up, err = e.semp.GetBridgeDetailSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "BridgeClientCert", "BridgeClientCertV1":
-			up, err = e.semp.GetBridgeClientCertSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "VpnSpool", "VpnSpoolV1":
-			up, err = e.semp.GetVpnSpoolSemp1(ch, dataSource.VpnFilter, e.config.SempPageSize)
-		case "Client", "ClientV1":
-			up, err = e.semp.GetClientSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "ClientProfile", "ClientProfileV1":
-			up, err = e.semp.GetClientProfileSemp1(ch, dataSource.VpnFilter)
-		case "ClientSlowSubscriber", "ClientSlowSubscriberV1":
-			up, err = e.semp.GetClientSlowSubscriberSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "ClientStats", "ClientStatsV1":
-			up, err = e.semp.GetClientStatsSemp1(ch, dataSource.ItemFilter, e.config.SempPageSize)
-		case "ClientConnections", "ClientConnectionsV1":
-			up, err = e.semp.GetClientConnectionStatsSemp1(ch, dataSource.ItemFilter)
-		case "ClientMessageSpoolStats", "ClientMessageSpoolStatsV1":
-			up, err = e.semp.GetClientMessageSpoolStatsSemp1(ch, dataSource.VpnFilter, e.config.SempPageSize)
-		case "ClientMessageSpoolEgress", "ClientMessageSpoolEgressV1":
-			up, err = e.semp.GetClientMessageSpoolEgressSemp1(ch, dataSource.ItemFilter)
-		case "ClusterLinks", "ClusterLinksV1":
-			up, err = e.semp.GetClusterLinksSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "VpnStats", "VpnStatsV1":
-			up, err = e.semp.GetVpnStatsSemp1(ch, dataSource.VpnFilter, e.config.SempPageSize)
-		case "BridgeStats", "BridgeStatsV1":
-			up, err = e.semp.GetBridgeStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "QueueRates", "QueueRatesV1":
-			up, err = e.semp.GetQueueRatesSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "QueueStats", "QueueStatsV1":
-			up, err = e.semp.GetQueueStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "QueueStatsV2":
-			up = 0 // reset before getVpnName so its failure isn't reported with the previous datasource's up value
-			vpnName, err = e.getVpnName(dataSource.VpnFilter)
-			if err == nil {
-				up, err = e.semp.GetQueueStatsSemp2(ch, vpnName, dataSource.ItemFilter, dataSource.MetricFilter)
-			}
-		case "QueueDetails", "QueueDetailsV1":
-			up, err = e.semp.GetQueueDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "TopicEndpointRates", "TopicEndpointRatesV1":
-			up, err = e.semp.GetTopicEndpointRatesSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "TopicEndpointStats", "TopicEndpointStatsV1":
-			up, err = e.semp.GetTopicEndpointStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "TopicEndpointDetails", "TopicEndpointDetailsV1":
-			up, err = e.semp.GetTopicEndpointDetailsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "RestConsumerStats", "RestConsumerStatsV1":
-			up, err = e.semp.GetRestConsumerStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "RdpStats", "RdpStatsV1":
-			up, err = e.semp.GetRdpStatsSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "RdpInfo", "RdpInfoV1":
-			up, err = e.semp.GetRdpInfoSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter)
-		case "MqttSession":
-			up, err = e.semp.GetMqttSessionSemp1(ch, dataSource.VpnFilter, dataSource.ItemFilter, e.config.SempPageSize)
-		case "StatsClientDetail", "StatsClientDetailV1":
-			up, err = e.semp.GetStatsClientDetailSemp1(ch)
-		default:
-			up = 0
-			err = errors.New("Unknown scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-			e.logger.Error("Unknown scrape target: \"" + dataSource.Name + "\". Please check documentation for valid targets.")
-		}
-
-		var endpoint = dataSource.Name
-		if up < 1 {
-			if up < 0 {
-				endpoint = "global"
-			}
-
-			if err != nil {
-				ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, err.Error(), endpoint)
-			} else {
-				ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, "Unknown", endpoint)
-			}
-
-			if up < 0 {
-				// Unrecoverable error that will be repeated on all dataSources
-				break
-			}
-		} else {
-			ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 1, "", endpoint)
+		up, err := e.scrape(ch, dataSource)
+		if !e.reportUp(ch, dataSource.Name, up, err) {
+			return
 		}
 	}
+}
+
+// scrape collects one data source, rejecting unknown names and targets the configured broker type cannot serve.
+func (e *Exporter) scrape(ch chan<- semp.PrometheusMetric, dataSource DataSource) (float64, error) {
+	target, ok := scrapeTargets[dataSource.Name]
+	if !ok {
+		return 0, e.targetError("Unknown", dataSource.Name)
+	}
+
+	switch {
+	case target.brokerKind == softwareBrokerOnly && e.config.IsHWBroker:
+		return 0, e.targetError("Software only", dataSource.Name)
+	case target.brokerKind == hardwareBrokerOnly && !e.config.IsHWBroker:
+		return 0, e.targetError("Hardware only", dataSource.Name)
+	}
+
+	return target.scrape(e, ch, dataSource)
+}
+
+// targetError logs and returns the error for a data source that cannot be scraped; kind prefixes the message.
+func (e *Exporter) targetError(kind string, name string) error {
+	msg := kind + " scrape target: \"" + name + "\". Please check documentation for valid targets."
+	e.logger.Error(msg)
+	return errors.New(msg)
+}
+
+// reportUp emits the solace_up metric for one data source and reports whether the remaining data sources should
+// still be scraped.
+func (e *Exporter) reportUp(ch chan<- semp.PrometheusMetric, endpoint string, up float64, err error) bool {
+	if up >= 1 {
+		ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 1, "", endpoint)
+		return true
+	}
+
+	unrecoverable := up < 0
+	if unrecoverable {
+		// The failure would repeat on every data source, so it is reported once for the whole broker.
+		endpoint = "global"
+	}
+
+	errorLabel := "Unknown"
+	if err != nil {
+		errorLabel = err.Error()
+	}
+	ch <- e.semp.NewMetric(semp.MetricDesc["Global"]["up"], prometheus.GaugeValue, 0, errorLabel, endpoint)
+
+	return !unrecoverable
 }
 
 func (e *Exporter) Collect(pch chan<- prometheus.Metric) {

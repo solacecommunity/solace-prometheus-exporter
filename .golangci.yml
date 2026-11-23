@@ -1,0 +1,8 @@
+version: "2"
+
+# Linters: golangci-lint's "standard" set (errcheck, govet, ineffassign, staticcheck, unused).
+# Formatters: fail the lint job on unformatted code; fix locally with `golangci-lint fmt`.
+formatters:
+  enable:
+    - gofmt
+    - goimports
