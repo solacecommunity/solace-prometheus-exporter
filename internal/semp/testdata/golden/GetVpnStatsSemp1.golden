@@ -1,0 +1,141 @@
+## ok
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><stats/><count/><num-elements>7</num-elements></message-vpn></show></rpc>
+up: 1
+err: <nil>
+metric: solace_vpn_connections_service_amqp{vpn_name="1"} gauge 11
+metric: solace_vpn_connections_service_amqp{vpn_name="31"} gauge 41
+metric: solace_vpn_connections_service_mqtt{vpn_name="1"} gauge 14
+metric: solace_vpn_connections_service_mqtt{vpn_name="31"} gauge 44
+metric: solace_vpn_connections_service_rest_in{vpn_name="1"} gauge 15
+metric: solace_vpn_connections_service_rest_in{vpn_name="31"} gauge 45
+metric: solace_vpn_connections_service_rest_out{vpn_name="1"} gauge 16
+metric: solace_vpn_connections_service_rest_out{vpn_name="31"} gauge 46
+metric: solace_vpn_connections_service_smf{vpn_name="1"} gauge 12
+metric: solace_vpn_connections_service_smf{vpn_name="31"} gauge 42
+metric: solace_vpn_connections_service_web{vpn_name="1"} gauge 13
+metric: solace_vpn_connections_service_web{vpn_name="31"} gauge 43
+metric: solace_vpn_connections{vpn_name="1"} gauge 3
+metric: solace_vpn_connections{vpn_name="31"} gauge 33
+metric: solace_vpn_quota_connections_amqp{vpn_name="1"} gauge 8
+metric: solace_vpn_quota_connections_amqp{vpn_name="31"} gauge 38
+metric: solace_vpn_quota_connections_mqtt{vpn_name="1"} gauge 7
+metric: solace_vpn_quota_connections_mqtt{vpn_name="31"} gauge 37
+metric: solace_vpn_quota_connections_rest_in{vpn_name="1"} gauge 9
+metric: solace_vpn_quota_connections_rest_in{vpn_name="31"} gauge 39
+metric: solace_vpn_quota_connections_rest_out{vpn_name="1"} gauge 10
+metric: solace_vpn_quota_connections_rest_out{vpn_name="31"} gauge 40
+metric: solace_vpn_quota_connections_smf{vpn_name="1"} gauge 5
+metric: solace_vpn_quota_connections_smf{vpn_name="31"} gauge 35
+metric: solace_vpn_quota_connections_web{vpn_name="1"} gauge 6
+metric: solace_vpn_quota_connections_web{vpn_name="31"} gauge 36
+metric: solace_vpn_quota_connections{vpn_name="1"} gauge 4
+metric: solace_vpn_quota_connections{vpn_name="31"} gauge 34
+metric: solace_vpn_rx_bytes_total{vpn_name="1"} counter 17
+metric: solace_vpn_rx_bytes_total{vpn_name="31"} counter 47
+metric: solace_vpn_rx_discarded_msgs_total{vpn_name="1"} counter 29
+metric: solace_vpn_rx_discarded_msgs_total{vpn_name="31"} counter 59
+metric: solace_vpn_rx_msgs_total{vpn_name="1"} counter 18
+metric: solace_vpn_rx_msgs_total{vpn_name="31"} counter 48
+metric: solace_vpn_tx_bytes_total{vpn_name="1"} counter 19
+metric: solace_vpn_tx_bytes_total{vpn_name="31"} counter 49
+metric: solace_vpn_tx_discarded_msgs_total{vpn_name="1"} counter 30
+metric: solace_vpn_tx_discarded_msgs_total{vpn_name="31"} counter 60
+metric: solace_vpn_tx_msgs_total{vpn_name="1"} counter 20
+metric: solace_vpn_tx_msgs_total{vpn_name="31"} counter 50
+## paged
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><stats/><count/><num-elements>7</num-elements></message-vpn></show></rpc>
+request[2]: POST /SEMP <rpc><show><golden-page-2/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_vpn_connections_service_amqp{vpn_name="1"} gauge 11
+metric: solace_vpn_connections_service_amqp{vpn_name="1"} gauge 11
+metric: solace_vpn_connections_service_amqp{vpn_name="31"} gauge 41
+metric: solace_vpn_connections_service_amqp{vpn_name="31"} gauge 41
+metric: solace_vpn_connections_service_mqtt{vpn_name="1"} gauge 14
+metric: solace_vpn_connections_service_mqtt{vpn_name="1"} gauge 14
+metric: solace_vpn_connections_service_mqtt{vpn_name="31"} gauge 44
+metric: solace_vpn_connections_service_mqtt{vpn_name="31"} gauge 44
+metric: solace_vpn_connections_service_rest_in{vpn_name="1"} gauge 15
+metric: solace_vpn_connections_service_rest_in{vpn_name="1"} gauge 15
+metric: solace_vpn_connections_service_rest_in{vpn_name="31"} gauge 45
+metric: solace_vpn_connections_service_rest_in{vpn_name="31"} gauge 45
+metric: solace_vpn_connections_service_rest_out{vpn_name="1"} gauge 16
+metric: solace_vpn_connections_service_rest_out{vpn_name="1"} gauge 16
+metric: solace_vpn_connections_service_rest_out{vpn_name="31"} gauge 46
+metric: solace_vpn_connections_service_rest_out{vpn_name="31"} gauge 46
+metric: solace_vpn_connections_service_smf{vpn_name="1"} gauge 12
+metric: solace_vpn_connections_service_smf{vpn_name="1"} gauge 12
+metric: solace_vpn_connections_service_smf{vpn_name="31"} gauge 42
+metric: solace_vpn_connections_service_smf{vpn_name="31"} gauge 42
+metric: solace_vpn_connections_service_web{vpn_name="1"} gauge 13
+metric: solace_vpn_connections_service_web{vpn_name="1"} gauge 13
+metric: solace_vpn_connections_service_web{vpn_name="31"} gauge 43
+metric: solace_vpn_connections_service_web{vpn_name="31"} gauge 43
+metric: solace_vpn_connections{vpn_name="1"} gauge 3
+metric: solace_vpn_connections{vpn_name="1"} gauge 3
+metric: solace_vpn_connections{vpn_name="31"} gauge 33
+metric: solace_vpn_connections{vpn_name="31"} gauge 33
+metric: solace_vpn_quota_connections_amqp{vpn_name="1"} gauge 8
+metric: solace_vpn_quota_connections_amqp{vpn_name="1"} gauge 8
+metric: solace_vpn_quota_connections_amqp{vpn_name="31"} gauge 38
+metric: solace_vpn_quota_connections_amqp{vpn_name="31"} gauge 38
+metric: solace_vpn_quota_connections_mqtt{vpn_name="1"} gauge 7
+metric: solace_vpn_quota_connections_mqtt{vpn_name="1"} gauge 7
+metric: solace_vpn_quota_connections_mqtt{vpn_name="31"} gauge 37
+metric: solace_vpn_quota_connections_mqtt{vpn_name="31"} gauge 37
+metric: solace_vpn_quota_connections_rest_in{vpn_name="1"} gauge 9
+metric: solace_vpn_quota_connections_rest_in{vpn_name="1"} gauge 9
+metric: solace_vpn_quota_connections_rest_in{vpn_name="31"} gauge 39
+metric: solace_vpn_quota_connections_rest_in{vpn_name="31"} gauge 39
+metric: solace_vpn_quota_connections_rest_out{vpn_name="1"} gauge 10
+metric: solace_vpn_quota_connections_rest_out{vpn_name="1"} gauge 10
+metric: solace_vpn_quota_connections_rest_out{vpn_name="31"} gauge 40
+metric: solace_vpn_quota_connections_rest_out{vpn_name="31"} gauge 40
+metric: solace_vpn_quota_connections_smf{vpn_name="1"} gauge 5
+metric: solace_vpn_quota_connections_smf{vpn_name="1"} gauge 5
+metric: solace_vpn_quota_connections_smf{vpn_name="31"} gauge 35
+metric: solace_vpn_quota_connections_smf{vpn_name="31"} gauge 35
+metric: solace_vpn_quota_connections_web{vpn_name="1"} gauge 6
+metric: solace_vpn_quota_connections_web{vpn_name="1"} gauge 6
+metric: solace_vpn_quota_connections_web{vpn_name="31"} gauge 36
+metric: solace_vpn_quota_connections_web{vpn_name="31"} gauge 36
+metric: solace_vpn_quota_connections{vpn_name="1"} gauge 4
+metric: solace_vpn_quota_connections{vpn_name="1"} gauge 4
+metric: solace_vpn_quota_connections{vpn_name="31"} gauge 34
+metric: solace_vpn_quota_connections{vpn_name="31"} gauge 34
+metric: solace_vpn_rx_bytes_total{vpn_name="1"} counter 17
+metric: solace_vpn_rx_bytes_total{vpn_name="1"} counter 17
+metric: solace_vpn_rx_bytes_total{vpn_name="31"} counter 47
+metric: solace_vpn_rx_bytes_total{vpn_name="31"} counter 47
+metric: solace_vpn_rx_discarded_msgs_total{vpn_name="1"} counter 29
+metric: solace_vpn_rx_discarded_msgs_total{vpn_name="1"} counter 29
+metric: solace_vpn_rx_discarded_msgs_total{vpn_name="31"} counter 59
+metric: solace_vpn_rx_discarded_msgs_total{vpn_name="31"} counter 59
+metric: solace_vpn_rx_msgs_total{vpn_name="1"} counter 18
+metric: solace_vpn_rx_msgs_total{vpn_name="1"} counter 18
+metric: solace_vpn_rx_msgs_total{vpn_name="31"} counter 48
+metric: solace_vpn_rx_msgs_total{vpn_name="31"} counter 48
+metric: solace_vpn_tx_bytes_total{vpn_name="1"} counter 19
+metric: solace_vpn_tx_bytes_total{vpn_name="1"} counter 19
+metric: solace_vpn_tx_bytes_total{vpn_name="31"} counter 49
+metric: solace_vpn_tx_bytes_total{vpn_name="31"} counter 49
+metric: solace_vpn_tx_discarded_msgs_total{vpn_name="1"} counter 30
+metric: solace_vpn_tx_discarded_msgs_total{vpn_name="1"} counter 30
+metric: solace_vpn_tx_discarded_msgs_total{vpn_name="31"} counter 60
+metric: solace_vpn_tx_discarded_msgs_total{vpn_name="31"} counter 60
+metric: solace_vpn_tx_msgs_total{vpn_name="1"} counter 20
+metric: solace_vpn_tx_msgs_total{vpn_name="1"} counter 20
+metric: solace_vpn_tx_msgs_total{vpn_name="31"} counter 50
+metric: solace_vpn_tx_msgs_total{vpn_name="31"} counter 50
+## http-500
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><stats/><count/><num-elements>7</num-elements></message-vpn></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><stats/><count/><num-elements>7</num-elements></message-vpn></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><message-vpn><vpn-name>vpn*</vpn-name><stats/><count/><num-elements>7</num-elements></message-vpn></show></rpc>
+up: 0
+err: unexpected result: golden failure

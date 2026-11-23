@@ -1,0 +1,45 @@
+## ok
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>item*</name><vpn-name>vpn*</vpn-name><detail/><count/><num-elements>7</num-elements></topic-endpoint></show></rpc>
+up: 1
+err: <nil>
+metric: solace_topic_endpoint_binds{vpn_name="2",topic_endpoint_name="1"} gauge 6
+metric: solace_topic_endpoint_binds{vpn_name="8",topic_endpoint_name="7"} gauge 12
+metric: solace_topic_endpoint_spool_quota_bytes{vpn_name="2",topic_endpoint_name="1"} gauge 3.145728e+06
+metric: solace_topic_endpoint_spool_quota_bytes{vpn_name="8",topic_endpoint_name="7"} gauge 9.437184e+06
+metric: solace_topic_endpoint_spool_usage_bytes{vpn_name="2",topic_endpoint_name="1"} gauge 4.194304e+06
+metric: solace_topic_endpoint_spool_usage_bytes{vpn_name="8",topic_endpoint_name="7"} gauge 1.048576e+07
+metric: solace_topic_endpoint_spool_usage_msgs{vpn_name="2",topic_endpoint_name="1"} gauge 5
+metric: solace_topic_endpoint_spool_usage_msgs{vpn_name="8",topic_endpoint_name="7"} gauge 11
+## paged
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>item*</name><vpn-name>vpn*</vpn-name><detail/><count/><num-elements>7</num-elements></topic-endpoint></show></rpc>
+request[2]: POST /SEMP <rpc><show><golden-page-2/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_topic_endpoint_binds{vpn_name="2",topic_endpoint_name="1"} gauge 6
+metric: solace_topic_endpoint_binds{vpn_name="2",topic_endpoint_name="1"} gauge 6
+metric: solace_topic_endpoint_binds{vpn_name="8",topic_endpoint_name="7"} gauge 12
+metric: solace_topic_endpoint_binds{vpn_name="8",topic_endpoint_name="7"} gauge 12
+metric: solace_topic_endpoint_spool_quota_bytes{vpn_name="2",topic_endpoint_name="1"} gauge 3.145728e+06
+metric: solace_topic_endpoint_spool_quota_bytes{vpn_name="2",topic_endpoint_name="1"} gauge 3.145728e+06
+metric: solace_topic_endpoint_spool_quota_bytes{vpn_name="8",topic_endpoint_name="7"} gauge 9.437184e+06
+metric: solace_topic_endpoint_spool_quota_bytes{vpn_name="8",topic_endpoint_name="7"} gauge 9.437184e+06
+metric: solace_topic_endpoint_spool_usage_bytes{vpn_name="2",topic_endpoint_name="1"} gauge 4.194304e+06
+metric: solace_topic_endpoint_spool_usage_bytes{vpn_name="2",topic_endpoint_name="1"} gauge 4.194304e+06
+metric: solace_topic_endpoint_spool_usage_bytes{vpn_name="8",topic_endpoint_name="7"} gauge 1.048576e+07
+metric: solace_topic_endpoint_spool_usage_bytes{vpn_name="8",topic_endpoint_name="7"} gauge 1.048576e+07
+metric: solace_topic_endpoint_spool_usage_msgs{vpn_name="2",topic_endpoint_name="1"} gauge 5
+metric: solace_topic_endpoint_spool_usage_msgs{vpn_name="2",topic_endpoint_name="1"} gauge 5
+metric: solace_topic_endpoint_spool_usage_msgs{vpn_name="8",topic_endpoint_name="7"} gauge 11
+metric: solace_topic_endpoint_spool_usage_msgs{vpn_name="8",topic_endpoint_name="7"} gauge 11
+## http-500
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>item*</name><vpn-name>vpn*</vpn-name><detail/><count/><num-elements>7</num-elements></topic-endpoint></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>item*</name><vpn-name>vpn*</vpn-name><detail/><count/><num-elements>7</num-elements></topic-endpoint></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><topic-endpoint><name>item*</name><vpn-name>vpn*</vpn-name><detail/><count/><num-elements>7</num-elements></topic-endpoint></show></rpc>
+up: 0
+err: unexpected result: golden failure

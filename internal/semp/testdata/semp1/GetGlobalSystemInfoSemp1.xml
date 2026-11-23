@@ -1,0 +1,1 @@
+<rpc-reply semp-version="soltr/10_0VMR"><rpc><show><system><system-uptime-seconds>1</system-uptime-seconds><max-connections>2</max-connections><max-queue-messages>3</max-queue-messages><cpu-cores>4</cpu-cores><system-memory>5</system-memory></system></show></rpc>{{MORE_COOKIE}}<execute-result code="ok"/></rpc-reply>

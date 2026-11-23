@@ -1,0 +1,1 @@
+<rpc-reply semp-version="soltr/10_0VMR"><rpc><show><clock><detail><protocol>1</protocol><admin-state>true</admin-state><ntp-server-address>3</ntp-server-address><ntp-server-reachable>true</ntp-server-reachable></detail></clock></show></rpc>{{MORE_COOKIE}}<execute-result code="ok"/></rpc-reply>

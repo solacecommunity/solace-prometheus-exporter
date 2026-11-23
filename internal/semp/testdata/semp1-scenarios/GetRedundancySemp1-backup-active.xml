@@ -1,0 +1,6 @@
+<rpc-reply semp-version="soltr/10_0"><rpc><show><redundancy>
+<config-status>Enabled</config-status><redundancy-status>Up</redundancy-status><operating-mode>Message-Routing</operating-mode>
+<redundancy-mode>Active/Active</redundancy-mode><active-standby-role>Backup</active-standby-role><mate-router-name>mate-1</mate-router-name>
+<oper-status><adb-link-up>true</adb-link-up><adb-hello-up>false</adb-hello-up></oper-status>
+<virtual-routers><primary><status><activity>Mate Active</activity></status></primary><backup><status><activity>Local Active</activity></status></backup></virtual-routers>
+</redundancy></show></rpc><execute-result code="ok"/></rpc-reply>

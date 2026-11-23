@@ -1,0 +1,99 @@
+## ok
+request[1]: POST /SEMP <rpc><show><message-spool><vpn-name>vpn*</vpn-name><detail/><count/><num-elements>7</num-elements></message-spool></show></rpc>
+up: 1
+err: <nil>
+metric: solace_vpn_spool_current_egress_flows{vpn_name="1"} gauge 7
+metric: solace_vpn_spool_current_egress_flows{vpn_name="14"} gauge 20
+metric: solace_vpn_spool_current_endpoints{vpn_name="1"} gauge 5
+metric: solace_vpn_spool_current_endpoints{vpn_name="14"} gauge 18
+metric: solace_vpn_spool_current_ingress_flows{vpn_name="1"} gauge 9
+metric: solace_vpn_spool_current_ingress_flows{vpn_name="14"} gauge 22
+metric: solace_vpn_spool_current_transacted_msgs{vpn_name="1"} gauge 13
+metric: solace_vpn_spool_current_transacted_msgs{vpn_name="14"} gauge 26
+metric: solace_vpn_spool_current_transacted_sessions{vpn_name="1"} gauge 11
+metric: solace_vpn_spool_current_transacted_sessions{vpn_name="14"} gauge 24
+metric: solace_vpn_spool_maximum_egress_flows{vpn_name="1"} gauge 8
+metric: solace_vpn_spool_maximum_egress_flows{vpn_name="14"} gauge 21
+metric: solace_vpn_spool_maximum_endpoints{vpn_name="1"} gauge 6
+metric: solace_vpn_spool_maximum_endpoints{vpn_name="14"} gauge 19
+metric: solace_vpn_spool_maximum_ingress_flows{vpn_name="1"} gauge 10
+metric: solace_vpn_spool_maximum_ingress_flows{vpn_name="14"} gauge 23
+metric: solace_vpn_spool_maximum_transacted_sessions{vpn_name="1"} gauge 12
+metric: solace_vpn_spool_maximum_transacted_sessions{vpn_name="14"} gauge 25
+metric: solace_vpn_spool_quota_bytes{vpn_name="1"} gauge 4.194304e+06
+metric: solace_vpn_spool_quota_bytes{vpn_name="14"} gauge 1.7825792e+07
+metric: solace_vpn_spool_usage_bytes{vpn_name="1"} gauge 3.145728e+06
+metric: solace_vpn_spool_usage_bytes{vpn_name="14"} gauge 1.6777216e+07
+metric: solace_vpn_spool_usage_msgs{vpn_name="1"} gauge 2
+metric: solace_vpn_spool_usage_msgs{vpn_name="14"} gauge 15
+metric: solace_vpn_spool_usage_pct{vpn_name="1"} gauge 75
+metric: solace_vpn_spool_usage_pct{vpn_name="14"} gauge 94
+## paged
+request[1]: POST /SEMP <rpc><show><message-spool><vpn-name>vpn*</vpn-name><detail/><count/><num-elements>7</num-elements></message-spool></show></rpc>
+request[2]: POST /SEMP <rpc><show><golden-page-2/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_vpn_spool_current_egress_flows{vpn_name="1"} gauge 7
+metric: solace_vpn_spool_current_egress_flows{vpn_name="1"} gauge 7
+metric: solace_vpn_spool_current_egress_flows{vpn_name="14"} gauge 20
+metric: solace_vpn_spool_current_egress_flows{vpn_name="14"} gauge 20
+metric: solace_vpn_spool_current_endpoints{vpn_name="1"} gauge 5
+metric: solace_vpn_spool_current_endpoints{vpn_name="1"} gauge 5
+metric: solace_vpn_spool_current_endpoints{vpn_name="14"} gauge 18
+metric: solace_vpn_spool_current_endpoints{vpn_name="14"} gauge 18
+metric: solace_vpn_spool_current_ingress_flows{vpn_name="1"} gauge 9
+metric: solace_vpn_spool_current_ingress_flows{vpn_name="1"} gauge 9
+metric: solace_vpn_spool_current_ingress_flows{vpn_name="14"} gauge 22
+metric: solace_vpn_spool_current_ingress_flows{vpn_name="14"} gauge 22
+metric: solace_vpn_spool_current_transacted_msgs{vpn_name="1"} gauge 13
+metric: solace_vpn_spool_current_transacted_msgs{vpn_name="1"} gauge 13
+metric: solace_vpn_spool_current_transacted_msgs{vpn_name="14"} gauge 26
+metric: solace_vpn_spool_current_transacted_msgs{vpn_name="14"} gauge 26
+metric: solace_vpn_spool_current_transacted_sessions{vpn_name="1"} gauge 11
+metric: solace_vpn_spool_current_transacted_sessions{vpn_name="1"} gauge 11
+metric: solace_vpn_spool_current_transacted_sessions{vpn_name="14"} gauge 24
+metric: solace_vpn_spool_current_transacted_sessions{vpn_name="14"} gauge 24
+metric: solace_vpn_spool_maximum_egress_flows{vpn_name="1"} gauge 8
+metric: solace_vpn_spool_maximum_egress_flows{vpn_name="1"} gauge 8
+metric: solace_vpn_spool_maximum_egress_flows{vpn_name="14"} gauge 21
+metric: solace_vpn_spool_maximum_egress_flows{vpn_name="14"} gauge 21
+metric: solace_vpn_spool_maximum_endpoints{vpn_name="1"} gauge 6
+metric: solace_vpn_spool_maximum_endpoints{vpn_name="1"} gauge 6
+metric: solace_vpn_spool_maximum_endpoints{vpn_name="14"} gauge 19
+metric: solace_vpn_spool_maximum_endpoints{vpn_name="14"} gauge 19
+metric: solace_vpn_spool_maximum_ingress_flows{vpn_name="1"} gauge 10
+metric: solace_vpn_spool_maximum_ingress_flows{vpn_name="1"} gauge 10
+metric: solace_vpn_spool_maximum_ingress_flows{vpn_name="14"} gauge 23
+metric: solace_vpn_spool_maximum_ingress_flows{vpn_name="14"} gauge 23
+metric: solace_vpn_spool_maximum_transacted_sessions{vpn_name="1"} gauge 12
+metric: solace_vpn_spool_maximum_transacted_sessions{vpn_name="1"} gauge 12
+metric: solace_vpn_spool_maximum_transacted_sessions{vpn_name="14"} gauge 25
+metric: solace_vpn_spool_maximum_transacted_sessions{vpn_name="14"} gauge 25
+metric: solace_vpn_spool_quota_bytes{vpn_name="1"} gauge 4.194304e+06
+metric: solace_vpn_spool_quota_bytes{vpn_name="1"} gauge 4.194304e+06
+metric: solace_vpn_spool_quota_bytes{vpn_name="14"} gauge 1.7825792e+07
+metric: solace_vpn_spool_quota_bytes{vpn_name="14"} gauge 1.7825792e+07
+metric: solace_vpn_spool_usage_bytes{vpn_name="1"} gauge 3.145728e+06
+metric: solace_vpn_spool_usage_bytes{vpn_name="1"} gauge 3.145728e+06
+metric: solace_vpn_spool_usage_bytes{vpn_name="14"} gauge 1.6777216e+07
+metric: solace_vpn_spool_usage_bytes{vpn_name="14"} gauge 1.6777216e+07
+metric: solace_vpn_spool_usage_msgs{vpn_name="1"} gauge 2
+metric: solace_vpn_spool_usage_msgs{vpn_name="1"} gauge 2
+metric: solace_vpn_spool_usage_msgs{vpn_name="14"} gauge 15
+metric: solace_vpn_spool_usage_msgs{vpn_name="14"} gauge 15
+metric: solace_vpn_spool_usage_pct{vpn_name="1"} gauge 75
+metric: solace_vpn_spool_usage_pct{vpn_name="1"} gauge 75
+metric: solace_vpn_spool_usage_pct{vpn_name="14"} gauge 94
+metric: solace_vpn_spool_usage_pct{vpn_name="14"} gauge 94
+## http-500
+request[1]: POST /SEMP <rpc><show><message-spool><vpn-name>vpn*</vpn-name><detail/><count/><num-elements>7</num-elements></message-spool></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><message-spool><vpn-name>vpn*</vpn-name><detail/><count/><num-elements>7</num-elements></message-spool></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><message-spool><vpn-name>vpn*</vpn-name><detail/><count/><num-elements>7</num-elements></message-spool></show></rpc>
+up: 0
+err: unexpected result: golden failure

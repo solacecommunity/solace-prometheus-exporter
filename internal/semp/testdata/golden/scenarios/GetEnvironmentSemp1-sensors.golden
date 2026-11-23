@@ -1,0 +1,26 @@
+## software-broker
+request[1]: POST /SEMP <rpc><show><environment/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_chassis_fan_speed_rpm_status{sensor_name="Chassis Fan 1"} gauge 1
+metric: solace_system_chassis_fan_speed_rpm_status{sensor_name="Chassis Fan 2"} gauge 0
+metric: solace_system_chassis_fan_speed_rpm{sensor_name="Chassis Fan 1"} gauge 5124
+metric: solace_system_cpu_thermal_margin{sensor_name="CPU1 Therm Margin"} gauge -42
+metric: solace_system_nab_core_temperature_status{sensor_name="NPU Core Temp"} gauge 1
+metric: solace_system_nab_core_temperature{sensor_name="NPU Core Temp"} gauge 56
+metric: solace_system_voltage_status{sensor_name="BB +12.0V"} gauge 2
+metric: solace_system_voltage_status{sensor_name="BB +3.3V"} gauge -1
+metric: solace_system_voltage{sensor_name="BB +12.0V"} gauge 12.13
+## hardware-broker
+request[1]: POST /SEMP <rpc><show><environment/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_system_chassis_fan_speed_rpm_status{sensor_name="Chassis Fan 1"} gauge 1
+metric: solace_system_chassis_fan_speed_rpm_status{sensor_name="Chassis Fan 2"} gauge 0
+metric: solace_system_chassis_fan_speed_rpm{sensor_name="Chassis Fan 1"} gauge 5124
+metric: solace_system_cpu_thermal_margin{sensor_name="CPU1 Therm Margin"} gauge -42
+metric: solace_system_nab_core_temperature_status{sensor_name="NPU Core Temp"} gauge 1
+metric: solace_system_nab_core_temperature{sensor_name="NPU Core Temp"} gauge 56
+metric: solace_system_voltage_status{sensor_name="BB +12.0V"} gauge 2
+metric: solace_system_voltage_status{sensor_name="BB +3.3V"} gauge -1
+metric: solace_system_voltage{sensor_name="BB +12.0V"} gauge 12.13

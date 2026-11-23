@@ -1,0 +1,105 @@
+## ok
+request[1]: POST /SEMP <rpc><show><queue><name>item*</name><vpn-name>vpn*</vpn-name><stats/><count/><num-elements>7</num-elements></queue></show></rpc>
+up: 1
+err: <nil>
+metric: solace_queue_byte_spooled{vpn_name="2",queue_name="1"} counter 3
+metric: solace_queue_byte_spooled{vpn_name="20",queue_name="19"} counter 21
+metric: solace_queue_msg_max_msg_size_exceeded{vpn_name="2",queue_name="1"} counter 8
+metric: solace_queue_msg_max_msg_size_exceeded{vpn_name="20",queue_name="19"} counter 26
+metric: solace_queue_msg_max_redelivered_discarded{vpn_name="2",queue_name="1"} counter 16
+metric: solace_queue_msg_max_redelivered_discarded{vpn_name="20",queue_name="19"} counter 34
+metric: solace_queue_msg_max_redelivered_dmq_failed{vpn_name="2",queue_name="1"} counter 18
+metric: solace_queue_msg_max_redelivered_dmq_failed{vpn_name="20",queue_name="19"} counter 36
+metric: solace_queue_msg_max_redelivered_dmq{vpn_name="2",queue_name="1"} counter 17
+metric: solace_queue_msg_max_redelivered_dmq{vpn_name="20",queue_name="19"} counter 35
+metric: solace_queue_msg_redelivered{vpn_name="2",queue_name="1"} counter 5
+metric: solace_queue_msg_redelivered{vpn_name="20",queue_name="19"} counter 23
+metric: solace_queue_msg_retransmitted{vpn_name="2",queue_name="1"} counter 6
+metric: solace_queue_msg_retransmitted{vpn_name="20",queue_name="19"} counter 24
+metric: solace_queue_msg_shutdown_discarded{vpn_name="2",queue_name="1"} counter 9
+metric: solace_queue_msg_shutdown_discarded{vpn_name="20",queue_name="19"} counter 27
+metric: solace_queue_msg_spool_usage_exceeded{vpn_name="2",queue_name="1"} counter 7
+metric: solace_queue_msg_spool_usage_exceeded{vpn_name="20",queue_name="19"} counter 25
+metric: solace_queue_msg_spooled{vpn_name="2",queue_name="1"} counter 4
+metric: solace_queue_msg_spooled{vpn_name="20",queue_name="19"} counter 22
+metric: solace_queue_msg_total_deleted{vpn_name="2",queue_name="1"} counter 12
+metric: solace_queue_msg_total_deleted{vpn_name="20",queue_name="19"} counter 30
+metric: solace_queue_msg_ttl_discarded{vpn_name="2",queue_name="1"} counter 13
+metric: solace_queue_msg_ttl_discarded{vpn_name="20",queue_name="19"} counter 31
+metric: solace_queue_msg_ttl_dmq_failed{vpn_name="2",queue_name="1"} counter 15
+metric: solace_queue_msg_ttl_dmq_failed{vpn_name="20",queue_name="19"} counter 33
+metric: solace_queue_msg_ttl_dmq{vpn_name="2",queue_name="1"} counter 14
+metric: solace_queue_msg_ttl_dmq{vpn_name="20",queue_name="19"} counter 32
+## paged
+request[1]: POST /SEMP <rpc><show><queue><name>item*</name><vpn-name>vpn*</vpn-name><stats/><count/><num-elements>7</num-elements></queue></show></rpc>
+request[2]: POST /SEMP <rpc><show><golden-page-2/></show></rpc>
+up: 1
+err: <nil>
+metric: solace_queue_byte_spooled{vpn_name="2",queue_name="1"} counter 3
+metric: solace_queue_byte_spooled{vpn_name="2",queue_name="1"} counter 3
+metric: solace_queue_byte_spooled{vpn_name="20",queue_name="19"} counter 21
+metric: solace_queue_byte_spooled{vpn_name="20",queue_name="19"} counter 21
+metric: solace_queue_msg_max_msg_size_exceeded{vpn_name="2",queue_name="1"} counter 8
+metric: solace_queue_msg_max_msg_size_exceeded{vpn_name="2",queue_name="1"} counter 8
+metric: solace_queue_msg_max_msg_size_exceeded{vpn_name="20",queue_name="19"} counter 26
+metric: solace_queue_msg_max_msg_size_exceeded{vpn_name="20",queue_name="19"} counter 26
+metric: solace_queue_msg_max_redelivered_discarded{vpn_name="2",queue_name="1"} counter 16
+metric: solace_queue_msg_max_redelivered_discarded{vpn_name="2",queue_name="1"} counter 16
+metric: solace_queue_msg_max_redelivered_discarded{vpn_name="20",queue_name="19"} counter 34
+metric: solace_queue_msg_max_redelivered_discarded{vpn_name="20",queue_name="19"} counter 34
+metric: solace_queue_msg_max_redelivered_dmq_failed{vpn_name="2",queue_name="1"} counter 18
+metric: solace_queue_msg_max_redelivered_dmq_failed{vpn_name="2",queue_name="1"} counter 18
+metric: solace_queue_msg_max_redelivered_dmq_failed{vpn_name="20",queue_name="19"} counter 36
+metric: solace_queue_msg_max_redelivered_dmq_failed{vpn_name="20",queue_name="19"} counter 36
+metric: solace_queue_msg_max_redelivered_dmq{vpn_name="2",queue_name="1"} counter 17
+metric: solace_queue_msg_max_redelivered_dmq{vpn_name="2",queue_name="1"} counter 17
+metric: solace_queue_msg_max_redelivered_dmq{vpn_name="20",queue_name="19"} counter 35
+metric: solace_queue_msg_max_redelivered_dmq{vpn_name="20",queue_name="19"} counter 35
+metric: solace_queue_msg_redelivered{vpn_name="2",queue_name="1"} counter 5
+metric: solace_queue_msg_redelivered{vpn_name="2",queue_name="1"} counter 5
+metric: solace_queue_msg_redelivered{vpn_name="20",queue_name="19"} counter 23
+metric: solace_queue_msg_redelivered{vpn_name="20",queue_name="19"} counter 23
+metric: solace_queue_msg_retransmitted{vpn_name="2",queue_name="1"} counter 6
+metric: solace_queue_msg_retransmitted{vpn_name="2",queue_name="1"} counter 6
+metric: solace_queue_msg_retransmitted{vpn_name="20",queue_name="19"} counter 24
+metric: solace_queue_msg_retransmitted{vpn_name="20",queue_name="19"} counter 24
+metric: solace_queue_msg_shutdown_discarded{vpn_name="2",queue_name="1"} counter 9
+metric: solace_queue_msg_shutdown_discarded{vpn_name="2",queue_name="1"} counter 9
+metric: solace_queue_msg_shutdown_discarded{vpn_name="20",queue_name="19"} counter 27
+metric: solace_queue_msg_shutdown_discarded{vpn_name="20",queue_name="19"} counter 27
+metric: solace_queue_msg_spool_usage_exceeded{vpn_name="2",queue_name="1"} counter 7
+metric: solace_queue_msg_spool_usage_exceeded{vpn_name="2",queue_name="1"} counter 7
+metric: solace_queue_msg_spool_usage_exceeded{vpn_name="20",queue_name="19"} counter 25
+metric: solace_queue_msg_spool_usage_exceeded{vpn_name="20",queue_name="19"} counter 25
+metric: solace_queue_msg_spooled{vpn_name="2",queue_name="1"} counter 4
+metric: solace_queue_msg_spooled{vpn_name="2",queue_name="1"} counter 4
+metric: solace_queue_msg_spooled{vpn_name="20",queue_name="19"} counter 22
+metric: solace_queue_msg_spooled{vpn_name="20",queue_name="19"} counter 22
+metric: solace_queue_msg_total_deleted{vpn_name="2",queue_name="1"} counter 12
+metric: solace_queue_msg_total_deleted{vpn_name="2",queue_name="1"} counter 12
+metric: solace_queue_msg_total_deleted{vpn_name="20",queue_name="19"} counter 30
+metric: solace_queue_msg_total_deleted{vpn_name="20",queue_name="19"} counter 30
+metric: solace_queue_msg_ttl_discarded{vpn_name="2",queue_name="1"} counter 13
+metric: solace_queue_msg_ttl_discarded{vpn_name="2",queue_name="1"} counter 13
+metric: solace_queue_msg_ttl_discarded{vpn_name="20",queue_name="19"} counter 31
+metric: solace_queue_msg_ttl_discarded{vpn_name="20",queue_name="19"} counter 31
+metric: solace_queue_msg_ttl_dmq_failed{vpn_name="2",queue_name="1"} counter 15
+metric: solace_queue_msg_ttl_dmq_failed{vpn_name="2",queue_name="1"} counter 15
+metric: solace_queue_msg_ttl_dmq_failed{vpn_name="20",queue_name="19"} counter 33
+metric: solace_queue_msg_ttl_dmq_failed{vpn_name="20",queue_name="19"} counter 33
+metric: solace_queue_msg_ttl_dmq{vpn_name="2",queue_name="1"} counter 14
+metric: solace_queue_msg_ttl_dmq{vpn_name="2",queue_name="1"} counter 14
+metric: solace_queue_msg_ttl_dmq{vpn_name="20",queue_name="19"} counter 32
+metric: solace_queue_msg_ttl_dmq{vpn_name="20",queue_name="19"} counter 32
+## http-500
+request[1]: POST /SEMP <rpc><show><queue><name>item*</name><vpn-name>vpn*</vpn-name><stats/><count/><num-elements>7</num-elements></queue></show></rpc>
+up: -1
+err: HTTP status 500 (Internal Server Error)
+## malformed-xml
+request[1]: POST /SEMP <rpc><show><queue><name>item*</name><vpn-name>vpn*</vpn-name><stats/><count/><num-elements>7</num-elements></queue></show></rpc>
+up: 0
+err: XML syntax error on line 1: unexpected EOF
+## execute-result-fail
+request[1]: POST /SEMP <rpc><show><queue><name>item*</name><vpn-name>vpn*</vpn-name><stats/><count/><num-elements>7</num-elements></queue></show></rpc>
+up: 0
+err: unexpected result: golden failure
